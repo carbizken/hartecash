@@ -38,7 +38,7 @@ const SellCarForm = () => {
   };
 
   return (
-    <div className="bg-card rounded-2xl shadow-xl mx-auto -mt-10 mb-10 p-6 md:p-8 relative z-10 max-w-md w-[calc(100%-40px)]">
+    <div className="bg-card rounded-2xl shadow-xl mx-auto -mt-10 mb-10 p-6 md:p-8 relative z-10 max-w-lg w-[calc(100%-40px)]">
       {/* Progress */}
       <div className="mb-6 pb-5 border-b-2 border-muted">
         <div className="flex justify-center items-center gap-3 mb-3">
