@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +18,13 @@ const SellCarForm = () => {
   const [submitted, setSubmitted] = useState(false);
   const [uploadUrl, setUploadUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (step > 0) {
+      formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [step]);
 
   const update = (field: string, value: string) =>
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -103,7 +110,7 @@ const SellCarForm = () => {
   }
 
   return (
-    <div className="bg-card rounded-2xl shadow-xl mx-auto -mt-10 mb-10 p-6 md:p-8 relative z-10 max-w-lg w-[calc(100%-40px)]">
+    <div ref={formRef} className="bg-card rounded-2xl shadow-xl mx-auto -mt-10 mb-10 p-6 md:p-8 relative z-10 max-w-lg w-[calc(100%-40px)]">
       {/* Progress */}
       <div className="mb-6 pb-5 border-b-2 border-muted">
         <div className="flex justify-center items-center gap-3 mb-3">
