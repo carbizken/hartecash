@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const SiteFooter = () => {
   return (
     <footer className="bg-[hsl(220,13%,18%)] text-primary-foreground py-10 px-5 text-center">
@@ -11,6 +13,9 @@ const SiteFooter = () => {
       <p className="text-sm opacity-60">
         Hartford, CT | West Hartford, CT | Manchester, CT
       </p>
+      <Link to="/admin/login" className="text-xs opacity-40 hover:opacity-70 transition-opacity mt-4 inline-block">
+        Admin
+      </Link>
     </footer>
   );
 };
