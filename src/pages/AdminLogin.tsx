@@ -8,44 +8,79 @@ import { Lock } from "lucide-react";
 import harteLogo from "@/assets/harte-logo.png";
 
 const AdminLogin = () => {
+  const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    if (isSignup) {
+      // Sign up
+      const { data, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: window.location.origin,
+        },
+      });
 
-    if (authError) {
-      setError(authError.message);
-      setLoading(false);
-      return;
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return;
+      }
+
+      // Grant admin role
+      if (data.user) {
+        await supabase.from("user_roles").insert({
+          user_id: data.user.id,
+          role: "admin",
+        });
+      }
+
+      setError("");
+      setEmail("");
+      setPassword("");
+      setIsSignup(false);
+      alert("Account created! You can now log in.");
+    } else {
+      // Log in
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return;
+      }
+
+      // Check if user has admin role
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", data.user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (!roleData) {
+        setError("You do not have admin access.");
+        await supabase.auth.signOut();
+        setLoading(false);
+        return;
+      }
+
+      navigate("/admin");
     }
 
-    // Check if user has admin role
-    const { data: roleData } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", data.user.id)
-      .eq("role", "admin")
-      .maybeSingle();
-
-    if (!roleData) {
-      setError("You do not have admin access.");
-      await supabase.auth.signOut();
-      setLoading(false);
-      return;
-    }
-
-    navigate("/admin");
+    setLoading(false);
   };
 
   return (
@@ -57,10 +92,10 @@ const AdminLogin = () => {
 
         <div className="flex items-center justify-center gap-2 mb-6">
           <Lock className="w-5 h-5 text-muted-foreground" />
-          <h1 className="text-xl font-bold text-card-foreground">Admin Login</h1>
+          <h1 className="text-xl font-bold text-card-foreground">{isSignup ? "Create Admin Account" : "Admin Login"}</h1>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleAuth} className="space-y-4">
           <div>
             <Label htmlFor="email">Email</Label>
             <Input
@@ -91,9 +126,24 @@ const AdminLogin = () => {
             disabled={loading}
             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
           >
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? (isSignup ? "Creating account..." : "Signing in...") : (isSignup ? "Create Account" : "Sign In")}
           </Button>
         </form>
+
+        <div className="mt-4 text-center">
+          <p className="text-sm text-muted-foreground">
+            {isSignup ? "Already have an account?" : "Need an account?"}{" "}
+            <button
+              onClick={() => {
+                setIsSignup(!isSignup);
+                setError("");
+              }}
+              className="text-primary font-medium hover:underline"
+            >
+              {isSignup ? "Sign In" : "Sign Up"}
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );
