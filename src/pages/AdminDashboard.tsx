@@ -3,7 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, Search, Trash2, Eye, ChevronLeft, ChevronRight, UserCheck, UserX, Users } from "lucide-react";
+import { LogOut, Search, Trash2, Eye, ChevronLeft, ChevronRight, UserCheck, UserX, Users, Check, Circle, DollarSign, StickyNote } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -50,9 +52,26 @@ interface Submission {
   smoked_in: string | null;
   tires_replaced: string | null;
   num_keys: string | null;
+  progress_status: string;
+  offered_price: number | null;
+  internal_notes: string | null;
+  status_updated_by: string | null;
+  status_updated_at: string | null;
 }
 
 const PAGE_SIZE = 20;
+
+const PROGRESS_STAGES = [
+  { key: "new", label: "New Lead" },
+  { key: "contacted", label: "Customer Contacted" },
+  { key: "inspection_scheduled", label: "In-Person Inspection Scheduled" },
+  { key: "inspection_completed", label: "In-Person Inspection Completed" },
+  { key: "title_verified", label: "Title Verified" },
+  { key: "ownership_verified", label: "Ownership Verified" },
+  { key: "manager_approval", label: "Manager Approval" },
+  { key: "price_agreed", label: "Price Agreed" },
+  { key: "purchase_complete", label: "Purchase Complete" },
+];
 
 const AdminDashboard = () => {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -279,7 +298,7 @@ const AdminDashboard = () => {
                           <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Vehicle</th>
                           <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Contact</th>
                           <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Photos</th>
-                          <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Next Step</th>
+                          <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Status</th>
                           <th className="text-right px-4 py-3 font-semibold text-muted-foreground">Actions</th>
                         </tr>
                       </thead>
@@ -306,7 +325,15 @@ const AdminDashboard = () => {
                                 {sub.photos_uploaded ? "Yes" : "No"}
                               </span>
                             </td>
-                            <td className="px-4 py-3 capitalize">{sub.next_step || "—"}</td>
+                          <td className="px-4 py-3">
+                              <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
+                                sub.progress_status === "purchase_complete" ? "bg-success/20 text-success" :
+                                sub.progress_status === "new" ? "bg-muted text-muted-foreground" :
+                                "bg-accent/20 text-accent"
+                              }`}>
+                                {PROGRESS_STAGES.find(s => s.key === sub.progress_status)?.label || sub.progress_status}
+                              </span>
+                            </td>
                             <td className="px-4 py-3 text-right">
                               <div className="flex justify-end gap-1">
                                 <Button variant="ghost" size="sm" onClick={() => handleView(sub)}>
@@ -430,9 +457,104 @@ const AdminDashboard = () => {
                 <DetailRow label="Keys" value={selected.num_keys} />
               </div>
 
-              {/* Status */}
+              {/* Deal Progress */}
               <div>
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">Status</h3>
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Deal Progress</h3>
+                <div className="space-y-1">
+                  {PROGRESS_STAGES.map((stage, i) => {
+                    const currentIdx = PROGRESS_STAGES.findIndex(s => s.key === selected.progress_status);
+                    const isComplete = i < currentIdx;
+                    const isCurrent = i === currentIdx;
+                    return (
+                      <div key={stage.key} className="flex items-center gap-2">
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          isComplete ? "bg-success text-success-foreground" :
+                          isCurrent ? "bg-accent text-accent-foreground" :
+                          "bg-muted text-muted-foreground"
+                        }`}>
+                          {isComplete ? <Check className="w-3 h-3" /> : <Circle className="w-3 h-3" />}
+                        </div>
+                        <span className={`text-sm ${isCurrent ? "font-bold text-card-foreground" : isComplete ? "text-card-foreground" : "text-muted-foreground"}`}>
+                          {stage.label}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="mt-3">
+                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Update Status</label>
+                  <Select
+                    value={selected.progress_status}
+                    onValueChange={async (val) => {
+                      const { error } = await supabase
+                        .from("submissions")
+                        .update({ progress_status: val, status_updated_at: new Date().toISOString() })
+                        .eq("id", selected.id);
+                      if (!error) {
+                        setSelected({ ...selected, progress_status: val });
+                        setSubmissions(prev => prev.map(s => s.id === selected.id ? { ...s, progress_status: val } : s));
+                        toast({ title: "Status updated" });
+                      }
+                    }}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {PROGRESS_STAGES.map(s => (
+                        <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Offered Price */}
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                  <DollarSign className="w-4 h-4 inline mr-1" />Offered Price
+                </h3>
+                <Input
+                  type="number"
+                  placeholder="Enter offer amount"
+                  defaultValue={selected.offered_price?.toString() || ""}
+                  onBlur={async (e) => {
+                    const price = e.target.value ? Number(e.target.value) : null;
+                    const { error } = await supabase
+                      .from("submissions")
+                      .update({ offered_price: price })
+                      .eq("id", selected.id);
+                    if (!error) {
+                      setSelected({ ...selected, offered_price: price });
+                      toast({ title: "Price updated" });
+                    }
+                  }}
+                />
+              </div>
+
+              {/* Internal Notes */}
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                  <StickyNote className="w-4 h-4 inline mr-1" />Internal Notes
+                </h3>
+                <Textarea
+                  placeholder="Add team notes here..."
+                  defaultValue={selected.internal_notes || ""}
+                  onBlur={async (e) => {
+                    const { error } = await supabase
+                      .from("submissions")
+                      .update({ internal_notes: e.target.value || null })
+                      .eq("id", selected.id);
+                    if (!error) {
+                      setSelected({ ...selected, internal_notes: e.target.value || null });
+                      toast({ title: "Notes saved" });
+                    }
+                  }}
+                  rows={3}
+                />
+              </div>
+
+              {/* Info */}
+              <div>
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">Info</h3>
                 <DetailRow label="Loan Status" value={selected.loan_status} />
                 <DetailRow label="Next Step" value={selected.next_step} />
                 <DetailRow label="Submitted" value={new Date(selected.created_at).toLocaleString()} />

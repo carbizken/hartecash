@@ -80,6 +80,7 @@ export type Database = {
           exterior_damage: string[] | null
           id: string
           interior_damage: string[] | null
+          internal_notes: string | null
           loan_status: string | null
           mechanical_issues: string[] | null
           mileage: string | null
@@ -88,12 +89,16 @@ export type Database = {
           name: string | null
           next_step: string | null
           num_keys: string | null
+          offered_price: number | null
           overall_condition: string | null
           phone: string | null
           photos_uploaded: boolean
           plate: string | null
+          progress_status: string
           smoked_in: string | null
           state: string | null
+          status_updated_at: string | null
+          status_updated_by: string | null
           tech_issues: string[] | null
           tires_replaced: string | null
           token: string
@@ -115,6 +120,7 @@ export type Database = {
           exterior_damage?: string[] | null
           id?: string
           interior_damage?: string[] | null
+          internal_notes?: string | null
           loan_status?: string | null
           mechanical_issues?: string[] | null
           mileage?: string | null
@@ -123,12 +129,16 @@ export type Database = {
           name?: string | null
           next_step?: string | null
           num_keys?: string | null
+          offered_price?: number | null
           overall_condition?: string | null
           phone?: string | null
           photos_uploaded?: boolean
           plate?: string | null
+          progress_status?: string
           smoked_in?: string | null
           state?: string | null
+          status_updated_at?: string | null
+          status_updated_by?: string | null
           tech_issues?: string[] | null
           tires_replaced?: string | null
           token?: string
@@ -150,6 +160,7 @@ export type Database = {
           exterior_damage?: string[] | null
           id?: string
           interior_damage?: string[] | null
+          internal_notes?: string | null
           loan_status?: string | null
           mechanical_issues?: string[] | null
           mileage?: string | null
@@ -158,12 +169,16 @@ export type Database = {
           name?: string | null
           next_step?: string | null
           num_keys?: string | null
+          offered_price?: number | null
           overall_condition?: string | null
           phone?: string | null
           photos_uploaded?: boolean
           plate?: string | null
+          progress_status?: string
           smoked_in?: string | null
           state?: string | null
+          status_updated_at?: string | null
+          status_updated_by?: string | null
           tech_issues?: string[] | null
           tires_replaced?: string | null
           token?: string
