@@ -36,7 +36,7 @@ const decodeVin = async (vin: string): Promise<VehicleInfo | null> => {
 };
 
 const SellCarForm = () => {
-  const [activeTab, setActiveTab] = useState<"vin" | "plate">("plate");
+  const [activeTab, setActiveTab] = useState<"vin" | "plate">("vin");
   const [step, setStep] = useState(0);
   const [vinLoading, setVinLoading] = useState(false);
   const [vehicleInfo, setVehicleInfo] = useState<VehicleInfo | null>(null);
