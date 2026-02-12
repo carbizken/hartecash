@@ -243,6 +243,29 @@ export type Database = {
           vehicle_year: string
         }[]
       }
+      get_submission_portal: {
+        Args: { _token: string }
+        Returns: {
+          acv_value: number
+          created_at: string
+          docs_uploaded: boolean
+          email: string
+          exterior_color: string
+          id: string
+          loan_status: string
+          mileage: string
+          name: string
+          offered_price: number
+          overall_condition: string
+          phone: string
+          photos_uploaded: boolean
+          progress_status: string
+          token: string
+          vehicle_make: string
+          vehicle_model: string
+          vehicle_year: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -251,6 +274,16 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      lookup_submission_by_contact: {
+        Args: { _email: string; _phone: string }
+        Returns: {
+          name: string
+          token: string
+          vehicle_make: string
+          vehicle_model: string
+          vehicle_year: string
+        }[]
+      }
       mark_docs_uploaded: { Args: { _token: string }; Returns: undefined }
       mark_photos_uploaded: { Args: { _token: string }; Returns: undefined }
     }

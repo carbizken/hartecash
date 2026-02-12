@@ -31,7 +31,6 @@ const UploadPhotos = () => {
         .rpc("get_submission_by_token", { _token: token })
         .maybeSingle();
       if (err || !data) { setError("Submission not found. Please check your link."); }
-      else if (data.photos_uploaded) { setDone(true); setSubmission(data); }
       else { setSubmission(data); }
       setLoading(false);
     };
