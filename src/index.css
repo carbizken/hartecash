@@ -147,6 +147,12 @@
     opacity: 1 !important;
   }
 
+  /* Remove all scroll constraints inside dialog */
+  body > div[data-radix-portal] div {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
   /* Hide close button and print button */
   .print\\:hidden {
     display: none !important;
