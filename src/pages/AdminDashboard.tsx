@@ -450,7 +450,7 @@ const AdminDashboard = () => {
           <tr><th>City, State, Zip</th><td>${[s.state, s.zip].filter(Boolean).join(" ") || ""}</td></tr>
           <tr><th>Contact Phone</th><td>${s.phone || ""}</td></tr>
           <tr><th>Contact Email</th><td>${s.email || ""}</td></tr>
-          <tr><th>Agreed Upon Value (Check Amount)</th><td class="amount">$${s.offered_price!.toLocaleString()}</td></tr>
+          <tr><th>Agreed Upon Value (Check Amount)</th><td class="amount">$${s.offered_price!.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>
           <tr><th>In-House ACV (Actual Cash Value)</th><td class="acv">${s.acv_value ? "$" + s.acv_value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "N/A"}</td></tr>
           <tr><th>Description</th><td style="font-weight:600;">Customer Direct Inventory Purchase</td></tr>
           <tr><th>Vehicle</th><td>${vehicleStr}</td></tr>
