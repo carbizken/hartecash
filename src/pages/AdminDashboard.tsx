@@ -72,7 +72,7 @@ const PROGRESS_STAGES = [
   { key: "inspection_completed", label: "In-Person Inspection Completed" },
   { key: "title_verified", label: "Title Verified" },
   { key: "ownership_verified", label: "Ownership Verified" },
-  { key: "manager_approval", label: "Manager Approval" },
+  { key: "manager_approval", label: "Manager / Appraiser Approval" },
   { key: "price_agreed", label: "Price Agreed" },
   { key: "purchase_complete", label: "Purchase Complete" },
   { key: "dead_lead", label: "Dead Lead" },
