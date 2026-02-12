@@ -12,6 +12,46 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Authenticate the request
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const userId = claimsData.claims.sub;
+
+    // Check if user is staff
+    const { data: roleData } = await supabaseClient
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (!roleData) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { appointment } = await req.json();
 
     if (!appointment) {
@@ -40,6 +80,10 @@ Deno.serve(async (req) => {
 
     const results: { email?: string; sms?: string } = {};
 
+    // Sanitize inputs for email content
+    const sanitize = (str: string | undefined | null) =>
+      (str || "").replace(/[<>&"']/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c] || c));
+
     // Send email via Resend
     if (resendKey && staffEmail) {
       try {
@@ -52,28 +96,28 @@ Deno.serve(async (req) => {
           body: JSON.stringify({
             from: "Harte Auto <onboarding@resend.dev>",
             to: [staffEmail],
-            subject: `New Appointment Request — ${customer_name}`,
+            subject: `New Appointment Request — ${sanitize(customer_name)}`,
             html: `
               <h2>New Appointment Request</h2>
-              <p><strong>Customer:</strong> ${customer_name}</p>
-              <p><strong>Email:</strong> ${customer_email}</p>
-              <p><strong>Phone:</strong> ${customer_phone}</p>
-              <p><strong>Preferred Date:</strong> ${preferred_date}</p>
-              <p><strong>Preferred Time:</strong> ${preferred_time}</p>
-              ${vehicle_info ? `<p><strong>Vehicle:</strong> ${vehicle_info}</p>` : ""}
-              ${notes ? `<p><strong>Notes:</strong> ${notes}</p>` : ""}
+              <p><strong>Customer:</strong> ${sanitize(customer_name)}</p>
+              <p><strong>Email:</strong> ${sanitize(customer_email)}</p>
+              <p><strong>Phone:</strong> ${sanitize(customer_phone)}</p>
+              <p><strong>Preferred Date:</strong> ${sanitize(preferred_date)}</p>
+              <p><strong>Preferred Time:</strong> ${sanitize(preferred_time)}</p>
+              ${vehicle_info ? `<p><strong>Vehicle:</strong> ${sanitize(vehicle_info)}</p>` : ""}
+              ${notes ? `<p><strong>Notes:</strong> ${sanitize(notes)}</p>` : ""}
               <hr/>
               <p>Please log in to the admin dashboard to manage this appointment.</p>
             `,
           }),
         });
         const emailData = await emailRes.json();
-        results.email = emailRes.ok ? "sent" : `failed: ${JSON.stringify(emailData)}`;
+        results.email = emailRes.ok ? "sent" : "failed";
       } catch (e) {
-        results.email = `error: ${e.message}`;
+        results.email = "error";
       }
     } else {
-      results.email = "skipped: missing RESEND_API_KEY or STAFF_NOTIFICATION_EMAIL";
+      results.email = "skipped: missing configuration";
     }
 
     // Send SMS via Twilio
@@ -94,19 +138,19 @@ Deno.serve(async (req) => {
           }),
         });
         const smsData = await smsRes.json();
-        results.sms = smsRes.ok ? "sent" : `failed: ${JSON.stringify(smsData)}`;
+        results.sms = smsRes.ok ? "sent" : "failed";
       } catch (e) {
-        results.sms = `error: ${e.message}`;
+        results.sms = "error";
       }
     } else {
-      results.sms = "skipped: missing Twilio credentials or STAFF_NOTIFICATION_PHONE";
+      results.sms = "skipped: missing configuration";
     }
 
     return new Response(JSON.stringify({ success: true, results }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
