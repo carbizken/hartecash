@@ -19,6 +19,7 @@ const SellCarForm = () => {
   const [submitted, setSubmitted] = useState(false);
   const [uploadUrl, setUploadUrl] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [honeypot, setHoneypot] = useState("");
   const formRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -99,6 +100,14 @@ const SellCarForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateStep()) return;
+    // Honeypot check
+    if (honeypot) return;
+    // Cooldown check
+    const lastSubmit = localStorage.getItem("lastSubmissionTime");
+    if (lastSubmit && Date.now() - parseInt(lastSubmit) < 120000) {
+      toast({ title: "Please wait", description: "You recently submitted. Please wait a couple of minutes.", variant: "destructive" });
+      return;
+    }
     setSubmitting(true);
     try {
       const { data, error } = await supabase
@@ -144,6 +153,7 @@ const SellCarForm = () => {
 
       const baseUrl = window.location.origin;
       setUploadUrl(`${baseUrl}/upload/${data.token}`);
+      localStorage.setItem("lastSubmissionTime", Date.now().toString());
       setSubmitted(true);
     } catch (err) {
       console.error("Submission error:", err);
@@ -184,6 +194,16 @@ const SellCarForm = () => {
       </div>
 
       <form onSubmit={handleSubmit}>
+        {/* Honeypot field - hidden from real users */}
+        <input
+          type="text"
+          name="website"
+          value={honeypot}
+          onChange={(e) => setHoneypot(e.target.value)}
+          style={{ position: "absolute", left: "-9999px", opacity: 0, height: 0, width: 0 }}
+          tabIndex={-1}
+          autoComplete="off"
+        />
         {step === 0 && <StepVehicleInfo formData={formData} update={update} vehicleInfo={vehicleInfo} setVehicleInfo={setVehicleInfo} />}
         {step === 1 && <StepVehicleBuild formData={formData} update={update} />}
         {step === 2 && <StepConditionHistory formData={formData} updateArray={updateArray} update={update} />}
