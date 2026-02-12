@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, Search, Trash2, Eye, ChevronLeft, ChevronRight, UserCheck, UserX, Users, Check, Circle, DollarSign, StickyNote, XCircle, Save } from "lucide-react";
+import { LogOut, Search, Trash2, Eye, ChevronLeft, ChevronRight, UserCheck, UserX, Users, Check, Circle, DollarSign, StickyNote, XCircle, Save, Printer, FileText, QrCode, ExternalLink } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -223,6 +224,14 @@ const AdminDashboard = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/admin/login");
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const getDocsUrl = (token: string) => {
+    return `${window.location.origin}/docs/${token}`;
   };
 
   const filtered = submissions.filter((s) => {
@@ -453,11 +462,16 @@ const AdminDashboard = () => {
       {/* Detail Modal */}
       <Dialog open={!!selected} onOpenChange={() => { setSelected(null); setPhotos([]); }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
-          <div className="sticky top-0 z-10 bg-primary text-primary-foreground px-6 py-4 rounded-t-lg">
+          <div className="sticky top-0 z-10 bg-primary text-primary-foreground px-6 py-4 rounded-t-lg print:static">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-primary-foreground">
-                {selected?.vehicle_year} {selected?.vehicle_make} {selected?.vehicle_model || "Submission Details"}
-              </DialogTitle>
+              <div className="flex items-center justify-between">
+                <DialogTitle className="text-xl font-bold text-primary-foreground">
+                  {selected?.vehicle_year} {selected?.vehicle_make} {selected?.vehicle_model || "Submission Details"}
+                </DialogTitle>
+                <Button variant="ghost" size="sm" onClick={handlePrint} className="text-primary-foreground hover:bg-primary-foreground/20 print:hidden">
+                  <Printer className="w-4 h-4 mr-1" /> Print
+                </Button>
+              </div>
               {selected && (
                 <p className="text-primary-foreground/80 text-sm mt-1">
                   Submitted {new Date(selected.created_at).toLocaleDateString()} • {selected.name || "Unknown"}
@@ -648,6 +662,45 @@ const AdminDashboard = () => {
                 ) : (
                   <p className="text-sm text-muted-foreground">No photos uploaded.</p>
                 )}
+              </div>
+
+              {/* Document Upload Link & QR */}
+              <div className="bg-muted/40 rounded-lg p-4 print:break-before-page">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
+                  <FileText className="w-4 h-4 inline mr-1" />Customer Documents
+                </h3>
+                <p className="text-sm text-muted-foreground mb-3">
+                  Send this link to the customer to upload their Driver's License, Registration, Title Inquiry, or Title.
+                </p>
+                <div className="flex items-start gap-4">
+                  <div className="bg-white p-2 rounded-lg flex-shrink-0">
+                    <QRCodeSVG value={getDocsUrl(selected.token)} size={100} />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <div className="bg-background rounded-md p-2 border border-border">
+                      <p className="text-xs text-muted-foreground break-all font-mono">{getDocsUrl(selected.token)}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          navigator.clipboard.writeText(getDocsUrl(selected.token));
+                          toast({ title: "Link copied!" });
+                        }}
+                      >
+                        Copy Link
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => window.open(getDocsUrl(selected.token), "_blank")}
+                      >
+                        <ExternalLink className="w-3 h-3 mr-1" /> Open
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Update Record Button */}

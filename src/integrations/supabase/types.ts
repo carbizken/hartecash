@@ -72,6 +72,7 @@ export type Database = {
         Row: {
           accidents: string | null
           created_at: string
+          docs_uploaded: boolean
           drivable: string | null
           drivetrain: string | null
           email: string | null
@@ -115,6 +116,7 @@ export type Database = {
         Insert: {
           accidents?: string | null
           created_at?: string
+          docs_uploaded?: boolean
           drivable?: string | null
           drivetrain?: string | null
           email?: string | null
@@ -158,6 +160,7 @@ export type Database = {
         Update: {
           accidents?: string | null
           created_at?: string
+          docs_uploaded?: boolean
           drivable?: string | null
           drivetrain?: string | null
           email?: string | null
@@ -242,6 +245,7 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      mark_docs_uploaded: { Args: { _token: string }; Returns: undefined }
       mark_photos_uploaded: { Args: { _token: string }; Returns: undefined }
     }
     Enums: {
