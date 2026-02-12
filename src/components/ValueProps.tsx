@@ -37,9 +37,9 @@ const ValueProps = () => {
           >
             <div className="flex-shrink-0 mt-1">{item.icon}</div>
             <div>
-              <h4 className="text-base font-bold mb-1 text-card-foreground">
+              <h3 className="text-base font-bold mb-1 text-card-foreground">
                 {item.title}
-              </h4>
+              </h3>
               <p className="text-sm text-muted-foreground">{item.desc}</p>
             </div>
           </div>

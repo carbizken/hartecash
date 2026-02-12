@@ -242,7 +242,7 @@ const SellCarForm = () => {
 
       <div className="bg-gradient-to-br from-success to-[hsl(160,84%,30%)] text-success-foreground p-5 rounded-xl mt-6 text-center shadow-lg shadow-success/30">
         <Shield className="w-8 h-8 mx-auto mb-2" />
-        <h4 className="text-lg font-extrabold tracking-wide mb-2">8-DAY PRICE GUARANTEE</h4>
+        <h2 className="text-lg font-extrabold tracking-wide mb-2">8-DAY PRICE GUARANTEE</h2>
         <p className="text-sm leading-relaxed opacity-95">Your offer is good for 8 days. No games. No surprises.</p>
       </div>
     </div>
