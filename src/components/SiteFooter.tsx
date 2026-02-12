@@ -13,7 +13,7 @@ const SiteFooter = () => {
       <p className="text-sm opacity-60">
         Hartford, CT | West Hartford, CT | Manchester, CT
       </p>
-      <Link to="/admin/login" className="text-xs opacity-40 hover:opacity-70 transition-opacity mt-4 inline-block">
+      <Link to="/admin/login" className="text-xs opacity-55 hover:opacity-70 transition-opacity mt-4 inline-block">
         Admin
       </Link>
     </footer>
