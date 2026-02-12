@@ -113,15 +113,26 @@
     background: white !important;
   }
 
-  body > *:not([data-radix-portal]) {
+  /* Hide everything except the portal */
+  #root {
     display: none !important;
   }
 
-  [data-radix-portal] {
+  /* Make portals visible and static */
+  body > div[data-radix-portal] {
     position: static !important;
+    display: block !important;
   }
 
-  [role="dialog"] {
+  /* Hide the overlay backdrop */
+  body > div[data-radix-portal] > [data-state="open"][style*="pointer-events"],
+  body > div[data-radix-portal] > div[data-state] {
+    display: none !important;
+  }
+
+  /* But show the dialog itself */
+  body > div[data-radix-portal] > div[role="dialog"] {
+    display: block !important;
     position: static !important;
     transform: none !important;
     max-height: none !important;
@@ -132,74 +143,68 @@
     box-shadow: none !important;
     padding: 0 !important;
     margin: 0 !important;
+    animation: none !important;
+    opacity: 1 !important;
   }
 
-  /* Hide overlay */
-  [data-radix-portal] > [data-state] {
+  /* Hide close button and print button */
+  .print\\:hidden {
     display: none !important;
   }
-  [data-radix-portal] > [role="dialog"] {
-    display: block !important;
-  }
-
-  /* Hide close button, print button */
-  .print\\:hidden,
-  [role="dialog"] button[class*="absolute"] {
+  div[role="dialog"] > button {
     display: none !important;
   }
 
   /* Force background colors to print */
-  [class*="bg-primary"] {
+  [data-print-section] {
+    background-color: hsl(210 20% 96%) !important;
+    border: 1px solid hsl(210 20% 90%) !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-bottom: 12px !important;
+  }
+
+  /* Header bar */
+  .bg-primary.text-primary-foreground {
     background-color: hsl(216 50% 30%) !important;
     color: white !important;
   }
+  .bg-primary.text-primary-foreground * {
+    color: white !important;
+  }
 
-  [class*="bg-success"][class*="text-success-foreground"] {
+  /* Deal progress stage circles */
+  .bg-success.text-success-foreground {
     background-color: hsl(142 71% 40%) !important;
+    color: white !important;
   }
-
-  [class*="bg-accent"][class*="text-accent-foreground"] {
+  .bg-accent.text-accent-foreground {
     background-color: hsl(0 72% 51%) !important;
+    color: white !important;
   }
-
-  [class*="bg-destructive"][class*="text-destructive-foreground"] {
+  .bg-destructive.text-destructive-foreground {
     background-color: hsl(0 84% 60%) !important;
+    color: white !important;
   }
 
   /* Deal progress row highlights */
   [data-print-stage="complete"] {
     background-color: hsl(142 71% 40% / 0.15) !important;
   }
-
   [data-print-stage="current"] {
     background-color: hsl(0 72% 51% / 0.2) !important;
   }
-
   [data-print-stage="dead"] {
     background-color: hsl(0 84% 60% / 0.15) !important;
   }
 
-  /* Section cards */
-  [data-print-section] {
-    background-color: hsl(210 20% 96%) !important;
-    border: 1px solid hsl(210 20% 90%) !important;
-  }
-
-  /* Sticky footer should not be sticky when printing */
+  /* Sticky footer should not print */
   .sticky.bottom-0 {
-    position: static !important;
     display: none !important;
   }
 
-  /* Better page breaks */
-  [data-print-section] {
-    break-inside: avoid;
-    page-break-inside: avoid;
-    margin-bottom: 12px !important;
-  }
-
-  /* Print header */
-  .print\\:static {
+  /* Sticky header should be static */
+  .sticky.top-0 {
     position: static !important;
   }
 
