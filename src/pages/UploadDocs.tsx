@@ -46,9 +46,22 @@ const UploadDocs = () => {
     fetchSubmission();
   }, [token]);
 
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_FILES = 30;
+
   const addFiles = (newFiles: FileList | null) => {
     if (!newFiles || !activeDocType) return;
-    const added = Array.from(newFiles);
+    const added = Array.from(newFiles).filter(f => {
+      if (f.size > MAX_FILE_SIZE) {
+        setError(`File "${f.name}" exceeds 10MB limit.`);
+        return false;
+      }
+      return true;
+    });
+    if (files.length + added.length > MAX_FILES) {
+      setError(`Maximum ${MAX_FILES} documents allowed.`);
+      return;
+    }
     added.forEach(f => {
       const reader = new FileReader();
       reader.onload = (e) => {

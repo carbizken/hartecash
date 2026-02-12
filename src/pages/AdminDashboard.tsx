@@ -274,19 +274,12 @@ const AdminDashboard = () => {
       // Send confirmation email if status is "Confirmed"
       if (status === "Confirmed") {
         try {
-          const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-          const functionUrl = `https://${projectId}.functions.supabase.co/send-appointment-confirmation`;
-          
-          await fetch(functionUrl, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-            },
-            body: JSON.stringify({ appointment }),
+          await supabase.functions.invoke("send-appointment-confirmation", {
+            body: { appointment },
           });
         } catch (e) {
           console.error("Failed to send confirmation email:", e);
+          toast({ title: "Warning", description: "Status updated but confirmation email failed.", variant: "destructive" });
         }
       }
       

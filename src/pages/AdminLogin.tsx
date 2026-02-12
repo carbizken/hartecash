@@ -7,6 +7,18 @@ import { Label } from "@/components/ui/label";
 import { Lock } from "lucide-react";
 import harteLogo from "@/assets/harte-logo.png";
 
+const getSafeAuthError = (message: string, isSignup: boolean): string => {
+  const map: Record<string, string> = {
+    "Invalid login credentials": "Invalid email or password.",
+    "Email not confirmed": "Please verify your email address before signing in.",
+    "User already registered": "Unable to create account. Please try signing in instead.",
+    "Password should be at least 6 characters": "Password does not meet the minimum requirements.",
+    "Email rate limit exceeded": "Too many attempts. Please try again later.",
+    "Signup requires a valid password": "Password does not meet the minimum requirements.",
+  };
+  return map[message] || (isSignup ? "Unable to create account. Please try again." : "Invalid email or password.");
+};
+
 const AdminLogin = () => {
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState("");
@@ -31,7 +43,7 @@ const AdminLogin = () => {
       });
 
       if (authError) {
-        setError(authError.message);
+        setError(getSafeAuthError(authError.message, true));
         setLoading(false);
         return;
       }
@@ -62,7 +74,7 @@ const AdminLogin = () => {
       });
 
       if (authError) {
-        setError(authError.message);
+        setError(getSafeAuthError(authError.message, false));
         setLoading(false);
         return;
       }

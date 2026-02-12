@@ -37,10 +37,27 @@ const UploadPhotos = () => {
     fetchSubmission();
   }, [token]);
 
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_FILES = 20;
+
   const addFiles = (newFiles: FileList | null) => {
     if (!newFiles) return;
-    const added = Array.from(newFiles).filter(f => f.type.startsWith("image/"));
-    setFiles(prev => [...prev, ...added]);
+    const added = Array.from(newFiles).filter(f => {
+      if (!f.type.startsWith("image/")) return false;
+      if (f.size > MAX_FILE_SIZE) {
+        setError(`File "${f.name}" exceeds 10MB limit.`);
+        return false;
+      }
+      return true;
+    });
+    setFiles(prev => {
+      const combined = [...prev, ...added];
+      if (combined.length > MAX_FILES) {
+        setError(`Maximum ${MAX_FILES} photos allowed.`);
+        return prev;
+      }
+      return combined;
+    });
     added.forEach(f => {
       const reader = new FileReader();
       reader.onload = (e) => setPreviews(prev => [...prev, e.target?.result as string]);
