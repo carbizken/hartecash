@@ -29,6 +29,7 @@ interface Submission {
   email: string | null;
   phone: string | null;
   zip: string | null;
+  state: string | null;
   plate: string | null;
   vin: string | null;
   vehicle_year: string | null;
@@ -418,17 +419,20 @@ const AdminDashboard = () => {
         <p class="title">Check Request</p>
         <table>
           <tr><th>Date</th><td>${today}</td></tr>
-          <tr><th>Customer Name</th><td>${s.name || "N/A"}</td></tr>
-          <tr><th>Phone</th><td>${s.phone || "N/A"}</td></tr>
-          <tr><th>Email</th><td>${s.email || "N/A"}</td></tr>
+          <tr><th>Customer Name (As It Appears on Title)</th><td>${s.name || ""}</td></tr>
+          <tr><th>Address</th><td style="border-bottom:1px solid #ccc;min-width:200px;">&nbsp;</td></tr>
+          <tr><th>City, State, Zip</th><td>${[s.state, s.zip].filter(Boolean).join(" ") || ""}</td></tr>
+          <tr><th>Contact Phone</th><td>${s.phone || ""}</td></tr>
+          <tr><th>Contact Email</th><td>${s.email || ""}</td></tr>
+          <tr><th>Agreed Upon Amount</th><td class="amount">$${s.offered_price!.toLocaleString()}</td></tr>
+          <tr><th>In-House ACV Value</th><td style="border-bottom:1px solid #ccc;">&nbsp;</td></tr>
+          <tr><th>Description</th><td style="font-weight:600;">Customer Direct Inventory Purchase</td></tr>
           <tr><th>Vehicle</th><td>${vehicleStr}</td></tr>
           <tr><th>VIN</th><td>${s.vin || "N/A"}</td></tr>
           <tr><th>Mileage</th><td>${s.mileage || "N/A"}</td></tr>
-          <tr><th>Loan Status</th><td>${s.loan_status || "N/A"}</td></tr>
-          <tr><th>Check Amount</th><td class="amount">$${s.offered_price!.toLocaleString()}</td></tr>
         </table>
         <div class="sig-section">
-          <div class="sig-line">Authorized By (Print &amp; Sign)</div>
+          <div class="sig-line">GSM / GM Signature</div>
           <div class="sig-line">Date</div>
         </div>
         <div class="sig-section" style="margin-top:30px;">
