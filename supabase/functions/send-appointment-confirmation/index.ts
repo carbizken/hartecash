@@ -1,3 +1,5 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -10,6 +12,46 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Authenticate the request
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const userId = claimsData.claims.sub;
+
+    // Check if user is staff
+    const { data: roleData } = await supabaseClient
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    if (!roleData) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { appointment } = await req.json();
 
     if (!appointment) {
@@ -32,18 +74,22 @@ Deno.serve(async (req) => {
     const resendKey = Deno.env.get("RESEND_API_KEY");
 
     if (!resendKey) {
-      return new Response(JSON.stringify({ error: "Missing RESEND_API_KEY" }), {
+      return new Response(JSON.stringify({ error: "Missing email configuration" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    if (!customer_email) {
-      return new Response(JSON.stringify({ error: "Missing customer_email" }), {
+    if (!customer_email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer_email)) {
+      return new Response(JSON.stringify({ error: "Invalid or missing customer email" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // Sanitize inputs for email content
+    const sanitize = (str: string | undefined | null) =>
+      (str || "").replace(/[<>&"']/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c] || c));
 
     // Format date for display
     const dateObj = new Date(preferred_date + "T12:00:00");
@@ -54,7 +100,7 @@ Deno.serve(async (req) => {
       year: "numeric",
     });
 
-    const firstName = customer_name?.split(" ")[0] || "friend";
+    const firstName = sanitize(customer_name?.split(" ")[0]) || "friend";
 
     const emailRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -65,7 +111,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         from: "Harte Auto <onboarding@resend.dev>",
         to: [customer_email],
-        subject: `🚗 You've Got a Date With Us — ${formattedDate} at ${preferred_time}`,
+        subject: `🚗 You've Got a Date With Us — ${formattedDate} at ${sanitize(preferred_time)}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <div style="background: linear-gradient(135deg, #003366 0%, #004488 100%); padding: 24px; border-radius: 8px 8px 0 0; text-align: center;">
@@ -80,12 +126,12 @@ Deno.serve(async (req) => {
               
               <div style="background: white; padding: 20px; border-left: 4px solid #003366; margin: 20px 0; border-radius: 0 4px 4px 0;">
                 <p style="margin: 10px 0;"><strong>📅 When:</strong> ${formattedDate}</p>
-                <p style="margin: 10px 0;"><strong>⏰ Time:</strong> ${preferred_time} (yes, we'll actually be ready for you)</p>
-                ${vehicle_info ? `<p style="margin: 10px 0;"><strong>🚗 Your Ride:</strong> ${vehicle_info}</p>` : ""}
-                <p style="margin: 10px 0;"><strong>📞 Your Phone:</strong> ${customer_phone}</p>
+                <p style="margin: 10px 0;"><strong>⏰ Time:</strong> ${sanitize(preferred_time)} (yes, we'll actually be ready for you)</p>
+                ${vehicle_info ? `<p style="margin: 10px 0;"><strong>🚗 Your Ride:</strong> ${sanitize(vehicle_info)}</p>` : ""}
+                <p style="margin: 10px 0;"><strong>📞 Your Phone:</strong> ${sanitize(customer_phone)}</p>
               </div>
 
-              ${notes ? `<p style="margin: 15px 0;"><strong>📝 Notes:</strong></p><p style="background: #f0f0f0; padding: 12px; border-radius: 6px; font-style: italic;">${notes}</p>` : ""}
+              ${notes ? `<p style="margin: 15px 0;"><strong>📝 Notes:</strong></p><p style="background: #f0f0f0; padding: 12px; border-radius: 6px; font-style: italic;">${sanitize(notes)}</p>` : ""}
               
               <div style="margin: 20px 0; padding: 16px; background: #fff3cd; border-radius: 6px; color: #856404;">
                 <strong>⏰ Pro tip:</strong> Show up about 10 minutes early. It gives you time to grab a coffee from our lobby, take a deep breath, and mentally prepare to say goodbye to your car (or hello to a great offer 💰).
@@ -108,13 +154,13 @@ Deno.serve(async (req) => {
     const emailData = await emailRes.json();
     const result = emailRes.ok
       ? { success: true, message: "Confirmation email sent" }
-      : { success: false, error: JSON.stringify(emailData) };
+      : { success: false, error: "Failed to send email" };
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

@@ -375,12 +375,13 @@ const AdminDashboard = () => {
       .list(sub.token);
 
     if (data && data.length > 0) {
-      const urls = data.map((file) => {
-        const { data: urlData } = supabase.storage
+      const urls: string[] = [];
+      for (const file of data) {
+        const { data: urlData } = await supabase.storage
           .from("submission-photos")
-          .getPublicUrl(`${sub.token}/${file.name}`);
-        return urlData.publicUrl;
-      });
+          .createSignedUrl(`${sub.token}/${file.name}`, 3600);
+        if (urlData?.signedUrl) urls.push(urlData.signedUrl);
+      }
       setPhotos(urls);
     } else {
       setPhotos([]);
@@ -394,12 +395,14 @@ const AdminDashboard = () => {
         .from("customer-documents")
         .list(sub.token + "/" + docType);
       if (docFiles && docFiles.length > 0) {
-        docFiles.forEach(file => {
-          const { data: urlData } = supabase.storage
+        for (const file of docFiles) {
+          const { data: urlData } = await supabase.storage
             .from("customer-documents")
-            .getPublicUrl(sub.token + "/" + docType + "/" + file.name);
-          allDocs.push({ name: file.name, url: urlData.publicUrl, type: docType });
-        });
+            .createSignedUrl(sub.token + "/" + docType + "/" + file.name, 3600);
+          if (urlData?.signedUrl) {
+            allDocs.push({ name: file.name, url: urlData.signedUrl, type: docType });
+          }
+        }
       }
     }
     setDocs(allDocs);
@@ -551,10 +554,10 @@ const AdminDashboard = () => {
       .from("customer-documents")
       .list(`${s.id}/appraisal`);
     if (appraisalFiles && appraisalFiles.length > 0) {
-      appraisalImages = appraisalFiles.map(f => {
-        const { data } = supabase.storage.from("customer-documents").getPublicUrl(`${s.id}/appraisal/${f.name}`);
-        return data.publicUrl;
-      });
+      for (const f of appraisalFiles) {
+        const { data } = await supabase.storage.from("customer-documents").createSignedUrl(`${s.id}/appraisal/${f.name}`, 3600);
+        if (data?.signedUrl) appraisalImages.push(data.signedUrl);
+      }
     }
 
     const printWindow = window.open("", "_blank", "width=800,height=600");
