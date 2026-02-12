@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, Search, Trash2, Eye, ChevronLeft, ChevronRight, UserCheck, UserX, Users, Check, Circle, DollarSign, StickyNote } from "lucide-react";
+import { LogOut, Search, Trash2, Eye, ChevronLeft, ChevronRight, UserCheck, UserX, Users, Check, Circle, DollarSign, StickyNote, XCircle, Save } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -71,6 +71,7 @@ const PROGRESS_STAGES = [
   { key: "manager_approval", label: "Manager Approval" },
   { key: "price_agreed", label: "Price Agreed" },
   { key: "purchase_complete", label: "Purchase Complete" },
+  { key: "dead_lead", label: "Dead Lead" },
 ];
 
 const ROLE_LABELS: Record<string, string> = {
@@ -353,6 +354,7 @@ const AdminDashboard = () => {
                           <td className="px-4 py-3">
                               <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
                                 sub.progress_status === "purchase_complete" ? "bg-success/20 text-success" :
+                                sub.progress_status === "dead_lead" ? "bg-destructive/20 text-destructive" :
                                 sub.progress_status === "new" ? "bg-muted text-muted-foreground" :
                                 "bg-accent/20 text-accent"
                               }`}>
@@ -450,98 +452,129 @@ const AdminDashboard = () => {
 
       {/* Detail Modal */}
       <Dialog open={!!selected} onOpenChange={() => { setSelected(null); setPhotos([]); }}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>
-              {selected?.vehicle_year} {selected?.vehicle_make} {selected?.vehicle_model || "Submission Details"}
-            </DialogTitle>
-          </DialogHeader>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
+          <div className="sticky top-0 z-10 bg-primary text-primary-foreground px-6 py-4 rounded-t-lg">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-primary-foreground">
+                {selected?.vehicle_year} {selected?.vehicle_make} {selected?.vehicle_model || "Submission Details"}
+              </DialogTitle>
+              {selected && (
+                <p className="text-primary-foreground/80 text-sm mt-1">
+                  Submitted {new Date(selected.created_at).toLocaleDateString()} • {selected.name || "Unknown"}
+                </p>
+              )}
+            </DialogHeader>
+          </div>
 
           {selected && (
-            <div className="space-y-4">
-              {/* Contact */}
-              <div>
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">Contact</h3>
-                <DetailRow label="Name" value={selected.name} />
-                <DetailRow label="Email" value={selected.email} />
-                <DetailRow label="Phone" value={selected.phone} />
-                <DetailRow label="ZIP" value={selected.zip} />
+            <div className="px-6 pb-6 space-y-5 pt-4">
+              {/* Contact Card */}
+              <div className="bg-muted/40 rounded-lg p-4">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Contact Information</h3>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                  <DetailRow label="Name" value={selected.name} />
+                  <DetailRow label="Phone" value={selected.phone} />
+                  <DetailRow label="Email" value={selected.email} />
+                  <DetailRow label="ZIP" value={selected.zip} />
+                </div>
               </div>
 
-              {/* Vehicle */}
-              <div>
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">Vehicle</h3>
-                <DetailRow label="Year/Make/Model" value={`${selected.vehicle_year || ""} ${selected.vehicle_make || ""} ${selected.vehicle_model || ""}`.trim() || null} />
-                <DetailRow label="VIN" value={selected.vin} />
-                <DetailRow label="Plate" value={selected.plate} />
-                <DetailRow label="Mileage" value={selected.mileage} />
-                <DetailRow label="Exterior Color" value={selected.exterior_color} />
-                <DetailRow label="Drivetrain" value={selected.drivetrain} />
-                <DetailRow label="Modifications" value={selected.modifications} />
+              {/* Vehicle Card */}
+              <div className="bg-muted/40 rounded-lg p-4">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Vehicle Details</h3>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                  <DetailRow label="Year/Make/Model" value={`${selected.vehicle_year || ""} ${selected.vehicle_make || ""} ${selected.vehicle_model || ""}`.trim() || null} />
+                  <DetailRow label="VIN" value={selected.vin} />
+                  <DetailRow label="Plate" value={selected.plate} />
+                  <DetailRow label="Mileage" value={selected.mileage} />
+                  <DetailRow label="Exterior Color" value={selected.exterior_color} />
+                  <DetailRow label="Drivetrain" value={selected.drivetrain} />
+                  <DetailRow label="Modifications" value={selected.modifications} />
+                </div>
               </div>
 
-              {/* Condition */}
-              <div>
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">Condition</h3>
-                <DetailRow label="Overall" value={selected.overall_condition} />
-                <ArrayDetail label="Exterior Damage" value={selected.exterior_damage} />
-                <DetailRow label="Windshield" value={selected.windshield_damage} />
-                <DetailRow label="Moonroof" value={selected.moonroof} />
-                <ArrayDetail label="Interior Damage" value={selected.interior_damage} />
-                <ArrayDetail label="Tech Issues" value={selected.tech_issues} />
-                <ArrayDetail label="Engine Issues" value={selected.engine_issues} />
-                <ArrayDetail label="Mechanical Issues" value={selected.mechanical_issues} />
-                <DetailRow label="Drivable" value={selected.drivable} />
-                <DetailRow label="Accidents" value={selected.accidents} />
-                <DetailRow label="Smoked In" value={selected.smoked_in} />
-                <DetailRow label="Tires Replaced" value={selected.tires_replaced} />
-                <DetailRow label="Keys" value={selected.num_keys} />
+              {/* Condition Card */}
+              <div className="bg-muted/40 rounded-lg p-4">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Condition & History</h3>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                  <DetailRow label="Overall" value={selected.overall_condition} />
+                  <DetailRow label="Drivable" value={selected.drivable} />
+                  <ArrayDetail label="Exterior Damage" value={selected.exterior_damage} />
+                  <DetailRow label="Windshield" value={selected.windshield_damage} />
+                  <DetailRow label="Moonroof" value={selected.moonroof} />
+                  <ArrayDetail label="Interior Damage" value={selected.interior_damage} />
+                  <ArrayDetail label="Tech Issues" value={selected.tech_issues} />
+                  <ArrayDetail label="Engine Issues" value={selected.engine_issues} />
+                  <ArrayDetail label="Mechanical Issues" value={selected.mechanical_issues} />
+                  <DetailRow label="Accidents" value={selected.accidents} />
+                  <DetailRow label="Smoked In" value={selected.smoked_in} />
+                  <DetailRow label="Tires Replaced" value={selected.tires_replaced} />
+                  <DetailRow label="Keys" value={selected.num_keys} />
+                </div>
               </div>
 
-              {/* Deal Progress */}
-              <div>
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Deal Progress</h3>
-                <div className="space-y-1">
+              {/* Loan Info */}
+              <div className="bg-muted/40 rounded-lg p-4">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Loan & Info</h3>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                  <DetailRow label="Loan Status" value={selected.loan_status} />
+                  <DetailRow label="Loan Company" value={(selected as any).loan_company} />
+                  <DetailRow label="Loan Balance" value={(selected as any).loan_balance} />
+                  <DetailRow label="Loan Payment" value={(selected as any).loan_payment} />
+                  <DetailRow label="Next Step" value={selected.next_step} />
+                </div>
+              </div>
+
+              {/* Deal Progress with cumulative highlighting */}
+              <div className="bg-muted/40 rounded-lg p-4">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Deal Progress</h3>
+                <div className="space-y-1.5">
                   {PROGRESS_STAGES.map((stage, i) => {
+                    const isDeadLead = selected.progress_status === "dead_lead";
                     const currentIdx = PROGRESS_STAGES.findIndex(s => s.key === selected.progress_status);
-                    const isComplete = i < currentIdx;
+                    const isComplete = !isDeadLead && i < currentIdx;
                     const isCurrent = i === currentIdx;
+                    const isDead = stage.key === "dead_lead" && isDeadLead;
                     return (
-                      <div key={stage.key} className="flex items-center gap-2">
+                      <div key={stage.key} className={`flex items-center gap-2.5 px-3 py-1.5 rounded-md transition-colors ${
+                        isDead ? "bg-destructive/15" :
+                        isComplete ? "bg-success/15" :
+                        isCurrent ? "bg-accent/20" :
+                        ""
+                      }`}>
                         <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          isDead ? "bg-destructive text-destructive-foreground" :
                           isComplete ? "bg-success text-success-foreground" :
                           isCurrent ? "bg-accent text-accent-foreground" :
                           "bg-muted text-muted-foreground"
                         }`}>
-                          {isComplete ? <Check className="w-3 h-3" /> : <Circle className="w-3 h-3" />}
+                          {isDead ? <XCircle className="w-3 h-3" /> :
+                           isComplete ? <Check className="w-3 h-3" /> :
+                           <Circle className="w-3 h-3" />}
                         </div>
-                        <span className={`text-sm ${isCurrent ? "font-bold text-card-foreground" : isComplete ? "text-card-foreground" : "text-muted-foreground"}`}>
+                        <span className={`text-sm ${
+                          isDead ? "font-bold text-destructive" :
+                          isCurrent ? "font-bold text-card-foreground" :
+                          isComplete ? "font-medium text-card-foreground" :
+                          "text-muted-foreground"
+                        }`}>
                           {stage.label}
                         </span>
                       </div>
                     );
                   })}
                 </div>
-                <div className="mt-3">
+                <div className="mt-4">
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Update Status</label>
                   <Select
                     value={selected.progress_status}
                     disabled={!canUpdateStatus || (["manager_approval", "price_agreed", "purchase_complete"].includes(selected.progress_status) && !canApprove)}
-                    onValueChange={async (val) => {
-                      // Only GSM/GM or admin can set manager_approval, price_agreed, purchase_complete
+                    onValueChange={(val) => {
                       if (["manager_approval", "price_agreed", "purchase_complete"].includes(val) && !canApprove) {
                         toast({ title: "Not authorized", description: "Only GSM/GM can approve purchases.", variant: "destructive" });
                         return;
                       }
-                      const { error } = await supabase
-                        .from("submissions")
-                        .update({ progress_status: val, status_updated_at: new Date().toISOString() })
-                        .eq("id", selected.id);
-                      if (!error) {
-                        setSelected({ ...selected, progress_status: val });
-                        setSubmissions(prev => prev.map(s => s.id === selected.id ? { ...s, progress_status: val } : s));
-                        toast({ title: "Status updated" });
-                      }
+                      setSelected({ ...selected, progress_status: val });
                     }}
                   >
                     <SelectTrigger><SelectValue /></SelectTrigger>
@@ -561,30 +594,23 @@ const AdminDashboard = () => {
 
               {/* Offered Price */}
               {canSetPrice ? (
-                <div>
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                <div className="bg-muted/40 rounded-lg p-4">
+                  <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                     <DollarSign className="w-4 h-4 inline mr-1" />Offered Price
                   </h3>
                   <Input
                     type="number"
                     placeholder="Enter offer amount"
                     defaultValue={selected.offered_price?.toString() || ""}
-                    onBlur={async (e) => {
+                    onChange={(e) => {
                       const price = e.target.value ? Number(e.target.value) : null;
-                      const { error } = await supabase
-                        .from("submissions")
-                        .update({ offered_price: price })
-                        .eq("id", selected.id);
-                      if (!error) {
-                        setSelected({ ...selected, offered_price: price });
-                        toast({ title: "Price updated" });
-                      }
+                      setSelected({ ...selected, offered_price: price });
                     }}
                   />
                 </div>
               ) : selected.offered_price ? (
-                <div>
-                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                <div className="bg-muted/40 rounded-lg p-4">
+                  <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                     <DollarSign className="w-4 h-4 inline mr-1" />Offered Price
                   </h3>
                   <p className="text-card-foreground font-medium">${selected.offered_price.toLocaleString()}</p>
@@ -592,45 +618,30 @@ const AdminDashboard = () => {
               ) : null}
 
               {/* Internal Notes */}
-              <div>
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+              <div className="bg-muted/40 rounded-lg p-4">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                   <StickyNote className="w-4 h-4 inline mr-1" />Internal Notes
                 </h3>
                 <Textarea
                   placeholder="Add team notes here..."
                   defaultValue={selected.internal_notes || ""}
-                  onBlur={async (e) => {
-                    const { error } = await supabase
-                      .from("submissions")
-                      .update({ internal_notes: e.target.value || null })
-                      .eq("id", selected.id);
-                    if (!error) {
-                      setSelected({ ...selected, internal_notes: e.target.value || null });
-                      toast({ title: "Notes saved" });
-                    }
+                  onChange={(e) => {
+                    setSelected({ ...selected, internal_notes: e.target.value || null });
                   }}
                   rows={3}
                 />
               </div>
 
-              {/* Info */}
-              <div>
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">Info</h3>
-                <DetailRow label="Loan Status" value={selected.loan_status} />
-                <DetailRow label="Next Step" value={selected.next_step} />
-                <DetailRow label="Submitted" value={new Date(selected.created_at).toLocaleString()} />
-              </div>
-
               {/* Photos */}
-              <div>
-                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+              <div className="bg-muted/40 rounded-lg p-4">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                   Photos {photos.length > 0 && `(${photos.length})`}
                 </h3>
                 {photos.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     {photos.map((url, i) => (
                       <a key={i} href={url} target="_blank" rel="noopener noreferrer">
-                        <img src={url} alt={`Photo ${i + 1}`} className="rounded-lg w-full h-32 object-cover hover:opacity-80 transition-opacity" />
+                        <img src={url} alt={`Photo ${i + 1}`} className="rounded-lg w-full h-28 object-cover hover:opacity-80 transition-opacity" />
                       </a>
                     ))}
                   </div>
@@ -639,15 +650,39 @@ const AdminDashboard = () => {
                 )}
               </div>
 
-              {canDelete && (
+              {/* Update Record Button */}
+              <div className="sticky bottom-0 bg-background pt-3 pb-1 border-t border-border flex gap-2">
                 <Button
-                  variant="destructive"
-                  className="w-full"
-                  onClick={() => handleDelete(selected.id)}
+                  className="flex-1"
+                  onClick={async () => {
+                    const { error } = await supabase
+                      .from("submissions")
+                      .update({
+                        progress_status: selected.progress_status,
+                        offered_price: selected.offered_price,
+                        internal_notes: selected.internal_notes,
+                        status_updated_at: new Date().toISOString(),
+                      })
+                      .eq("id", selected.id);
+                    if (!error) {
+                      setSubmissions(prev => prev.map(s => s.id === selected.id ? { ...s, progress_status: selected.progress_status, offered_price: selected.offered_price, internal_notes: selected.internal_notes } : s));
+                      toast({ title: "Record updated", description: "All changes have been saved." });
+                    } else {
+                      toast({ title: "Error", description: "Failed to save changes.", variant: "destructive" });
+                    }
+                  }}
                 >
-                  <Trash2 className="w-4 h-4 mr-2" /> Delete Submission
+                  <Save className="w-4 h-4 mr-2" /> Update Record
                 </Button>
-              )}
+                {canDelete && (
+                  <Button
+                    variant="destructive"
+                    onClick={() => handleDelete(selected.id)}
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" /> Delete
+                  </Button>
+                )}
+              </div>
             </div>
           )}
         </DialogContent>
