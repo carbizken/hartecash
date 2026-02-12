@@ -99,6 +99,18 @@ const ScheduleVisit = () => {
 
       if (error) throw error;
 
+      // If linked to a submission, mark appointment set
+      if (submissionToken) {
+        supabase
+          .from("submissions")
+          .update({
+            appointment_date: form.preferred_date,
+            appointment_set: true,
+          })
+          .eq("token", submissionToken)
+          .then();
+      }
+
       // Send notification (fire-and-forget)
       supabase.functions.invoke("notify-appointment", {
         body: { appointment: form },

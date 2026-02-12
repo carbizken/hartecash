@@ -222,11 +222,16 @@ const AdminDashboard = () => {
       });
       if (error) throw error;
 
-      // If linked to a submission, update its status to inspection_scheduled
+      // If linked to a submission, update its status and appointment info
       if (apptForm.submission_token) {
         await supabase
           .from("submissions")
-          .update({ progress_status: "inspection_scheduled", status_updated_at: new Date().toISOString() })
+          .update({
+            progress_status: "inspection_scheduled",
+            status_updated_at: new Date().toISOString(),
+            appointment_date: apptForm.preferred_date,
+            appointment_set: true,
+          })
           .eq("token", apptForm.submission_token);
         fetchSubmissions();
       }
