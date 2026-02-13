@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import harteLogo from "@/assets/harte-logo.png";
+import StaffManagement from "@/components/admin/StaffManagement";
 
 interface PendingRequest {
   id: string;
@@ -682,15 +683,21 @@ const AdminDashboard = () => {
               Appointments ({appointments.length})
             </TabsTrigger>
             {canManageAccess && (
-              <TabsTrigger value="requests" className="relative">
-                <Users className="w-4 h-4 mr-1" />
-                Access Requests
-                {pendingRequests.length > 0 && (
-                  <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs font-bold">
-                    {pendingRequests.length}
-                  </span>
-                )}
-              </TabsTrigger>
+              <>
+                <TabsTrigger value="staff">
+                  <Users className="w-4 h-4 mr-1" />
+                  Staff
+                </TabsTrigger>
+                <TabsTrigger value="requests" className="relative">
+                  <Users className="w-4 h-4 mr-1" />
+                  Access Requests
+                  {pendingRequests.length > 0 && (
+                    <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full bg-destructive text-destructive-foreground text-xs font-bold">
+                      {pendingRequests.length}
+                    </span>
+                  )}
+                </TabsTrigger>
+              </>
             )}
           </TabsList>
 
@@ -864,6 +871,11 @@ const AdminDashboard = () => {
                 </div>
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="staff">
+            <h2 className="text-lg font-semibold text-card-foreground mb-4">Staff Members</h2>
+            <StaffManagement />
           </TabsContent>
 
           <TabsContent value="requests">

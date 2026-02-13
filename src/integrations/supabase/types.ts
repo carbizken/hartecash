@@ -288,6 +288,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_all_staff: {
+        Args: never
+        Returns: {
+          display_name: string
+          email: string
+          role: string
+          role_id: string
+          user_id: string
+        }[]
+      }
       get_submission_by_token: {
         Args: { _token: string }
         Returns: {
@@ -342,6 +352,7 @@ export type Database = {
       }
       mark_docs_uploaded: { Args: { _token: string }; Returns: undefined }
       mark_photos_uploaded: { Args: { _token: string }; Returns: undefined }
+      remove_staff_role: { Args: { _role_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user" | "sales_bdc" | "used_car_manager" | "gsm_gm"
