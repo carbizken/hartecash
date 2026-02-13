@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Camera, CheckCircle, Upload, X, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import UploadSkeleton from "@/components/UploadSkeleton";
 
 interface SubmissionInfo {
   id: string;
@@ -89,11 +90,7 @@ const UploadPhotos = () => {
     setUploading(false);
   };
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="animate-spin w-8 h-8 border-4 border-accent border-t-transparent rounded-full" />
-    </div>
-  );
+  if (loading) return <UploadSkeleton />;
 
   if (error && !submission) return (
     <div className="min-h-screen flex items-center justify-center bg-background p-6">
@@ -119,6 +116,20 @@ const UploadPhotos = () => {
     </div>
   );
 
+  const PHOTO_GUIDES = [
+    { id: "front", label: "Front", icon: "🚗", desc: "Centered, full vehicle visible" },
+    { id: "back", label: "Rear", icon: "🔙", desc: "Centered, license plate visible" },
+    { id: "driver", label: "Driver Side", icon: "🚘", desc: "Full side view from a few feet away" },
+    { id: "passenger", label: "Passenger Side", icon: "🚘", desc: "Full side view from a few feet away" },
+    { id: "dashboard", label: "Dashboard", icon: "📊", desc: "Odometer reading clearly visible" },
+    { id: "interior", label: "Interior", icon: "💺", desc: "Front seats, console, and steering wheel" },
+    { id: "damage", label: "Damage (if any)", icon: "⚠️", desc: "Close-up of any scratches, dents, or wear" },
+  ];
+
+  const completedGuides = PHOTO_GUIDES.filter(g =>
+    files.some(f => f.name.toLowerCase().includes(g.id) || previews.length >= PHOTO_GUIDES.length)
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-lg mx-auto p-6">
@@ -132,17 +143,33 @@ const UploadPhotos = () => {
           )}
         </div>
 
-        <div className="bg-card rounded-xl p-5 shadow-lg mb-6">
-          <h3 className="font-bold text-card-foreground mb-3">Photos we need:</h3>
-          <ul className="text-sm text-muted-foreground space-y-2">
-            <li>📸 Front of vehicle</li>
-            <li>📸 Back of vehicle</li>
-            <li>📸 Driver side</li>
-            <li>📸 Passenger side</li>
-            <li>📸 Dashboard / odometer</li>
-            <li>📸 Interior (front seats)</li>
-            <li>📸 Any damage areas (if applicable)</li>
-          </ul>
+        {/* Guided photo cards */}
+        <div className="space-y-2 mb-6">
+          <h3 className="font-bold text-card-foreground text-sm">Photos we need:</h3>
+          <div className="grid grid-cols-2 gap-2">
+            {PHOTO_GUIDES.map((guide) => {
+              const hasPhoto = files.length > 0 && previews.length > PHOTO_GUIDES.indexOf(guide);
+              return (
+                <button
+                  key={guide.id}
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`relative bg-card rounded-xl p-4 text-left border-2 transition-all ${
+                    hasPhoto
+                      ? "border-success/50 bg-success/5"
+                      : "border-input hover:border-accent"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-lg">{guide.icon}</span>
+                    <span className="text-sm font-semibold text-card-foreground">{guide.label}</span>
+                    {hasPhoto && <CheckCircle className="w-4 h-4 text-success ml-auto" />}
+                  </div>
+                  <p className="text-xs text-muted-foreground">{guide.desc}</p>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <input
@@ -156,24 +183,31 @@ const UploadPhotos = () => {
         />
 
         {previews.length > 0 && (
-          <div className="grid grid-cols-3 gap-2 mb-4">
-            {previews.map((src, i) => (
-              <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
-                <img src={src} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
-                <button
-                  onClick={() => removeFile(i)}
-                  className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full w-6 h-6 flex items-center justify-center"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="aspect-square rounded-lg border-2 border-dashed border-input flex items-center justify-center hover:border-accent transition-colors"
-            >
-              <Plus className="w-8 h-8 text-muted-foreground" />
-            </button>
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-semibold text-card-foreground">
+                {files.length} photo{files.length !== 1 ? "s" : ""} selected
+              </p>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="text-sm text-accent font-medium flex items-center gap-1"
+              >
+                <Plus className="w-4 h-4" /> Add more
+              </button>
+            </div>
+            <div className="grid grid-cols-4 gap-1.5">
+              {previews.map((src, i) => (
+                <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+                  <img src={src} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
+                  <button
+                    onClick={() => removeFile(i)}
+                    className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
