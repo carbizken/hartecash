@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,10 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarDays, CheckCircle2, Loader2 } from "lucide-react";
+import { CalendarDays, CheckCircle2, Loader2, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
+import harteLogo from "@/assets/harte-logo.png";
 
 // Store hours: Mon-Thu 9AM-7PM, Fri-Sat 9AM-6PM, Sun Closed
 const WEEKDAY_SLOTS = [
@@ -131,7 +130,17 @@ const ScheduleVisit = () => {
   if (submitted) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
-        <SiteHeader />
+        <div className="bg-primary text-primary-foreground px-6 py-4">
+          <div className="max-w-lg mx-auto flex items-center gap-3">
+            {submissionToken && (
+              <Link to={`/my-submission/${submissionToken}`} className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+                <ArrowLeft className="w-5 h-5" />
+              </Link>
+            )}
+            <img src={harteLogo} alt="Harte" className="h-12 w-auto" />
+            <h1 className="font-bold text-lg">Schedule a Visit</h1>
+          </div>
+        </div>
         <main className="flex-1 flex items-center justify-center p-4">
           <Card className="max-w-md w-full text-center">
             <CardContent className="pt-8 pb-8 space-y-4">
@@ -146,14 +155,23 @@ const ScheduleVisit = () => {
             </CardContent>
           </Card>
         </main>
-        <SiteFooter />
       </div>
     );
   }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <SiteHeader />
+      <div className="bg-primary text-primary-foreground px-6 py-4">
+        <div className="max-w-lg mx-auto flex items-center gap-3">
+          {submissionToken && (
+            <Link to={`/my-submission/${submissionToken}`} className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+              <ArrowLeft className="w-5 h-5" />
+            </Link>
+          )}
+          <img src={harteLogo} alt="Harte" className="h-12 w-auto" />
+          <h1 className="font-bold text-lg">Schedule a Visit</h1>
+        </div>
+      </div>
       <main className="flex-1 flex items-center justify-center p-4 py-12">
         <Card className="max-w-lg w-full">
           <CardHeader className="text-center">
@@ -284,7 +302,6 @@ const ScheduleVisit = () => {
           </CardContent>
         </Card>
       </main>
-      <SiteFooter />
     </div>
   );
 };
