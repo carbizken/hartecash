@@ -17,11 +17,11 @@ const VehiclePhotos = ({ token, photosUploaded }: VehiclePhotosProps) => {
     const fetchPhotos = async () => {
       const { data } = await supabase.storage
         .from("submission-photos")
-        .list(token, { limit: 8, sortBy: { column: "created_at", order: "asc" } });
+        .list(token, { limit: 20, sortBy: { column: "created_at", order: "asc" } });
       if (data && data.length > 0) {
         const urls = data
           .filter((f) => f.name !== ".emptyFolderPlaceholder")
-          .slice(0, 6)
+          .slice(0, 8)
           .map((f) => {
             const { data: urlData } = supabase.storage
               .from("submission-photos")
