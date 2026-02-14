@@ -9,7 +9,6 @@ const UploadSkeleton = () => (
           alt=""
           className="w-full h-full object-contain"
           style={{
-            filter: "brightness(1.05)",
             animation: "car-bounce 1.2s ease-in-out infinite",
           }}
         />
