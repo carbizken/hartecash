@@ -3,15 +3,17 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
-  Car, CheckCircle, Circle, Camera, FileText, Printer, Clock,
+  Car, CheckCircle, Circle, Clock,
   DollarSign, Inbox, Search, BadgeDollarSign, CalendarCheck,
-  ClipboardCheck, Handshake, PartyPopper, type LucideIcon
+  ClipboardCheck, Handshake, PartyPopper, Printer, type LucideIcon
 } from "lucide-react";
 import harteLogo from "@/assets/harte-logo.png";
 import { motion } from "framer-motion";
 import PortalSkeleton from "@/components/PortalSkeleton";
 import WhatsNextCard from "@/components/portal/WhatsNextCard";
 import VehiclePhotos from "@/components/portal/VehiclePhotos";
+import CompletionChecklist from "@/components/portal/CompletionChecklist";
+import DealerContactCard from "@/components/portal/DealerContactCard";
 
 interface PortalSubmission {
   id: string;
@@ -41,44 +43,15 @@ interface StageInfo {
 }
 
 const STAGE_CONFIG: Record<string, StageInfo> = {
-  new: {
-    label: "Submission Received",
-    icon: Inbox,
-    helperText: "We've received your vehicle info and our team will begin reviewing it shortly.",
-  },
-  contacted: {
-    label: "Under Review",
-    icon: Search,
-    helperText: "Our team is evaluating your vehicle details. We'll be in touch soon!",
-  },
-  offer_made: {
-    label: "Initial Offer",
-    icon: BadgeDollarSign,
-    helperText: "We've prepared a cash offer for your vehicle. Check it out above!",
-  },
-  inspection_scheduled: {
-    label: "Inspection Scheduled",
-    icon: CalendarCheck,
-    helperText: "Your in-person inspection is booked. Bring your vehicle and we'll take a look!",
-  },
-  inspection_completed: {
-    label: "Inspection Complete",
-    icon: ClipboardCheck,
-    helperText: "We've inspected your vehicle and are finalizing the details.",
-  },
-  price_agreed: {
-    label: "Final Offer Accepted",
-    icon: Handshake,
-    helperText: "We've agreed on a price! We're preparing everything for the purchase.",
-  },
-  purchase_complete: {
-    label: "Purchase Complete 🎉",
-    icon: PartyPopper,
-    helperText: "Congratulations! The deal is done. Thank you for choosing Harte Auto Group!",
-  },
+  new: { label: "Submission Received", icon: Inbox, helperText: "We've received your vehicle info and our team will begin reviewing it shortly." },
+  contacted: { label: "Under Review", icon: Search, helperText: "Our team is evaluating your vehicle details. We'll be in touch soon!" },
+  offer_made: { label: "Initial Offer", icon: BadgeDollarSign, helperText: "We've prepared a cash offer for your vehicle. Check it out above!" },
+  inspection_scheduled: { label: "Inspection Scheduled", icon: CalendarCheck, helperText: "Your in-person inspection is booked. Bring your vehicle and we'll take a look!" },
+  inspection_completed: { label: "Inspection Complete", icon: ClipboardCheck, helperText: "We've inspected your vehicle and are finalizing the details." },
+  price_agreed: { label: "Final Offer Accepted", icon: Handshake, helperText: "We've agreed on a price! We're preparing everything for the purchase." },
+  purchase_complete: { label: "Purchase Complete 🎉", icon: PartyPopper, helperText: "Congratulations! The deal is done. Thank you for choosing Harte Auto Group!" },
 };
 
-// Map internal-only stages to the nearest customer-visible stage
 const STAGE_MAPPING: Record<string, string> = {
   title_verified: "inspection_completed",
   ownership_verified: "inspection_completed",
@@ -91,6 +64,14 @@ const CUSTOMER_VISIBLE_STAGES = [
   "new", "contacted", "offer_made", "inspection_scheduled", "inspection_completed",
   "price_agreed", "purchase_complete",
 ];
+
+const LOAN_STATUS_LABELS: Record<string, string> = {
+  "paid_off": "Paid Off",
+  "has_loan": "Has Loan",
+  "sell": "Looking to Sell",
+  "trade": "Looking to Trade",
+  "lease": "Lease",
+};
 
 const CustomerPortal = () => {
   const { token } = useParams<{ token: string }>();
@@ -117,7 +98,6 @@ const CustomerPortal = () => {
     const vehicleStr = [s.vehicle_year, s.vehicle_make, s.vehicle_model].filter(Boolean).join(" ");
     const printWindow = window.open("", "_blank", "width=800,height=600");
     if (!printWindow) return;
-
     const html = `<!DOCTYPE html><html><head><title>Cash Offer</title>
     <style>
       * { margin:0; padding:0; box-sizing:border-box; }
@@ -153,7 +133,6 @@ const CustomerPortal = () => {
         <p style="margin-top:8px;">Harte Auto Group</p>
       </div>
     </div></body></html>`;
-
     printWindow.document.write(html);
     printWindow.document.close();
     setTimeout(() => { printWindow.focus(); printWindow.print(); }, 300);
@@ -178,7 +157,7 @@ const CustomerPortal = () => {
 
   const s = submission;
   const vehicleStr = [s.vehicle_year, s.vehicle_make, s.vehicle_model].filter(Boolean).join(" ");
-  // If an offer has been made but internal status hasn't advanced past contacted, show offer_made
+  const firstName = s.name?.split(" ")[0] || "";
   let mappedStatus = STAGE_MAPPING[s.progress_status] || s.progress_status;
   if (mappedStatus === "contacted" && s.offered_price) {
     mappedStatus = "offer_made";
@@ -192,9 +171,11 @@ const CustomerPortal = () => {
       <div className="bg-gradient-to-r from-primary via-[hsl(210,100%,30%)] to-primary text-primary-foreground px-6 py-5">
         <div className="max-w-lg mx-auto flex items-center gap-3">
           <img src={harteLogo} alt="Harte" className="h-12 w-auto" />
-          <div>
-            <h1 className="font-bold text-lg">My Submission</h1>
-            <p className="text-sm opacity-80">{vehicleStr}</p>
+          <div className="flex-1">
+            <h1 className="font-bold text-lg">{vehicleStr || "My Submission"}</h1>
+            {firstName && (
+              <p className="text-sm opacity-80">Welcome back, {firstName}!</p>
+            )}
           </div>
         </div>
       </div>
@@ -223,16 +204,18 @@ const CustomerPortal = () => {
               ${s.offered_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
             <p className="text-xs text-muted-foreground mt-1">Subject to in-person inspection</p>
-            <Button
-              variant="outline"
-              size="sm"
-              className="mt-3"
-              onClick={handlePrintOffer}
-            >
+            <Button variant="outline" size="sm" className="mt-3" onClick={handlePrintOffer}>
               <Printer className="w-4 h-4 mr-1" /> Print Offer
             </Button>
           </div>
         )}
+
+        {/* Completion Checklist (replaces Actions) */}
+        <CompletionChecklist
+          photosUploaded={s.photos_uploaded}
+          docsUploaded={s.docs_uploaded}
+          token={s.token}
+        />
 
         {/* Progress */}
         <div className="bg-card rounded-xl p-5 shadow-lg">
@@ -241,9 +224,7 @@ const CustomerPortal = () => {
             <h3 className="font-bold text-card-foreground">Your Progress</h3>
           </div>
           <div className="relative pl-6">
-            {/* Vertical line */}
             <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-border" />
-            {/* Filled progress line */}
             <motion.div
               className="absolute left-[11px] top-2 w-0.5 bg-success"
               initial={{ height: 0 }}
@@ -315,18 +296,19 @@ const CustomerPortal = () => {
             {vehicleStr && <div className="flex justify-between"><span className="text-muted-foreground">Vehicle</span><span className="font-medium">{vehicleStr}</span></div>}
             {s.mileage && <div className="flex justify-between"><span className="text-muted-foreground">Mileage</span><span className="font-medium">{s.mileage}</span></div>}
             {s.exterior_color && <div className="flex justify-between"><span className="text-muted-foreground">Color</span><span className="font-medium">{s.exterior_color}</span></div>}
-            {s.overall_condition && <div className="flex justify-between"><span className="text-muted-foreground">Condition</span><span className="font-medium">{s.overall_condition}</span></div>}
-            {s.loan_status && <div className="flex justify-between"><span className="text-muted-foreground">Loan</span><span className="font-medium capitalize">{s.loan_status}</span></div>}
+            {s.overall_condition && <div className="flex justify-between"><span className="text-muted-foreground">Condition</span><span className="font-medium capitalize">{s.overall_condition}</span></div>}
+            {s.loan_status && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Loan</span>
+                <span className="font-medium">{LOAN_STATUS_LABELS[s.loan_status] || s.loan_status}</span>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Schedule Visit CTA */}
         {currentStageIdx >= CUSTOMER_VISIBLE_STAGES.indexOf("offer_made") && !isComplete && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
             <Link to={`/schedule?token=${s.token}&vehicle=${encodeURIComponent(vehicleStr)}&name=${encodeURIComponent(s.name || "")}&email=${encodeURIComponent(s.email || "")}&phone=${encodeURIComponent(s.phone || "")}`}>
               <Button className="w-full gap-2 text-base py-6 bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg">
                 <CalendarCheck className="w-5 h-5" />
@@ -339,26 +321,8 @@ const CustomerPortal = () => {
           </motion.div>
         )}
 
-        {/* Actions */}
-        <div className="bg-card rounded-xl p-5 shadow-lg">
-          <h3 className="font-bold text-card-foreground mb-3">Actions</h3>
-          <div className="space-y-3">
-            <Link to={`/upload/${s.token}`} className="block">
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <Camera className="w-4 h-4" />
-                {s.photos_uploaded ? "Upload More Photos" : "Upload Vehicle Photos"}
-                {s.photos_uploaded && <CheckCircle className="w-4 h-4 text-success ml-auto" />}
-              </Button>
-            </Link>
-            <Link to={`/docs/${s.token}`} className="block">
-              <Button variant="outline" className="w-full justify-start gap-2">
-                <FileText className="w-4 h-4" />
-                {s.docs_uploaded ? "Upload More Documents" : "Upload Documents"}
-                {s.docs_uploaded && <CheckCircle className="w-4 h-4 text-success ml-auto" />}
-              </Button>
-            </Link>
-          </div>
-        </div>
+        {/* Dealer Contact */}
+        <DealerContactCard />
 
         {/* Submitted Date */}
         <p className="text-center text-xs text-muted-foreground">
