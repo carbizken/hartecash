@@ -8,7 +8,7 @@ import harteLogo from "@/assets/harte-logo.png";
 const DOC_TYPES = [
   { key: "drivers_license", label: "Driver's License", emoji: "🪪" },
   { key: "registration", label: "Registration", emoji: "📋" },
-  { key: "title_inquiry", label: "Title Inquiry", emoji: "🔍" },
+  { key: "title_inquiry", label: "Title Inquiry by Dealer", emoji: "🔍" },
   { key: "title", label: "Title", emoji: "📄" },
   { key: "payoff_verification", label: "Payoff Verification (if necessary)", emoji: "💰" },
 ];
