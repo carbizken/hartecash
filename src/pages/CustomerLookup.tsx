@@ -109,6 +109,16 @@ const CustomerLookup = () => {
           </div>
         )}
 
+        {/* Sell Another Vehicle CTA */}
+        <div className="mt-8 text-center">
+          <p className="text-sm text-muted-foreground mb-2">Have another vehicle to sell?</p>
+          <a href="/#sell">
+            <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 font-bold">
+              Sell Another Vehicle
+            </Button>
+          </a>
+        </div>
+
         <p className="text-center mt-6 text-xs text-muted-foreground">
           🔒 We only show submissions matching your exact contact information.
         </p>
