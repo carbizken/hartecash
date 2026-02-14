@@ -290,25 +290,27 @@ const CustomerPortal = () => {
         {/* Vehicle Photos */}
         <VehiclePhotos token={s.token} photosUploaded={s.photos_uploaded} />
 
-        {/* Vehicle Info */}
-        <div className="bg-card rounded-xl p-5 shadow-lg">
-          <div className="flex items-center gap-2 mb-3">
-            <Car className="w-5 h-5 text-primary" />
-            <h3 className="font-bold text-card-foreground">Vehicle Details</h3>
+        {/* Vehicle Info - only show if there's actual data */}
+        {(vehicleStr || s.mileage || s.exterior_color || s.overall_condition || s.loan_status) && (
+          <div className="bg-card rounded-xl p-5 shadow-lg">
+            <div className="flex items-center gap-2 mb-3">
+              <Car className="w-5 h-5 text-primary" />
+              <h3 className="font-bold text-card-foreground">Vehicle Details</h3>
+            </div>
+            <div className="space-y-1 text-sm">
+              {vehicleStr && <div className="flex justify-between"><span className="text-muted-foreground">Vehicle</span><span className="font-medium">{vehicleStr}</span></div>}
+              {s.mileage && <div className="flex justify-between"><span className="text-muted-foreground">Mileage</span><span className="font-medium">{s.mileage}</span></div>}
+              {s.exterior_color && <div className="flex justify-between"><span className="text-muted-foreground">Color</span><span className="font-medium">{s.exterior_color}</span></div>}
+              {s.overall_condition && <div className="flex justify-between"><span className="text-muted-foreground">Condition</span><span className="font-medium capitalize">{s.overall_condition}</span></div>}
+              {s.loan_status && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Loan</span>
+                  <span className="font-medium">{LOAN_STATUS_LABELS[s.loan_status] || s.loan_status}</span>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="space-y-1 text-sm">
-            {vehicleStr && <div className="flex justify-between"><span className="text-muted-foreground">Vehicle</span><span className="font-medium">{vehicleStr}</span></div>}
-            {s.mileage && <div className="flex justify-between"><span className="text-muted-foreground">Mileage</span><span className="font-medium">{s.mileage}</span></div>}
-            {s.exterior_color && <div className="flex justify-between"><span className="text-muted-foreground">Color</span><span className="font-medium">{s.exterior_color}</span></div>}
-            {s.overall_condition && <div className="flex justify-between"><span className="text-muted-foreground">Condition</span><span className="font-medium capitalize">{s.overall_condition}</span></div>}
-            {s.loan_status && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Loan</span>
-                <span className="font-medium">{LOAN_STATUS_LABELS[s.loan_status] || s.loan_status}</span>
-              </div>
-            )}
-          </div>
-        </div>
+        )}
 
         {/* Payment Info */}
         <PaymentInfoCard />
