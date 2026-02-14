@@ -10,22 +10,23 @@ const DealerContactCard = () => (
   >
     <h3 className="font-bold text-card-foreground mb-3">Need Help?</h3>
     <div className="space-y-2.5 text-sm">
-      <a href="tel:+18605478891" className="flex items-center gap-2.5 text-muted-foreground hover:text-accent transition-colors">
+      <p className="text-sm font-semibold text-card-foreground mb-1">Harte Infiniti</p>
+      <a href="tel:+18668517390" className="flex items-center gap-2.5 text-muted-foreground hover:text-accent transition-colors">
         <Phone className="w-4 h-4 text-primary flex-shrink-0" />
-        <span>(860) 547-8891</span>
+        <span>(866) 851-7390</span>
       </a>
-      <a href="mailto:webuycars@harteautogroup.com" className="flex items-center gap-2.5 text-muted-foreground hover:text-accent transition-colors">
+      <a href="mailto:kenc@hartecars.com" className="flex items-center gap-2.5 text-muted-foreground hover:text-accent transition-colors">
         <Mail className="w-4 h-4 text-primary flex-shrink-0" />
-        <span>webuycars@harteautogroup.com</span>
+        <span>kenc@hartecars.com</span>
       </a>
       <a
-        href="https://maps.google.com/?q=60+Weston+St,+Hartford,+CT+06120"
+        href="https://maps.google.com/?q=150+Weston+Street,+Hartford,+CT+06120"
         target="_blank"
         rel="noopener noreferrer"
         className="flex items-start gap-2.5 text-muted-foreground hover:text-accent transition-colors"
       >
         <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-        <span>60 Weston St, Hartford, CT 06120</span>
+        <span>150 Weston Street, Hartford, CT 06120</span>
       </a>
       <div className="flex items-start gap-2.5 text-muted-foreground">
         <Clock className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
