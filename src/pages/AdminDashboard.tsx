@@ -944,6 +944,7 @@ const AdminDashboard = () => {
                           <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Date</th>
                           <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Name</th>
                           <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Vehicle</th>
+                          <th className="text-left px-4 py-3 font-semibold text-muted-foreground">VIN</th>
                           <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Contact</th>
                           <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Photos</th>
                           <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Source</th>
@@ -964,7 +965,10 @@ const AdminDashboard = () => {
                             <td className="px-4 py-3">
                               {sub.vehicle_year && sub.vehicle_make
                                 ? `${sub.vehicle_year} ${sub.vehicle_make} ${sub.vehicle_model || ""}`
-                                : sub.vin || sub.plate || "—"}
+                                : sub.plate || "—"}
+                            </td>
+                            <td className="px-4 py-3 text-xs font-mono text-muted-foreground">
+                              {sub.vin || "—"}
                             </td>
                             <td className="px-4 py-3">
                               <div>{sub.email || "—"}</div>
