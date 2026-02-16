@@ -334,7 +334,7 @@ const ServiceLanding = () => {
 
                   <div className="flex gap-3 pt-2">
                     <Button type="button" variant="outline" onClick={() => setStep(0)}
-                      className="flex-1 py-4 border-[hsl(217,33%,22%)] text-[hsl(210,40%,98%)] hover:bg-[hsl(222,47%,12%)]">
+                      className="flex-1 py-4 bg-transparent border-[hsl(217,33%,22%)] text-[hsl(210,40%,98%)] hover:bg-[hsl(222,47%,12%)]">
                       Back
                     </Button>
                     <Button type="submit" disabled={submitting}
