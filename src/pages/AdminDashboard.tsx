@@ -1741,7 +1741,14 @@ const AdminDashboard = () => {
                           performed_by: userRole,
                         });
                       }
-                      setSubmissions(prev => prev.map(s => s.id === selected.id ? { ...s, progress_status: selected.progress_status, offered_price: selected.offered_price, acv_value: selected.acv_value, internal_notes: selected.internal_notes } : s));
+                      // Re-fetch submission to get server-set fields like appraised_by
+                      const { data: refreshed } = await supabase.from("submissions").select("*").eq("id", selected.id).maybeSingle();
+                      if (refreshed) {
+                        setSelected(refreshed as any);
+                        setSubmissions(prev => prev.map(s => s.id === selected.id ? refreshed as any : s));
+                      } else {
+                        setSubmissions(prev => prev.map(s => s.id === selected.id ? { ...s, progress_status: selected.progress_status, offered_price: selected.offered_price, acv_value: selected.acv_value, internal_notes: selected.internal_notes } : s));
+                      }
                       fetchActivityLog(selected.id);
                       toast({ title: "Record updated", description: "All changes have been saved." });
                     } else {
