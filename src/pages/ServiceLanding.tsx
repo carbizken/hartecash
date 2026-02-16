@@ -214,10 +214,6 @@ const ServiceLanding = () => {
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[hsl(210,100%,25%)]/10 blur-[150px] pointer-events-none" />
 
         <motion.div initial="hidden" animate="visible" className="relative max-w-2xl mx-auto">
-          <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 px-4 py-1.5 mb-6 rounded-full bg-[hsl(210,100%,25%)]/20 border border-[hsl(210,100%,25%)]/30 text-sm font-medium text-[hsl(210,80%,70%)]">
-            <Car className="w-4 h-4" />
-            Exclusively for Our Service Customers
-           </motion.div>
 
 
 
