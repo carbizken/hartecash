@@ -15,6 +15,7 @@ const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const PitchDeck = lazy(() => import("./pages/PitchDeck"));
+const ServiceLanding = lazy(() => import("./pages/ServiceLanding"));
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/schedule" element={<ScheduleVisit />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/service" element={<ServiceLanding />} />
             <Route path="/pitch" element={<PitchDeck />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
