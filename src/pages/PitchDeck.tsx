@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import harteLogo from "@/assets/harte-logo.png";
+import screenshotLanding from "@/assets/pitch/screenshot-landing.jpg";
+import screenshotPortal from "@/assets/pitch/screenshot-portal.jpg";
+import screenshotUploadMobile from "@/assets/pitch/screenshot-upload-mobile.jpg";
+import screenshotDashboard from "@/assets/pitch/screenshot-dashboard.jpg";
 import {
   Car, Users, Shield, Zap, BarChart3, ChevronRight, ChevronLeft,
   Maximize2, Minimize2, CheckCircle2, XCircle, Clock, DollarSign,
@@ -478,47 +482,20 @@ export default function PitchDeck() {
                 />
               </div>
 
-              {/* Right: Mockup of the form */}
+              {/* Right: Screenshot of the form */}
               <motion.div variants={scaleIn} custom={2}>
-                <MockupFrame title="hartecash.com/sell-my-car">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 mb-6">
-                      <img src={harteLogo} alt="" className="h-8" />
-                      <span className="font-bold text-foreground">Get Your Cash Offer</span>
+                <div className="rounded-2xl overflow-hidden border border-border shadow-2xl">
+                  <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-muted/50">
+                    <div className="flex gap-1.5">
+                      <span className="w-3 h-3 rounded-full bg-red-400/60" />
+                      <span className="w-3 h-3 rounded-full bg-yellow-400/60" />
+                      <span className="w-3 h-3 rounded-full bg-emerald-400/60" />
                     </div>
-                    {/* Progress bar mockup */}
-                    <div className="flex gap-1 mb-6">
-                      {["Vehicle Info", "Build", "Condition", "Details", "Submit"].map((s, i) => (
-                        <div key={s} className="flex-1 text-center">
-                          <div className={`h-1.5 rounded-full mb-1.5 ${i <= 1 ? "bg-primary" : "bg-muted"}`} />
-                          <span className={`text-[10px] ${i <= 1 ? "text-primary font-bold" : "text-muted-foreground"}`}>{s}</span>
-                        </div>
-                      ))}
-                    </div>
-                    {/* Form fields */}
-                    <div className="space-y-3">
-                      <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                        <span className="text-[10px] text-muted-foreground block mb-1">VIN (Optional)</span>
-                        <span className="text-sm font-mono text-foreground">1HGBH41JXMN109186</span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2">
-                        {[["Year", "2021"], ["Make", "Honda"], ["Model", "Accord"]].map(([l, v]) => (
-                          <div key={l} className="bg-muted/50 rounded-lg p-3 border border-border">
-                            <span className="text-[10px] text-muted-foreground block mb-1">{l}</span>
-                            <span className="text-sm text-foreground font-medium">{v}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                        <span className="text-[10px] text-muted-foreground block mb-1">Mileage</span>
-                        <span className="text-sm text-foreground">34,200 miles</span>
-                      </div>
-                    </div>
-                    <div className="bg-primary text-primary-foreground rounded-lg py-3 text-center font-bold text-sm mt-4">
-                      Continue →
-                    </div>
+                    <span className="text-xs font-mono ml-2 text-muted-foreground">hartecash.com</span>
                   </div>
-                </MockupFrame>
+                  <img src={screenshotLanding} alt="Landing page with vehicle submission form" className="w-full" />
+                </div>
+                <p className="text-xs text-muted-foreground text-center mt-3 italic">Live screenshot — this is what your customers see</p>
               </motion.div>
             </motion.div>
           </motion.div>
@@ -539,52 +516,20 @@ export default function PitchDeck() {
             </motion.p>
 
             <motion.div variants={fadeUp} custom={1} className="grid lg:grid-cols-2 gap-10">
-              {/* Left: Mockup of portal */}
+              {/* Left: Screenshot of portal */}
               <motion.div variants={scaleIn} custom={1.5}>
-                <MockupFrame title="hartecash.com/portal/abc123" dark>
-                  <div className="space-y-4">
-                    {/* Header */}
-                    <div className="bg-blue-600 rounded-xl p-4 text-white">
-                      <div className="flex items-center gap-3">
-                        <img src={harteLogo} alt="" className="h-8 brightness-0 invert" />
-                        <div>
-                          <div className="font-bold">2021 Honda Accord</div>
-                          <div className="text-xs text-white/70">Welcome back, Sarah!</div>
-                        </div>
-                      </div>
+                <div className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+                  <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/10 bg-white/5">
+                    <div className="flex gap-1.5">
+                      <span className="w-3 h-3 rounded-full bg-red-400/60" />
+                      <span className="w-3 h-3 rounded-full bg-yellow-400/60" />
+                      <span className="w-3 h-3 rounded-full bg-emerald-400/60" />
                     </div>
-                    {/* What's Next */}
-                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-                      <div className="text-xs font-bold text-blue-400 mb-1">📋 What's Next</div>
-                      <div className="text-xs text-white/60">Upload 6 photos of your vehicle so we can prepare your offer.</div>
-                    </div>
-                    {/* Offer */}
-                    <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 text-center">
-                      <div className="text-xs text-white/50 mb-1">Your Cash Offer</div>
-                      <div className="text-2xl font-black text-emerald-400">$24,500.00</div>
-                      <div className="text-[10px] text-white/30 mt-1">Subject to in-person inspection</div>
-                    </div>
-                    {/* Progress tracker mini */}
-                    <div className="space-y-2">
-                      {[
-                        { label: "Submitted", done: true },
-                        { label: "Under Review", done: true },
-                        { label: "Initial Offer", done: true },
-                        { label: "Inspection", active: true },
-                        { label: "Purchase Complete", done: false },
-                      ].map((s, i) => (
-                        <div key={i} className="flex items-center gap-2">
-                          <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold ${
-                            s.done ? "bg-emerald-500 text-white" : s.active ? "bg-blue-500 text-white ring-2 ring-blue-500/30" : "bg-white/10 text-white/30"
-                          }`}>
-                            {s.done ? "✓" : i + 1}
-                          </div>
-                          <span className={`text-xs ${s.done ? "text-white/70" : s.active ? "text-blue-400 font-bold" : "text-white/30"}`}>{s.label}</span>
-                        </div>
-                      ))}
-                    </div>
+                    <span className="text-xs font-mono ml-2 text-white/30">hartecash.com/my-submission/...</span>
                   </div>
-                </MockupFrame>
+                  <img src={screenshotPortal} alt="Customer portal with offer and progress tracker" className="w-full" />
+                </div>
+                <p className="text-xs text-white/30 text-center mt-3 italic">Live screenshot — personalized customer portal</p>
               </motion.div>
 
               {/* Right: Step breakdown */}
@@ -625,26 +570,20 @@ export default function PitchDeck() {
             </motion.p>
 
             <motion.div variants={fadeUp} custom={1} className="grid lg:grid-cols-3 gap-8">
-              {/* Photo Upload */}
+              {/* Photo Upload - Real Screenshot */}
               <motion.div variants={scaleIn} custom={1}>
-                <MockupFrame title="📸 Vehicle Photos">
-                  <div className="space-y-3">
-                    <p className="text-xs text-muted-foreground">6 required categories — guided with labels:</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {["Front", "Rear", "Driver Side", "Passenger", "Dashboard", "Interior"].map((cat, i) => (
-                        <div key={cat} className={`aspect-square rounded-lg flex flex-col items-center justify-center text-[10px] font-medium border-2 border-dashed ${
-                          i < 3 ? "border-emerald-400/40 bg-emerald-500/5 text-emerald-600" : "border-muted-foreground/20 bg-muted/30 text-muted-foreground"
-                        }`}>
-                          {i < 3 ? <CheckCircle2 className="w-4 h-4 text-emerald-500 mb-1" /> : <Camera className="w-4 h-4 mb-1 opacity-40" />}
-                          {cat}
-                        </div>
-                      ))}
+                <div className="rounded-2xl overflow-hidden border border-border shadow-lg">
+                  <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-muted/50">
+                    <div className="flex gap-1.5">
+                      <span className="w-3 h-3 rounded-full bg-red-400/60" />
+                      <span className="w-3 h-3 rounded-full bg-yellow-400/60" />
+                      <span className="w-3 h-3 rounded-full bg-emerald-400/60" />
                     </div>
-                    <div className="text-[10px] text-muted-foreground bg-muted/50 rounded-lg p-2 text-center">
-                      Auto-marks complete when all 6 uploaded ✓
-                    </div>
+                    <span className="text-xs font-mono ml-2 text-muted-foreground">📸 Vehicle Photos</span>
                   </div>
-                </MockupFrame>
+                  <img src={screenshotUploadMobile} alt="Mobile photo upload interface with 6 guided categories" className="w-full" />
+                </div>
+                <p className="text-xs text-muted-foreground text-center mt-2 italic">Live mobile screenshot</p>
               </motion.div>
 
               {/* Document Upload */}
@@ -739,45 +678,20 @@ export default function PitchDeck() {
             </motion.p>
 
             <motion.div variants={fadeUp} custom={1} className="grid lg:grid-cols-2 gap-10">
-              {/* Left: Dashboard mockup */}
+              {/* Left: Dashboard screenshot */}
               <motion.div variants={scaleIn} custom={1.5}>
-                <MockupFrame title="Admin Dashboard — Leads" dark>
-                  <div className="space-y-4">
-                    {/* Analytics bar */}
-                    <div className="grid grid-cols-4 gap-2">
-                      {[
-                        { label: "Total Leads", value: "147" },
-                        { label: "This Week", value: "12" },
-                        { label: "Offers Made", value: "38" },
-                        { label: "Purchased", value: "23" },
-                      ].map((stat) => (
-                        <div key={stat.label} className="bg-white/5 rounded-lg p-2 text-center border border-white/10">
-                          <div className="text-lg font-black text-blue-400">{stat.value}</div>
-                          <div className="text-[9px] text-white/40">{stat.label}</div>
-                        </div>
-                      ))}
+                <div className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+                  <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/10 bg-white/5">
+                    <div className="flex gap-1.5">
+                      <span className="w-3 h-3 rounded-full bg-red-400/60" />
+                      <span className="w-3 h-3 rounded-full bg-yellow-400/60" />
+                      <span className="w-3 h-3 rounded-full bg-emerald-400/60" />
                     </div>
-                    {/* Leads table */}
-                    <div className="border border-white/10 rounded-lg overflow-hidden">
-                      <div className="grid grid-cols-4 gap-2 p-2 bg-white/5 text-[9px] text-white/40 font-bold uppercase">
-                        <span>Customer</span><span>Vehicle</span><span>Status</span><span>Offer</span>
-                      </div>
-                      {[
-                        { name: "Sarah J.", car: "21 Accord", status: "Offer Made", offer: "$24,500", color: "text-emerald-400" },
-                        { name: "Mike R.", car: "22 RAV4", status: "Inspection", offer: "$28,100", color: "text-blue-400" },
-                        { name: "Lisa K.", car: "20 Civic", status: "New Lead", offer: "—", color: "text-yellow-400" },
-                        { name: "Tom H.", car: "23 CRV", status: "Contacted", offer: "—", color: "text-orange-400" },
-                      ].map((lead, i) => (
-                        <div key={i} className="grid grid-cols-4 gap-2 p-2 border-t border-white/5 text-[10px]">
-                          <span className="text-white/70 font-medium">{lead.name}</span>
-                          <span className="text-white/50">{lead.car}</span>
-                          <span className={`${lead.color} font-medium`}>{lead.status}</span>
-                          <span className="text-white/70">{lead.offer}</span>
-                        </div>
-                      ))}
-                    </div>
+                    <span className="text-xs font-mono ml-2 text-white/30">hartecash.com/admin</span>
                   </div>
-                </MockupFrame>
+                  <img src={screenshotDashboard} alt="Admin dashboard with leads table and analytics" className="w-full" />
+                </div>
+                <p className="text-xs text-white/30 text-center mt-3 italic">Live screenshot — admin command center</p>
               </motion.div>
 
               {/* Right: Steps */}
