@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Shield, ArrowRight, CheckCircle, Loader2, Car,
+  Shield, ArrowRight, CheckCircle, Loader2, Car, CalendarDays,
   Wrench, DollarSign, Clock, Star, RefreshCw, ShieldCheck, TrendingUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -79,6 +79,20 @@ const benefits = [
 const ServiceLanding = () => {
   const [searchParams] = useSearchParams();
   const vinParam = searchParams.get("vin") || "";
+  const appointmentDate = searchParams.get("date") || "";
+  const appointmentTime = searchParams.get("time") || "";
+
+  const formattedAppointment = (() => {
+    if (!appointmentDate) return null;
+    try {
+      const [year, month, day] = appointmentDate.split("-").map(Number);
+      const date = new Date(year, month - 1, day);
+      const dateStr = date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+      return appointmentTime ? `${dateStr} at ${decodeURIComponent(appointmentTime)}` : dateStr;
+    } catch {
+      return appointmentTime ? `${appointmentDate} at ${decodeURIComponent(appointmentTime)}` : appointmentDate;
+    }
+  })();
 
   const [step, setStep] = useState(0); // 0 = vehicle, 1 = contact, 2 = done
   const [vin, setVin] = useState(vinParam.trim().toUpperCase());
@@ -197,7 +211,16 @@ const ServiceLanding = () => {
           <motion.div variants={fadeUp} custom={0} className="inline-flex items-center gap-2 px-4 py-1.5 mb-6 rounded-full bg-[hsl(210,100%,25%)]/20 border border-[hsl(210,100%,25%)]/30 text-sm font-medium text-[hsl(210,80%,70%)]">
             <Car className="w-4 h-4" />
             Exclusively for Our Service Customers
-          </motion.div>
+           </motion.div>
+
+          {formattedAppointment && (
+            <motion.div variants={fadeUp} custom={0.5}
+              className="inline-flex items-center gap-2 px-5 py-2.5 mb-6 rounded-xl bg-[hsl(160,84%,39%)]/10 border border-[hsl(160,84%,39%)]/30 text-sm font-medium text-[hsl(160,60%,60%)]"
+            >
+              <CalendarDays className="w-4 h-4 flex-shrink-0" />
+              <span>Your service appointment: <strong className="text-[hsl(160,60%,75%)]">{formattedAppointment}</strong></span>
+            </motion.div>
+          )}
 
           <motion.h1 variants={fadeUp} custom={1} className="text-3xl md:text-5xl lg:text-6xl font-black leading-tight mb-6 tracking-tight">
             There's Never Been a{" "}
