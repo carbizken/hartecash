@@ -1091,9 +1091,7 @@ export default function PitchDeck() {
           <div className="absolute inset-0 bg-gradient-to-b from-blue-600/5 via-transparent to-transparent pointer-events-none" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-blue-600/5 blur-[200px] pointer-events-none" />
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center relative">
-            <motion.div variants={fadeUp} custom={0}>
-              <img src={harteLogo} alt="Harte Auto Group" className="h-20 mx-auto brightness-0 invert opacity-80 mb-10" />
-            </motion.div>
+            <motion.div variants={fadeUp} custom={0} className="mb-10" />
             <motion.h2 variants={fadeUp} custom={1} className="text-4xl md:text-6xl lg:text-7xl font-black mb-8 leading-tight">
               Let's <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">Transform</span><br />
               Your Dealership
