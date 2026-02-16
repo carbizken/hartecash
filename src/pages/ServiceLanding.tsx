@@ -232,7 +232,7 @@ const ServiceLanding = () => {
                 <span className="bg-gradient-to-r from-[hsl(210,80%,60%)] to-[hsl(250,80%,70%)] bg-clip-text text-transparent">
                   Better Time
                 </span>{" "}
-                to Upgrade
+                to Upgrade or Sell
               </>
             )}
           </motion.h1>
