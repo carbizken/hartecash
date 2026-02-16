@@ -83,6 +83,9 @@ interface Submission {
   status_updated_at: string | null;
   appointment_date: string | null;
   appointment_set: boolean;
+  address_street: string | null;
+  address_city: string | null;
+  address_state: string | null;
 }
 
 const PAGE_SIZE = 20;
@@ -580,7 +583,7 @@ const AdminDashboard = () => {
       '<div class="header"><h1>' + (vehicleStr || "Submission Details") + "</h1>" +
       "<p>Submitted " + new Date(s.created_at).toLocaleDateString() + " &bull; " + (s.name || "Unknown") + "</p></div>" +
       '<div class="content">' +
-      makeSection("Contact Information", [["Name", s.name], ["Phone", s.phone], ["Email", s.email], ["ZIP", s.zip]]) +
+      makeSection("Contact Information", [["Name", s.name], ["Phone", s.phone], ["Email", s.email], ["ZIP", s.zip], ["Address", [(s as any).address_street, (s as any).address_city, (s as any).address_state, s.zip].filter(Boolean).join(", ") || null]]) +
       makeSection("Vehicle Details", [
         ["Year/Make/Model", vehicleStr], ["VIN", s.vin], ["Plate", s.plate], ["Mileage", s.mileage],
         ["Exterior Color", s.exterior_color], ["Drivetrain", s.drivetrain], ["Modifications", s.modifications],
@@ -1160,14 +1163,79 @@ const AdminDashboard = () => {
                 </div>
               )}
 
-              {/* Contact Card */}
+              {/* Contact Card - Editable */}
               <div data-print-section className="bg-muted/40 rounded-lg p-4">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Contact Information</h3>
-                <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-                  <DetailRow label="Name" value={selected.name} />
-                  <DetailRow label="Phone" value={selected.phone} />
-                  <DetailRow label="Email" value={selected.email} />
-                  <DetailRow label="ZIP" value={selected.zip} />
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Name</Label>
+                    <Input
+                      value={selected.name || ""}
+                      onChange={(e) => setSelected({ ...selected, name: e.target.value || null })}
+                      placeholder="Full name"
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Phone</Label>
+                    <Input
+                      value={selected.phone || ""}
+                      onChange={(e) => setSelected({ ...selected, phone: e.target.value || null })}
+                      placeholder="(555) 123-4567"
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Email</Label>
+                    <Input
+                      type="email"
+                      value={selected.email || ""}
+                      onChange={(e) => setSelected({ ...selected, email: e.target.value || null })}
+                      placeholder="email@example.com"
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">ZIP</Label>
+                    <Input
+                      value={selected.zip || ""}
+                      onChange={(e) => setSelected({ ...selected, zip: e.target.value || null })}
+                      placeholder="ZIP code"
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t border-border">
+                  <Label className="text-xs text-muted-foreground font-semibold block mb-2">Address</Label>
+                  <div className="space-y-2">
+                    <Input
+                      value={(selected as any).address_street || ""}
+                      onChange={(e) => setSelected({ ...selected, address_street: e.target.value || null })}
+                      placeholder="Street address"
+                      className="h-8 text-sm"
+                    />
+                    <div className="grid grid-cols-3 gap-2">
+                      <Input
+                        value={(selected as any).address_city || ""}
+                        onChange={(e) => setSelected({ ...selected, address_city: e.target.value || null })}
+                        placeholder="City"
+                        className="h-8 text-sm col-span-1"
+                      />
+                      <Input
+                        value={(selected as any).address_state || ""}
+                        onChange={(e) => setSelected({ ...selected, address_state: e.target.value || null })}
+                        placeholder="State"
+                        className="h-8 text-sm col-span-1"
+                      />
+                      <Input
+                        value={selected.zip || ""}
+                        onChange={(e) => setSelected({ ...selected, zip: e.target.value || null })}
+                        placeholder="ZIP"
+                        className="h-8 text-sm col-span-1"
+                        disabled
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -1579,6 +1647,13 @@ const AdminDashboard = () => {
                         acv_value: selected.acv_value,
                         check_request_done: selected.check_request_done,
                         internal_notes: selected.internal_notes,
+                        name: selected.name,
+                        phone: selected.phone,
+                        email: selected.email,
+                        zip: selected.zip,
+                        address_street: (selected as any).address_street,
+                        address_city: (selected as any).address_city,
+                        address_state: (selected as any).address_state,
                         status_updated_at: new Date().toISOString(),
                       })
                       .eq("id", selected.id);

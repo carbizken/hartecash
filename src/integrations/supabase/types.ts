@@ -160,6 +160,9 @@ export type Database = {
         Row: {
           accidents: string | null
           acv_value: number | null
+          address_city: string | null
+          address_state: string | null
+          address_street: string | null
           appointment_date: string | null
           appointment_set: boolean
           check_request_done: boolean
@@ -208,6 +211,9 @@ export type Database = {
         Insert: {
           accidents?: string | null
           acv_value?: number | null
+          address_city?: string | null
+          address_state?: string | null
+          address_street?: string | null
           appointment_date?: string | null
           appointment_set?: boolean
           check_request_done?: boolean
@@ -256,6 +262,9 @@ export type Database = {
         Update: {
           accidents?: string | null
           acv_value?: number | null
+          address_city?: string | null
+          address_state?: string | null
+          address_street?: string | null
           appointment_date?: string | null
           appointment_set?: boolean
           check_request_done?: boolean
