@@ -218,13 +218,13 @@ const ServiceLanding = () => {
 
 
           <motion.h1 variants={fadeUp} custom={1} className="text-3xl md:text-5xl lg:text-6xl font-black leading-tight mb-6 tracking-tight">
-            {vehicleLabel ? (
+             {vehicleLabel ? (
               <>
                 Your{" "}
                 <span className="bg-gradient-to-r from-[hsl(210,80%,60%)] to-[hsl(250,80%,70%)] bg-clip-text text-transparent">
-                  {vehicleLabel}
+                  {vehicleInfo!.year} {vehicleInfo!.make}
                 </span>{" "}
-                Could Be Worth More Than You Think
+                Could Be Worth More Than You Think to Trade Up or Sell
               </>
             ) : (
               <>
