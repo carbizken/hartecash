@@ -369,6 +369,8 @@ const AdminDashboard = () => {
     title: "Title",
     payoff_verification: "Payoff Verification",
     appraisal: "Appraisal",
+    carfax: "Carfax",
+    window_sticker: "Window Sticker",
   };
 
   const handleView = async (sub: Submission) => {
@@ -396,7 +398,7 @@ const AdminDashboard = () => {
     }
 
     // Fetch documents from customer-documents bucket
-    const docTypes = ["drivers_license", "registration", "title_inquiry", "title", "payoff_verification", "appraisal"];
+    const docTypes = ["drivers_license", "registration", "title_inquiry", "title", "payoff_verification", "appraisal", "carfax", "window_sticker"];
     const allDocs: { name: string; url: string; type: string }[] = [];
     for (const docType of docTypes) {
       const { data: docFiles } = await supabase.storage
@@ -533,6 +535,9 @@ const AdminDashboard = () => {
       ".stage-inactive .stage-dot { background: #d1d5db; }",
       ".photos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }",
       ".photos-grid img { width: 100%; height: 100px; object-fit: cover; border-radius: 6px; }",
+      ".doc-section { page-break-before: always; }",
+      ".doc-section h3 { font-size: 13px; font-weight: 700; color: #4a5568; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }",
+      ".doc-img { max-width: 100%; margin-bottom: 12px; border: 1px solid #d1d5db; border-radius: 6px; }",
       ".notes { white-space: pre-wrap; font-size: 13px; color: #4a5568; background: white; padding: 8px; border-radius: 4px; border: 1px solid #e2e6ea; }",
       "@page { margin: 0.5in; size: letter; }",
     ].join("\n");
@@ -579,6 +584,25 @@ const AdminDashboard = () => {
 
     const docsUrl = getDocsUrl(s.token);
 
+    // Build uploaded documents HTML grouped by type
+    const groupedDocs: Record<string, string[]> = {};
+    docs.forEach(d => {
+      if (!groupedDocs[d.type]) groupedDocs[d.type] = [];
+      groupedDocs[d.type].push(d.url);
+    });
+    const docsHtml = Object.keys(groupedDocs).length > 0
+      ? Object.entries(groupedDocs).map(([type, urls]) => {
+          const label = DOC_TYPE_LABELS[type] || type;
+          const images = urls.map(u => {
+            const isPdf = u.includes(".pdf");
+            return isPdf
+              ? '<p style="font-size:13px;color:#4a5568;">[PDF Document]</p>'
+              : '<img class="doc-img" src="' + u + '" />';
+          }).join("");
+          return '<div class="doc-section"><div class="section"><div class="section-title">' + label + '</div>' + images + '</div></div>';
+        }).join("")
+      : "";
+
     const html = "<!DOCTYPE html><html><head><title>Submission Details</title><style>" + css + "</style></head><body>" +
       '<div class="header"><h1>' + (vehicleStr || "Submission Details") + "</h1>" +
       "<p>Submitted " + new Date(s.created_at).toLocaleDateString() + " &bull; " + (s.name || "Unknown") + "</p></div>" +
@@ -601,6 +625,7 @@ const AdminDashboard = () => {
       priceSection +
       notesHtml +
       photosHtml +
+      docsHtml +
       '<div class="section"><div class="section-title">Customer Documents Upload Link</div>' +
       '<p style="font-size:13px;color:#4a5568;word-break:break-all;">' + docsUrl + "</p></div>" +
       "</div></body></html>";
