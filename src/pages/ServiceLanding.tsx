@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import siteLogo from "@/assets/site-logo.png";
+import serviceLogo from "@/assets/harte-service-logo.png";
 
 interface VehicleInfo {
   year: string;
@@ -183,7 +183,7 @@ const ServiceLanding = () => {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[hsl(222,47%,5%)]/90 backdrop-blur-md border-b border-[hsl(217,33%,17%)]">
         <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between">
-          <img src={siteLogo} alt="Harte Auto Group" className="h-10 brightness-0 invert" />
+          <img src={serviceLogo} alt="Harte Auto Group" className="h-12" />
           <span className="text-xs font-medium text-[hsl(215,20%,65%)] tracking-wider uppercase">Service Customer Exclusive</span>
         </div>
       </header>
@@ -439,7 +439,7 @@ const ServiceLanding = () => {
 
       {/* Footer */}
       <footer className="border-t border-[hsl(217,33%,17%)] py-8 px-5 text-center">
-        <img src={siteLogo} alt="Harte Auto Group" className="h-8 mx-auto mb-3 brightness-0 invert opacity-60" />
+        <img src={serviceLogo} alt="Harte Auto Group" className="h-10 mx-auto mb-3 opacity-60" />
         <p className="text-xs text-[hsl(215,20%,45%)]">
           Family-owned since 1952 • 150 Weston Street, Hartford, CT 06120 • (866) 851-7390
         </p>
