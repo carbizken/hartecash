@@ -469,7 +469,7 @@ const ServiceLanding = () => {
 
       {/* Footer */}
       <footer className="border-t border-[hsl(217,33%,17%)] py-8 px-5 text-center">
-        <img src={serviceLogo} alt="Harte Auto Group" className="h-10 mx-auto mb-3 opacity-60" />
+        <img src={serviceLogo} alt="Harte Auto Group" className="h-20 mx-auto mb-3 opacity-60" />
         <p className="text-xs text-[hsl(215,20%,45%)]">
           Family-owned since 1952 • 150 Weston Street, Hartford, CT 06120 • (866) 851-7390
         </p>
