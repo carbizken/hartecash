@@ -733,7 +733,7 @@ const AdminDashboard = () => {
     // Validate ACV appraisal document uploaded
     const { data: appraisalCheck } = await supabase.storage
       .from("customer-documents")
-      .list(`${s.id}/appraisal`);
+      .list(`${s.token}/appraisal`);
     if (!appraisalCheck || appraisalCheck.length === 0) {
       toast({ title: "Missing Appraisal", description: "An ACV appraisal document must be uploaded before generating a check request.", variant: "destructive" });
       return;
@@ -742,7 +742,7 @@ const AdminDashboard = () => {
     // Validate driver's license uploaded
     const { data: dlCheck } = await supabase.storage
       .from("customer-documents")
-      .list(`${s.id}/drivers-license`);
+      .list(`${s.token}/drivers_license`);
     if (!dlCheck || dlCheck.length === 0) {
       toast({ title: "Missing Driver's License", description: "Customer driver's license must be uploaded before generating a check request.", variant: "destructive" });
       return;
@@ -753,10 +753,10 @@ const AdminDashboard = () => {
     // Helper to fetch signed URLs from a doc folder
     const fetchDocImages = async (folder: string): Promise<string[]> => {
       const urls: string[] = [];
-      const { data: files } = await supabase.storage.from("customer-documents").list(`${s.id}/${folder}`);
+      const { data: files } = await supabase.storage.from("customer-documents").list(`${s.token}/${folder}`);
       if (files && files.length > 0) {
         for (const f of files) {
-          const { data } = await supabase.storage.from("customer-documents").createSignedUrl(`${s.id}/${folder}/${f.name}`, 3600);
+          const { data } = await supabase.storage.from("customer-documents").createSignedUrl(`${s.token}/${folder}/${f.name}`, 3600);
           if (data?.signedUrl) urls.push(data.signedUrl);
         }
       }
@@ -766,9 +766,9 @@ const AdminDashboard = () => {
     // Fetch all supporting documents in parallel
     const [appraisalImages, dlImages, titleImages, payoffImages] = await Promise.all([
       fetchDocImages("appraisal"),
-      fetchDocImages("drivers-license"),
+      fetchDocImages("drivers_license"),
       fetchDocImages("title"),
-      fetchDocImages("payoff"),
+      fetchDocImages("payoff_verification"),
     ]);
 
     const printWindow = window.open("", "_blank", "width=800,height=600");
@@ -842,7 +842,7 @@ const AdminDashboard = () => {
       const fileName = `check-request-${new Date().toISOString().slice(0, 10)}.html`;
       const { error: uploadErr } = await supabase.storage
         .from("customer-documents")
-        .upload(`${s.id}/check-request/${fileName}`, blob, {
+        .upload(`${s.token}/check_request/${fileName}`, blob, {
           contentType: "text/html",
           upsert: true,
         });
@@ -864,10 +864,10 @@ const AdminDashboard = () => {
 
     const fetchDocImages = async (folder: string): Promise<string[]> => {
       const urls: string[] = [];
-      const { data: files } = await supabase.storage.from("customer-documents").list(`${s.id}/${folder}`);
+      const { data: files } = await supabase.storage.from("customer-documents").list(`${s.token}/${folder}`);
       if (files && files.length > 0) {
         for (const f of files) {
-          const { data } = await supabase.storage.from("customer-documents").createSignedUrl(`${s.id}/${folder}/${f.name}`, 3600);
+          const { data } = await supabase.storage.from("customer-documents").createSignedUrl(`${s.token}/${folder}/${f.name}`, 3600);
           if (data?.signedUrl) urls.push(data.signedUrl);
         }
       }
@@ -875,13 +875,13 @@ const AdminDashboard = () => {
     };
 
     const [dlImages, regImages, titleImages, appraisalImages, carfaxImages, payoffImages, windowStickerImages] = await Promise.all([
-      fetchDocImages("drivers-license"),
+      fetchDocImages("drivers_license"),
       fetchDocImages("registration"),
       fetchDocImages("title"),
       fetchDocImages("appraisal"),
       fetchDocImages("carfax"),
-      fetchDocImages("payoff"),
-      fetchDocImages("window-sticker"),
+      fetchDocImages("payoff_verification"),
+      fetchDocImages("window_sticker"),
     ]);
 
     const allEmpty = [dlImages, regImages, titleImages, appraisalImages, carfaxImages, payoffImages, windowStickerImages].every(a => a.length === 0);
