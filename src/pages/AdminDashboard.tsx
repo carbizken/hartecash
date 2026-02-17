@@ -722,6 +722,31 @@ const AdminDashboard = () => {
   const handleGenerateCheckRequest = async () => {
     if (!selected || !selected.offered_price) return;
     const s = selected;
+
+    // Validate customer address
+    const hasAddress = (s as any).address_street && ((s as any).address_city || (s as any).address_state || s.zip);
+    if (!hasAddress) {
+      toast({ title: "Missing Address", description: "Customer street address must be entered before generating a check request.", variant: "destructive" });
+      return;
+    }
+
+    // Validate ACV appraisal document uploaded
+    const { data: appraisalCheck } = await supabase.storage
+      .from("customer-documents")
+      .list(`${s.id}/appraisal`);
+    if (!appraisalCheck || appraisalCheck.length === 0) {
+      toast({ title: "Missing Appraisal", description: "An ACV appraisal document must be uploaded before generating a check request.", variant: "destructive" });
+      return;
+    }
+
+    // Validate driver's license uploaded
+    const { data: dlCheck } = await supabase.storage
+      .from("customer-documents")
+      .list(`${s.id}/drivers-license`);
+    if (!dlCheck || dlCheck.length === 0) {
+      toast({ title: "Missing Driver's License", description: "Customer driver's license must be uploaded before generating a check request.", variant: "destructive" });
+      return;
+    }
     const vehicleStr = [s.vehicle_year, s.vehicle_make, s.vehicle_model].filter(Boolean).join(" ") || "N/A";
     const today = new Date().toLocaleDateString();
 
@@ -776,8 +801,8 @@ const AdminDashboard = () => {
         <table>
           <tr><th>Date</th><td>${today}</td></tr>
           <tr><th>Customer Name (As It Appears on Title)</th><td>${s.name || ""}</td></tr>
-          <tr><th>Address</th><td style="border-bottom:1px solid #ccc;min-width:200px;">&nbsp;</td></tr>
-          <tr><th>City, State, Zip</th><td style="text-align:right;">${[s.state, s.zip].filter(Boolean).join(" ") || ""}</td></tr>
+          <tr><th>Address</th><td>${[(s as any).address_street, (s as any).address_city, (s as any).address_state, s.zip].filter(Boolean).join(", ")}</td></tr>
+          <tr><th>City, State, Zip</th><td>${[(s as any).address_city, (s as any).address_state, s.zip].filter(Boolean).join(", ") || ""}</td></tr>
           <tr><th>Contact Phone</th><td>${formatPhone(s.phone)}</td></tr>
           <tr><th>Contact Email</th><td>${s.email || ""}</td></tr>
           <tr><th>Agreed Upon Value (Check Amount)</th><td class="amount">$${s.offered_price!.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>
@@ -1591,9 +1616,12 @@ const AdminDashboard = () => {
                       </label>
                     </div>
                     {isPriceAgreedOrBeyond && (
-                      <Button variant="outline" size="sm" onClick={handleGenerateCheckRequest}>
-                        <Printer className="w-4 h-4 mr-1" /> Generate Check Request
-                      </Button>
+                      <div className="space-y-2">
+                        <Button variant="outline" size="sm" onClick={handleGenerateCheckRequest}>
+                          <Printer className="w-4 h-4 mr-1" /> Generate Check Request
+                        </Button>
+                        <p className="text-xs text-muted-foreground">Requires: address, appraisal doc, and driver's license.</p>
+                      </div>
                     )}
                     {!isPriceAgreedOrBeyond && (
                       <p className="text-xs text-muted-foreground">Available once price is agreed and entered.</p>
