@@ -802,6 +802,26 @@ const AdminDashboard = () => {
     printWindow.document.write(html);
     printWindow.document.close();
     setTimeout(() => { printWindow.focus(); printWindow.print(); }, 300);
+
+    // Save a copy to customer documents
+    try {
+      const blob = new Blob([html], { type: "text/html" });
+      const fileName = `check-request-${new Date().toISOString().slice(0, 10)}.html`;
+      const { error: uploadErr } = await supabase.storage
+        .from("customer-documents")
+        .upload(`${s.id}/check-request/${fileName}`, blob, {
+          contentType: "text/html",
+          upsert: true,
+        });
+      if (uploadErr) {
+        console.error("Failed to save check request:", uploadErr);
+        toast({ title: "Check request printed", description: "But failed to save a copy to documents.", variant: "destructive" });
+      } else {
+        toast({ title: "Check Request Generated", description: "Printed and a copy has been saved to this customer's documents." });
+      }
+    } catch (e) {
+      console.error("Error saving check request:", e);
+    }
   };
 
   const filtered = submissions.filter((s) => {
