@@ -498,6 +498,96 @@ const ServiceLanding = () => {
               ))}
             </div>
 
+            {/* SMS Use Case Mockup */}
+            <motion.div variants={fadeUp} custom={8} className="mt-12 max-w-lg mx-auto">
+              <div className="text-center mb-5">
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[hsl(210,100%,25%)]/15 border border-[hsl(210,100%,25%)]/30 text-xs font-bold tracking-widest uppercase text-[hsl(210,80%,60%)]">
+                  How It Works
+                </span>
+                <h3 className="text-lg font-bold mt-3 mb-1">It Starts With a Simple Text</h3>
+                <p className="text-sm text-[hsl(215,20%,55%)]">
+                  When you come in for service, our team sends a short, compliant text with a personal link — no app needed.
+                </p>
+              </div>
+
+              {/* Phone mockup */}
+              <div className="mx-auto w-[280px]">
+                <div className="bg-[hsl(222,47%,10%)] border border-[hsl(217,33%,20%)] rounded-[2.5rem] p-3 shadow-2xl">
+                  {/* Phone top bar */}
+                  <div className="bg-[hsl(222,47%,14%)] rounded-[2rem] overflow-hidden">
+                    <div className="flex items-center justify-between px-5 py-2 bg-[hsl(222,47%,16%)]">
+                      <span className="text-[10px] text-[hsl(215,20%,50%)] font-medium">9:41 AM</span>
+                      <div className="w-14 h-1.5 bg-[hsl(222,47%,25%)] rounded-full" />
+                      <span className="text-[10px] text-[hsl(215,20%,50%)] font-medium">●●●</span>
+                    </div>
+                    {/* Message header */}
+                    <div className="flex items-center gap-2 px-4 py-3 border-b border-[hsl(217,33%,20%)]">
+                      <div className="w-8 h-8 rounded-full bg-[hsl(210,100%,25%)]/30 flex items-center justify-center shrink-0">
+                        <Car className="w-4 h-4 text-[hsl(210,80%,60%)]" />
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-[hsl(210,40%,98%)]">Harte Auto Service</p>
+                        <p className="text-[10px] text-[hsl(215,20%,50%)]">+1 (866) 851-7390</p>
+                      </div>
+                    </div>
+                    {/* Messages */}
+                    <div className="px-3 py-4 space-y-2.5 min-h-[260px]">
+                      {/* Inbound from dealer */}
+                      <div className="flex justify-start">
+                        <div className="max-w-[85%] bg-[hsl(222,47%,18%)] border border-[hsl(217,33%,22%)] rounded-2xl rounded-tl-sm px-3 py-2.5">
+                          <p className="text-[11px] text-[hsl(210,40%,92%)] leading-relaxed">
+                            Hi Sarah! 👋 Your 2021 Toyota RAV4 is ready for pickup after today's oil change.
+                          </p>
+                          <p className="text-[10px] text-[hsl(215,20%,45%)] mt-1">10:02 AM</p>
+                        </div>
+                      </div>
+                      <div className="flex justify-start">
+                        <div className="max-w-[90%] bg-[hsl(222,47%,18%)] border border-[hsl(217,33%,22%)] rounded-2xl rounded-tl-sm px-3 py-2.5">
+                          <p className="text-[11px] text-[hsl(210,40%,92%)] leading-relaxed">
+                            While you're here — did you know your RAV4 could be worth <span className="font-bold text-[hsl(210,80%,65%)]">$24,000–$27,000</span> right now? 🚘💰
+                          </p>
+                          <p className="text-[11px] text-[hsl(210,40%,85%)] leading-relaxed mt-1.5">
+                            Reply <span className="font-bold text-[hsl(160,60%,60%)]">YES</span> to get your free appraisal offer — takes 2 mins, no obligation.
+                          </p>
+                          <p className="text-[10px] text-[hsl(215,20%,45%)] mt-1">10:02 AM</p>
+                        </div>
+                      </div>
+                      {/* Customer replies YES */}
+                      <div className="flex justify-end">
+                        <div className="max-w-[60%] bg-[hsl(210,100%,30%)] rounded-2xl rounded-tr-sm px-3 py-2.5">
+                          <p className="text-[11px] text-white font-semibold">YES</p>
+                          <p className="text-[10px] text-blue-200/70 mt-1">10:04 AM</p>
+                        </div>
+                      </div>
+                      {/* Dealer sends link */}
+                      <div className="flex justify-start">
+                        <div className="max-w-[90%] bg-[hsl(222,47%,18%)] border border-[hsl(217,33%,22%)] rounded-2xl rounded-tl-sm px-3 py-2.5">
+                          <p className="text-[11px] text-[hsl(210,40%,92%)] leading-relaxed">
+                            Great! Here's your personal appraisal link 👇
+                          </p>
+                          <div className="mt-2 bg-[hsl(210,100%,20%)]/30 border border-[hsl(210,100%,30%)]/40 rounded-xl px-2.5 py-2">
+                            <p className="text-[10px] text-[hsl(210,80%,70%)] font-bold">hartecash.com/service</p>
+                            <p className="text-[9px] text-[hsl(215,20%,50%)] mt-0.5">Tap to see your offer →</p>
+                          </div>
+                          <p className="text-[9px] text-[hsl(215,20%,40%)] mt-2 leading-relaxed">
+                            Msg&Data rates may apply. Reply STOP to opt out.
+                          </p>
+                          <p className="text-[10px] text-[hsl(215,20%,45%)] mt-1">10:04 AM</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* TCPA compliance note */}
+              <div className="mt-5 p-4 bg-[hsl(222,47%,8%)] border border-[hsl(217,33%,17%)] rounded-xl text-center">
+                <p className="text-[11px] text-[hsl(215,20%,45%)] leading-relaxed">
+                  <span className="font-bold text-[hsl(215,20%,60%)]">TCPA Compliant</span> — Customers consent when they provide their phone number at your service drive. Every message includes opt-out instructions. Managed on a registered 10DLC number.
+                </p>
+              </div>
+            </motion.div>
+
             {/* Testimonial */}
             <motion.div variants={fadeUp} custom={9} className="mt-10 max-w-lg mx-auto text-center">
               <div className="bg-[hsl(222,47%,8%)] border border-[hsl(217,33%,17%)] rounded-2xl p-6">
