@@ -80,6 +80,41 @@ function GlowBadge({ label }: { label: string }) {
   );
 }
 
+/* ─── Rotating CTA Headline ─── */
+const CTA_HEADLINES = [
+  { line1: "Your Next Chapter", line2: "Starts Here." },
+  { line1: "Stop Settling for", line2: "Average." },
+  { line1: "The Dealership You Want", line2: "Needs This." },
+  { line1: "Results Don't Lie.", line2: "Let's Talk." },
+  { line1: "Built to Win.", line2: "Ready to Prove It." },
+];
+function RotatingCTAHeadline() {
+  const [idx, setIdx] = useState(0);
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setVisible(false);
+      setTimeout(() => {
+        setIdx(i => (i + 1) % CTA_HEADLINES.length);
+        setVisible(true);
+      }, 400);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, []);
+  const { line1, line2 } = CTA_HEADLINES[idx];
+  return (
+    <div
+      className="text-4xl sm:text-5xl md:text-7xl xl:text-9xl font-black mb-5 md:mb-6 leading-tight transition-all duration-400"
+      style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(12px)" }}
+    >
+      {line1}<br />
+      <span className="bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent">
+        {line2}
+      </span>
+    </div>
+  );
+}
+
 /* ─── Metric Card ─── */
 function MetricCard({ value, prefix, suffix, label }: { value: number; prefix?: string; suffix?: string; label: string }) {
   return (
@@ -648,12 +683,7 @@ export default function KenPage() {
             <motion.div variants={fadeUp} custom={0}>
               <GlowBadge label="Let's Connect" />
             </motion.div>
-            <motion.h2 variants={fadeUp} custom={1} className="text-4xl sm:text-5xl md:text-7xl xl:text-9xl font-black mb-5 md:mb-6 leading-tight">
-              Your Next Chapter<br />
-              <span className="bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent">
-                Starts Here.
-              </span>
-            </motion.h2>
+            <RotatingCTAHeadline />
             <motion.p variants={fadeUp} custom={2} className="text-sm sm:text-lg xl:text-xl text-white/50 max-w-xl mx-auto mb-10 md:mb-14">
               Whether you're selling your car, looking to hire a proven leader, or want someone who turns departments around — Ken delivers.
             </motion.p>
