@@ -706,7 +706,7 @@ export default function KenPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 px-8 sm:px-12 py-4 sm:py-5 rounded-full bg-[#0A66C2]/20 border border-[#0A66C2]/40 text-[#74b3f8] font-bold text-base sm:text-xl hover:bg-[#0A66C2]/30 transition"
               >
-                <Linkedin className="w-5 h-5" /> Connect on LinkedIn
+                Connect on LinkedIn
               </a>
             </motion.div>
           </motion.div>
