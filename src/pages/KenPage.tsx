@@ -266,7 +266,7 @@ export default function KenPage() {
                   </span>
                 </motion.h1>
                 <motion.p variants={fadeUp} custom={2} className="text-base sm:text-xl md:text-2xl xl:text-3xl text-white/50 mb-2 md:mb-3 font-medium">
-                  Finance Director · General Sales Manager · General Manager
+                  Finance Director · GSM · General Manager
                 </motion.p>
                 <motion.p variants={fadeUp} custom={2.2} className="text-sm sm:text-base xl:text-lg text-white/30 mb-6 md:mb-10 max-w-xl leading-relaxed mx-auto lg:mx-0">
                   Visionary, process-driven leader with 20+ years turning around underperforming dealerships, building elite teams, and shattering F&I records across Connecticut.
