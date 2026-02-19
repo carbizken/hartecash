@@ -140,7 +140,7 @@ function MetricCard({ value, prefix, suffix, label }: { value: number; prefix?: 
 export default function KenPage() {
   const [heroImgIdx, setHeroImgIdx] = useState(0);
   useEffect(() => {
-    const timer = setInterval(() => setHeroImgIdx(i => (i + 1) % HERO_IMAGES.length), 6000);
+    const timer = setInterval(() => setHeroImgIdx(i => (i + 1) % HERO_IMAGES.length), 8000);
     return () => clearInterval(timer);
   }, []);
 
@@ -274,7 +274,7 @@ export default function KenPage() {
                         key={i}
                         src={src}
                         alt="Ken Criscione"
-                        className={`w-full h-auto rounded-3xl object-contain transition-opacity duration-[2500ms] ease-in-out ${i === 0 ? "relative" : "absolute inset-0"}`}
+                        className={`w-full h-auto rounded-3xl object-contain transition-opacity duration-[3500ms] ease-in-out ${i === 0 ? "relative" : "absolute inset-0"}`}
                         style={{ opacity: heroImgIdx === i ? 1 : 0 }}
                       />
                     ))}
