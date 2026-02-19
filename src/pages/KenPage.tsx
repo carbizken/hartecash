@@ -274,8 +274,12 @@ export default function KenPage() {
                         key={i}
                         src={src}
                         alt="Ken Criscione"
-                        className={`w-full h-auto rounded-3xl object-contain transition-opacity duration-[3500ms] ease-in-out ${i === 0 ? "relative" : "absolute inset-0"}`}
-                        style={{ opacity: heroImgIdx === i ? 1 : 0 }}
+                        className={`w-full h-auto rounded-3xl object-contain transition-all duration-[2500ms] ease-in-out ${i === 0 ? "relative" : "absolute inset-0"}`}
+                        style={{
+                          opacity: heroImgIdx === i ? 1 : 0,
+                          transform: heroImgIdx === i ? "scale(1)" : "scale(1.08)",
+                          filter: heroImgIdx === i ? "brightness(1)" : "brightness(0.7)",
+                        }}
                       />
                     ))}
                   </div>
