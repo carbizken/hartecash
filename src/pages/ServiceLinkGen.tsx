@@ -1,8 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Upload, Copy, FileSpreadsheet, Link2, CheckCircle2, Trash2 } from "lucide-react";
+import { Upload, Copy, FileSpreadsheet, Link2, CheckCircle2, Trash2, Sun, Moon } from "lucide-react";
 import * as XLSX from "xlsx";
 import serviceLogo from "@/assets/harte-service-logo.png";
 
@@ -60,6 +60,65 @@ const ServiceLinkGen = () => {
   const [pasteText, setPasteText] = useState("");
   const [rows, setRows] = useState<CustomerRow[]>([]);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const [dark, setDark] = useState<boolean>(() => {
+    const stored = localStorage.getItem("slg-dark");
+    return stored === null ? true : stored === "true";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("slg-dark", String(dark));
+  }, [dark]);
+
+  // Theme tokens
+  const t = dark
+    ? {
+        page: "bg-[hsl(222,47%,6%)] text-white",
+        header: "border-b border-[hsl(217,33%,17%)]",
+        headerLabel: "text-[hsl(215,20%,65%)]",
+        heroBg: "from-[hsl(210,100%,25%)]/20",
+        heroGlow: "bg-[hsl(210,100%,25%)]/10",
+        title: "text-white",
+        subtitle: "text-[hsl(215,20%,65%)]",
+        card: "bg-[hsl(222,47%,8%)] border border-[hsl(217,33%,17%)]",
+        cardTitle: "text-white",
+        cardDesc: "text-[hsl(215,20%,65%)]",
+        strongText: "text-white/80",
+        textarea: "bg-[hsl(222,47%,6%)] border-[hsl(217,33%,17%)] text-white placeholder:text-[hsl(215,20%,40%)] focus-visible:ring-[hsl(210,80%,60%)]/50",
+        btnPrimary: "bg-[hsl(210,80%,55%)] hover:bg-[hsl(210,80%,45%)] text-white font-semibold",
+        btnOutline: "border-[hsl(217,33%,17%)] text-[hsl(215,20%,75%)] hover:bg-[hsl(217,33%,17%)]/50 hover:text-white",
+        btnGhost: "text-[hsl(215,20%,65%)] hover:text-white hover:bg-white/5",
+        divider: "divide-[hsl(217,33%,17%)]",
+        rowHover: "hover:bg-white/[0.03]",
+        linkText: "text-[hsl(210,80%,60%)]",
+        metaText: "text-[hsl(215,20%,65%)]",
+        copyBtn: "border-[hsl(217,33%,17%)] text-[hsl(215,20%,75%)] hover:bg-[hsl(217,33%,17%)]/50 hover:text-white bg-transparent border",
+        copyBtnDone: "bg-[hsl(160,84%,39%)] hover:bg-[hsl(160,84%,39%)] text-white",
+        toggleBtn: "bg-white/10 hover:bg-white/20 text-white border-white/20",
+      }
+    : {
+        page: "bg-[hsl(210,20%,96%)] text-[hsl(222,47%,15%)]",
+        header: "border-b border-[hsl(215,20%,85%)] bg-white shadow-sm",
+        headerLabel: "text-[hsl(215,20%,50%)]",
+        heroBg: "from-[hsl(210,60%,92%)]",
+        heroGlow: "bg-[hsl(210,80%,90%)]/60",
+        title: "text-[hsl(222,47%,15%)]",
+        subtitle: "text-[hsl(215,20%,45%)]",
+        card: "bg-white border border-[hsl(215,20%,88%)] shadow-sm",
+        cardTitle: "text-[hsl(222,47%,15%)]",
+        cardDesc: "text-[hsl(215,20%,50%)]",
+        strongText: "text-[hsl(222,47%,20%)]",
+        textarea: "bg-[hsl(210,20%,98%)] border-[hsl(215,20%,85%)] text-[hsl(222,47%,15%)] placeholder:text-[hsl(215,20%,65%)] focus-visible:ring-[hsl(210,80%,55%)]/50",
+        btnPrimary: "bg-[hsl(210,80%,50%)] hover:bg-[hsl(210,80%,42%)] text-white font-semibold",
+        btnOutline: "border-[hsl(215,20%,80%)] text-[hsl(222,47%,30%)] hover:bg-[hsl(215,20%,93%)] hover:text-[hsl(222,47%,15%)]",
+        btnGhost: "text-[hsl(215,20%,50%)] hover:text-[hsl(222,47%,15%)] hover:bg-[hsl(215,20%,93%)]",
+        divider: "divide-[hsl(215,20%,88%)]",
+        rowHover: "hover:bg-[hsl(210,20%,96%)]",
+        linkText: "text-[hsl(210,80%,45%)]",
+        metaText: "text-[hsl(215,20%,50%)]",
+        copyBtn: "border-[hsl(215,20%,80%)] text-[hsl(222,47%,30%)] hover:bg-[hsl(215,20%,88%)] bg-transparent border",
+        copyBtnDone: "bg-[hsl(160,84%,39%)] hover:bg-[hsl(160,84%,39%)] text-white",
+        toggleBtn: "bg-[hsl(215,20%,90%)] hover:bg-[hsl(215,20%,85%)] text-[hsl(222,47%,20%)] border-[hsl(215,20%,80%)]",
+      };
 
   const handleParse = () => {
     const parsed = parseRows(pasteText);
@@ -113,25 +172,34 @@ const ServiceLinkGen = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(222,47%,6%)] text-white">
-      {/* Header bar matching service page */}
-      <header className="border-b border-[hsl(217,33%,17%)]">
+    <div className={`min-h-screen transition-colors duration-300 ${t.page}`}>
+      {/* Header */}
+      <header className={t.header}>
         <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between">
           <img src={serviceLogo} alt="Harte Auto Group" className="h-32 -my-8" />
-          <span className="text-sm font-semibold text-[hsl(215,20%,65%)] tracking-wider uppercase">Link Generator</span>
+          <div className="flex items-center gap-4">
+            <span className={`text-sm font-semibold tracking-wider uppercase ${t.headerLabel}`}>Link Generator</span>
+            <button
+              onClick={() => setDark((d) => !d)}
+              className={`inline-flex items-center justify-center w-9 h-9 rounded-full border transition-colors ${t.toggleBtn}`}
+              aria-label="Toggle theme"
+            >
+              {dark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Hero header */}
+      {/* Hero */}
       <section className="relative overflow-hidden px-5 pt-14 pb-10 text-center">
-        <div className="absolute inset-0 bg-gradient-to-b from-[hsl(210,100%,25%)]/20 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[hsl(210,100%,25%)]/10 blur-[150px] pointer-events-none" />
+        <div className={`absolute inset-0 bg-gradient-to-b ${t.heroBg} via-transparent to-transparent pointer-events-none`} />
+        <div className={`absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full ${t.heroGlow} blur-[150px] pointer-events-none`} />
         <div className="relative">
           <div className="inline-flex items-center gap-3 mb-4">
             <Link2 className="w-8 h-8 text-[hsl(210,80%,60%)]" />
-            <h1 className="text-3xl md:text-4xl font-black tracking-tight">Service Link Generator</h1>
+            <h1 className={`text-3xl md:text-4xl font-black tracking-tight ${t.title}`}>Service Link Generator</h1>
           </div>
-          <p className="text-[hsl(215,20%,65%)] max-w-xl mx-auto text-lg">
+          <p className={`max-w-xl mx-auto text-lg ${t.subtitle}`}>
             Paste customer data or upload an Excel file to generate personalized service landing page links with pre-filled VIN, date &amp; time.
           </p>
         </div>
@@ -139,43 +207,35 @@ const ServiceLinkGen = () => {
 
       <div className="max-w-5xl mx-auto px-5 pb-16 space-y-8">
         {/* Input Section */}
-        <div className="bg-[hsl(222,47%,8%)] border border-[hsl(217,33%,17%)] rounded-2xl p-6 md:p-8 shadow-2xl">
-          <h2 className="text-lg font-bold flex items-center gap-2 mb-1">
+        <div className={`${t.card} rounded-2xl p-6 md:p-8 shadow-lg transition-colors duration-300`}>
+          <h2 className={`text-lg font-bold flex items-center gap-2 mb-1 ${t.cardTitle}`}>
             <FileSpreadsheet className="w-5 h-5 text-[hsl(210,80%,60%)]" />
             Input Data
           </h2>
-          <p className="text-sm text-[hsl(215,20%,65%)] mb-5">
-            Columns: <strong className="text-white/80">Name, VIN, Date, Time</strong> — separated by tabs or commas. Headers are auto-detected.
+          <p className={`text-sm mb-5 ${t.cardDesc}`}>
+            Columns: <strong className={t.strongText}>Name, VIN, Date, Time</strong> — separated by tabs or commas. Headers are auto-detected.
           </p>
           <Textarea
             placeholder={`John Smith\t2T3BFREV5MW123456\t02/21/2026\t9:30 AM\nJane Doe\t1HGBH41JXMN109186\t2026-02-22\t2:00 PM`}
             value={pasteText}
             onChange={(e) => setPasteText(e.target.value)}
             rows={6}
-            className="font-mono text-sm bg-[hsl(222,47%,6%)] border-[hsl(217,33%,17%)] text-white placeholder:text-[hsl(215,20%,40%)] focus-visible:ring-[hsl(210,80%,60%)]/50 mb-4"
+            className={`font-mono text-sm mb-4 ${t.textarea}`}
           />
           <div className="flex flex-wrap gap-3">
-            <Button
-              onClick={handleParse}
-              disabled={!pasteText.trim()}
-              className="bg-[hsl(210,80%,55%)] hover:bg-[hsl(210,80%,45%)] text-white font-semibold"
-            >
+            <Button onClick={handleParse} disabled={!pasteText.trim()} className={t.btnPrimary}>
               Generate Links
             </Button>
             <label>
               <input type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleFileUpload} />
-              <Button variant="outline" asChild className="border-[hsl(217,33%,17%)] text-[hsl(215,20%,75%)] hover:bg-[hsl(217,33%,17%)]/50 hover:text-white">
+              <Button variant="outline" asChild className={t.btnOutline}>
                 <span className="cursor-pointer">
                   <Upload className="w-4 h-4 mr-1" /> Upload Excel / CSV
                 </span>
               </Button>
             </label>
             {rows.length > 0 && (
-              <Button
-                variant="ghost"
-                onClick={() => { setRows([]); setPasteText(""); }}
-                className="text-[hsl(215,20%,65%)] hover:text-white hover:bg-white/5"
-              >
+              <Button variant="ghost" onClick={() => { setRows([]); setPasteText(""); }} className={t.btnGhost}>
                 <Trash2 className="w-4 h-4 mr-1" /> Clear
               </Button>
             )}
@@ -184,33 +244,27 @@ const ServiceLinkGen = () => {
 
         {/* Results */}
         {rows.length > 0 && (
-          <div className="bg-[hsl(222,47%,8%)] border border-[hsl(217,33%,17%)] rounded-2xl shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-5 border-b border-[hsl(217,33%,17%)]">
-              <h2 className="text-lg font-bold">{rows.length} Link{rows.length > 1 ? "s" : ""} Generated</h2>
-              <Button
-                size="sm"
-                onClick={copyAll}
-                className="bg-[hsl(210,80%,55%)] hover:bg-[hsl(210,80%,45%)] text-white font-semibold"
-              >
+          <div className={`${t.card} rounded-2xl shadow-lg overflow-hidden transition-colors duration-300`}>
+            <div className={`flex items-center justify-between px-6 py-5 border-b ${dark ? "border-[hsl(217,33%,17%)]" : "border-[hsl(215,20%,88%)]"}`}>
+              <h2 className={`text-lg font-bold ${t.cardTitle}`}>{rows.length} Link{rows.length > 1 ? "s" : ""} Generated</h2>
+              <Button size="sm" onClick={copyAll} className={t.btnPrimary}>
                 <Copy className="w-4 h-4 mr-1" /> Copy All
               </Button>
             </div>
-            <div className="divide-y divide-[hsl(217,33%,17%)]">
+            <div className={`divide-y ${t.divider}`}>
               {rows.map((row, i) => (
-                <div key={i} className="flex items-center gap-4 px-6 py-3.5 hover:bg-white/[0.03] transition-colors">
+                <div key={i} className={`flex items-center gap-4 px-6 py-3.5 transition-colors ${t.rowHover}`}>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm truncate">{row.name || "—"}</p>
-                    <p className="text-xs text-[hsl(210,80%,60%)] truncate font-mono mt-0.5">{row.link}</p>
+                    <p className={`font-semibold text-sm truncate ${t.cardTitle}`}>{row.name || "—"}</p>
+                    <p className={`text-xs truncate font-mono mt-0.5 ${t.linkText}`}>{row.link}</p>
                   </div>
-                  <div className="hidden sm:flex items-center gap-3 text-xs text-[hsl(215,20%,65%)] shrink-0">
+                  <div className={`hidden sm:flex items-center gap-3 text-xs shrink-0 ${t.metaText}`}>
                     <span>{row.date}</span>
                     <span>{row.time}</span>
                   </div>
                   <Button
                     size="sm"
-                    className={copiedIdx === i
-                      ? "bg-[hsl(160,84%,39%)] hover:bg-[hsl(160,84%,39%)] text-white shrink-0"
-                      : "border-[hsl(217,33%,17%)] text-[hsl(215,20%,75%)] hover:bg-[hsl(217,33%,17%)]/50 hover:text-white bg-transparent border shrink-0"}
+                    className={`shrink-0 ${copiedIdx === i ? t.copyBtnDone : t.copyBtn}`}
                     onClick={() => copyLink(row.link, i)}
                   >
                     {copiedIdx === i ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
