@@ -8,6 +8,7 @@ import serviceLogo from "@/assets/harte-service-logo.png";
 
 interface CustomerRow {
   name: string;
+  phone: string;
   vin: string;
   date: string;
   time: string;
@@ -49,17 +50,18 @@ function parseRows(text: string): CustomerRow[] {
   return lines.slice(startIdx).map((line) => {
     const cols = line.split("\t").length > 1 ? line.split("\t") : line.split(",");
     const name = (cols[0] || "").trim();
-    const vin = (cols[1] || "").trim();
-    const date = normaliseDate(cols[2] || "");
-    const time = (cols[3] || "").trim();
-    return { name, vin, date, time, link: buildLink(vin, date, time) };
+    const phone = (cols[1] || "").trim();
+    const vin = (cols[2] || "").trim();
+    const date = normaliseDate(cols[3] || "");
+    const time = (cols[4] || "").trim();
+    return { name, phone, vin, date, time, link: buildLink(vin, date, time) };
   });
 }
 
 const ServiceLinkGen = () => {
   const [pasteText, setPasteText] = useState("");
   const [rows, setRows] = useState<CustomerRow[]>([]);
-  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const [copied, setCopied] = useState<{ idx: number; field: "link" | "name" | "phone" } | null>(null);
   const [dark, setDark] = useState<boolean>(() => {
     const stored = localStorage.getItem("slg-dark");
     return stored === null ? true : stored === "true";
@@ -143,10 +145,11 @@ const ServiceLinkGen = () => {
       const startIdx = firstRow.some((c) => /name|vin|date|time/.test(c)) ? 1 : 0;
       const parsed: CustomerRow[] = json.slice(startIdx).filter((r) => r.length >= 2 && r.some(Boolean)).map((r) => {
         const name = String(r[0] || "").trim();
-        const vin = String(r[1] || "").trim();
-        const date = normaliseDate(String(r[2] || ""));
-        const time = String(r[3] || "").trim();
-        return { name, vin, date, time, link: buildLink(vin, date, time) };
+        const phone = String(r[1] || "").trim();
+        const vin = String(r[2] || "").trim();
+        const date = normaliseDate(String(r[3] || ""));
+        const time = String(r[4] || "").trim();
+        return { name, phone, vin, date, time, link: buildLink(vin, date, time) };
       });
       if (parsed.length === 0) {
         toast({ title: "No valid rows found", variant: "destructive" });
@@ -159,11 +162,14 @@ const ServiceLinkGen = () => {
     e.target.value = "";
   }, []);
 
-  const copyLink = (link: string, idx: number) => {
-    navigator.clipboard.writeText(link);
-    setCopiedIdx(idx);
-    setTimeout(() => setCopiedIdx(null), 1500);
+  const copyField = (text: string, idx: number, field: "link" | "name" | "phone") => {
+    navigator.clipboard.writeText(text);
+    setCopied({ idx, field });
+    setTimeout(() => setCopied(null), 1500);
   };
+
+  const isCopied = (idx: number, field: "link" | "name" | "phone") =>
+    copied?.idx === idx && copied?.field === field;
 
   const copyAll = () => {
     const text = rows.map((r) => `${r.name}\t${r.link}`).join("\n");
@@ -213,10 +219,10 @@ const ServiceLinkGen = () => {
             Input Data
           </h2>
           <p className={`text-sm mb-5 ${t.cardDesc}`}>
-            Columns: <strong className={t.strongText}>Name, VIN, Date, Time</strong> — separated by tabs or commas. Headers are auto-detected.
+            Columns: <strong className={t.strongText}>Name, Phone, VIN, Date, Time</strong> — separated by tabs or commas. Headers are auto-detected.
           </p>
           <Textarea
-            placeholder={`John Smith\t2T3BFREV5MW123456\t02/21/2026\t9:30 AM\nJane Doe\t1HGBH41JXMN109186\t2026-02-22\t2:00 PM`}
+            placeholder={`John Smith\t(860) 555-1234\t1N4BL4CW9PN393264\t02/21/2026\t10:00 AM\nJane Doe\t(860) 555-5678\t1HGBH41JXMN109186\t2026-02-22\t2:00 PM`}
             value={pasteText}
             onChange={(e) => setPasteText(e.target.value)}
             rows={6}
@@ -253,22 +259,49 @@ const ServiceLinkGen = () => {
             </div>
             <div className={`divide-y ${t.divider}`}>
               {rows.map((row, i) => (
-                <div key={i} className={`flex items-center gap-4 px-6 py-3.5 transition-colors ${t.rowHover}`}>
+                <div key={i} className={`flex flex-col sm:flex-row sm:items-center gap-3 px-6 py-4 transition-colors ${t.rowHover}`}>
+                  {/* Info */}
                   <div className="flex-1 min-w-0">
                     <p className={`font-semibold text-sm truncate ${t.cardTitle}`}>{row.name || "—"}</p>
                     <p className={`text-xs truncate font-mono mt-0.5 ${t.linkText}`}>{row.link}</p>
+                    {(row.date || row.time) && (
+                      <p className={`text-xs mt-0.5 ${t.metaText}`}>{row.date}{row.date && row.time ? " · " : ""}{row.time}</p>
+                    )}
                   </div>
-                  <div className={`hidden sm:flex items-center gap-3 text-xs shrink-0 ${t.metaText}`}>
-                    <span>{row.date}</span>
-                    <span>{row.time}</span>
+                  {/* Copy buttons */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {row.name && (
+                      <Button
+                        size="sm"
+                        title="Copy name"
+                        className={`shrink-0 text-xs px-2 ${isCopied(i, "name") ? t.copyBtnDone : t.copyBtn}`}
+                        onClick={() => copyField(row.name, i, "name")}
+                      >
+                        {isCopied(i, "name") ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span className="hidden sm:inline ml-1">Name</span>
+                      </Button>
+                    )}
+                    {row.phone && (
+                      <Button
+                        size="sm"
+                        title="Copy phone"
+                        className={`shrink-0 text-xs px-2 ${isCopied(i, "phone") ? t.copyBtnDone : t.copyBtn}`}
+                        onClick={() => copyField(row.phone, i, "phone")}
+                      >
+                        {isCopied(i, "phone") ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        <span className="hidden sm:inline ml-1">Phone</span>
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      title="Copy URL"
+                      className={`shrink-0 text-xs px-2 ${isCopied(i, "link") ? t.copyBtnDone : t.copyBtn}`}
+                      onClick={() => copyField(row.link, i, "link")}
+                    >
+                      {isCopied(i, "link") ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span className="hidden sm:inline ml-1">URL</span>
+                    </Button>
                   </div>
-                  <Button
-                    size="sm"
-                    className={`shrink-0 ${copiedIdx === i ? t.copyBtnDone : t.copyBtn}`}
-                    onClick={() => copyLink(row.link, i)}
-                  >
-                    {copiedIdx === i ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  </Button>
                 </div>
               ))}
             </div>
