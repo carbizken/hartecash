@@ -17,11 +17,11 @@ interface CustomerRow {
 const BASE_DOMAIN = "https://hartecash.com";
 
 function buildLink(vin: string, date: string, time: string): string {
-  const params = new URLSearchParams();
-  if (vin) params.set("vin", vin.trim());
-  if (date) params.set("date", date.trim());
-  if (time) params.set("time", time.trim());
-  return `${BASE_DOMAIN}/service?${params.toString()}`;
+  const parts: string[] = [];
+  if (vin) parts.push(`vin=${encodeURIComponent(vin.trim())}`);
+  if (date) parts.push(`date=${encodeURIComponent(date.trim())}`);
+  if (time) parts.push(`time=${encodeURIComponent(time.trim())}`);
+  return `${BASE_DOMAIN}/service?${parts.join("&")}`;
 }
 
 function normaliseDate(raw: string): string {
