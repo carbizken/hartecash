@@ -14,7 +14,7 @@ interface CustomerRow {
   link: string;
 }
 
-const BASE_DOMAIN = "https://hartecash.lovable.app";
+const BASE_DOMAIN = "https://hartecash.com";
 
 function buildLink(vin: string, date: string, time: string): string {
   const params = new URLSearchParams();
