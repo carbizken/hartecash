@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { logConsent } from "@/lib/consent";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -113,6 +114,14 @@ const ScheduleVisit = () => {
       // Send notification (fire-and-forget)
       supabase.functions.invoke("notify-appointment", {
         body: { appointment: form },
+      });
+
+      // Log TCPA consent
+      logConsent({
+        customerName: form.customer_name,
+        customerPhone: form.customer_phone,
+        customerEmail: form.customer_email,
+        formSource: "schedule_visit",
       });
 
       setSubmitted(true);

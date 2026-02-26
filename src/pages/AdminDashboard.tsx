@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatPhone } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, Search, Trash2, Eye, ChevronLeft, ChevronRight, UserCheck, UserX, Users, Check, Circle, DollarSign, StickyNote, XCircle, Save, Printer, FileText, QrCode, ExternalLink, ClipboardCheck, Upload, CalendarDays, Plus, Phone, Mail, AlertTriangle, Clock, History, Moon, Sun } from "lucide-react";
+import { LogOut, Search, Trash2, Eye, ChevronLeft, ChevronRight, UserCheck, UserX, Users, Check, Circle, DollarSign, StickyNote, XCircle, Save, Printer, FileText, QrCode, ExternalLink, ClipboardCheck, Upload, CalendarDays, Plus, Phone, Mail, AlertTriangle, Clock, History, Moon, Sun, ShieldCheck } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { QRCodeSVG } from "qrcode.react";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,6 +18,7 @@ import harteLogoWhite from "@/assets/harte-logo-white.png";
 import StaffManagement from "@/components/admin/StaffManagement";
 import StaffFileUpload from "@/components/admin/StaffFileUpload";
 import DashboardAnalytics from "@/components/admin/DashboardAnalytics";
+import ConsentLog from "@/components/admin/ConsentLog";
 import { Badge } from "@/components/ui/badge";
 
 interface PendingRequest {
@@ -1042,6 +1043,10 @@ const AdminDashboard = () => {
                 </TabsTrigger>
               </>
             )}
+            <TabsTrigger value="consent">
+              <ShieldCheck className="w-4 h-4 mr-1" />
+              Consent Log
+            </TabsTrigger>
           </TabsList>
 
           {/* Analytics Dashboard */}
@@ -1386,6 +1391,10 @@ const AdminDashboard = () => {
                 </table>
               </div>
             )}
+          </TabsContent>
+
+          <TabsContent value="consent">
+            <ConsentLog />
           </TabsContent>
         </Tabs>
       </div>

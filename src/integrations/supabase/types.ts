@@ -102,6 +102,48 @@ export type Database = {
           },
         ]
       }
+      consent_log: {
+        Row: {
+          consent_text: string
+          consent_type: string
+          created_at: string
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          form_source: string
+          id: string
+          ip_address: string | null
+          submission_token: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          consent_text: string
+          consent_type?: string
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          form_source: string
+          id?: string
+          ip_address?: string | null
+          submission_token?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          consent_text?: string
+          consent_type?: string
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          form_source?: string
+          id?: string
+          ip_address?: string | null
+          submission_token?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       pending_admin_requests: {
         Row: {
           created_at: string

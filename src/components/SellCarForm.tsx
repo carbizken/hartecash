@@ -3,6 +3,7 @@ import { Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { logConsent } from "@/lib/consent";
 import { STEPS, initialFormData } from "./sell-form/types";
 import type { FormData, VehicleInfo } from "./sell-form/types";
 import StepVehicleInfo from "./sell-form/StepVehicleInfo";
@@ -184,6 +185,16 @@ const SellCarForm = () => {
       const baseUrl = window.location.origin;
       setUploadUrl(`${baseUrl}/upload/${generatedToken}`);
       localStorage.setItem("lastSubmissionTime", Date.now().toString());
+
+      // Log TCPA consent
+      logConsent({
+        customerName: formData.name,
+        customerPhone: formData.phone,
+        customerEmail: formData.email,
+        formSource: "sell_form",
+        submissionToken: generatedToken,
+      });
+
       setSubmitted(true);
     } catch (err) {
       toast({ title: "Submission failed", description: "Something went wrong. Please try again.", variant: "destructive" });

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { logConsent } from "@/lib/consent";
 import serviceLogo from "@/assets/harte-service-logo.png";
 
 interface VehicleInfo {
@@ -216,6 +217,16 @@ const ServiceLanding = () => {
 
       setUploadUrl(`${window.location.origin}/upload/${generatedToken}`);
       localStorage.setItem("lastSubmissionTime", Date.now().toString());
+
+      // Log TCPA consent
+      logConsent({
+        customerName: name,
+        customerPhone: phone,
+        customerEmail: email,
+        formSource: "service_landing",
+        submissionToken: generatedToken,
+      });
+
       setStep(2);
     } catch {
       toast({ title: "Submission failed", description: "Something went wrong. Please try again.", variant: "destructive" });
