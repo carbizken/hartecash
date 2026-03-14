@@ -21,6 +21,7 @@ const ServiceLinkGen = lazy(() => import("./pages/ServiceLinkGen"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("./pages/TermsOfService"));
 const OfferPage = lazy(() => import("./pages/OfferPage"));
+const Sitemap = lazy(() => import("./pages/Sitemap"));
 
 const queryClient = new QueryClient();
 
