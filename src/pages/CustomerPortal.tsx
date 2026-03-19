@@ -100,52 +100,6 @@ const CustomerPortal = () => {
     fetch();
   }, [token]);
 
-  const handlePrintOffer = () => {
-    if (!submission || !submission.offered_price) return;
-    const s = submission;
-    const vehicleStr = [s.vehicle_year, s.vehicle_make, s.vehicle_model].filter(Boolean).join(" ");
-    const printWindow = window.open("", "_blank", "width=800,height=600");
-    if (!printWindow) return;
-    const html = `<!DOCTYPE html><html><head><title>Cash Offer</title>
-    <style>
-      * { margin:0; padding:0; box-sizing:border-box; }
-      body { font-family: Inter, -apple-system, sans-serif; color:#1a2a3a; background:white; }
-      .header { background:#2a4365; color:white; padding:24px 32px; text-align:center; }
-      .header h1 { font-size:22px; font-weight:700; }
-      .content { padding:32px; max-width:600px; margin:0 auto; }
-      .offer-box { border:3px solid #2a4365; border-radius:12px; padding:24px; text-align:center; margin:24px 0; }
-      .offer-amount { font-size:36px; font-weight:800; color:#2a4365; }
-      .detail { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #e2e6ea; font-size:14px; }
-      .detail:last-child { border-bottom:none; }
-      .label { color:#6b7b8d; }
-      .value { font-weight:600; }
-      .footer { text-align:center; margin-top:32px; font-size:12px; color:#6b7b8d; }
-      @page { margin:0.5in; }
-    </style></head><body>
-    <div class="header"><h1>Cash Offer for Your Vehicle</h1></div>
-    <div class="content">
-      <div class="offer-box">
-        <p style="font-size:14px;color:#6b7b8d;margin-bottom:8px;">Our Cash Offer</p>
-        <div class="offer-amount">$${s.offered_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-      </div>
-      <div style="margin-bottom:24px;">
-        <div class="detail"><span class="label">Vehicle</span><span class="value">${vehicleStr}</span></div>
-        <div class="detail"><span class="label">Mileage</span><span class="value">${s.mileage || "N/A"}</span></div>
-        <div class="detail"><span class="label">Color</span><span class="value">${s.exterior_color || "N/A"}</span></div>
-        <div class="detail"><span class="label">Condition</span><span class="value">${s.overall_condition || "N/A"}</span></div>
-        <div class="detail"><span class="label">Customer</span><span class="value">${s.name || "N/A"}</span></div>
-        <div class="detail"><span class="label">Date</span><span class="value">${new Date().toLocaleDateString()}</span></div>
-      </div>
-      <div class="footer">
-        <p>This offer is subject to in-person vehicle inspection and verification of condition.</p>
-        <p style="margin-top:8px;">Harte Auto Group</p>
-      </div>
-    </div></body></html>`;
-    printWindow.document.write(html);
-    printWindow.document.close();
-    setTimeout(() => { printWindow.focus(); printWindow.print(); }, 300);
-  };
-
   if (loading) return <PortalSkeleton />;
 
   if (error) return (
