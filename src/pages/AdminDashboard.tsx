@@ -1403,6 +1403,12 @@ const AdminDashboard = () => {
           <TabsContent value="consent">
             <ConsentLog />
           </TabsContent>
+
+          {canManageAccess && (
+            <TabsContent value="offer-settings">
+              <OfferSettings />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
 
