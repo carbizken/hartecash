@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
   Car, CheckCircle, Circle, Clock,
   DollarSign, Inbox, Search, BadgeDollarSign, CalendarCheck,
-  ClipboardCheck, Handshake, PartyPopper, Printer, type LucideIcon
+  ClipboardCheck, Handshake, PartyPopper, type LucideIcon
 } from "lucide-react";
 import harteLogo from "@/assets/harte-logo.png";
 import { motion } from "framer-motion";
