@@ -83,7 +83,7 @@ const OfferPage = () => {
 
   if (loading) return <PortalSkeleton />;
 
-  if (error || !submission || !submission.offered_price) return (
+  if (error || !submission) return (
     <div className="min-h-screen flex items-center justify-center bg-background p-6">
       <div className="text-center">
         <div className="text-5xl mb-4">😕</div>
@@ -99,13 +99,26 @@ const OfferPage = () => {
   const s = submission;
   const vehicleStr = [s.vehicle_year, s.vehicle_make, s.vehicle_model].filter(Boolean).join(" ");
   const firstName = s.name?.split(" ")[0] || "";
-  const cashOffer = s.offered_price;
 
-  const { state, rate: taxRate } = getTaxRateFromZip(s.zip || "");
-  const stateName = state ? STATE_NAMES[state] || state : null;
-  const taxPercent = (taxRate * 100).toFixed(2);
-  const taxSavings = cashOffer * taxRate;
-  const tradeInValue = calcTradeInValue(cashOffer, taxRate);
+  // Use offered_price (staff-set) or fall back to estimated offer
+  const hasOfferedPrice = !!s.offered_price;
+  const hasEstimate = !!s.estimated_offer_high;
+  const cashOffer = s.offered_price || s.estimated_offer_high || 0;
+  const estimateLow = s.estimated_offer_low || 0;
+  const isEstimate = !hasOfferedPrice && hasEstimate;
+
+  if (cashOffer <= 0) return (
+    <div className="min-h-screen flex items-center justify-center bg-background p-6">
+      <div className="text-center">
+        <div className="text-5xl mb-4">😕</div>
+        <h1 className="text-xl font-bold text-foreground mb-2">Offer Not Available</h1>
+        <p className="text-muted-foreground">No offer has been made yet.</p>
+        <Link to="/my-submission" className="text-accent underline mt-4 inline-block text-sm">
+          Check your submission
+        </Link>
+      </div>
+    </div>
+  );
 
   const handlePrint = () => {
     window.print();
