@@ -1182,9 +1182,12 @@ const AdminDashboard = () => {
                               {sub.name || "—"}
                             </td>
                             <td className="px-3 py-3 whitespace-nowrap">
-                              {sub.vehicle_year && sub.vehicle_make
-                                ? `${sub.vehicle_year} ${sub.vehicle_make} ${sub.vehicle_model || ""}`
-                                : sub.plate || "—"}
+                              <span className="flex items-center gap-1">
+                                {(sub as any).is_hot_lead && <span title="Hot Lead">🔥</span>}
+                                {sub.vehicle_year && sub.vehicle_make
+                                  ? `${sub.vehicle_year} ${sub.vehicle_make} ${sub.vehicle_model || ""}`
+                                  : sub.plate || "—"}
+                              </span>
                             </td>
                             <td className="px-3 py-3 text-xs font-mono text-muted-foreground whitespace-nowrap">
                               {sub.vin || "—"}
