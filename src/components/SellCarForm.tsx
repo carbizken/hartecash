@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { logConsent } from "@/lib/consent";
+import { calculateOffer, type OfferEstimate } from "@/lib/offerCalculator";
 import { STEPS, initialFormData } from "./sell-form/types";
 import type { FormData, VehicleInfo, BBVehicle } from "./sell-form/types";
 import StepVehicleInfo from "./sell-form/StepVehicleInfo";
