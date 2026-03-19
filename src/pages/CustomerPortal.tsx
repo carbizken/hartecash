@@ -207,28 +207,37 @@ const CustomerPortal = () => {
           phone={s.phone || ""}
         />
 
-        {/* Offer Card */}
-        {s.offered_price && (
-          <div className="bg-card rounded-xl p-5 shadow-lg border-2 border-accent/30">
-            <div className="flex items-center gap-2 mb-3">
-              <DollarSign className="w-5 h-5 text-accent" />
-              <h3 className="font-bold text-card-foreground">Your Cash Offer</h3>
-            </div>
-            <p className="text-3xl font-extrabold text-accent">
-              ${s.offered_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">Subject to in-person inspection</p>
-            <div className="flex gap-2 mt-3">
-              <Link to={`/offer/${s.token}`}>
-                <Button size="sm" className="gap-1 bg-accent hover:bg-accent/90 text-accent-foreground">
-                  View Full Offer
-                </Button>
-              </Link>
-              <Button variant="outline" size="sm" onClick={handlePrintOffer}>
-                <Printer className="w-4 h-4 mr-1" /> Print
-              </Button>
-            </div>
-          </div>
+        {/* Get Your Offer CTA — shown when there's an estimate or offered price */}
+        {(s.offered_price || s.estimated_offer_high) && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+          >
+            <Link to={`/offer/${s.token}`}>
+              <div className="bg-gradient-to-r from-accent to-[hsl(210,100%,45%)] rounded-2xl p-6 shadow-xl cursor-pointer hover:shadow-2xl hover:-translate-y-0.5 transition-all">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-accent-foreground/80 text-xs font-semibold uppercase tracking-wider mb-1">
+                      {s.offered_price ? "Your Cash Offer" : "Your Estimated Offer"}
+                    </p>
+                    <p className="text-3xl md:text-4xl font-extrabold text-accent-foreground">
+                      {s.offered_price
+                        ? `$${s.offered_price.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
+                        : `$${s.estimated_offer_low?.toLocaleString('en-US', { maximumFractionDigits: 0 })} – $${s.estimated_offer_high?.toLocaleString('en-US', { maximumFractionDigits: 0 })}`
+                      }
+                    </p>
+                    <p className="text-accent-foreground/70 text-sm mt-1">
+                      Tap to see your full offer with trade-in value →
+                    </p>
+                  </div>
+                  <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                    <DollarSign className="w-7 h-7 text-accent-foreground" />
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </motion.div>
         )}
 
         {/* Completion Checklist (replaces Actions) */}

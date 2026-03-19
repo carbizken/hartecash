@@ -19,6 +19,9 @@ interface OfferSubmission {
   exterior_color: string | null;
   overall_condition: string | null;
   offered_price: number | null;
+  estimated_offer_low: number | null;
+  estimated_offer_high: number | null;
+  bb_tradein_avg: number | null;
   token: string;
   zip: string | null;
   vin: string | null;
