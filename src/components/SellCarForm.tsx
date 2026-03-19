@@ -29,6 +29,7 @@ const SellCarForm = () => {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [submitted, setSubmitted] = useState(false);
   const [uploadUrl, setUploadUrl] = useState("");
+  const [offerEstimate, setOfferEstimate] = useState<OfferEstimate | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [honeypot, setHoneypot] = useState("");
   const formRef = useRef<HTMLDivElement>(null);
