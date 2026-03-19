@@ -327,6 +327,7 @@ const SellCarForm = () => {
           uploadUrl={uploadUrl}
           vehicleInfo={vehicleInfo}
           nextStep={formData.nextStep}
+          offerEstimate={offerEstimate}
         />
       </div>
     );
