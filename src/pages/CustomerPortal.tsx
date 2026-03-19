@@ -39,6 +39,9 @@ interface PortalSubmission {
   created_at: string;
   loan_status: string | null;
   token: string;
+  estimated_offer_low: number | null;
+  estimated_offer_high: number | null;
+  bb_tradein_avg: number | null;
 }
 
 interface StageInfo {
