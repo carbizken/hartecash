@@ -23,6 +23,7 @@ const SiteHeader = () => {
 
           <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold text-card-foreground">
             <a href="#compare" className="hover:text-accent transition-colors">Why {dealerName.split(" ")[0]}</a>
+            <Link to="/trade" className="hover:text-accent transition-colors">Trade-In</Link>
             <Link to="/schedule" className="hover:text-accent transition-colors">Schedule a Visit</Link>
             <Link to="/my-submission" className="hover:text-accent transition-colors">View My Offer</Link>
           </nav>
