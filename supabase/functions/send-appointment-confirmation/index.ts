@@ -101,6 +101,18 @@ Deno.serve(async (req) => {
 
     const firstName = sanitize(customer_name?.split(" ")[0]) || "friend";
 
+    // Fetch dealership name
+    const adminClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
+    const { data: siteConfig } = await adminClient
+      .from("site_config")
+      .select("dealership_name")
+      .eq("dealership_id", "default")
+      .maybeSingle();
+    const dealerName = siteConfig?.dealership_name || "Our Dealership";
+
     const emailRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
