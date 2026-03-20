@@ -297,6 +297,84 @@ export type Database = {
         }
         Relationships: []
       }
+      site_config: {
+        Row: {
+          accent_color: string
+          address: string | null
+          created_at: string
+          dealership_id: string
+          dealership_name: string
+          email: string | null
+          favicon_url: string | null
+          hero_headline: string
+          hero_subtext: string
+          id: string
+          logo_url: string | null
+          logo_white_url: string | null
+          phone: string | null
+          price_guarantee_days: number
+          primary_color: string
+          stats_cars_purchased: string | null
+          stats_rating: string | null
+          stats_reviews_count: string | null
+          stats_years_in_business: string | null
+          success_color: string
+          tagline: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          accent_color?: string
+          address?: string | null
+          created_at?: string
+          dealership_id?: string
+          dealership_name?: string
+          email?: string | null
+          favicon_url?: string | null
+          hero_headline?: string
+          hero_subtext?: string
+          id?: string
+          logo_url?: string | null
+          logo_white_url?: string | null
+          phone?: string | null
+          price_guarantee_days?: number
+          primary_color?: string
+          stats_cars_purchased?: string | null
+          stats_rating?: string | null
+          stats_reviews_count?: string | null
+          stats_years_in_business?: string | null
+          success_color?: string
+          tagline?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          accent_color?: string
+          address?: string | null
+          created_at?: string
+          dealership_id?: string
+          dealership_name?: string
+          email?: string | null
+          favicon_url?: string | null
+          hero_headline?: string
+          hero_subtext?: string
+          id?: string
+          logo_url?: string | null
+          logo_white_url?: string | null
+          phone?: string | null
+          price_guarantee_days?: number
+          primary_color?: string
+          stats_cars_purchased?: string | null
+          stats_rating?: string | null
+          stats_reviews_count?: string | null
+          stats_years_in_business?: string | null
+          success_color?: string
+          tagline?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       submissions: {
         Row: {
           accidents: string | null

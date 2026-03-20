@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatPhone } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, Search, Trash2, Eye, ChevronLeft, ChevronRight, UserCheck, UserX, Users, Check, Circle, DollarSign, StickyNote, XCircle, Save, Printer, FileText, QrCode, ExternalLink, ClipboardCheck, Upload, CalendarDays, Plus, Phone, Mail, AlertTriangle, Clock, History, Moon, Sun, ShieldCheck, SlidersHorizontal } from "lucide-react";
+import { LogOut, Search, Trash2, Eye, ChevronLeft, ChevronRight, UserCheck, UserX, Users, Check, Circle, DollarSign, StickyNote, XCircle, Save, Printer, FileText, QrCode, ExternalLink, ClipboardCheck, Upload, CalendarDays, Plus, Phone, Mail, AlertTriangle, Clock, History, Moon, Sun, ShieldCheck, SlidersHorizontal, Settings } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { QRCodeSVG } from "qrcode.react";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,6 +20,7 @@ import StaffFileUpload from "@/components/admin/StaffFileUpload";
 import DashboardAnalytics from "@/components/admin/DashboardAnalytics";
 import ConsentLog from "@/components/admin/ConsentLog";
 import OfferSettings from "@/components/admin/OfferSettings";
+import SiteConfiguration from "@/components/admin/SiteConfiguration";
 import { Badge } from "@/components/ui/badge";
 
 interface PendingRequest {
@@ -1049,10 +1050,16 @@ const AdminDashboard = () => {
               Consent Log
             </TabsTrigger>
             {canManageAccess && (
-              <TabsTrigger value="offer-settings">
-                <SlidersHorizontal className="w-4 h-4 mr-1" />
-                Offer Settings
-              </TabsTrigger>
+              <>
+                <TabsTrigger value="offer-settings">
+                  <SlidersHorizontal className="w-4 h-4 mr-1" />
+                  Offer Settings
+                </TabsTrigger>
+                <TabsTrigger value="site-config">
+                  <Settings className="w-4 h-4 mr-1" />
+                  Site Config
+                </TabsTrigger>
+              </>
             )}
           </TabsList>
 
@@ -1410,6 +1417,12 @@ const AdminDashboard = () => {
           {canManageAccess && (
             <TabsContent value="offer-settings">
               <OfferSettings />
+            </TabsContent>
+          )}
+
+          {canManageAccess && (
+            <TabsContent value="site-config">
+              <SiteConfiguration />
             </TabsContent>
           )}
         </Tabs>
