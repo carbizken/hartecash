@@ -18,6 +18,7 @@ interface StaffMember {
   role: string;
   role_id: string;
   phone_number?: string | null;
+  profile_image_url?: string | null;
 }
 
 const ROLE_LABELS: Record<string, string> = {
