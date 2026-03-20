@@ -318,6 +318,7 @@ const SellCarForm = () => {
         customerEmail: formData.email,
         formSource: "sell_form",
         submissionToken: generatedToken,
+        dealershipName: config.dealership_name,
       });
 
       // Show calculating animation if enabled, otherwise navigate directly
