@@ -214,8 +214,19 @@
     position: static !important;
   }
 
+  /* ─── Offer page: single-page print layout ─── */
+  .print-offer-layout {
+    display: block !important;
+    padding: 0 !important;
+    font-size: 11px;
+  }
+
+  .print\\:!hidden {
+    display: none !important;
+  }
+
   @page {
-    margin: 0.5in;
+    margin: 0.4in 0.5in;
     size: letter;
   }
 }
