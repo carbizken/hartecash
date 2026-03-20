@@ -1075,6 +1075,10 @@ const AdminDashboard = () => {
                   <MessageSquareQuote className="w-4 h-4 mr-1" />
                   Testimonials
                 </TabsTrigger>
+                <TabsTrigger value="comparison">
+                  <BarChart3 className="w-4 h-4 mr-1" />
+                  Comparison
+                </TabsTrigger>
               </>
             )}
           </TabsList>
