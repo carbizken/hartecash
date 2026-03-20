@@ -316,7 +316,7 @@ const AdminDashboard = () => {
 
       toast({ title: "Appointment created", description: `Scheduled for ${apptForm.preferred_date} at ${apptForm.preferred_time}.` });
       setShowCreateAppt(false);
-      setApptForm({ customer_name: "", customer_email: "", customer_phone: "", preferred_date: "", preferred_time: "", vehicle_info: "", notes: "", submission_token: "" });
+      setApptForm({ customer_name: "", customer_email: "", customer_phone: "", preferred_date: "", preferred_time: "", store_location: "", vehicle_info: "", notes: "", submission_token: "" });
       fetchAppointments();
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
