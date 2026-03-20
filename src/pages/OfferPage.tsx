@@ -33,6 +33,7 @@ interface OfferSubmission {
   zip: string | null;
   vin: string | null;
   created_at: string | null;
+  loan_status: string | null;
 }
 
 interface ConditionDetails {
