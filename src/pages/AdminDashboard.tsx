@@ -446,10 +446,10 @@ const AdminDashboard = () => {
     // Check opt-out status
     if (sub.email || sub.phone) {
       const optEmail = sub.email
-        ? (await supabase.from("opt_outs" as any).select("id").eq("email", sub.email).eq("channel", "email").maybeSingle()).data
+        ? (await supabase.from("opt_outs").select("id").eq("email", sub.email).eq("channel", "email").maybeSingle()).data
         : null;
       const optSms = sub.phone
-        ? (await supabase.from("opt_outs" as any).select("id").eq("phone", sub.phone).eq("channel", "sms").maybeSingle()).data
+        ? (await supabase.from("opt_outs").select("id").eq("phone", sub.phone).eq("channel", "sms").maybeSingle()).data
         : null;
       setOptOutStatus({ email: !!optEmail, sms: !!optSms });
     }
