@@ -114,19 +114,42 @@ interface Submission {
 
 const PAGE_SIZE = 20;
 
+// Consolidated 7-step tracker for visual display
 const PROGRESS_STAGES = [
+  { key: "new", label: "New Lead", dbKeys: ["new"] },
+  { key: "contacted", label: "Contacted", dbKeys: ["contacted"] },
+  { key: "inspection", label: "Inspection", dbKeys: ["inspection_scheduled", "inspection_completed"] },
+  { key: "docs_verified", label: "Docs & Title", dbKeys: ["title_verified", "ownership_verified"] },
+  { key: "appraised", label: "Appraised", dbKeys: ["appraisal_completed", "manager_approval"] },
+  { key: "price_agreed", label: "Price Agreed", dbKeys: ["price_agreed"] },
+  { key: "purchase_complete", label: "Purchased", dbKeys: ["purchase_complete"] },
+  { key: "dead_lead", label: "Dead Lead", dbKeys: ["dead_lead"] },
+];
+
+// Full list of DB status keys for dropdowns (preserves granular control)
+const ALL_STATUS_OPTIONS = [
   { key: "new", label: "New Lead" },
-  { key: "contacted", label: "Customer Contacted" },
-  { key: "inspection_scheduled", label: "In-Person Inspection Scheduled" },
-  { key: "inspection_completed", label: "In-Person Inspection Completed" },
+  { key: "contacted", label: "Contacted" },
+  { key: "inspection_scheduled", label: "Inspection Scheduled" },
+  { key: "inspection_completed", label: "Inspection Completed" },
   { key: "title_verified", label: "Title Verified" },
   { key: "ownership_verified", label: "Ownership Verified" },
-  { key: "appraisal_completed", label: "Final Appraisal Completed" },
-  { key: "manager_approval", label: "Manager / Appraiser Approval" },
+  { key: "appraisal_completed", label: "Appraisal Completed" },
+  { key: "manager_approval", label: "Manager Approval" },
   { key: "price_agreed", label: "Price Agreed" },
-  { key: "purchase_complete", label: "Purchase Complete" },
+  { key: "purchase_complete", label: "Purchased" },
   { key: "dead_lead", label: "Dead Lead" },
 ];
+
+// Map any DB status to its consolidated stage index
+const getStageIndex = (dbStatus: string): number => {
+  const idx = PROGRESS_STAGES.findIndex(s => s.dbKeys.includes(dbStatus));
+  return idx >= 0 ? idx : 0;
+};
+
+// Get label for any DB status key
+const getStatusLabel = (dbStatus: string): string =>
+  ALL_STATUS_OPTIONS.find(s => s.key === dbStatus)?.label || dbStatus;
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "Admin",
@@ -577,8 +600,8 @@ const AdminDashboard = () => {
       await supabase.from("activity_log").insert({
         submission_id: sub.id,
         action: "Status Changed",
-        old_value: PROGRESS_STAGES.find(s => s.key === oldStatus)?.label || oldStatus,
-        new_value: PROGRESS_STAGES.find(s => s.key === newStatus)?.label || newStatus,
+        old_value: getStatusLabel(oldStatus),
+        new_value: getStatusLabel(newStatus),
         performed_by: userRole,
       });
       toast({ title: "Status updated" });
@@ -695,17 +718,16 @@ const AdminDashboard = () => {
 
     const vehicleStr = [s.vehicle_year, s.vehicle_make, s.vehicle_model].filter(Boolean).join(" ") || null;
 
-    // Build deal progress HTML
+    // Build deal progress HTML (uses consolidated 7-step tracker)
     const isDeadLead = s.progress_status === "dead_lead";
-    const currentIdx = PROGRESS_STAGES.findIndex(st => st.key === s.progress_status);
-    const progressHtml = PROGRESS_STAGES.map((st, i) => {
-      const isComplete = !isDeadLead && i < currentIdx;
-      const isCurrent = i === currentIdx;
-      const isDead = st.key === "dead_lead" && isDeadLead;
-      const cls = isDead ? "stage stage-dead" : isComplete ? "stage stage-complete" : isCurrent ? "stage stage-current" : "stage stage-inactive";
-      const dot = isDead ? "✕" : isComplete ? "✓" : "○";
+    const currentStageIdx = getStageIndex(s.progress_status);
+    const progressHtml = PROGRESS_STAGES.filter(st => st.key !== "dead_lead").map((st, i) => {
+      const isComplete = !isDeadLead && i < currentStageIdx;
+      const isCurrent = !isDeadLead && i === currentStageIdx;
+      const cls = isComplete ? "stage stage-complete" : isCurrent ? "stage stage-current" : "stage stage-inactive";
+      const dot = isComplete ? "✓" : isCurrent ? "●" : "○";
       return '<div class="' + cls + '"><div class="stage-dot">' + dot + '</div><span class="stage-label">' + st.label + "</span></div>";
-    }).join("");
+    }).join("") + (isDeadLead ? '<div class="stage stage-dead"><div class="stage-dot">✕</div><span class="stage-label">Dead Lead</span></div>' : "");
 
     const photosHtml = photos.length > 0
       ? '<div class="section"><div class="section-title">Photos (' + photos.length + ')</div><div class="photos-grid">' +
@@ -764,7 +786,7 @@ const AdminDashboard = () => {
           ? new Date(s.appointment_date + "T12:00:00").toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
           : "No appointment yet") +
       '</p></div>' +
-      '<div class="section"><div class="section-title">Deal Progress</div>' + progressHtml + "</div>" +
+      '<div class="section"><div class="section-title">Acquisition Tracker</div>' + progressHtml + "</div>" +
       priceSection +
       notesHtml +
       photosHtml +
@@ -1135,7 +1157,7 @@ const AdminDashboard = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="__all__">All statuses</SelectItem>
-                        {PROGRESS_STAGES.map(stage => (
+                        {ALL_STATUS_OPTIONS.map(stage => (
                           <SelectItem key={stage.key} value={stage.key}>
                             {stage.label}
                           </SelectItem>
@@ -1264,7 +1286,7 @@ const AdminDashboard = () => {
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {PROGRESS_STAGES.map(s => {
+                                  {ALL_STATUS_OPTIONS.map(s => {
                                     const isApprovalStage = ["manager_approval", "price_agreed", "purchase_complete"].includes(s.key);
                                     return (
                                       <SelectItem key={s.key} value={s.key} disabled={isApprovalStage && !canApprove}>
@@ -1800,58 +1822,63 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              {/* Deal Progress with cumulative highlighting */}
+              {/* Acquisition Tracker — Horizontal Progress Bar */}
               <div data-print-section className="bg-muted/40 rounded-lg p-4">
-                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Deal Progress</h3>
-                <div className="space-y-1.5">
-                  {PROGRESS_STAGES.map((stage, i) => {
-                    const isDeadLead = selected.progress_status === "dead_lead";
-                    const currentIdx = PROGRESS_STAGES.findIndex(s => s.key === selected.progress_status);
-                    const isComplete = !isDeadLead && i < currentIdx;
-                    const isCurrent = i === currentIdx;
-                    const isDead = stage.key === "dead_lead" && isDeadLead;
-                    return (
-                      <div key={stage.key} data-print-stage={isDead ? "dead" : isComplete ? "complete" : isCurrent ? "current" : undefined} className={`flex items-center gap-2.5 px-3 py-1.5 rounded-md transition-colors ${
-                        isDead ? "bg-destructive/15" :
-                        isComplete ? "bg-success/15" :
-                        isCurrent ? "bg-accent/20" :
-                        ""
-                      }`}>
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          isDead ? "bg-destructive text-destructive-foreground" :
-                          isComplete ? "bg-success text-success-foreground" :
-                          isCurrent ? "bg-accent text-accent-foreground" :
-                          "bg-muted text-muted-foreground"
-                        }`}>
-                          {isDead ? <XCircle className="w-3 h-3" /> :
-                           isComplete ? <Check className="w-3 h-3" /> :
-                           <Circle className="w-3 h-3" />}
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Acquisition Tracker</h3>
+                {selected.progress_status === "dead_lead" ? (
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-destructive/15">
+                    <XCircle className="w-5 h-5 text-destructive" />
+                    <span className="font-bold text-destructive text-sm">Dead Lead</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-0 w-full">
+                    {PROGRESS_STAGES.filter(s => s.key !== "dead_lead").map((stage, i, arr) => {
+                      const currentStageIdx = getStageIndex(selected.progress_status);
+                      const isComplete = i < currentStageIdx;
+                      const isCurrent = i === currentStageIdx;
+                      return (
+                        <div key={stage.key} className="flex items-center flex-1 min-w-0">
+                          <div className="flex flex-col items-center w-full">
+                            <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold transition-all ${
+                              isComplete ? "bg-success text-success-foreground shadow-sm" :
+                              isCurrent ? "bg-primary text-primary-foreground shadow-md ring-2 ring-primary/30" :
+                              "bg-muted text-muted-foreground"
+                            }`}>
+                              {isComplete ? <Check className="w-3.5 h-3.5" /> : i + 1}
+                            </div>
+                            <span className={`text-[10px] mt-1.5 text-center leading-tight max-w-[70px] ${
+                              isCurrent ? "font-bold text-card-foreground" :
+                              isComplete ? "font-medium text-card-foreground" :
+                              "text-muted-foreground"
+                            }`}>
+                              {stage.label}
+                            </span>
+                          </div>
+                          {i < arr.length - 1 && (
+                            <div className={`h-[2px] flex-1 min-w-[8px] -mt-4 ${
+                              isComplete ? "bg-success" : "bg-border"
+                            }`} />
+                          )}
                         </div>
-                        <span className={`text-sm ${
-                          isDead ? "font-bold text-destructive" :
-                          isCurrent ? "font-bold text-card-foreground" :
-                          isComplete ? "font-medium text-card-foreground" :
-                          "text-muted-foreground"
-                        }`}>
-                          {stage.label}
-                        </span>
-                        {stage.key === "appraisal_completed" && (isComplete || isCurrent) && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="ml-auto h-6 text-xs"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              window.open(getDocsUrl(selected.token), "_blank");
-                            }}
-                          >
-                            <Upload className="w-3 h-3 mr-1" /> Upload Appraisal
-                          </Button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Upload Appraisal button when at appraisal stage */}
+                {(selected.progress_status === "appraisal_completed" || selected.progress_status === "manager_approval") && (
+                  <div className="mt-3 flex justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => window.open(getDocsUrl(selected.token), "_blank")}
+                    >
+                      <Upload className="w-3 h-3 mr-1" /> Upload Appraisal
+                    </Button>
+                  </div>
+                )}
+
                 <div className="mt-4">
                   <label className="text-xs font-medium text-muted-foreground mb-1 block">Update Status</label>
                   <Select
@@ -1867,7 +1894,7 @@ const AdminDashboard = () => {
                   >
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {PROGRESS_STAGES.map(s => {
+                      {ALL_STATUS_OPTIONS.map(s => {
                         const isApprovalStage = ["manager_approval", "price_agreed", "purchase_complete"].includes(s.key);
                         return (
                           <SelectItem key={s.key} value={s.key} disabled={isApprovalStage && !canApprove}>
@@ -1933,8 +1960,8 @@ const AdminDashboard = () => {
 
               {/* Check Request */}
               {(() => {
-                const priceAgreedIdx = PROGRESS_STAGES.findIndex(s => s.key === "price_agreed");
-                const currentIdx = PROGRESS_STAGES.findIndex(s => s.key === selected.progress_status);
+                const priceAgreedIdx = getStageIndex("price_agreed");
+                const currentIdx = getStageIndex(selected.progress_status);
                 const isPriceAgreedOrBeyond = selected.progress_status !== "dead_lead" && currentIdx >= priceAgreedIdx && selected.offered_price;
                 return (
                   <div data-print-section className="bg-muted/40 rounded-lg p-4">
@@ -2290,8 +2317,8 @@ const AdminDashboard = () => {
                         await supabase.from("activity_log").insert({
                           submission_id: selected.id,
                           action: "Status Changed",
-                          old_value: PROGRESS_STAGES.find(s => s.key === oldSub.progress_status)?.label || oldSub.progress_status,
-                          new_value: PROGRESS_STAGES.find(s => s.key === selected.progress_status)?.label || selected.progress_status,
+                          old_value: getStatusLabel(oldSub.progress_status),
+                          new_value: getStatusLabel(selected.progress_status),
                           performed_by: userRole,
                         });
                       }
