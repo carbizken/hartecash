@@ -214,6 +214,7 @@ const OfferSettings = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState<OfferSettingsRow | null>(null);
+  const [savedSettings, setSavedSettings] = useState<OfferSettingsRow | null>(null);
   const [rules, setRules] = useState<OfferRule[]>([]);
   const [showRuleDialog, setShowRuleDialog] = useState(false);
   const [editingRule, setEditingRule] = useState<Partial<OfferRule> | null>(null);
