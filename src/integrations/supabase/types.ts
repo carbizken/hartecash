@@ -144,6 +144,78 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_settings: {
+        Row: {
+          appointment_channels: string[]
+          created_at: string
+          dealership_id: string
+          docs_uploaded_channels: string[]
+          email_recipients: string[]
+          hot_lead_channels: string[]
+          id: string
+          new_submission_channels: string[]
+          notify_appointment_booked: boolean
+          notify_docs_uploaded: boolean
+          notify_hot_lead: boolean
+          notify_new_submission: boolean
+          notify_photos_uploaded: boolean
+          notify_status_change: boolean
+          photos_uploaded_channels: string[]
+          quiet_hours_enabled: boolean
+          quiet_hours_end: string
+          quiet_hours_start: string
+          sms_recipients: string[]
+          status_change_channels: string[]
+          updated_at: string
+        }
+        Insert: {
+          appointment_channels?: string[]
+          created_at?: string
+          dealership_id?: string
+          docs_uploaded_channels?: string[]
+          email_recipients?: string[]
+          hot_lead_channels?: string[]
+          id?: string
+          new_submission_channels?: string[]
+          notify_appointment_booked?: boolean
+          notify_docs_uploaded?: boolean
+          notify_hot_lead?: boolean
+          notify_new_submission?: boolean
+          notify_photos_uploaded?: boolean
+          notify_status_change?: boolean
+          photos_uploaded_channels?: string[]
+          quiet_hours_enabled?: boolean
+          quiet_hours_end?: string
+          quiet_hours_start?: string
+          sms_recipients?: string[]
+          status_change_channels?: string[]
+          updated_at?: string
+        }
+        Update: {
+          appointment_channels?: string[]
+          created_at?: string
+          dealership_id?: string
+          docs_uploaded_channels?: string[]
+          email_recipients?: string[]
+          hot_lead_channels?: string[]
+          id?: string
+          new_submission_channels?: string[]
+          notify_appointment_booked?: boolean
+          notify_docs_uploaded?: boolean
+          notify_hot_lead?: boolean
+          notify_new_submission?: boolean
+          notify_photos_uploaded?: boolean
+          notify_status_change?: boolean
+          photos_uploaded_channels?: string[]
+          quiet_hours_enabled?: boolean
+          quiet_hours_end?: string
+          quiet_hours_start?: string
+          sms_recipients?: string[]
+          status_change_channels?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       offer_rules: {
         Row: {
           adjustment_pct: number
