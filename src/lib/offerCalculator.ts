@@ -49,6 +49,12 @@ export interface ConditionMultipliers {
   rough: number;
 }
 
+export interface AgeTier {
+  min_years: number;
+  max_years: number;
+  adjustment_pct: number;
+}
+
 export interface OfferSettings {
   bb_value_basis: string;
   global_adjustment_pct: number;
@@ -58,6 +64,7 @@ export interface OfferSettings {
   recon_cost: number;
   offer_floor: number;
   offer_ceiling: number | null;
+  age_tiers: AgeTier[];
 }
 
 export interface OfferRule {
