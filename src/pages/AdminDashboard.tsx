@@ -935,7 +935,7 @@ const AdminDashboard = () => {
       images.length > 0 ? `<div class="doc-section"><h2>${title}</h2>${images.map(url => `<img class="doc-img" src="${url}" />`).join("")}</div>` : "";
 
     const html = `<!DOCTYPE html><html><head><title>Customer Documents – ${s.name || vehicleStr}</title><style>${css}</style></head><body>
-      <div class="header"><h1>Harte Auto Group</h1><p>Customer Documents — ${s.name || ""} — ${vehicleStr}</p></div>
+      <div class="header"><h1>Customer Documents</h1><p>${s.name || ""} — ${vehicleStr}</p></div>
       ${makeDocSection("Driver's License", dlImages)}
       ${makeDocSection("Registration", regImages)}
       ${makeDocSection("Title", titleImages)}
