@@ -21,6 +21,7 @@ export interface SiteConfig {
   stats_years_in_business: string;
   stats_rating: string;
   stats_reviews_count: string;
+  enable_animations: boolean;
 }
 
 const DEFAULTS: SiteConfig = {
