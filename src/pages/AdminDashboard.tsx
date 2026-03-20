@@ -1406,6 +1406,17 @@ const AdminDashboard = () => {
                           </td>
                           <td className="px-3 py-2 text-right">
                             <div className="flex justify-end gap-1">
+                              {appt.submission_token && (
+                                <Button size="sm" variant="ghost" title="View Customer" onClick={() => handleViewSubmissionFromAppt(appt)}>
+                                  <Eye className="w-4 h-4" />
+                                </Button>
+                              )}
+                              <Button size="sm" variant="ghost" title="Reschedule" onClick={() => {
+                                setRescheduleAppt(appt);
+                                setRescheduleForm({ preferred_date: appt.preferred_date, preferred_time: appt.preferred_time });
+                              }}>
+                                <CalendarClock className="w-4 h-4" />
+                              </Button>
                               {appt.status === "pending" && (
                                 <Button size="sm" variant="outline" onClick={() => handleUpdateApptStatus(appt.id, "Confirmed")}>Confirm</Button>
                               )}
@@ -1423,6 +1434,64 @@ const AdminDashboard = () => {
               </div>
             );
             })()}
+
+            {/* Reschedule Dialog */}
+            <Dialog open={!!rescheduleAppt} onOpenChange={(open) => { if (!open) setRescheduleAppt(null); }}>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Reschedule Appointment</DialogTitle>
+                </DialogHeader>
+                {rescheduleAppt && (
+                  <div className="space-y-4">
+                    <p className="text-sm text-muted-foreground">
+                      Rescheduling for <strong>{rescheduleAppt.customer_name}</strong>
+                    </p>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">New Date</label>
+                      <Input
+                        type="date"
+                        min={new Date().toISOString().split("T")[0]}
+                        value={rescheduleForm.preferred_date}
+                        onChange={(e) => {
+                          const newDate = e.target.value;
+                          setRescheduleForm(prev => {
+                            const day = new Date(newDate + "T12:00:00").getDay();
+                            const slots = day === 0 ? [] : (day === 5 || day === 6) ? APPT_TIME_SLOTS_FRISSAT : APPT_TIME_SLOTS_WEEKDAY;
+                            return { preferred_date: newDate, preferred_time: slots.includes(prev.preferred_time) ? prev.preferred_time : "" };
+                          });
+                        }}
+                      />
+                    </div>
+                    {rescheduleForm.preferred_date && new Date(rescheduleForm.preferred_date + "T12:00:00").getDay() === 0 ? (
+                      <p className="text-sm text-destructive font-medium">Closed on Sundays. Pick another date.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">New Time</label>
+                        <Select value={rescheduleForm.preferred_time} onValueChange={(v) => setRescheduleForm(prev => ({ ...prev, preferred_time: v }))}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a time" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {getRescheduleTimeSlots().map(t => (
+                              <SelectItem key={t} value={t}>{t}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                    <div className="flex justify-end gap-2 pt-2">
+                      <Button variant="outline" onClick={() => setRescheduleAppt(null)}>Cancel</Button>
+                      <Button
+                        onClick={handleReschedule}
+                        disabled={!rescheduleForm.preferred_date || !rescheduleForm.preferred_time || new Date(rescheduleForm.preferred_date + "T12:00:00").getDay() === 0}
+                      >
+                        Save New Time
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
             </div>
           )}
 
