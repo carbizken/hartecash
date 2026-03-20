@@ -76,6 +76,7 @@ const SiteHeader = () => {
               </div>
             )}
           </div>
+          </div>
         </div>
       </div>
     </header>
