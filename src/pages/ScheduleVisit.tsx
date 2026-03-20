@@ -178,7 +178,7 @@ const ScheduleVisit = () => {
             </Link>
           )}
           <img src={harteLogo} alt="Harte" className="h-12 w-auto" />
-          <h1 className="font-bold text-lg">Schedule a Visit</h1>
+          <h1 className="font-bold text-lg text-foreground">Schedule a Visit</h1>
         </div>
       </div>
       <main className="flex-1 flex items-center justify-center p-4 py-12">
