@@ -41,7 +41,7 @@ function getUnsubscribeFooter(siteUrl: string, token: string) {
   return `<p style="color: #999; font-size: 11px; margin-top: 16px;">Don't want these emails? <a href="${url}" style="color: #2563eb; text-decoration: underline;">Unsubscribe</a></p>`;
 }
 
-function getEmailTemplate(touch: number, sub: SubmissionData, siteUrl: string) {
+function getEmailTemplate(touch: number, sub: SubmissionData, siteUrl: string, dealerName = "Our Dealership") {
   const firstName = sub.name?.split(" ")[0] || "there";
   const vehicle = [sub.vehicle_year, sub.vehicle_make, sub.vehicle_model].filter(Boolean).join(" ");
   const offerStr = sub.offered_price
