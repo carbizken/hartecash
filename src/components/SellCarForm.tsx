@@ -303,7 +303,7 @@ const SellCarForm = ({ leadSource = "inventory" }: SellCarFormProps) => {
           loan_balance: formData.loanBalance || null,
           loan_payment: formData.loanPayment || null,
           next_step: "photos", // default — they'll choose on offer page
-          lead_source: "inventory",
+          lead_source: leadSource,
           bb_tradein_avg: bbSelectedVehicle?.tradein?.avg || null,
           bb_wholesale_avg: bbSelectedVehicle?.wholesale?.avg || null,
           estimated_offer_low: estimate?.low || null,
