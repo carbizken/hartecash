@@ -8,7 +8,8 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Save, Plus, Trash2, Flame, SlidersHorizontal, Target, Zap, AlertTriangle } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Save, Plus, Trash2, Flame, SlidersHorizontal, Target, Zap, AlertTriangle, DollarSign, Shield, Gauge } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────
 interface DeductionsConfig {
@@ -25,12 +26,42 @@ interface DeductionsConfig {
   missing_keys: boolean;
 }
 
+interface DeductionAmounts {
+  accidents_1: number;
+  accidents_2: number;
+  accidents_3plus: number;
+  exterior_damage_per_item: number;
+  interior_damage_per_item: number;
+  windshield_cracked: number;
+  windshield_chipped: number;
+  engine_issue_per_item: number;
+  mechanical_issue_per_item: number;
+  tech_issue_per_item: number;
+  not_drivable: number;
+  smoked_in: number;
+  tires_not_replaced: number;
+  missing_keys_1: number;
+  missing_keys_0: number;
+}
+
+interface ConditionMultipliers {
+  excellent: number;
+  good: number;
+  fair: number;
+  rough: number;
+}
+
 interface OfferSettingsRow {
   id: string;
   dealership_id: string;
   bb_value_basis: string;
   global_adjustment_pct: number;
   deductions_config: DeductionsConfig;
+  deduction_amounts: DeductionAmounts;
+  condition_multipliers: ConditionMultipliers;
+  recon_cost: number;
+  offer_floor: number;
+  offer_ceiling: number | null;
 }
 
 interface OfferRule {
@@ -48,6 +79,7 @@ interface OfferRule {
     conditions?: string[];
   };
   adjustment_pct: number;
+  adjustment_type: "pct" | "flat";
   is_active: boolean;
   flag_in_dashboard: boolean;
   priority: number;
@@ -67,32 +99,49 @@ const BB_VALUE_OPTIONS = [
   { value: "retail_rough", label: "Retail – Rough" },
 ];
 
-const DEDUCTION_LABELS: Record<string, string> = {
-  accidents: "Accidents",
-  exterior_damage: "Exterior Damage",
-  interior_damage: "Interior Damage",
-  windshield_damage: "Windshield Damage",
-  engine_issues: "Engine Issues",
-  mechanical_issues: "Mechanical Issues",
-  tech_issues: "Technology Issues",
-  not_drivable: "Not Drivable",
-  smoked_in: "Smoked In",
-  tires_not_replaced: "Tires Not Replaced",
-  missing_keys: "Missing Keys",
+const DEDUCTION_LABELS: Record<string, { label: string; amountKey: string | string[] }> = {
+  accidents: { label: "Accidents", amountKey: ["accidents_1", "accidents_2", "accidents_3plus"] },
+  exterior_damage: { label: "Exterior Damage", amountKey: "exterior_damage_per_item" },
+  interior_damage: { label: "Interior Damage", amountKey: "interior_damage_per_item" },
+  windshield_damage: { label: "Windshield Damage", amountKey: ["windshield_cracked", "windshield_chipped"] },
+  engine_issues: { label: "Engine Issues", amountKey: "engine_issue_per_item" },
+  mechanical_issues: { label: "Mechanical Issues", amountKey: "mechanical_issue_per_item" },
+  tech_issues: { label: "Technology Issues", amountKey: "tech_issue_per_item" },
+  not_drivable: { label: "Not Drivable", amountKey: "not_drivable" },
+  smoked_in: { label: "Smoked In", amountKey: "smoked_in" },
+  tires_not_replaced: { label: "Tires Not Replaced", amountKey: "tires_not_replaced" },
+  missing_keys: { label: "Missing Keys", amountKey: ["missing_keys_1", "missing_keys_0"] },
 };
 
-const DEFAULT_DEDUCTIONS: DeductionsConfig = {
-  accidents: true,
-  exterior_damage: true,
-  interior_damage: true,
-  windshield_damage: true,
-  engine_issues: true,
-  mechanical_issues: true,
-  tech_issues: true,
-  not_drivable: true,
-  smoked_in: true,
-  tires_not_replaced: true,
-  missing_keys: true,
+const AMOUNT_LABELS: Record<string, string> = {
+  accidents_1: "1 Accident",
+  accidents_2: "2 Accidents",
+  accidents_3plus: "3+ Accidents",
+  exterior_damage_per_item: "Per Item",
+  interior_damage_per_item: "Per Item",
+  windshield_cracked: "Cracked",
+  windshield_chipped: "Chipped",
+  engine_issue_per_item: "Per Issue",
+  mechanical_issue_per_item: "Per Issue",
+  tech_issue_per_item: "Per Issue",
+  not_drivable: "Flat Deduction",
+  smoked_in: "Flat Deduction",
+  tires_not_replaced: "Flat Deduction",
+  missing_keys_1: "1 Key Only",
+  missing_keys_0: "0 Keys",
+};
+
+const DEFAULT_DEDUCTION_AMOUNTS: DeductionAmounts = {
+  accidents_1: 800, accidents_2: 1800, accidents_3plus: 3000,
+  exterior_damage_per_item: 300, interior_damage_per_item: 200,
+  windshield_cracked: 400, windshield_chipped: 150,
+  engine_issue_per_item: 500, mechanical_issue_per_item: 350, tech_issue_per_item: 150,
+  not_drivable: 1500, smoked_in: 500, tires_not_replaced: 400,
+  missing_keys_1: 200, missing_keys_0: 400,
+};
+
+const DEFAULT_CONDITION_MULTIPLIERS: ConditionMultipliers = {
+  excellent: 1.05, good: 1.0, fair: 0.90, rough: 0.78,
 };
 
 const emptyRule: Omit<OfferRule, "id" | "dealership_id"> = {
@@ -100,6 +149,7 @@ const emptyRule: Omit<OfferRule, "id" | "dealership_id"> = {
   rule_type: "criteria",
   criteria: {},
   adjustment_pct: 0,
+  adjustment_type: "pct",
   is_active: true,
   flag_in_dashboard: false,
   priority: 0,
@@ -115,9 +165,7 @@ const OfferSettings = () => {
   const [editingRule, setEditingRule] = useState<Partial<OfferRule> | null>(null);
   const [savingRule, setSavingRule] = useState(false);
 
-  useEffect(() => {
-    fetchAll();
-  }, []);
+  useEffect(() => { fetchAll(); }, []);
 
   const fetchAll = async () => {
     setLoading(true);
@@ -125,12 +173,19 @@ const OfferSettings = () => {
       supabase.from("offer_settings" as any).select("*").eq("dealership_id", "default").maybeSingle(),
       supabase.from("offer_rules" as any).select("*").eq("dealership_id", "default").order("priority", { ascending: false }),
     ]);
-
     if (settingsRes.data) {
-      setSettings(settingsRes.data as unknown as OfferSettingsRow);
+      const d = settingsRes.data as any;
+      setSettings({
+        ...d,
+        deduction_amounts: d.deduction_amounts || DEFAULT_DEDUCTION_AMOUNTS,
+        condition_multipliers: d.condition_multipliers || DEFAULT_CONDITION_MULTIPLIERS,
+        recon_cost: d.recon_cost ?? 0,
+        offer_floor: d.offer_floor ?? 500,
+        offer_ceiling: d.offer_ceiling ?? null,
+      } as OfferSettingsRow);
     }
     if (rulesRes.data) {
-      setRules(rulesRes.data as unknown as OfferRule[]);
+      setRules((rulesRes.data as any[]).map(r => ({ ...r, adjustment_type: r.adjustment_type || "pct" })) as OfferRule[]);
     }
     setLoading(false);
   };
@@ -142,6 +197,11 @@ const OfferSettings = () => {
       bb_value_basis: settings.bb_value_basis,
       global_adjustment_pct: settings.global_adjustment_pct,
       deductions_config: settings.deductions_config as any,
+      deduction_amounts: settings.deduction_amounts as any,
+      condition_multipliers: settings.condition_multipliers as any,
+      recon_cost: settings.recon_cost,
+      offer_floor: settings.offer_floor,
+      offer_ceiling: settings.offer_ceiling,
       updated_at: new Date().toISOString(),
     } as any).eq("id", settings.id);
 
@@ -157,10 +217,23 @@ const OfferSettings = () => {
     if (!settings) return;
     setSettings({
       ...settings,
-      deductions_config: {
-        ...settings.deductions_config,
-        [key]: !settings.deductions_config[key as keyof DeductionsConfig],
-      },
+      deductions_config: { ...settings.deductions_config, [key]: !settings.deductions_config[key as keyof DeductionsConfig] },
+    });
+  };
+
+  const updateDeductionAmount = (key: string, value: number) => {
+    if (!settings) return;
+    setSettings({
+      ...settings,
+      deduction_amounts: { ...settings.deduction_amounts, [key]: value },
+    });
+  };
+
+  const updateConditionMultiplier = (key: string, value: number) => {
+    if (!settings) return;
+    setSettings({
+      ...settings,
+      condition_multipliers: { ...settings.condition_multipliers, [key]: value },
     });
   };
 
@@ -180,13 +253,13 @@ const OfferSettings = () => {
       return;
     }
     setSavingRule(true);
-
     const payload = {
       dealership_id: "default",
       name: editingRule.name,
       rule_type: editingRule.rule_type,
       criteria: editingRule.criteria || {},
       adjustment_pct: editingRule.adjustment_pct || 0,
+      adjustment_type: editingRule.adjustment_type || "pct",
       is_active: editingRule.is_active ?? true,
       flag_in_dashboard: editingRule.flag_in_dashboard ?? false,
       priority: editingRule.priority || 0,
@@ -198,7 +271,6 @@ const OfferSettings = () => {
     } else {
       ({ error } = await supabase.from("offer_rules" as any).insert(payload as any));
     }
-
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
@@ -228,19 +300,11 @@ const OfferSettings = () => {
 
   const updateCriteria = (key: string, value: any) => {
     if (!editingRule) return;
-    setEditingRule({
-      ...editingRule,
-      criteria: { ...editingRule.criteria, [key]: value },
-    });
+    setEditingRule({ ...editingRule, criteria: { ...editingRule.criteria, [key]: value } });
   };
 
-  if (loading) {
-    return <div className="text-center py-12 text-muted-foreground">Loading offer settings…</div>;
-  }
-
-  if (!settings) {
-    return <div className="text-center py-12 text-muted-foreground">No settings found.</div>;
-  }
+  if (loading) return <div className="text-center py-12 text-muted-foreground">Loading offer settings…</div>;
+  if (!settings) return <div className="text-center py-12 text-muted-foreground">No settings found.</div>;
 
   const criteriaRules = rules.filter((r) => r.rule_type === "criteria");
   const hotListRules = rules.filter((r) => r.rule_type === "hot_list");
@@ -256,13 +320,8 @@ const OfferSettings = () => {
         <p className="text-sm text-muted-foreground mb-3">
           Choose which Black Book value is used as the starting point for all offers.
         </p>
-        <Select
-          value={settings.bb_value_basis}
-          onValueChange={(v) => setSettings({ ...settings, bb_value_basis: v })}
-        >
-          <SelectTrigger className="w-full max-w-sm">
-            <SelectValue />
-          </SelectTrigger>
+        <Select value={settings.bb_value_basis} onValueChange={(v) => setSettings({ ...settings, bb_value_basis: v })}>
+          <SelectTrigger className="w-full max-w-sm"><SelectValue /></SelectTrigger>
           <SelectContent>
             {BB_VALUE_OPTIONS.map((opt) => (
               <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
@@ -271,60 +330,168 @@ const OfferSettings = () => {
         </Select>
       </div>
 
-      {/* ── Section 2: Global Adjustment ── */}
+      {/* ── Section 2: Condition Multipliers ── */}
       <div className="bg-card rounded-xl p-5 shadow-lg border border-border">
         <div className="flex items-center gap-2 mb-4">
-          <Zap className="w-5 h-5 text-accent" />
-          <h3 className="font-bold text-card-foreground">Global Adjustment</h3>
-        </div>
-        <p className="text-sm text-muted-foreground mb-3">
-          Apply a blanket percentage increase or decrease to all calculated offers.
-        </p>
-        <div className="flex items-center gap-3 max-w-sm">
-          <Input
-            type="number"
-            value={settings.global_adjustment_pct}
-            onChange={(e) => setSettings({ ...settings, global_adjustment_pct: Number(e.target.value) })}
-            className="w-28"
-            step="0.5"
-          />
-          <span className="text-sm font-semibold text-muted-foreground">%</span>
-          <span className="text-xs text-muted-foreground">
-            {settings.global_adjustment_pct > 0 ? "(increases all offers)" : settings.global_adjustment_pct < 0 ? "(decreases all offers)" : "(no change)"}
-          </span>
-        </div>
-      </div>
-
-      {/* ── Section 3: Deduction Toggles ── */}
-      <div className="bg-card rounded-xl p-5 shadow-lg border border-border">
-        <div className="flex items-center gap-2 mb-4">
-          <AlertTriangle className="w-5 h-5 text-amber-500" />
-          <h3 className="font-bold text-card-foreground">Condition Deductions</h3>
+          <Gauge className="w-5 h-5 text-primary" />
+          <h3 className="font-bold text-card-foreground">Condition Multipliers</h3>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          Toggle which condition factors deduct from the offer. Disabled items will not affect the calculated price.
+          Adjust the multiplier applied to the base value for each condition grade. A multiplier of 1.0 means no change.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {Object.entries(DEDUCTION_LABELS).map(([key, label]) => (
-            <div key={key} className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/50">
-              <Label htmlFor={`ded-${key}`} className="text-sm cursor-pointer">{label}</Label>
-              <Switch
-                id={`ded-${key}`}
-                checked={settings.deductions_config[key as keyof DeductionsConfig] ?? true}
-                onCheckedChange={() => toggleDeduction(key)}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {(["excellent", "good", "fair", "rough"] as const).map((grade) => (
+            <div key={grade} className="space-y-2">
+              <Label className="capitalize font-semibold">{grade}</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="2"
+                  value={settings.condition_multipliers[grade]}
+                  onChange={(e) => updateConditionMultiplier(grade, Number(e.target.value))}
+                  className="w-24"
+                />
+                <span className="text-xs text-muted-foreground">
+                  {settings.condition_multipliers[grade] > 1 ? "↑ boost" : settings.condition_multipliers[grade] < 1 ? "↓ penalty" : "neutral"}
+                </span>
+              </div>
+              <Slider
+                value={[settings.condition_multipliers[grade] * 100]}
+                min={50}
+                max={130}
+                step={1}
+                onValueChange={([v]) => updateConditionMultiplier(grade, Math.round(v) / 100)}
               />
             </div>
           ))}
         </div>
       </div>
 
-      {/* Save button for settings */}
+      {/* ── Section 3: Global Adjustment + Recon + Floor/Ceiling ── */}
+      <div className="bg-card rounded-xl p-5 shadow-lg border border-border">
+        <div className="flex items-center gap-2 mb-4">
+          <Zap className="w-5 h-5 text-accent" />
+          <h3 className="font-bold text-card-foreground">Global Controls</h3>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {/* Global % */}
+          <div>
+            <Label className="text-sm font-semibold">Global Adjustment %</Label>
+            <p className="text-xs text-muted-foreground mb-2">Blanket % increase/decrease on all offers.</p>
+            <div className="flex items-center gap-2">
+              <Input
+                type="number"
+                value={settings.global_adjustment_pct}
+                onChange={(e) => setSettings({ ...settings, global_adjustment_pct: Number(e.target.value) })}
+                className="w-28"
+                step="0.5"
+              />
+              <span className="text-sm font-semibold text-muted-foreground">%</span>
+            </div>
+          </div>
+          {/* Recon Cost */}
+          <div>
+            <Label className="text-sm font-semibold">Reconditioning Cost</Label>
+            <p className="text-xs text-muted-foreground mb-2">Flat $ deducted from every offer (transport, detail, inspection).</p>
+            <div className="flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-muted-foreground" />
+              <Input
+                type="number"
+                value={settings.recon_cost}
+                onChange={(e) => setSettings({ ...settings, recon_cost: Number(e.target.value) })}
+                className="w-28"
+                step="50"
+              />
+            </div>
+          </div>
+          {/* Offer Floor */}
+          <div>
+            <Label className="text-sm font-semibold">Offer Floor (Minimum)</Label>
+            <p className="text-xs text-muted-foreground mb-2">No offer will go below this amount.</p>
+            <div className="flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-muted-foreground" />
+              <Input
+                type="number"
+                value={settings.offer_floor}
+                onChange={(e) => setSettings({ ...settings, offer_floor: Number(e.target.value) })}
+                className="w-28"
+                step="100"
+              />
+            </div>
+          </div>
+          {/* Offer Ceiling */}
+          <div>
+            <Label className="text-sm font-semibold">Offer Ceiling (Maximum)</Label>
+            <p className="text-xs text-muted-foreground mb-2">No offer will exceed this amount. Leave blank for no cap.</p>
+            <div className="flex items-center gap-2">
+              <DollarSign className="w-4 h-4 text-muted-foreground" />
+              <Input
+                type="number"
+                value={settings.offer_ceiling ?? ""}
+                onChange={(e) => setSettings({ ...settings, offer_ceiling: e.target.value ? Number(e.target.value) : null })}
+                className="w-28"
+                step="1000"
+                placeholder="No cap"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Section 4: Deduction Toggles + Amounts ── */}
+      <div className="bg-card rounded-xl p-5 shadow-lg border border-border">
+        <div className="flex items-center gap-2 mb-4">
+          <AlertTriangle className="w-5 h-5 text-amber-500" />
+          <h3 className="font-bold text-card-foreground">Condition Deductions</h3>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Toggle which condition factors deduct from the offer and set the dollar amount for each.
+        </p>
+        <div className="space-y-3">
+          {Object.entries(DEDUCTION_LABELS).map(([key, config]) => {
+            const enabled = settings.deductions_config[key as keyof DeductionsConfig] ?? true;
+            const amountKeys = Array.isArray(config.amountKey) ? config.amountKey : [config.amountKey];
+
+            return (
+              <div key={key} className={`rounded-lg border ${enabled ? "bg-muted/30 border-border" : "bg-muted/10 border-border/50 opacity-60"}`}>
+                <div className="flex items-center justify-between px-4 py-3">
+                  <Label htmlFor={`ded-${key}`} className="text-sm font-semibold cursor-pointer">{config.label}</Label>
+                  <Switch id={`ded-${key}`} checked={enabled} onCheckedChange={() => toggleDeduction(key)} />
+                </div>
+                {enabled && (
+                  <div className="px-4 pb-3 flex flex-wrap gap-3">
+                    {amountKeys.map((amtKey) => (
+                      <div key={amtKey} className="flex items-center gap-1.5">
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">{AMOUNT_LABELS[amtKey] || amtKey}:</span>
+                        <div className="flex items-center gap-0.5">
+                          <DollarSign className="w-3 h-3 text-muted-foreground" />
+                          <Input
+                            type="number"
+                            value={settings.deduction_amounts[amtKey as keyof DeductionAmounts] ?? 0}
+                            onChange={(e) => updateDeductionAmount(amtKey, Number(e.target.value))}
+                            className="w-20 h-7 text-xs"
+                            step="25"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Save button */}
       <Button onClick={handleSaveSettings} disabled={saving} className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground">
         <Save className="w-4 h-4" />
-        {saving ? "Saving…" : "Save Settings"}
+        {saving ? "Saving…" : "Save All Settings"}
       </Button>
 
-      {/* ── Section 4: Criteria-Based Rules ── */}
+      {/* ── Section 5: Criteria-Based Rules ── */}
       <div className="bg-card rounded-xl p-5 shadow-lg border border-border">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -336,7 +503,7 @@ const OfferSettings = () => {
           </Button>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          Adjust offers automatically based on vehicle attributes like year, mileage, make/model, or condition.
+          Adjust offers automatically based on vehicle attributes. Supports both percentage and flat dollar adjustments.
         </p>
         {criteriaRules.length === 0 ? (
           <p className="text-sm text-muted-foreground italic">No criteria rules yet.</p>
@@ -349,7 +516,7 @@ const OfferSettings = () => {
         )}
       </div>
 
-      {/* ── Section 5: Hot List ── */}
+      {/* ── Section 6: Hot List ── */}
       <div className="bg-card rounded-xl p-5 shadow-lg border border-border border-l-4 border-l-destructive/50">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -396,42 +563,22 @@ const OfferSettings = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Year Min</Label>
-                  <Input
-                    type="number"
-                    value={editingRule.criteria?.year_min || ""}
-                    onChange={(e) => updateCriteria("year_min", e.target.value ? Number(e.target.value) : undefined)}
-                    placeholder="Any"
-                  />
+                  <Input type="number" value={editingRule.criteria?.year_min || ""} onChange={(e) => updateCriteria("year_min", e.target.value ? Number(e.target.value) : undefined)} placeholder="Any" />
                 </div>
                 <div>
                   <Label>Year Max</Label>
-                  <Input
-                    type="number"
-                    value={editingRule.criteria?.year_max || ""}
-                    onChange={(e) => updateCriteria("year_max", e.target.value ? Number(e.target.value) : undefined)}
-                    placeholder="Any"
-                  />
+                  <Input type="number" value={editingRule.criteria?.year_max || ""} onChange={(e) => updateCriteria("year_max", e.target.value ? Number(e.target.value) : undefined)} placeholder="Any" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Mileage Min</Label>
-                  <Input
-                    type="number"
-                    value={editingRule.criteria?.mileage_min || ""}
-                    onChange={(e) => updateCriteria("mileage_min", e.target.value ? Number(e.target.value) : undefined)}
-                    placeholder="Any"
-                  />
+                  <Input type="number" value={editingRule.criteria?.mileage_min || ""} onChange={(e) => updateCriteria("mileage_min", e.target.value ? Number(e.target.value) : undefined)} placeholder="Any" />
                 </div>
                 <div>
                   <Label>Mileage Max</Label>
-                  <Input
-                    type="number"
-                    value={editingRule.criteria?.mileage_max || ""}
-                    onChange={(e) => updateCriteria("mileage_max", e.target.value ? Number(e.target.value) : undefined)}
-                    placeholder="Any"
-                  />
+                  <Input type="number" value={editingRule.criteria?.mileage_max || ""} onChange={(e) => updateCriteria("mileage_max", e.target.value ? Number(e.target.value) : undefined)} placeholder="Any" />
                 </div>
               </div>
 
@@ -462,15 +609,28 @@ const OfferSettings = () => {
                 />
               </div>
 
+              {/* Adjustment Type + Value */}
+              <div className="space-y-2">
+                <Label>Adjustment Type</Label>
+                <Select value={editingRule.adjustment_type || "pct"} onValueChange={(v) => setEditingRule({ ...editingRule, adjustment_type: v as "pct" | "flat" })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pct">Percentage (%)</SelectItem>
+                    <SelectItem value="flat">Flat Dollar ($)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div>
-                <Label>Adjustment %</Label>
+                <Label>Adjustment {editingRule.adjustment_type === "flat" ? "Amount ($)" : "(%)"}</Label>
                 <div className="flex items-center gap-2">
+                  {editingRule.adjustment_type === "flat" && <DollarSign className="w-4 h-4 text-muted-foreground" />}
                   <Input
                     type="number"
-                    step="0.5"
+                    step={editingRule.adjustment_type === "flat" ? "50" : "0.5"}
                     value={editingRule.adjustment_pct || 0}
                     onChange={(e) => setEditingRule({ ...editingRule, adjustment_pct: Number(e.target.value) })}
-                    className="w-28"
+                    className="w-32"
                   />
                   <span className="text-sm text-muted-foreground">
                     {(editingRule.adjustment_pct || 0) > 0 ? "boost" : (editingRule.adjustment_pct || 0) < 0 ? "penalty" : "no change"}
@@ -512,10 +672,7 @@ const OfferSettings = () => {
 
 // ── Rule Row Component ──
 const RuleRow = ({
-  rule,
-  onEdit,
-  onDelete,
-  onToggle,
+  rule, onEdit, onDelete, onToggle,
 }: {
   rule: OfferRule;
   onEdit: (r: OfferRule) => void;
@@ -530,6 +687,10 @@ const RuleRow = ({
   if (c.models?.length) criteriaParts.push(`Model: ${c.models.join(", ")}`);
   if (c.conditions?.length) criteriaParts.push(`Condition: ${c.conditions.join(", ")}`);
 
+  const adjLabel = rule.adjustment_type === "flat"
+    ? `${rule.adjustment_pct > 0 ? "+" : ""}$${rule.adjustment_pct.toLocaleString()}`
+    : `${rule.adjustment_pct > 0 ? "+" : ""}${rule.adjustment_pct}%`;
+
   return (
     <div className={`flex items-center justify-between gap-3 px-4 py-3 rounded-lg border ${rule.is_active ? "bg-muted/30 border-border" : "bg-muted/10 border-border/50 opacity-60"}`}>
       <div className="flex-1 min-w-0">
@@ -537,7 +698,7 @@ const RuleRow = ({
           {rule.rule_type === "hot_list" && rule.flag_in_dashboard && <span>🔥</span>}
           <span className="font-semibold text-sm text-card-foreground">{rule.name}</span>
           <Badge variant={rule.adjustment_pct > 0 ? "default" : rule.adjustment_pct < 0 ? "destructive" : "secondary"} className="text-xs">
-            {rule.adjustment_pct > 0 ? "+" : ""}{rule.adjustment_pct}%
+            {adjLabel}
           </Badge>
           {!rule.is_active && <Badge variant="outline" className="text-xs">Inactive</Badge>}
         </div>

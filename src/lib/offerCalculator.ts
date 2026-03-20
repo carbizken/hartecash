@@ -5,6 +5,7 @@ export interface OfferEstimate {
   high: number;
   baseValue: number;
   totalDeductions: number;
+  reconCost: number;
   matchedRuleIds: string[];
   isHotLead: boolean;
 }
@@ -23,10 +24,40 @@ export interface DeductionsConfig {
   missing_keys: boolean;
 }
 
+export interface DeductionAmounts {
+  accidents_1: number;
+  accidents_2: number;
+  accidents_3plus: number;
+  exterior_damage_per_item: number;
+  interior_damage_per_item: number;
+  windshield_cracked: number;
+  windshield_chipped: number;
+  engine_issue_per_item: number;
+  mechanical_issue_per_item: number;
+  tech_issue_per_item: number;
+  not_drivable: number;
+  smoked_in: number;
+  tires_not_replaced: number;
+  missing_keys_1: number;
+  missing_keys_0: number;
+}
+
+export interface ConditionMultipliers {
+  excellent: number;
+  good: number;
+  fair: number;
+  rough: number;
+}
+
 export interface OfferSettings {
   bb_value_basis: string;
   global_adjustment_pct: number;
   deductions_config: DeductionsConfig;
+  deduction_amounts: DeductionAmounts;
+  condition_multipliers: ConditionMultipliers;
+  recon_cost: number;
+  offer_floor: number;
+  offer_ceiling: number | null;
 }
 
 export interface OfferRule {
@@ -42,9 +73,35 @@ export interface OfferRule {
     conditions?: string[];
   };
   adjustment_pct: number;
+  adjustment_type: "pct" | "flat"; // "pct" = percentage, "flat" = dollar amount
   is_active: boolean;
   flag_in_dashboard: boolean;
 }
+
+const DEFAULT_DEDUCTION_AMOUNTS: DeductionAmounts = {
+  accidents_1: 800,
+  accidents_2: 1800,
+  accidents_3plus: 3000,
+  exterior_damage_per_item: 300,
+  interior_damage_per_item: 200,
+  windshield_cracked: 400,
+  windshield_chipped: 150,
+  engine_issue_per_item: 500,
+  mechanical_issue_per_item: 350,
+  tech_issue_per_item: 150,
+  not_drivable: 1500,
+  smoked_in: 500,
+  tires_not_replaced: 400,
+  missing_keys_1: 200,
+  missing_keys_0: 400,
+};
+
+const DEFAULT_CONDITION_MULTIPLIERS: ConditionMultipliers = {
+  excellent: 1.05,
+  good: 1.0,
+  fair: 0.90,
+  rough: 0.78,
+};
 
 const DEFAULT_DEDUCTIONS: DeductionsConfig = {
   accidents: true,
@@ -64,25 +121,24 @@ const DEFAULT_SETTINGS: OfferSettings = {
   bb_value_basis: "tradein_avg",
   global_adjustment_pct: 0,
   deductions_config: DEFAULT_DEDUCTIONS,
+  deduction_amounts: DEFAULT_DEDUCTION_AMOUNTS,
+  condition_multipliers: DEFAULT_CONDITION_MULTIPLIERS,
+  recon_cost: 0,
+  offer_floor: 500,
+  offer_ceiling: null,
 };
 
-/**
- * Extract the correct BB value based on the configured basis
- */
+/** Extract the correct BB value based on the configured basis */
 function getBBValue(bbVehicle: BBVehicle, basis: string): number {
   const [category, tier] = basis.split("_");
   const tierKey = tier === "xclean" ? "xclean" : tier;
-
   if (category === "wholesale") return bbVehicle.wholesale?.[tierKey as keyof typeof bbVehicle.wholesale] || 0;
   if (category === "tradein") return bbVehicle.tradein?.[tierKey as keyof typeof bbVehicle.tradein] || 0;
   if (category === "retail") return bbVehicle.retail?.[tierKey as keyof typeof bbVehicle.retail] || 0;
-
   return bbVehicle.tradein?.avg || 0;
 }
 
-/**
- * Check if a submission matches a rule's criteria
- */
+/** Check if a submission matches a rule's criteria */
 function matchesRule(
   rule: OfferRule,
   vehicleYear: string | undefined,
@@ -92,26 +148,21 @@ function matchesRule(
   condition: string | undefined
 ): boolean {
   const c = rule.criteria;
-
   if (c.year_min && Number(vehicleYear) < c.year_min) return false;
   if (c.year_max && Number(vehicleYear) > c.year_max) return false;
   if (c.mileage_min && mileage < c.mileage_min) return false;
   if (c.mileage_max && mileage > c.mileage_max) return false;
-
   if (c.makes?.length) {
     const makeLower = (vehicleMake || "").toLowerCase();
     if (!c.makes.some((m) => makeLower.includes(m.toLowerCase()))) return false;
   }
-
   if (c.models?.length) {
     const modelLower = (vehicleModel || "").toLowerCase();
     if (!c.models.some((m) => modelLower.includes(m.toLowerCase()))) return false;
   }
-
   if (c.conditions?.length) {
     if (!condition || !c.conditions.includes(condition.toLowerCase())) return false;
   }
-
   return true;
 }
 
@@ -129,19 +180,15 @@ export function calculateOffer(
 
   const cfg = settings || DEFAULT_SETTINGS;
   const ded = cfg.deductions_config || DEFAULT_DEDUCTIONS;
+  const amt = cfg.deduction_amounts || DEFAULT_DEDUCTION_AMOUNTS;
+  const condMults = cfg.condition_multipliers || DEFAULT_CONDITION_MULTIPLIERS;
 
   // 1. Get base value from configured BB source
   const baseValue = getBBValue(bbVehicle, cfg.bb_value_basis);
   if (baseValue <= 0) return null;
 
-  // 2. Condition multiplier
-  const conditionMultipliers: Record<string, number> = {
-    excellent: 1.05,
-    good: 1.0,
-    fair: 0.90,
-    rough: 0.78,
-  };
-  const condMult = conditionMultipliers[formData.overallCondition] ?? 1.0;
+  // 2. Condition multiplier (now configurable)
+  const condMult = condMults[formData.overallCondition as keyof ConditionMultipliers] ?? 1.0;
   let adjusted = baseValue * condMult;
 
   // 3. Apply selected add/deduct adjustments from BB equipment list
@@ -151,62 +198,51 @@ export function calculateOffer(
     }
   }
 
-  // 4. Condition-based deductions (only if enabled in config)
+  // 4. Condition-based deductions (configurable amounts)
   let deductions = 0;
 
   if (ded.accidents) {
-    if (formData.accidents === "1") deductions += 800;
-    else if (formData.accidents === "2") deductions += 1800;
-    else if (formData.accidents === "3+") deductions += 3000;
+    if (formData.accidents === "1") deductions += amt.accidents_1;
+    else if (formData.accidents === "2") deductions += amt.accidents_2;
+    else if (formData.accidents === "3+") deductions += amt.accidents_3plus;
   }
-
   if (ded.exterior_damage) {
-    const items = formData.exteriorDamage.filter((d) => d !== "none");
-    deductions += items.length * 300;
+    deductions += formData.exteriorDamage.filter((d) => d !== "none").length * amt.exterior_damage_per_item;
   }
-
   if (ded.interior_damage) {
-    const items = formData.interiorDamage.filter((d) => d !== "none");
-    deductions += items.length * 200;
+    deductions += formData.interiorDamage.filter((d) => d !== "none").length * amt.interior_damage_per_item;
   }
-
   if (ded.windshield_damage) {
-    if (formData.windshieldDamage === "cracked") deductions += 400;
-    else if (formData.windshieldDamage === "chipped") deductions += 150;
+    if (formData.windshieldDamage === "cracked") deductions += amt.windshield_cracked;
+    else if (formData.windshieldDamage === "chipped") deductions += amt.windshield_chipped;
   }
-
   if (ded.engine_issues) {
-    const items = formData.engineIssues.filter((d) => d !== "none");
-    deductions += items.length * 500;
+    deductions += formData.engineIssues.filter((d) => d !== "none").length * amt.engine_issue_per_item;
   }
-
   if (ded.mechanical_issues) {
-    const items = formData.mechanicalIssues.filter((d) => d !== "none");
-    deductions += items.length * 350;
+    deductions += formData.mechanicalIssues.filter((d) => d !== "none").length * amt.mechanical_issue_per_item;
   }
-
   if (ded.tech_issues) {
-    const items = formData.techIssues.filter((d) => d !== "none");
-    deductions += items.length * 150;
+    deductions += formData.techIssues.filter((d) => d !== "none").length * amt.tech_issue_per_item;
   }
-
-  if (ded.not_drivable && formData.drivable === "no") deductions += 1500;
-  if (ded.smoked_in && formData.smokedIn === "yes") deductions += 500;
-  if (ded.tires_not_replaced && formData.tiresReplaced === "no") deductions += 400;
-
+  if (ded.not_drivable && formData.drivable === "no") deductions += amt.not_drivable;
+  if (ded.smoked_in && formData.smokedIn === "yes") deductions += amt.smoked_in;
+  if (ded.tires_not_replaced && formData.tiresReplaced === "no") deductions += amt.tires_not_replaced;
   if (ded.missing_keys) {
-    if (formData.numKeys === "1") deductions += 200;
-    else if (formData.numKeys === "0") deductions += 400;
+    if (formData.numKeys === "1") deductions += amt.missing_keys_1;
+    else if (formData.numKeys === "0") deductions += amt.missing_keys_0;
   }
 
-  let high = Math.max(Math.round(adjusted - deductions), 500);
+  // 5. Subtract deductions and recon cost
+  const reconCost = cfg.recon_cost || 0;
+  let high = Math.round(adjusted - deductions - reconCost);
 
-  // 5. Apply global adjustment %
+  // 6. Apply global adjustment %
   if (cfg.global_adjustment_pct !== 0) {
     high = Math.round(high * (1 + cfg.global_adjustment_pct / 100));
   }
 
-  // 6. Apply matching rules
+  // 7. Apply matching rules
   const mileage = parseInt(formData.mileage.replace(/[^0-9]/g, "")) || 0;
   const vehicleYear = bbVehicle.year;
   const vehicleMake = bbVehicle.make;
@@ -220,8 +256,14 @@ export function calculateOffer(
   for (const rule of activeRules) {
     if (matchesRule(rule, vehicleYear, vehicleMake, vehicleModel, mileage, condition)) {
       matchedRuleIds.push(rule.id);
-      if (rule.adjustment_pct !== 0) {
-        high = Math.round(high * (1 + rule.adjustment_pct / 100));
+      if (rule.adjustment_type === "flat") {
+        // Flat dollar adjustment (positive = boost, negative = penalty)
+        high = Math.round(high + (rule.adjustment_pct || 0));
+      } else {
+        // Percentage adjustment (default)
+        if (rule.adjustment_pct !== 0) {
+          high = Math.round(high * (1 + rule.adjustment_pct / 100));
+        }
       }
       if (rule.flag_in_dashboard) {
         isHotLead = true;
@@ -229,14 +271,21 @@ export function calculateOffer(
     }
   }
 
-  high = Math.max(high, 500);
-  const low = Math.max(Math.round(high * 0.90), 500);
+  // 8. Apply floor & ceiling
+  const floor = cfg.offer_floor || 500;
+  high = Math.max(high, floor);
+  if (cfg.offer_ceiling && cfg.offer_ceiling > 0) {
+    high = Math.min(high, cfg.offer_ceiling);
+  }
+
+  const low = Math.max(Math.round(high * 0.90), floor);
 
   return {
     low,
     high,
     baseValue: Math.round(baseValue),
     totalDeductions: Math.round(deductions),
+    reconCost: Math.round(reconCost),
     matchedRuleIds,
     isHotLead,
   };
