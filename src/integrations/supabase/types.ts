@@ -506,6 +506,7 @@ export type Database = {
           display_name: string
           email: string
           phone_number: string
+          profile_image_url: string
           role: string
           role_id: string
           user_id: string
