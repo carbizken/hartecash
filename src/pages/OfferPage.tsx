@@ -1036,7 +1036,7 @@ const OfferPage = () => {
             </Link>
           </div>
 
-          {PrintQR}
+          {PrintLayout}
 
           <WhatToExpect />
 
