@@ -431,6 +431,44 @@ export type Database = {
         }
         Relationships: []
       }
+      opt_outs: {
+        Row: {
+          channel: string
+          created_at: string
+          email: string | null
+          id: string
+          phone: string | null
+          submission_id: string | null
+          token: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone?: string | null
+          submission_id?: string | null
+          token: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          phone?: string | null
+          submission_id?: string | null
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opt_outs_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pending_admin_requests: {
         Row: {
           created_at: string
