@@ -214,8 +214,32 @@
     position: static !important;
   }
 
+  /* ─── Offer page: single-page print layout ─── */
+  .print-native:has(.print-offer-layout) > *:not(.print-offer-layout) {
+    display: none !important;
+  }
+  .print-native:has(.print-offer-layout) {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: auto !important;
+    background: white !important;
+  }
+  .print-offer-layout {
+    display: block !important;
+    padding: 0 !important;
+    font-size: 11px;
+    max-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* Hide all screen-only content inside print-native on offer print */
+  .print-native .hidden.lg\\:block,
+  .print-native .lg\\:hidden {
+    display: none !important;
+  }
+
   @page {
-    margin: 0.5in;
+    margin: 0.4in 0.5in;
     size: letter;
   }
 }
