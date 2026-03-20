@@ -10,9 +10,10 @@ interface Props {
   formConfig?: FormConfig;
 }
 
-const StepYourDetails = ({ formData, update }: Props) => {
-  const showLoanFields = formData.loanStatus === "Sell" || formData.loanStatus === "Trade-In";
-  const showLeaseFields = formData.loanStatus === "Lease Buyout";
+const StepYourDetails = ({ formData, update, formConfig }: Props) => {
+  const showLoanSection = !formConfig || formConfig.q_loan_details;
+  const showLoanFields = showLoanSection && (formData.loanStatus === "Sell" || formData.loanStatus === "Trade-In");
+  const showLeaseFields = showLoanSection && formData.loanStatus === "Lease Buyout";
 
   return (
     <>

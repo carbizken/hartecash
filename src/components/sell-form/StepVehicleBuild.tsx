@@ -137,27 +137,31 @@ const StepVehicleBuild = ({ formData, update, vehicleInfo, bbVehicle, selectedAd
         </div>
       )}
 
-      <FormField label="What color is your vehicle?">
-        <ColorDropdown value={formData.exteriorColor} onChange={(v) => update("exteriorColor", v)} />
-      </FormField>
+      {(!formConfig || formConfig.q_exterior_color) && (
+        <FormField label="What color is your vehicle?">
+          <ColorDropdown value={formData.exteriorColor} onChange={(v) => update("exteriorColor", v)} />
+        </FormField>
+      )}
 
-      <FormField label="What is your vehicle's drivetrain?">
-        <div className="grid grid-cols-2 gap-2">
-          {["FWD", "RWD", "AWD", "4WD"].map((opt) => (
-            <RadioOption
-              key={opt}
-              label={opt}
-              selected={formData.drivetrain === opt}
-              onClick={() => update("drivetrain", opt)}
-            />
-          ))}
-        </div>
-        {bbDrivetrain && (
-          <p className="text-xs text-muted-foreground mt-1.5">
-            Auto-detected: <strong>{bbDrivetrain}</strong> — change if incorrect
-          </p>
-        )}
-      </FormField>
+      {(!formConfig || formConfig.q_drivetrain) && (
+        <FormField label="What is your vehicle's drivetrain?">
+          <div className="grid grid-cols-2 gap-2">
+            {["FWD", "RWD", "AWD", "4WD"].map((opt) => (
+              <RadioOption
+                key={opt}
+                label={opt}
+                selected={formData.drivetrain === opt}
+                onClick={() => update("drivetrain", opt)}
+              />
+            ))}
+          </div>
+          {bbDrivetrain && (
+            <p className="text-xs text-muted-foreground mt-1.5">
+              Auto-detected: <strong>{bbDrivetrain}</strong> — change if incorrect
+            </p>
+          )}
+        </FormField>
+      )}
 
       {/* Auto-applied equipment from VIN */}
       {autoAddDeducts.length > 0 && (
@@ -189,20 +193,22 @@ const StepVehicleBuild = ({ formData, update, vehicleInfo, bbVehicle, selectedAd
         </FormField>
       )}
 
-      <FormField label="Does your vehicle have any modifications?">
-        <div className="grid grid-cols-2 gap-2">
-          <RadioOption
-            label="No modifications"
-            selected={formData.modifications === "none"}
-            onClick={() => update("modifications", "none")}
-          />
-          <RadioOption
-            label="Has modifications"
-            selected={formData.modifications === "yes"}
-            onClick={() => update("modifications", "yes")}
-          />
-        </div>
-      </FormField>
+      {(!formConfig || formConfig.q_modifications) && (
+        <FormField label="Does your vehicle have any modifications?">
+          <div className="grid grid-cols-2 gap-2">
+            <RadioOption
+              label="No modifications"
+              selected={formData.modifications === "none"}
+              onClick={() => update("modifications", "none")}
+            />
+            <RadioOption
+              label="Has modifications"
+              selected={formData.modifications === "yes"}
+              onClick={() => update("modifications", "yes")}
+            />
+          </div>
+        </FormField>
+      )}
     </>
   );
 };

@@ -9,7 +9,7 @@ interface Props {
   formConfig?: FormConfig;
 }
 
-const StepGetOffer = ({ formData, update, vehicleInfo }: Props) => {
+const StepGetOffer = ({ formData, update, vehicleInfo, formConfig }: Props) => {
   const nextStepValue = formData?.nextStep ?? "";
 
   return (
