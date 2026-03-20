@@ -29,6 +29,7 @@ interface OfferSubmission {
   token: string;
   zip: string | null;
   vin: string | null;
+  created_at: string | null;
 }
 
 interface ConditionDetails {
