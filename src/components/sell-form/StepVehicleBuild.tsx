@@ -282,9 +282,12 @@ const StepVehicleBuild = ({ formData, update, vehicleInfo, bbVehicle, selectedAd
       )}
 
       {displayInfo && (
-        <VehicleColorPreview
-          color={formData.exteriorColor}
-          vehicleName={`${displayInfo.year} ${displayInfo.make} ${displayInfo.model}`}
+        <VehicleImage
+          year={displayInfo.year}
+          make={displayInfo.make}
+          model={displayInfo.model}
+          style={bbVehicle?.style}
+          selectedColor={formData.exteriorColor}
         />
       )}
 
