@@ -40,6 +40,14 @@ const SiteHeader = () => {
             {open && (
               <div className="absolute right-0 top-full mt-1 w-56 bg-card rounded-xl shadow-lg border border-border py-2 z-50">
                 <Link
+                  to="/trade"
+                  className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-card-foreground hover:bg-muted transition-colors"
+                  onClick={() => setOpen(false)}
+                >
+                  <ArrowLeftRight className="w-4 h-4 text-accent" />
+                  Trade-In
+                </Link>
+                <Link
                   to="/my-submission"
                   className="flex items-center gap-3 px-4 py-3 text-sm font-medium text-card-foreground hover:bg-muted transition-colors"
                   onClick={() => setOpen(false)}
