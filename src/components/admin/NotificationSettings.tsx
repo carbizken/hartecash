@@ -255,7 +255,7 @@ export default function NotificationSettings() {
             <div className="flex flex-wrap gap-1.5 min-h-[32px]">
               {config.sms_recipients.map(phone => (
                 <Badge key={phone} variant="secondary" className="gap-1 pr-1">
-                  {phone}
+                  {formatPhone(phone) || phone}
                   <button onClick={() => removePhone(phone)} className="hover:text-destructive">
                     <X className="w-3 h-3" />
                   </button>
