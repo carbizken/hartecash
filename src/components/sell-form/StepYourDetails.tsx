@@ -2,10 +2,12 @@ import { Input } from "@/components/ui/input";
 import FormField from "./FormField";
 import RadioOption from "./RadioOption";
 import type { FormData } from "./types";
+import type { FormConfig } from "@/hooks/useFormConfig";
 
 interface Props {
   formData: FormData;
   update: (field: string, value: string) => void;
+  formConfig?: FormConfig;
 }
 
 const StepYourDetails = ({ formData, update }: Props) => {
