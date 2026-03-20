@@ -367,7 +367,15 @@ const ServiceLanding = () => {
                         <CheckCircle className="w-5 h-5 text-success" />
                         <span className="text-sm font-bold">Vehicle Found</span>
                       </div>
-                      <p className="text-lg font-semibold">{vehicleInfo.year} {vehicleInfo.make} {vehicleInfo.model}</p>
+                      <p className="text-lg font-semibold">
+                        {vehicleInfo.year} {vehicleInfo.make} {vehicleInfo.model}
+                        {vehicleInfo.trim && <span className="text-sm font-normal text-[hsl(215,20%,65%)]"> {vehicleInfo.trim}</span>}
+                      </p>
+                      {bbValues.tradein_avg && (
+                        <p className="text-sm mt-1 text-[hsl(160,60%,70%)]">
+                          Estimated value: <span className="font-bold">${bbValues.tradein_avg.toLocaleString()}</span>
+                        </p>
+                      )}
                     </motion.div>
                   )}
 
