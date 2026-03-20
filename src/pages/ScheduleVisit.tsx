@@ -102,10 +102,11 @@ const ScheduleVisit = () => {
         customer_phone: form.customer_phone,
         preferred_date: form.preferred_date,
         preferred_time: form.preferred_time,
+        store_location: form.store_location || null,
         vehicle_info: form.vehicle_info || null,
         notes: form.notes || null,
         submission_token: submissionToken || null,
-      });
+      } as any);
 
       if (error) throw error;
 
