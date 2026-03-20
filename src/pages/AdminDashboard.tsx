@@ -22,6 +22,7 @@ import ConsentLog from "@/components/admin/ConsentLog";
 import OfferSettings from "@/components/admin/OfferSettings";
 import SiteConfiguration from "@/components/admin/SiteConfiguration";
 import NotificationSettings from "@/components/admin/NotificationSettings";
+import FormConfiguration from "@/components/admin/FormConfiguration";
 import { Badge } from "@/components/ui/badge";
 
 interface PendingRequest {
