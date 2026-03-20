@@ -162,6 +162,7 @@ const AdminDashboard = () => {
     customer_phone: "",
     preferred_date: "",
     preferred_time: "",
+    store_location: "",
     vehicle_info: "",
     notes: "",
     submission_token: "",
