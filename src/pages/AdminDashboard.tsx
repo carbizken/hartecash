@@ -2017,6 +2017,7 @@ const AdminDashboard = () => {
                         customer_phone: selected.phone || "",
                         preferred_date: "",
                         preferred_time: "",
+                        store_location: "",
                         vehicle_info: [selected.vehicle_year, selected.vehicle_make, selected.vehicle_model].filter(Boolean).join(" "),
                         notes: "",
                         submission_token: selected.token,
