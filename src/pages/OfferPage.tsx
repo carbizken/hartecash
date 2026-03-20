@@ -251,6 +251,17 @@ const OfferPage = () => {
       {/* Page Content */}
       <div className="max-w-lg mx-auto p-6 space-y-5">
 
+        {/* Vehicle Image */}
+        {s.vehicle_year && s.vehicle_make && s.vehicle_model && (
+          <VehicleImage
+            year={s.vehicle_year}
+            make={s.vehicle_make}
+            model={s.vehicle_model}
+            selectedColor={s.exterior_color || ""}
+            compact
+          />
+        )}
+
         {/* Vehicle Summary Card */}
         <div className="bg-card rounded-xl p-5 shadow-lg">
           <h3 className="font-bold text-card-foreground text-sm mb-3">Vehicle Summary</h3>
