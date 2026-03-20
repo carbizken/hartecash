@@ -88,6 +88,7 @@ const LOAN_STATUS_LABELS: Record<string, string> = {
 
 const CustomerPortal = () => {
   const { token } = useParams<{ token: string }>();
+  const { config } = useSiteConfig();
   const [submission, setSubmission] = useState<PortalSubmission | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
