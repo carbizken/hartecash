@@ -62,6 +62,14 @@ Deno.serve(async (req) => {
       });
     }
 
+    const STORE_LOCATIONS: Record<string, string> = {
+      hartford: "Harte Nissan — Hartford",
+      wallingford: "Harte Infiniti — Wallingford",
+      meriden: "Harte Volkswagen — Meriden",
+      west_haven: "Harte Hyundai — West Haven",
+      old_saybrook: "Harte Nissan — Old Saybrook",
+    };
+
     const customer_name = typeof appointment.customer_name === "string" ? appointment.customer_name.trim().slice(0, 200) : "";
     const customer_email = typeof appointment.customer_email === "string" ? appointment.customer_email.trim().slice(0, 255) : "";
     const customer_phone = typeof appointment.customer_phone === "string" ? appointment.customer_phone.trim().slice(0, 30) : "";
@@ -69,6 +77,8 @@ Deno.serve(async (req) => {
     const preferred_time = typeof appointment.preferred_time === "string" ? appointment.preferred_time.trim().slice(0, 50) : "";
     const vehicle_info = typeof appointment.vehicle_info === "string" ? appointment.vehicle_info.trim().slice(0, 500) : "";
     const notes = typeof appointment.notes === "string" ? appointment.notes.trim().slice(0, 1000) : "";
+    const store_location_key = typeof appointment.store_location === "string" ? appointment.store_location.trim() : "";
+    const store_location_label = STORE_LOCATIONS[store_location_key] || store_location_key || "";
 
     const resendKey = Deno.env.get("RESEND_API_KEY");
 
