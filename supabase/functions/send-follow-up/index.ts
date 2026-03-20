@@ -224,6 +224,14 @@ Deno.serve(async (req) => {
     const twilioToken = Deno.env.get("TWILIO_AUTH_TOKEN");
     const twilioPhone = Deno.env.get("TWILIO_PHONE_NUMBER");
 
+    // Fetch dealership name from site_config
+    const { data: siteConfig } = await supabase
+      .from("site_config")
+      .select("dealership_name")
+      .eq("dealership_id", "default")
+      .maybeSingle();
+    const dealerName = siteConfig?.dealership_name || "Our Dealership";
+
     const results: { email?: string; sms?: string } = {};
 
     // Send email (unless opted out)
