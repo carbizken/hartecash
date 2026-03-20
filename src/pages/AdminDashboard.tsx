@@ -26,6 +26,7 @@ import FormConfiguration from "@/components/admin/FormConfiguration";
 import TestimonialManagement from "@/components/admin/TestimonialManagement";
 import ComparisonConfig from "@/components/admin/ComparisonConfig";
 import VehicleImage from "@/components/sell-form/VehicleImage";
+import FollowUpPanel from "@/components/admin/FollowUpPanel";
 import { Badge } from "@/components/ui/badge";
 
 interface PendingRequest {
