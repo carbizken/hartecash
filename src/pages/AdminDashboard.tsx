@@ -1446,12 +1446,14 @@ const AdminDashboard = () => {
             </TabsContent>
           )}
           {canManageAccess && (
-            <TabsContent value="form-config">
-              <FormConfiguration />
-            </TabsContent>
-            <TabsContent value="testimonials">
-              <TestimonialManagement />
-            </TabsContent>
+            <>
+              <TabsContent value="form-config">
+                <FormConfiguration />
+              </TabsContent>
+              <TabsContent value="testimonials">
+                <TestimonialManagement />
+              </TabsContent>
+            </>
           )}
         </Tabs>
       </div>
