@@ -240,13 +240,9 @@ const OfferPage = () => {
               ${cashOffer.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           )}
-          <button
-            onClick={() => setDisclosureOpen(true)}
-            className="text-xs text-muted-foreground mt-1 hover:text-primary transition-colors cursor-pointer underline decoration-dotted underline-offset-2 inline-flex items-center gap-1"
-          >
-            {isEstimate ? "Preliminary estimate • subject to verification" : "Subject to in-person inspection"}
-            <Info className="w-3 h-3" />
-          </button>
+          <p className="text-xs text-muted-foreground mt-1">
+            {isEstimate ? "Preliminary estimate • Final offer after review" : "Subject to in-person inspection"}
+          </p>
         </motion.div>
       ) : (
         <motion.div
