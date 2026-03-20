@@ -1321,6 +1321,7 @@ const AdminDashboard = () => {
                             <div className="text-xs text-muted-foreground">{appt.customer_email}</div>
                           </td>
                           <td className="px-3 py-2 text-sm">{appt.vehicle_info || "—"}</td>
+                          <td className="px-3 py-2 text-sm">{STORE_LOCATIONS.find(l => l.value === appt.store_location)?.label || appt.store_location || "—"}</td>
                           <td className="px-3 py-2">
                             <Badge variant={appt.status === "Confirmed" ? "default" : appt.status === "Completed" ? "secondary" : "outline"} className="text-xs">
                               {appt.status}
