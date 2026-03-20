@@ -411,8 +411,31 @@ const AdminDashboard = () => {
       preferred_time: rescheduleForm.preferred_time,
     }).eq("id", rescheduleAppt.id);
     if (!error) {
-      setAppointments(prev => prev.map(a => a.id === rescheduleAppt.id ? { ...a, preferred_date: rescheduleForm.preferred_date, preferred_time: rescheduleForm.preferred_time } : a));
+      const updatedAppt = { ...rescheduleAppt, preferred_date: rescheduleForm.preferred_date, preferred_time: rescheduleForm.preferred_time };
+      setAppointments(prev => prev.map(a => a.id === rescheduleAppt.id ? updatedAppt : a));
       toast({ title: "Rescheduled", description: "Appointment date and time updated." });
+
+      // Send reschedule notification email
+      if (rescheduleAppt.customer_email) {
+        supabase.functions.invoke("send-reschedule-notification", {
+          body: {
+            appointment: {
+              customer_name: rescheduleAppt.customer_name,
+              customer_email: rescheduleAppt.customer_email,
+              customer_phone: rescheduleAppt.customer_phone,
+              new_date: rescheduleForm.preferred_date,
+              new_time: rescheduleForm.preferred_time,
+              old_date: rescheduleAppt.preferred_date,
+              old_time: rescheduleAppt.preferred_time,
+              vehicle_info: rescheduleAppt.vehicle_info,
+              store_location: rescheduleAppt.store_location,
+            },
+          },
+        }).then(({ error: fnErr }) => {
+          if (fnErr) console.error("Reschedule email error:", fnErr);
+        });
+      }
+
       setRescheduleAppt(null);
     } else {
       toast({ title: "Error", description: "Failed to reschedule.", variant: "destructive" });
