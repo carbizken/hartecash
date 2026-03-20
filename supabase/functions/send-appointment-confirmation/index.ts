@@ -127,7 +127,7 @@ Deno.serve(async (req) => {
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <div style="background: linear-gradient(135deg, #003366 0%, #004488 100%); padding: 24px; border-radius: 8px 8px 0 0; text-align: center;">
               <h1 style="color: white; margin: 0; font-size: 26px;">It's a Date! 🎉</h1>
-              <p style="color: #b0c4de; margin: 8px 0 0; font-size: 14px;">Your appointment at Harte Auto is locked in</p>
+              <p style="color: #b0c4de; margin: 8px 0 0; font-size: 14px;">Your appointment is locked in</p>
             </div>
             
             <div style="padding: 30px; background: #f9f9f9; border-radius: 0 0 8px 8px;">
