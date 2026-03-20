@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
-import { UserRound, CalendarCheck, FileText, ArrowLeftRight } from "lucide-react";
+import { UserRound, CalendarCheck, FileText, ArrowLeftRight, Phone } from "lucide-react";
 import harteLogo from "@/assets/harte-logo.png";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 
