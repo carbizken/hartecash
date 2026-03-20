@@ -169,7 +169,9 @@ const CustomerPortal = () => {
             transition={{ duration: 0.4, delay: 0.2 }}
           >
             <Link to={`/offer/${s.token}`}>
-              <div className="bg-gradient-to-r from-accent to-[hsl(210,100%,45%)] rounded-2xl p-6 shadow-xl cursor-pointer hover:shadow-2xl hover:-translate-y-0.5 transition-all">
+              <div className="relative overflow-hidden bg-gradient-to-r from-accent to-[hsl(210,100%,45%)] rounded-2xl p-6 shadow-xl cursor-pointer hover:shadow-2xl hover:-translate-y-0.5 transition-all">
+                {/* Shimmer overlay */}
+                <div className="absolute inset-0 -translate-x-full animate-[shimmer_3s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-white/15 to-transparent" />
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-accent-foreground/80 text-xs font-semibold uppercase tracking-wider mb-1">
