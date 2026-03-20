@@ -1525,6 +1525,29 @@ const AdminDashboard = () => {
                 </div>
               )}
 
+              {/* Opt-Out Status */}
+              {(optOutStatus.email || optOutStatus.sms) && (
+                <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 flex items-start gap-2">
+                  <Bell className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-bold text-amber-700 dark:text-amber-300">Customer Unsubscribed</p>
+                    <div className="flex gap-2 mt-1">
+                      {optOutStatus.email && (
+                        <Badge variant="outline" className="text-xs border-amber-500/40 text-amber-700 dark:text-amber-300">
+                          <Mail className="w-3 h-3 mr-1" /> Email opted out
+                        </Badge>
+                      )}
+                      {optOutStatus.sms && (
+                        <Badge variant="outline" className="text-xs border-amber-500/40 text-amber-700 dark:text-amber-300">
+                          <Phone className="w-3 h-3 mr-1" /> SMS opted out
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-xs text-amber-600/80 dark:text-amber-400/80 mt-1">Follow-up messages to opted-out channels will be skipped automatically.</p>
+                  </div>
+                </div>
+              )}
+
               {/* Contact Card - Editable */}
               <div data-print-section className="bg-muted/40 rounded-lg p-4">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Contact Information</h3>
