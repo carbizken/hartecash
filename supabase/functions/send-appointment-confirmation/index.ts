@@ -153,7 +153,7 @@ Deno.serve(async (req) => {
               <p style="margin-top: 25px;">See you soon! 🙌</p>
               
               <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #888; font-size: 12px;">
-                <strong>Harte Auto Group</strong><br/>
+                <strong>${dealerName}</strong><br/>
                 Where selling your car is almost as fun as buying one. <em>Almost.</em>
               </div>
             </div>
