@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
       .eq("dealership_id", "default")
       .maybeSingle();
 
-    const dealershipName = siteConfig?.dealership_name || "Harte Auto Group";
+    const dealershipName = siteConfig?.dealership_name || "Our Dealership";
     const emailSubject = siteConfig?.review_request_subject || "We'd Love Your Feedback!";
     const emailMessage = siteConfig?.review_request_message || "Thank you for choosing us! We hope you had a great experience.";
     const primaryColor = siteConfig?.primary_color || "210 100% 25%";
