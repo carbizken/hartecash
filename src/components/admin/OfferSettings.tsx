@@ -50,6 +50,12 @@ interface AgeTier {
   adjustment_pct: number;
 }
 
+interface MileageTier {
+  min_miles: number;
+  max_miles: number;
+  adjustment_flat: number;
+}
+
 interface ConditionMultipliers {
   excellent: number;
   good: number;
@@ -69,6 +75,7 @@ interface OfferSettingsRow {
   offer_floor: number;
   offer_ceiling: number | null;
   age_tiers: AgeTier[];
+  mileage_tiers: MileageTier[];
 }
 
 interface OfferRule {
