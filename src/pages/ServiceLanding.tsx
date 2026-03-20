@@ -201,6 +201,8 @@ const ServiceLanding = () => {
         name: name || null,
         phone: phone || null,
         email: email || null,
+        bb_tradein_avg: bbValues.tradein_avg,
+        bb_wholesale_avg: bbValues.wholesale_avg,
         next_step: "service_trade",
         loan_status: "sell",
         lead_source: "service",
