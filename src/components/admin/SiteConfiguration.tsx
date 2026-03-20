@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Save, Loader2, ChevronDown, Building2, Palette, Type, BarChart3, Upload, Star } from "lucide-react";
+import { Save, Loader2, ChevronDown, Building2, Palette, Type, BarChart3, Upload, Star, Sparkles } from "lucide-react";
 
 interface SiteConfig {
   id: string;
@@ -31,6 +32,7 @@ interface SiteConfig {
   stats_reviews_count: string;
   review_request_subject: string;
   review_request_message: string;
+  enable_animations: boolean;
 }
 
 const DEFAULT_CONFIG: SiteConfig = {
@@ -56,6 +58,7 @@ const DEFAULT_CONFIG: SiteConfig = {
   stats_reviews_count: "2,400+",
   review_request_subject: "We'd Love Your Feedback!",
   review_request_message: "Thank you for choosing us! We hope you had a great experience selling your vehicle. Would you take a moment to share your feedback? Your review helps other car owners make the right choice.",
+  enable_animations: false,
 };
 
 interface SectionProps {
@@ -341,6 +344,26 @@ const SiteConfiguration = () => {
             <Label className="text-xs font-semibold">Reviews Count</Label>
             <Input value={config.stats_reviews_count} onChange={e => update("stats_reviews_count", e.target.value)} placeholder="2,400+" />
           </div>
+        </div>
+      </Section>
+
+      {/* Animations */}
+      <Section icon={Sparkles} title="Animations">
+        <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
+          <div>
+            <Label className="text-sm font-semibold">Scroll Reveal Animations</Label>
+            <p className="text-xs text-muted-foreground mt-0.5">Enable scroll-triggered entrance animations on landing page sections like the comparison table.</p>
+          </div>
+          <Switch
+            checked={config.enable_animations}
+            onCheckedChange={v => {
+              setConfig(prev => {
+                const next = { ...prev, enable_animations: v };
+                setHasChanges(JSON.stringify(next) !== JSON.stringify(savedConfig));
+                return next;
+              });
+            }}
+          />
         </div>
       </Section>
 

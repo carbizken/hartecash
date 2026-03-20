@@ -460,6 +460,7 @@ export type Database = {
           dealership_id: string
           dealership_name: string
           email: string | null
+          enable_animations: boolean
           favicon_url: string | null
           hero_headline: string
           hero_subtext: string
@@ -489,6 +490,7 @@ export type Database = {
           dealership_id?: string
           dealership_name?: string
           email?: string | null
+          enable_animations?: boolean
           favicon_url?: string | null
           hero_headline?: string
           hero_subtext?: string
@@ -518,6 +520,7 @@ export type Database = {
           dealership_id?: string
           dealership_name?: string
           email?: string | null
+          enable_animations?: boolean
           favicon_url?: string | null
           hero_headline?: string
           hero_subtext?: string
