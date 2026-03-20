@@ -188,6 +188,7 @@ export type Database = {
       }
       offer_settings: {
         Row: {
+          age_tiers: Json
           bb_value_basis: string
           condition_multipliers: Json
           created_at: string
@@ -202,6 +203,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          age_tiers?: Json
           bb_value_basis?: string
           condition_multipliers?: Json
           created_at?: string
@@ -216,6 +218,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          age_tiers?: Json
           bb_value_basis?: string
           condition_multipliers?: Json
           created_at?: string

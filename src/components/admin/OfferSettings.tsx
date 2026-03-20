@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
-import { Save, Plus, Trash2, Flame, SlidersHorizontal, Target, Zap, AlertTriangle, DollarSign, Shield, Gauge } from "lucide-react";
+import { Save, Plus, Trash2, Flame, SlidersHorizontal, Target, Zap, AlertTriangle, DollarSign, Shield, Gauge, Calendar } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────
 interface DeductionsConfig {
@@ -44,6 +44,12 @@ interface DeductionAmounts {
   missing_keys_0: number;
 }
 
+interface AgeTier {
+  min_years: number;
+  max_years: number;
+  adjustment_pct: number;
+}
+
 interface ConditionMultipliers {
   excellent: number;
   good: number;
@@ -62,6 +68,7 @@ interface OfferSettingsRow {
   recon_cost: number;
   offer_floor: number;
   offer_ceiling: number | null;
+  age_tiers: AgeTier[];
 }
 
 interface OfferRule {
@@ -182,6 +189,7 @@ const OfferSettings = () => {
         recon_cost: d.recon_cost ?? 0,
         offer_floor: d.offer_floor ?? 500,
         offer_ceiling: d.offer_ceiling ?? null,
+        age_tiers: Array.isArray(d.age_tiers) ? d.age_tiers : [],
       } as OfferSettingsRow);
     }
     if (rulesRes.data) {
@@ -202,6 +210,7 @@ const OfferSettings = () => {
       recon_cost: settings.recon_cost,
       offer_floor: settings.offer_floor,
       offer_ceiling: settings.offer_ceiling,
+      age_tiers: settings.age_tiers as any,
       updated_at: new Date().toISOString(),
     } as any).eq("id", settings.id);
 
@@ -440,7 +449,93 @@ const OfferSettings = () => {
         </div>
       </div>
 
-      {/* ── Section 4: Deduction Toggles + Amounts ── */}
+      {/* ── Section 3b: Age-Based Tier Adjustments ── */}
+      <div className="bg-card rounded-xl p-5 shadow-lg border border-border">
+        <div className="flex items-center gap-2 mb-4">
+          <Calendar className="w-5 h-5 text-primary" />
+          <h3 className="font-bold text-card-foreground">Age-Based Adjustments</h3>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Automatically adjust offers based on vehicle age. Only the first matching tier is applied (ordered top to bottom).
+        </p>
+        <div className="space-y-2">
+          {settings.age_tiers.map((tier, idx) => (
+            <div key={idx} className="flex items-center gap-3 px-4 py-3 rounded-lg border bg-muted/30 border-border">
+              <div className="flex items-center gap-2 flex-1">
+                <Input
+                  type="number"
+                  value={tier.min_years}
+                  onChange={(e) => {
+                    const updated = [...settings.age_tiers];
+                    updated[idx] = { ...updated[idx], min_years: Number(e.target.value) };
+                    setSettings({ ...settings, age_tiers: updated });
+                  }}
+                  className="w-20 h-8 text-sm"
+                  min="0"
+                />
+                <span className="text-sm text-muted-foreground">to</span>
+                <Input
+                  type="number"
+                  value={tier.max_years}
+                  onChange={(e) => {
+                    const updated = [...settings.age_tiers];
+                    updated[idx] = { ...updated[idx], max_years: Number(e.target.value) };
+                    setSettings({ ...settings, age_tiers: updated });
+                  }}
+                  className="w-20 h-8 text-sm"
+                  min="0"
+                />
+                <span className="text-sm text-muted-foreground">years old →</span>
+                <div className="flex items-center gap-1">
+                  <Input
+                    type="number"
+                    value={tier.adjustment_pct}
+                    onChange={(e) => {
+                      const updated = [...settings.age_tiers];
+                      updated[idx] = { ...updated[idx], adjustment_pct: Number(e.target.value) };
+                      setSettings({ ...settings, age_tiers: updated });
+                    }}
+                    className="w-20 h-8 text-sm"
+                    step="0.5"
+                  />
+                  <span className="text-sm font-semibold text-muted-foreground">%</span>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {tier.adjustment_pct > 0 ? "↑ boost" : tier.adjustment_pct < 0 ? "↓ penalty" : "no change"}
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const updated = settings.age_tiers.filter((_, i) => i !== idx);
+                  setSettings({ ...settings, age_tiers: updated });
+                }}
+                className="text-destructive hover:text-destructive shrink-0"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-3 gap-1"
+          onClick={() => {
+            const lastMax = settings.age_tiers.length > 0
+              ? settings.age_tiers[settings.age_tiers.length - 1].max_years + 1
+              : 5;
+            setSettings({
+              ...settings,
+              age_tiers: [...settings.age_tiers, { min_years: lastMax, max_years: lastMax + 4, adjustment_pct: -3 }],
+            });
+          }}
+        >
+          <Plus className="w-4 h-4" /> Add Tier
+        </Button>
+      </div>
+
       <div className="bg-card rounded-xl p-5 shadow-lg border border-border">
         <div className="flex items-center gap-2 mb-4">
           <AlertTriangle className="w-5 h-5 text-amber-500" />
