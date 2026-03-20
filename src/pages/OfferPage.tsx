@@ -723,6 +723,7 @@ const OfferPage = () => {
             <div className="mb-3">{TabSwitcher}</div>
             {OfferDisplay}
             {TradeInBounce}
+            {GuaranteeBadge}
           </div>
         </div>
 
