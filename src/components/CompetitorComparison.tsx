@@ -42,7 +42,7 @@ const CompetitorComparison = () => {
       private: "partial",
     },
     {
-      label: "8-Day Price Guarantee",
+      label: `${config.price_guarantee_days || 8}-Day Price Guarantee`,
       harte: true,
       carmax: false,
       carvana: false,
