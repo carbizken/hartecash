@@ -64,6 +64,7 @@ const ScheduleVisit = () => {
     customer_phone: searchParams.get("phone") || "",
     preferred_date: "",
     preferred_time: "",
+    store_location: searchParams.get("location") || "",
     vehicle_info: searchParams.get("vehicle") || "",
     notes: "",
   });
