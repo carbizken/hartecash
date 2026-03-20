@@ -20,6 +20,7 @@ import StaffFileUpload from "@/components/admin/StaffFileUpload";
 import DashboardAnalytics from "@/components/admin/DashboardAnalytics";
 import ConsentLog from "@/components/admin/ConsentLog";
 import OfferSettings from "@/components/admin/OfferSettings";
+import SiteConfiguration from "@/components/admin/SiteConfiguration";
 import { Badge } from "@/components/ui/badge";
 
 interface PendingRequest {
