@@ -20,6 +20,7 @@ import PortalFAQ from "@/components/portal/PortalFAQ";
 import PaymentInfoCard from "@/components/portal/PaymentInfoCard";
 import LoanPayoffCard from "@/components/portal/LoanPayoffCard";
 import CommunicationPreferences from "@/components/portal/CommunicationPreferences";
+import InspectionDisclosure from "@/components/portal/InspectionDisclosure";
 
 interface PortalSubmission {
   id: string;
@@ -267,7 +268,9 @@ const CustomerPortal = () => {
 
   const SubmittedFooter = (
     <p className="text-center text-xs text-muted-foreground">
-      Submitted {new Date(s.created_at).toLocaleDateString()} • 🔒 Your information is kept secure
+      Submitted {new Date(s.created_at).toLocaleDateString()} •{" "}
+      <InspectionDisclosure /> •{" "}
+      🔒 Your information is kept secure
     </p>
   );
 
