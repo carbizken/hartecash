@@ -1,6 +1,9 @@
 import { DollarSign, Clock, Truck, ShieldCheck, Shield } from "lucide-react";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 
 const ValueProps = () => {
+  const { config } = useSiteConfig();
+  const shortName = (config.dealership_name || "Us").split(" ")[0];
   const items = [
     {
       icon: <Shield className="w-8 h-8 text-success" />,
