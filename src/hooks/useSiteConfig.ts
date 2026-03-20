@@ -46,6 +46,7 @@ const DEFAULTS: SiteConfig = {
   stats_rating: "4.9",
   stats_reviews_count: "2,400+",
   enable_animations: false,
+  use_animated_calculating: false,
 };
 
 let cachedConfig: SiteConfig | null = null;
