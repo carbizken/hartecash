@@ -147,9 +147,9 @@ function getSmsTemplate(touch: number, sub: SubmissionData, siteUrl: string, dea
   const offerUrl = `${siteUrl}/offer/${sub.token}`;
 
   const templates: Record<number, string> = {
-    1: `Harte Auto Group: Hey ${firstName}, your ${offerStr ? offerStr + " " : ""}cash offer for your ${vehicle} is ready! View it here: ${offerUrl} Reply STOP to opt out.`,
-    2: `Harte Auto Group: ${firstName}, upload your ${vehicle} photos to fast-track your deal & get paid sooner: ${siteUrl}/upload/${sub.token} Reply STOP to opt out.`,
-    3: `Harte Auto Group: ⏰ ${firstName}, your ${vehicle} offer expires soon! Schedule your visit now to lock in your price: ${siteUrl}/schedule?token=${sub.token} Reply STOP to opt out.`,
+    1: `${dealerName}: Hey ${firstName}, your ${offerStr ? offerStr + " " : ""}cash offer for your ${vehicle} is ready! View it here: ${offerUrl} Reply STOP to opt out.`,
+    2: `${dealerName}: ${firstName}, upload your ${vehicle} photos to fast-track your deal & get paid sooner: ${siteUrl}/upload/${sub.token} Reply STOP to opt out.`,
+    3: `${dealerName}: ⏰ ${firstName}, your ${vehicle} offer expires soon! Schedule your visit now to lock in your price: ${siteUrl}/schedule?token=${sub.token} Reply STOP to opt out.`,
   };
 
   return templates[touch] || templates[1];
