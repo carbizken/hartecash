@@ -292,6 +292,26 @@ const ScheduleVisit = () => {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="store_location">Preferred Location *</Label>
+                <Select
+                  value={form.store_location}
+                  onValueChange={(v) => handleChange("store_location", v)}
+                  required
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a store location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STORE_LOCATIONS.map((loc) => (
+                      <SelectItem key={loc.value} value={loc.value}>
+                        {loc.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="vehicle_info">Vehicle Info (optional)</Label>
                 <Input
                   id="vehicle_info"
