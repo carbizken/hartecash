@@ -962,7 +962,6 @@ const OfferPage = () => {
             </div>
           </div>
         </div>
-        {PrintLayout}
       </div>
 
       {/* ─── MOBILE: Single-column layout (original) ─── */}
