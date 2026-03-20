@@ -46,26 +46,54 @@ serve(async (req) => {
       });
     }
 
-    // Generate image via AI
+    // Generate image via AI — try multiple models as fallback
     const vehicleDesc = `${year} ${make} ${model}${style ? ` ${style}` : ""}`;
     const prompt = `A photorealistic side profile view of a ${vehicleDesc} car, white/light silver color, on a clean solid white background. Professional automotive photography style, studio lighting, sharp details, no text or watermarks. The car should be facing right. Clean isolated vehicle shot suitable for a car dealership website.`;
 
-    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3.1-flash-image-preview",
-        messages: [{ role: "user", content: prompt }],
-        modalities: ["image", "text"],
-      }),
-    });
+    const models = [
+      "google/gemini-3.1-flash-image-preview",
+      "google/gemini-3-pro-image-preview",
+      "google/gemini-2.5-flash-image",
+    ];
 
-    if (!aiRes.ok) {
-      const errText = await aiRes.text();
-      throw new Error(`AI image generation failed [${aiRes.status}]: ${errText}`);
+    let imageDataUrl: string | null = null;
+    let lastError = "";
+
+    for (const aiModel of models) {
+      try {
+        const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: aiModel,
+            messages: [{ role: "user", content: prompt }],
+            modalities: ["image", "text"],
+          }),
+        });
+
+        if (!aiRes.ok) {
+          lastError = `${aiModel} failed [${aiRes.status}]`;
+          console.log(`Model ${aiModel} failed with ${aiRes.status}, trying next...`);
+          continue;
+        }
+
+        const aiData = await aiRes.json();
+        imageDataUrl = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+        if (imageDataUrl) {
+          console.log(`Successfully generated image with ${aiModel}`);
+          break;
+        }
+      } catch (e) {
+        lastError = `${aiModel}: ${(e as Error).message}`;
+        console.log(`Model ${aiModel} threw error, trying next...`);
+      }
+    }
+
+    if (!imageDataUrl) {
+      throw new Error(`All models failed. Last: ${lastError}`);
     }
 
     const aiData = await aiRes.json();
