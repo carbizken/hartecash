@@ -271,6 +271,18 @@ export function calculateOffer(
     }
   }
 
+  // 7b. Apply mileage-based tier adjustments (flat dollar)
+  const mileage = parseInt(formData.mileage.replace(/[^0-9]/g, "")) || 0;
+  const mileageTiers = cfg.mileage_tiers || [];
+  if (mileageTiers.length > 0) {
+    for (const tier of mileageTiers) {
+      if (mileage >= tier.min_miles && mileage <= tier.max_miles) {
+        high = Math.round(high + tier.adjustment_flat);
+        break;
+      }
+    }
+  }
+
   // 8. Apply matching rules
   const mileage = parseInt(formData.mileage.replace(/[^0-9]/g, "")) || 0;
   const vehicleYear = bbVehicle.year;
