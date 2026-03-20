@@ -23,6 +23,8 @@ const ComparisonConfig = () => {
   const [features, setFeatures] = useState<ComparisonFeature[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [dragIdx, setDragIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
