@@ -825,7 +825,7 @@ const AdminDashboard = () => {
       images.length > 0 ? `<div class="doc-section"><h2>${title}</h2>${images.map(url => `<img class="doc-img" src="${url}" />`).join("")}</div>` : "";
 
     const html = `<!DOCTYPE html><html><head><title>Check Request</title><style>${css}</style></head><body>
-      <div class="header"><h1>Harte Auto Group</h1><p>Check Request Form</p></div>
+      <div class="header"><h1>${selected?.vehicle_make ? selected.vehicle_make : "Dealership"}</h1><p>Check Request Form</p></div>
       <div class="content">
         <p class="title">Check Request</p>
         <table>
