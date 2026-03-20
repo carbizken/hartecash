@@ -1157,7 +1157,7 @@ const AdminDashboard = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="__all__">All statuses</SelectItem>
-                        {PROGRESS_STAGES.map(stage => (
+                        {ALL_STATUS_OPTIONS.map(stage => (
                           <SelectItem key={stage.key} value={stage.key}>
                             {stage.label}
                           </SelectItem>
