@@ -35,6 +35,7 @@ interface SiteConfig {
   review_request_subject: string;
   review_request_message: string;
   enable_animations: boolean;
+  use_animated_calculating: boolean;
 }
 
 const DEFAULT_CONFIG: SiteConfig = {
