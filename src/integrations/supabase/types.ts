@@ -144,6 +144,47 @@ export type Database = {
         }
         Relationships: []
       }
+      follow_ups: {
+        Row: {
+          channel: string
+          created_at: string
+          error_message: string | null
+          id: string
+          status: string
+          submission_id: string
+          touch_number: number
+          triggered_by: string | null
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          status?: string
+          submission_id: string
+          touch_number: number
+          triggered_by?: string | null
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          status?: string
+          submission_id?: string
+          touch_number?: number
+          triggered_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_ups_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       form_config: {
         Row: {
           created_at: string
