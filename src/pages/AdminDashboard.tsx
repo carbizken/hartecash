@@ -39,6 +39,14 @@ interface PendingRequest {
   created_at: string;
 }
 
+const STORE_LOCATIONS = [
+  { value: "hartford", label: "Harte Nissan — Hartford" },
+  { value: "wallingford", label: "Harte Infiniti — Wallingford" },
+  { value: "meriden", label: "Harte Volkswagen — Meriden" },
+  { value: "west_haven", label: "Harte Hyundai — West Haven" },
+  { value: "old_saybrook", label: "Harte Nissan — Old Saybrook" },
+];
+
 interface Appointment {
   id: string;
   submission_token: string | null;
@@ -51,6 +59,7 @@ interface Appointment {
   notes: string | null;
   status: string;
   created_at: string;
+  store_location: string | null;
 }
 
 interface Submission {
