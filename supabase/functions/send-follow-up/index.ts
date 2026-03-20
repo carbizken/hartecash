@@ -32,6 +32,15 @@ interface SubmissionData {
 const sanitize = (str: string | undefined | null) =>
   (str || "").replace(/[<>&"']/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c] || c));
 
+function getUnsubscribeUrl(siteUrl: string, token: string) {
+  return `${siteUrl}/unsubscribe?token=${token}`;
+}
+
+function getUnsubscribeFooter(siteUrl: string, token: string) {
+  const url = getUnsubscribeUrl(siteUrl, token);
+  return `<p style="color: #999; font-size: 11px; margin-top: 16px;">Don't want these emails? <a href="${url}" style="color: #2563eb; text-decoration: underline;">Unsubscribe</a></p>`;
+}
+
 function getEmailTemplate(touch: number, sub: SubmissionData, siteUrl: string) {
   const firstName = sub.name?.split(" ")[0] || "there";
   const vehicle = [sub.vehicle_year, sub.vehicle_make, sub.vehicle_model].filter(Boolean).join(" ");
@@ -45,6 +54,7 @@ function getEmailTemplate(touch: number, sub: SubmissionData, siteUrl: string) {
   const offerUrl = `${siteUrl}/offer/${sub.token}`;
   const uploadUrl = `${siteUrl}/upload/${sub.token}`;
   const scheduleUrl = `${siteUrl}/schedule?token=${sub.token}&vehicle=${encodeURIComponent(vehicle)}&name=${encodeURIComponent(sub.name || "")}&email=${encodeURIComponent(sub.email || "")}&phone=${encodeURIComponent(sub.phone || "")}`;
+  const unsubFooter = getUnsubscribeFooter(siteUrl, sub.token);
 
   const templates: Record<number, { subject: string; html: string }> = {
     1: {
@@ -63,6 +73,7 @@ function getEmailTemplate(touch: number, sub: SubmissionData, siteUrl: string) {
             <p style="color: #666; font-size: 14px;">Your offer is guaranteed for a limited time. Don't let it expire!</p>
             <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
             <p style="color: #999; font-size: 12px;">Harte Auto Group • <a href="${portalUrl}" style="color: #2563eb;">View your portal</a></p>
+            ${unsubFooter}
           </div>
         </div>
       `,
@@ -89,6 +100,7 @@ function getEmailTemplate(touch: number, sub: SubmissionData, siteUrl: string) {
             </div>
             <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
             <p style="color: #999; font-size: 12px;">Harte Auto Group • <a href="${portalUrl}" style="color: #2563eb;">View your portal</a></p>
+            ${unsubFooter}
           </div>
         </div>
       `,
@@ -113,6 +125,7 @@ function getEmailTemplate(touch: number, sub: SubmissionData, siteUrl: string) {
             <p style="color: #666; font-size: 14px;">Questions? Reply to this email or call us — we're happy to help.</p>
             <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
             <p style="color: #999; font-size: 12px;">Harte Auto Group • <a href="${portalUrl}" style="color: #2563eb;">View your portal</a></p>
+            ${unsubFooter}
           </div>
         </div>
       `,
@@ -196,6 +209,15 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Check opt-out status
+    const emailOptedOut = sub.email
+      ? !!(await supabase.from("opt_outs").select("id").eq("email", sub.email).eq("channel", "email").maybeSingle()).data
+      : false;
+
+    const smsOptedOut = sub.phone
+      ? !!(await supabase.from("opt_outs").select("id").eq("phone", sub.phone).eq("channel", "sms").maybeSingle()).data
+      : false;
+
     const siteUrl = Deno.env.get("SITE_URL") || "https://hartecash.lovable.app";
     const resendKey = Deno.env.get("RESEND_API_KEY");
     const twilioSid = Deno.env.get("TWILIO_ACCOUNT_SID");
@@ -204,8 +226,10 @@ Deno.serve(async (req) => {
 
     const results: { email?: string; sms?: string } = {};
 
-    // Send email
-    if (resendKey && sub.email) {
+    // Send email (unless opted out)
+    if (emailOptedOut) {
+      results.email = "opted_out";
+    } else if (resendKey && sub.email) {
       try {
         const template = getEmailTemplate(touch_number, sub as SubmissionData, siteUrl);
         const emailRes = await fetch("https://api.resend.com/emails", {
@@ -249,8 +273,10 @@ Deno.serve(async (req) => {
       results.email = "skipped";
     }
 
-    // Send SMS
-    if (twilioSid && twilioToken && twilioPhone && sub.phone) {
+    // Send SMS (unless opted out)
+    if (smsOptedOut) {
+      results.sms = "opted_out";
+    } else if (twilioSid && twilioToken && twilioPhone && sub.phone) {
       try {
         const smsBody = getSmsTemplate(touch_number, sub as SubmissionData, siteUrl);
         const twilioUrl = `https://api.twilio.com/2010-04-01/Accounts/${twilioSid}/Messages.json`;
