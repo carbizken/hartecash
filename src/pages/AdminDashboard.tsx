@@ -374,6 +374,39 @@ const AdminDashboard = () => {
     if (day === 5 || day === 6) return APPT_TIME_SLOTS_FRISSAT;
     return APPT_TIME_SLOTS_WEEKDAY;
   };
+  const getRescheduleTimeSlots = () => {
+    if (!rescheduleForm.preferred_date) return APPT_TIME_SLOTS_WEEKDAY;
+    const day = new Date(rescheduleForm.preferred_date + "T12:00:00").getDay();
+    if (day === 0) return [];
+    if (day === 5 || day === 6) return APPT_TIME_SLOTS_FRISSAT;
+    return APPT_TIME_SLOTS_WEEKDAY;
+  };
+  const handleReschedule = async () => {
+    if (!rescheduleAppt || !rescheduleForm.preferred_date || !rescheduleForm.preferred_time) return;
+    const { error } = await supabase.from("appointments").update({
+      preferred_date: rescheduleForm.preferred_date,
+      preferred_time: rescheduleForm.preferred_time,
+    }).eq("id", rescheduleAppt.id);
+    if (!error) {
+      setAppointments(prev => prev.map(a => a.id === rescheduleAppt.id ? { ...a, preferred_date: rescheduleForm.preferred_date, preferred_time: rescheduleForm.preferred_time } : a));
+      toast({ title: "Rescheduled", description: "Appointment date and time updated." });
+      setRescheduleAppt(null);
+    } else {
+      toast({ title: "Error", description: "Failed to reschedule.", variant: "destructive" });
+    }
+  };
+  const handleViewSubmissionFromAppt = (appt: Appointment) => {
+    if (!appt.submission_token) {
+      toast({ title: "No linked submission", description: "This appointment is not linked to a submission." });
+      return;
+    }
+    const sub = submissions.find(s => s.token === appt.submission_token);
+    if (sub) {
+      handleView(sub);
+    } else {
+      toast({ title: "Submission not found", description: "Could not find the linked submission." });
+    }
+  };
 
   const [approveRole, setApproveRole] = useState<string>("sales_bdc");
 
