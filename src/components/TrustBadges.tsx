@@ -1,11 +1,21 @@
 import AnimatedCounter from "./AnimatedCounter";
 import { ShieldCheck, Award, Users } from "lucide-react";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 
 const TrustBadges = () => {
+  const { config } = useSiteConfig();
+
+  // Parse numeric values from config strings for animated counters
+  const carsNum = parseInt((config.stats_cars_purchased || "2400").replace(/[^0-9]/g, "")) || 2400;
+  const carsSuffix = (config.stats_cars_purchased || "").replace(/[0-9,]/g, "").trim() || "+";
+  const yearsNum = parseInt((config.stats_years_in_business || "72").replace(/[^0-9]/g, "")) || 72;
+  const yearsSuffix = (config.stats_years_in_business || "").replace(/[0-9,]/g, "").trim() || " yrs";
+  const ratingVal = parseFloat(config.stats_rating || "4.9") || 4.9;
+
   const stats = [
-    { icon: Users, value: 2400, suffix: "+", label: "Cars Purchased" },
-    { icon: Award, value: 72, suffix: " yrs", label: "In Business" },
-    { icon: ShieldCheck, value: 4.9, suffix: "★", label: "Rating" },
+    { icon: Users, value: carsNum, suffix: carsSuffix, label: "Cars Purchased" },
+    { icon: Award, value: yearsNum, suffix: yearsSuffix, label: "In Business" },
+    { icon: ShieldCheck, value: ratingVal, suffix: "★", label: "Rating" },
   ];
 
   return (
@@ -15,7 +25,7 @@ const TrustBadges = () => {
           <div key={i} className="text-primary-foreground">
             <s.icon className="w-6 h-6 lg:w-8 lg:h-8 mx-auto mb-2 opacity-80" />
             <p className="text-2xl md:text-3xl lg:text-4xl font-extrabold">
-              {s.value === 4.9 ? (
+              {s.value === ratingVal && s.label === "Rating" ? (
                 <span>{s.value}{s.suffix}</span>
               ) : (
                 <AnimatedCounter target={s.value} suffix={s.suffix} />

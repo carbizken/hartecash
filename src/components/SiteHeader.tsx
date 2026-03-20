@@ -2,22 +2,27 @@ import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { UserRound, CalendarCheck, FileText } from "lucide-react";
 import harteLogo from "@/assets/harte-logo.png";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 
 const SiteHeader = () => {
   const [open, setOpen] = useState(false);
   const timeout = useRef<ReturnType<typeof setTimeout>>();
+  const { config } = useSiteConfig();
 
   const show = () => { clearTimeout(timeout.current); setOpen(true); };
   const hide = () => { timeout.current = setTimeout(() => setOpen(false), 200); };
+
+  const logoSrc = config.logo_url || harteLogo;
+  const dealerName = config.dealership_name || "Harte Auto Group";
 
   return (
     <header className="bg-card sticky top-0 z-50 shadow-md">
       <div className="max-w-6xl mx-auto px-5 py-3">
         <div className="flex items-center justify-between">
-          <img src={harteLogo} alt="Harte Auto Group" className="h-24 md:h-28 w-auto" width={317} height={112} fetchPriority="high" />
+          <img src={logoSrc} alt={dealerName} className="h-24 md:h-28 w-auto" width={317} height={112} fetchPriority="high" />
 
           <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold text-card-foreground">
-            <a href="#compare" className="hover:text-accent transition-colors">Why Harte</a>
+            <a href="#compare" className="hover:text-accent transition-colors">Why {dealerName.split(" ")[0]}</a>
             <Link to="/schedule" className="hover:text-accent transition-colors">Schedule a Visit</Link>
             <Link to="/my-submission" className="hover:text-accent transition-colors">View My Offer</Link>
           </nav>
