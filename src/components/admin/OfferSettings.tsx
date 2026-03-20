@@ -210,6 +210,7 @@ const OfferSettings = () => {
       recon_cost: settings.recon_cost,
       offer_floor: settings.offer_floor,
       offer_ceiling: settings.offer_ceiling,
+      age_tiers: settings.age_tiers as any,
       updated_at: new Date().toISOString(),
     } as any).eq("id", settings.id);
 
