@@ -134,19 +134,17 @@ const ServiceLinkGen = () => {
   const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const data = new Uint8Array(evt.target?.result as ArrayBuffer);
-      const wb = XLSX.read(data, { type: "array" });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const json: string[][] = XLSX.utils.sheet_to_json(ws, { header: 1 });
-      const firstRow = (json[0] || []).map((c) => String(c).toLowerCase());
+    
+    const isCSV = file.name.toLowerCase().endsWith('.csv');
+    
+    const processRows = (json: (string | null)[][]) => {
+      const firstRow = (json[0] || []).map((c) => String(c ?? "").toLowerCase());
       const startIdx = firstRow.some((c) => /name|vin|date|time/.test(c)) ? 1 : 0;
       const parsed: CustomerRow[] = json.slice(startIdx).filter((r) => r.length >= 2 && r.some(Boolean)).map((r) => {
-        const name = String(r[0] || "").trim();
-        const vin = String(r[1] || "").trim();
-        const date = normaliseDate(String(r[2] || ""));
-        const time = String(r[3] || "").trim();
+        const name = String(r[0] ?? "").trim();
+        const vin = String(r[1] ?? "").trim();
+        const date = normaliseDate(String(r[2] ?? ""));
+        const time = String(r[3] ?? "").trim();
         return { name, vin, date, time, link: buildLink(vin, date, time) };
       });
       if (parsed.length === 0) {
