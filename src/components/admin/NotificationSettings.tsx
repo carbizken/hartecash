@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { formatPhone } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -152,13 +153,14 @@ export default function NotificationSettings() {
   };
 
   const addPhone = () => {
-    const phone = newPhone.trim();
-    if (!phone || phone.length < 10) {
+    const digits = newPhone.trim().replace(/\D/g, "");
+    if (digits.length < 10) {
       toast({ title: "Invalid phone number", variant: "destructive" });
       return;
     }
-    if (config.sms_recipients.includes(phone)) return;
-    setConfig(c => ({ ...c, sms_recipients: [...c.sms_recipients, phone] }));
+    const formatted = formatPhone(digits);
+    if (config.sms_recipients.some(p => p.replace(/\D/g, "") === digits)) return;
+    setConfig(c => ({ ...c, sms_recipients: [...c.sms_recipients, formatted] }));
     setNewPhone("");
   };
 
@@ -253,7 +255,7 @@ export default function NotificationSettings() {
             <div className="flex flex-wrap gap-1.5 min-h-[32px]">
               {config.sms_recipients.map(phone => (
                 <Badge key={phone} variant="secondary" className="gap-1 pr-1">
-                  {phone}
+                  {formatPhone(phone) || phone}
                   <button onClick={() => removePhone(phone)} className="hover:text-destructive">
                     <X className="w-3 h-3" />
                   </button>
@@ -265,7 +267,7 @@ export default function NotificationSettings() {
             </div>
             <div className="flex gap-2">
               <Input
-                placeholder="+15551234567"
+                placeholder="(555) 123-4567"
                 value={newPhone}
                 onChange={e => setNewPhone(e.target.value)}
                 onKeyDown={e => e.key === "Enter" && addPhone()}
