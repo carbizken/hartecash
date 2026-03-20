@@ -1082,6 +1082,10 @@ const AdminDashboard = () => {
                   <BarChart3 className="w-4 h-4 mr-1" />
                   Comparison
                 </TabsTrigger>
+                <TabsTrigger value="follow-ups">
+                  <Send className="w-4 h-4 mr-1" />
+                  Follow-Ups
+                </TabsTrigger>
               </>
             )}
           </TabsList>
