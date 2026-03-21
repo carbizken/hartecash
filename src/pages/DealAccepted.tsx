@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
+import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
 import { Camera, FileText, CalendarCheck, ArrowRight, Zap, Clock, CheckCircle, Sparkles, ShieldCheck, ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
@@ -33,6 +34,18 @@ const DealAccepted = () => {
   const [submission, setSubmission] = useState<DealSubmission | null>(null);
   const [loading, setLoading] = useState(true);
   const { config } = useSiteConfig();
+
+  // Confetti celebration on mount
+  useEffect(() => {
+    const duration = 2500;
+    const end = Date.now() + duration;
+    const frame = () => {
+      confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 }, colors: ["#10b981", "#0056a0", "#e63946"] });
+      confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 }, colors: ["#10b981", "#0056a0", "#e63946"] });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    };
+    frame();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
