@@ -196,27 +196,42 @@ const OfferPage = () => {
   /* ─── Shared sub-components rendered inline ─── */
 
   const TabSwitcher = (
-    <div className="flex gap-1 bg-muted rounded-lg p-1 print:hidden">
+    <div className="flex gap-1.5 bg-muted rounded-xl p-1.5 print:hidden">
       <button
         onClick={() => setActiveTab("sell")}
-        className={`flex-1 text-sm font-semibold py-2 px-3 rounded-md transition-all ${
+        className={`flex-1 text-base font-bold py-3 px-4 rounded-lg transition-all ${
           activeTab === "sell"
-            ? "bg-card text-card-foreground shadow-sm"
+            ? "bg-card text-card-foreground shadow-md"
             : "text-muted-foreground hover:text-card-foreground"
         }`}
       >
-        Sell to Us
+        💵 Sell to Us
       </button>
       <button
         onClick={scrollToExplanation}
-        className={`flex-1 text-sm font-semibold py-2 px-3 rounded-md transition-all ${
+        className={`flex-1 text-base font-bold py-3 px-4 rounded-lg transition-all ${
           activeTab === "trade"
-            ? "bg-card text-card-foreground shadow-sm"
+            ? "bg-card text-card-foreground shadow-md"
             : "text-muted-foreground hover:text-card-foreground"
         }`}
       >
-        Trade-In Value
+        🔄 Trade-In Value
       </button>
+    </div>
+  );
+
+  const AcceptButton = (
+    <div className="print:hidden space-y-2">
+      <Link to={`/deal/${token}`}>
+        <Button className="w-full py-5 text-base font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg shadow-accent/20 gap-2 rounded-xl">
+          <CheckCircle className="w-5 h-5" />
+          Accept & Lock In Your Price
+          <ArrowRight className="w-5 h-5" />
+        </Button>
+      </Link>
+      <p className="text-[11px] text-muted-foreground text-center">
+        Click to lock in your price · No obligation until inspection
+      </p>
     </div>
   );
 
@@ -857,11 +872,12 @@ const OfferPage = () => {
                 )}
 
                 {/* Offer card */}
-                <div className="bg-card rounded-xl p-6 shadow-lg space-y-4">
+                <div className="bg-card rounded-xl p-6 shadow-lg space-y-5">
                   {TabSwitcher}
                   {OfferDisplay}
                   {TradeInBounce}
                   {GuaranteeBadge}
+                  {AcceptButton}
                 </div>
 
                 {/* Vehicle Summary */}
@@ -916,7 +932,7 @@ const OfferPage = () => {
               {ConditionBlock}
               {TradeInExplanation}
               {NoTaxBlock}
-              {AcceptCTA}
+              
               <WhatToExpect />
               <p className="text-center text-xs text-muted-foreground">
                 <InspectionDisclosure /> • 🔒 Your information is kept secure
@@ -930,11 +946,12 @@ const OfferPage = () => {
       <div className="lg:hidden print:hidden">
         {/* Floating Sticky Value Box */}
         <div className="sticky top-0 z-30 bg-card/95 backdrop-blur-md border-b border-border shadow-lg print:static print:shadow-none">
-          <div className="max-w-lg mx-auto px-6 py-4">
-            <div className="mb-3">{TabSwitcher}</div>
+          <div className="max-w-lg mx-auto px-6 py-4 space-y-3">
+            {TabSwitcher}
             {OfferDisplay}
             {TradeInBounce}
             {GuaranteeBadge}
+            {AcceptButton}
           </div>
         </div>
 
@@ -984,7 +1001,7 @@ const OfferPage = () => {
           {ConditionBlock}
           {TradeInExplanation}
           {NoTaxBlock}
-          {AcceptCTA}
+          
 
           {/* Print / Actions */}
           <div className="flex gap-3 print:hidden">
