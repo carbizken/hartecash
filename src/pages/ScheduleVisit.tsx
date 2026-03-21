@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { logConsent } from "@/lib/consent";
@@ -12,14 +12,12 @@ import { CalendarDays, CheckCircle2, Loader2, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import harteLogo from "@/assets/harte-logo-white.png";
 
-// Harte Auto Group store locations
-const STORE_LOCATIONS = [
-  { value: "hartford_nissan", label: "Harte Nissan — Hartford, CT" },
-  { value: "hartford_infiniti", label: "Harte Infiniti — Hartford, CT" },
-  { value: "west_haven", label: "George Harte Nissan — West Haven, CT" },
-  { value: "wallingford", label: "George Harte Infiniti — Wallingford, CT" },
-  { value: "old_saybrook", label: "Harte Hyundai — Old Saybrook, CT" },
-];
+interface DealerLocation {
+  id: string;
+  name: string;
+  city: string;
+  state: string;
+}
 
 // Store hours: Mon-Thu 9AM-7PM, Fri-Sat 9AM-6PM, Sun Closed
 const WEEKDAY_SLOTS = [
@@ -57,6 +55,19 @@ const ScheduleVisit = () => {
   const [searchParams] = useSearchParams();
   const submissionToken = searchParams.get("token") || "";
   const { toast } = useToast();
+  const [locations, setLocations] = useState<DealerLocation[]>([]);
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      const { data } = await supabase
+        .from("dealership_locations")
+        .select("id, name, city, state")
+        .eq("is_active", true)
+        .order("sort_order");
+      if (data) setLocations(data);
+    };
+    fetchLocations();
+  }, []);
 
   const [form, setForm] = useState({
     customer_name: searchParams.get("name") || "",
@@ -171,7 +182,7 @@ const ScheduleVisit = () => {
                 <strong>{form.preferred_date}</strong> at{" "}
                 <strong>{form.preferred_time}</strong>
                 {form.store_location && (
-                  <> at <strong>{STORE_LOCATIONS.find(l => l.value === form.store_location)?.label || form.store_location}</strong></>
+                  <> at <strong>{locations.find(l => l.id === form.store_location)?.name || form.store_location}</strong></>
                 )}
                 . Our team will reach out shortly to confirm.
               </p>
@@ -302,9 +313,9 @@ const ScheduleVisit = () => {
                     <SelectValue placeholder="Select a store location" />
                   </SelectTrigger>
                   <SelectContent>
-                    {STORE_LOCATIONS.map((loc) => (
-                      <SelectItem key={loc.value} value={loc.value}>
-                        {loc.label}
+                    {locations.map((loc) => (
+                      <SelectItem key={loc.id} value={loc.id}>
+                        {loc.name} — {loc.city}, {loc.state}
                       </SelectItem>
                     ))}
                   </SelectContent>
