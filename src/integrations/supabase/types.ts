@@ -933,6 +933,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_offer: { Args: { _token: string }; Returns: undefined }
       cleanup_old_lookup_attempts: { Args: never; Returns: undefined }
       get_all_staff: {
         Args: never
