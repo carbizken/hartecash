@@ -55,6 +55,19 @@ const ScheduleVisit = () => {
   const [searchParams] = useSearchParams();
   const submissionToken = searchParams.get("token") || "";
   const { toast } = useToast();
+  const [locations, setLocations] = useState<DealerLocation[]>([]);
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      const { data } = await supabase
+        .from("dealership_locations")
+        .select("id, name, city, state")
+        .eq("is_active", true)
+        .order("sort_order");
+      if (data) setLocations(data);
+    };
+    fetchLocations();
+  }, []);
 
   const [form, setForm] = useState({
     customer_name: searchParams.get("name") || "",
