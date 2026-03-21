@@ -55,9 +55,14 @@ const SiteFooter = () => {
           {locations.length > 0 && (
             <div className="mt-4 pt-3 border-t border-white/10">
               <h5 className="text-xs font-bold uppercase tracking-wider opacity-50 mb-2">Our Locations</h5>
-              <div className="text-xs opacity-50 leading-relaxed space-y-0.5">
+              <div className="text-xs opacity-50 leading-relaxed space-y-1">
                 {locations.map((loc) => (
-                  <p key={loc.id}>{loc.name} — {loc.city}, {loc.state}</p>
+                  <div key={loc.id}>
+                    <p>{loc.name} — {loc.city}, {loc.state}</p>
+                    {loc.show_in_footer && loc.address && (
+                      <p className="opacity-70 ml-2">{loc.address}</p>
+                    )}
+                  </div>
                 ))}
               </div>
             </div>
