@@ -37,6 +37,10 @@ const DealAccepted = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (!token) { setLoading(false); return; }
+      
+      // Mark the offer as accepted (updates status to 'contacted')
+      await supabase.rpc("accept_offer", { _token: token });
+      
       const { data } = await supabase.rpc("get_submission_portal", { _token: token });
       if (data && data.length > 0) {
         setSubmission(data[0] as unknown as DealSubmission);
