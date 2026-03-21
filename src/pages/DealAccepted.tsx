@@ -47,6 +47,7 @@ const DealAccepted = () => {
     frame();
   }, []);
 
+  useEffect(() => {
     const fetchData = async () => {
       if (!token) { setLoading(false); return; }
       
