@@ -288,25 +288,18 @@ const ScheduleVisit = () => {
                     <p className="text-sm text-destructive font-medium py-2">
                       We are closed on Sundays. Please select another date.
                     </p>
-                  ) : mounted ? (
-                    <Select
-                      value={form.preferred_time || undefined}
-                      onValueChange={(v) => handleChange("preferred_time", v)}
+                  ) : (
+                    <select
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      value={form.preferred_time}
+                      onChange={(e) => handleChange("preferred_time", e.target.value)}
                       disabled={!form.preferred_date}
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder={form.preferred_date ? "Select a time" : "Pick a date first"} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {availableSlots.map((t) => (
-                          <SelectItem key={t} value={t}>
-                            {t}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <div className="h-10 rounded-md border border-input bg-background" />
+                      <option value="">{form.preferred_date ? "Select a time" : "Pick a date first"}</option>
+                      {availableSlots.map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
                   )}
                   {form.preferred_date && !selectedDateIsSunday && (
                     <p className="text-xs text-muted-foreground">
