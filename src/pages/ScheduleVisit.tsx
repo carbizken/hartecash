@@ -313,9 +313,9 @@ const ScheduleVisit = () => {
                     <SelectValue placeholder="Select a store location" />
                   </SelectTrigger>
                   <SelectContent>
-                    {STORE_LOCATIONS.map((loc) => (
-                      <SelectItem key={loc.value} value={loc.value}>
-                        {loc.label}
+                    {locations.map((loc) => (
+                      <SelectItem key={loc.id} value={loc.id}>
+                        {loc.name} — {loc.city}, {loc.state}
                       </SelectItem>
                     ))}
                   </SelectContent>
