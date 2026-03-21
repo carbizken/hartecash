@@ -61,6 +61,7 @@ const AdminSidebar = ({
         { key: "form-config", label: "Form Config", icon: ListChecks },
         { key: "testimonials", label: "Testimonials", icon: MessageSquareQuote },
         { key: "comparison", label: "Comparison", icon: BarChart3 },
+        { key: "locations", label: "Locations", icon: MapPin },
       ]
     : [];
 
