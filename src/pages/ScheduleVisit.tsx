@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { logConsent } from "@/lib/consent";
@@ -12,14 +12,12 @@ import { CalendarDays, CheckCircle2, Loader2, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import harteLogo from "@/assets/harte-logo-white.png";
 
-// Harte Auto Group store locations
-const STORE_LOCATIONS = [
-  { value: "hartford_nissan", label: "Harte Nissan — Hartford, CT" },
-  { value: "hartford_infiniti", label: "Harte Infiniti — Hartford, CT" },
-  { value: "west_haven", label: "George Harte Nissan — West Haven, CT" },
-  { value: "wallingford", label: "George Harte Infiniti — Wallingford, CT" },
-  { value: "old_saybrook", label: "Harte Hyundai — Old Saybrook, CT" },
-];
+interface DealerLocation {
+  id: string;
+  name: string;
+  city: string;
+  state: string;
+}
 
 // Store hours: Mon-Thu 9AM-7PM, Fri-Sat 9AM-6PM, Sun Closed
 const WEEKDAY_SLOTS = [
