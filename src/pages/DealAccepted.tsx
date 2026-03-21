@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
-import { Camera, FileText, CalendarCheck, ArrowRight, Zap, Clock, CheckCircle, Sparkles, ShieldCheck, ArrowLeft } from "lucide-react";
+import { Camera, FileText, CalendarCheck, ArrowRight, Zap, Clock, CheckCircle, Sparkles, ShieldCheck, ArrowLeft, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import VehicleImage from "@/components/sell-form/VehicleImage";
@@ -10,6 +10,7 @@ import WhatToExpect from "@/components/portal/WhatToExpect";
 import InspectionDisclosure from "@/components/portal/InspectionDisclosure";
 import harteLogoFallback from "@/assets/harte-logo-white.png";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
+import { getTaxRateFromZip, calcTradeInValue } from "@/lib/salesTax";
 
 interface DealSubmission {
   vehicle_year: string | null;
