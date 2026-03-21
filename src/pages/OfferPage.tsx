@@ -571,7 +571,6 @@ const OfferPage = () => {
   // Print uses activeTab to determine sell vs trade display
   const isLeaseBuyout = s.loan_status === "Lease Buyout";
   const printIsTrade = activeTab === "trade";
-  const printIsTrade = activeTab === "trade";
   const printDisplayValue = printIsTrade ? tradeInValue : cashOffer;
   const printDisplayValueLow = printIsTrade ? tradeInValueLow : estimateLow;
   const printDisplayLabel = printIsTrade
