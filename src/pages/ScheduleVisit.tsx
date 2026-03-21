@@ -17,6 +17,8 @@ interface DealerLocation {
   name: string;
   city: string;
   state: string;
+  address: string | null;
+  show_in_scheduling: boolean;
 }
 
 // Store hours: Mon-Thu 9AM-7PM, Fri-Sat 9AM-6PM, Sun Closed
@@ -61,9 +63,8 @@ const ScheduleVisit = () => {
     const fetchLocations = async () => {
       const { data } = await supabase
         .from("dealership_locations" as any)
-        .select("id, name, city, state")
+        .select("id, name, city, state, address, show_in_scheduling")
         .eq("is_active", true)
-        .eq("show_in_scheduling", true)
         .order("sort_order");
       if (data) setLocations(data as unknown as DealerLocation[]);
     };
@@ -317,6 +318,7 @@ const ScheduleVisit = () => {
                     {locations.map((loc) => (
                       <SelectItem key={loc.id} value={loc.id}>
                         {loc.name} — {loc.city}, {loc.state}
+                        {loc.show_in_scheduling && loc.address && ` (${loc.address})`}
                       </SelectItem>
                     ))}
                   </SelectContent>
