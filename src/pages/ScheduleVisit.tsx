@@ -288,7 +288,7 @@ const ScheduleVisit = () => {
                     </p>
                   ) : (
                     <Select
-                      value={form.preferred_time}
+                      value={form.preferred_time || undefined}
                       onValueChange={(v) => handleChange("preferred_time", v)}
                       disabled={!form.preferred_date}
                     >
