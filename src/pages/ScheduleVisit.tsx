@@ -318,6 +318,7 @@ const ScheduleVisit = () => {
                     {locations.map((loc) => (
                       <SelectItem key={loc.id} value={loc.id}>
                         {loc.name} — {loc.city}, {loc.state}
+                        {loc.show_in_scheduling && loc.address && ` (${loc.address})`}
                       </SelectItem>
                     ))}
                   </SelectContent>
