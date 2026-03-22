@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import ServiceDriveInlineContent from "@/components/pitch/ServiceDriveInlineContent";
+import TradePitchInlineContent from "@/components/pitch/TradePitchInlineContent";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import harteLogo from "@/assets/harte-logo.png";
 import presenterLogo from "@/assets/pitch/pitch-top-logo.png";
