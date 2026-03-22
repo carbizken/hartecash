@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import ServiceDriveInlineContent from "@/components/pitch/ServiceDriveInlineContent";
+import TradePitchInlineContent from "@/components/pitch/TradePitchInlineContent";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import harteLogo from "@/assets/harte-logo.png";
 import presenterLogo from "@/assets/pitch/pitch-top-logo.png";
@@ -186,27 +188,48 @@ function MockupFrame({ title, dark, children }: { title: string; dark?: boolean;
 }
 
 /* ─── Acquisition Channel Card ─── */
-function ChannelCard({ icon: Icon, title, desc, active, iconColor }: { icon: any; title: string; desc: string; active?: boolean; iconColor: string }) {
+function ChannelCard({ icon: Icon, title, desc, active, iconColor, onClick }: { icon: any; title: string; desc: string; active?: boolean; iconColor: string; onClick?: () => void }) {
+  const activeColor = iconColor.includes("blue") ? "border-blue-400/50 bg-blue-500/15 ring-2 ring-blue-400/30" 
+    : iconColor.includes("emerald") ? "border-emerald-400/50 bg-emerald-500/15 ring-2 ring-emerald-400/30"
+    : "border-amber-400/50 bg-amber-500/15 ring-2 ring-amber-400/30";
+  const hoverColor = iconColor.includes("blue") ? "hover:border-blue-400/50 hover:bg-blue-500/10" 
+    : iconColor.includes("emerald") ? "hover:border-emerald-400/50 hover:bg-emerald-500/10"
+    : "hover:border-amber-400/50 hover:bg-amber-500/10";
+  const dotColor = iconColor.includes("blue") ? "bg-blue-400" 
+    : iconColor.includes("emerald") ? "bg-emerald-400"
+    : "bg-amber-400";
   return (
-    <div className={`rounded-2xl p-6 ${active ? "bg-white/[0.07] border border-blue-500/30" : "bg-white/5 border border-white/10"} relative`}>
-      {active && <span className="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-blue-400 animate-pulse" />}
-      <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${iconColor}`}>
-        <Icon className="w-6 h-6" />
+    <button
+      onClick={onClick}
+      className={`group relative rounded-2xl border backdrop-blur-sm p-8 text-left transition-all duration-300 cursor-pointer ${
+        active ? activeColor : `border-white/10 bg-white/5 ${hoverColor}`
+      }`}
+    >
+      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform ${iconColor}`}>
+        <Icon className="w-7 h-7" />
       </div>
-      <h3 className="font-bold text-lg text-white mb-2">{title}</h3>
+      <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
       <p className="text-sm text-white/50 leading-relaxed">{desc}</p>
-    </div>
+      {active && <span className={`absolute top-3 right-3 w-2.5 h-2.5 rounded-full ${dotColor} animate-pulse`} />}
+    </button>
   );
 }
 
 /* ═══════════════════════════ MAIN ═══════════════════════════ */
 export default function PitchDeck() {
+  const [activeProng, setActiveProng] = useState<"off-street" | "service" | "trade">("off-street");
+  const heroRef = useRef<HTMLDivElement>(null);
   const [isPresenting, setIsPresenting] = useState(false);
   const [idx, setIdx] = useState(0);
   const current = SLIDES[idx];
 
   const next = useCallback(() => setIdx(i => Math.min(i + 1, SLIDES.length - 1)), []);
   const prev = useCallback(() => setIdx(i => Math.max(i - 1, 0)), []);
+
+  const scrollToHero = useCallback(() => {
+    heroRef.current?.scrollIntoView({ behavior: "smooth" });
+    setActiveProng("off-street");
+  }, []);
 
   const togglePresent = useCallback(() => {
     if (!isPresenting) {
@@ -309,6 +332,7 @@ export default function PitchDeck() {
 
         {/* ═══ 1 — HERO ═══ */}
         <Section id="hero" dark isPresenting={isPresenting} currentSlide={current} key={isPresenting ? current : "hero"}>
+          <div ref={heroRef} className="absolute top-0 left-0" />
           <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-blue-600/10 blur-[150px] pointer-events-none" />
           <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none" />
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center relative">
@@ -327,7 +351,7 @@ export default function PitchDeck() {
             <motion.p variants={fadeUp} custom={2} className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto mb-14 leading-relaxed">
               A full-stack, dealer-branded platform that captures, manages, and converts direct consumer vehicle purchases — end to end.
             </motion.p>
-            <motion.div variants={fadeUp} custom={3} className="flex flex-wrap items-center justify-center gap-8 text-sm text-white/40 mb-14">
+            <motion.div variants={fadeUp} custom={3} className="flex flex-wrap items-center justify-center gap-8 text-sm text-white/40 mb-16">
               {[
                 { icon: Zap, label: "Cash in 24 Hours" },
                 { icon: Shield, label: "Enterprise Security" },
@@ -340,30 +364,65 @@ export default function PitchDeck() {
               ))}
             </motion.div>
 
-            {/* Acquisition Channel Cards */}
-            <motion.div variants={fadeUp} custom={4} className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {/* ── 3-Prong Selector ── */}
+            <motion.div variants={fadeUp} custom={4} className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
               <ChannelCard
-                icon={Link2}
+                icon={Car}
                 title="Off Street"
                 desc="Direct consumer acquisition — customers sell their car to you from home, no trade required."
-                active
+                active={activeProng === "off-street"}
                 iconColor="bg-blue-500/20 text-blue-400"
+                onClick={() => {
+                  setActiveProng("off-street");
+                  const marketSection = document.getElementById("market");
+                  if (marketSection) marketSection.scrollIntoView({ behavior: "smooth" });
+                }}
               />
               <ChannelCard
                 icon={Layers}
                 title="Service Drive"
                 desc="Capture vehicles from customers already in your service lane — a goldmine of trade opportunities."
+                active={activeProng === "service"}
                 iconColor="bg-emerald-500/20 text-emerald-400"
+                onClick={() => {
+                  setActiveProng("service");
+                  setTimeout(() => {
+                    const el = document.getElementById("prong-content");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }, 100);
+                }}
               />
               <ChannelCard
-                icon={Repeat}
+                icon={Handshake}
                 title="In-Store Trade"
                 desc="Shoppers at your lot — or heading in — submit their trade info before they arrive or after they leave."
+                active={activeProng === "trade"}
                 iconColor="bg-amber-500/20 text-amber-400"
+                onClick={() => {
+                  setActiveProng("trade");
+                  setTimeout(() => {
+                    const el = document.getElementById("prong-content");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }, 100);
+                }}
               />
             </motion.div>
           </motion.div>
         </Section>
+
+        {/* ── Inline Prong Content ── */}
+        <div id="prong-content">
+          {activeProng === "service" && (
+            <ServiceDriveInlineContent onBackToTop={scrollToHero} />
+          )}
+          {activeProng === "trade" && (
+            <TradePitchInlineContent onBackToTop={scrollToHero} />
+          )}
+        </div>
+
+        {/* ── Off Street Content (default) ── */}
+        {activeProng === "off-street" && (
+        <>
 
         {/* ═══ 2 — MARKET ═══ */}
         <Section id="market" dark isPresenting={isPresenting} currentSlide={current} key={isPresenting ? current : "market"}>
@@ -1309,6 +1368,8 @@ export default function PitchDeck() {
             </motion.div>
           </motion.div>
         </Section>
+        </>
+        )}
 
       </AnimatePresence>
     </div>
