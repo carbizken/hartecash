@@ -15,7 +15,8 @@ import {
   ClipboardCheck, Printer, MessageSquare, Search, Inbox,
   BadgeDollarSign, Handshake, PartyPopper, CircleDot,
   ShieldCheck, MousePointerClick, Send, Phone, Mail,
-  CreditCard, KeyRound, MapPin, AlertCircle, LayoutDashboard
+  CreditCard, KeyRound, MapPin, AlertCircle, LayoutDashboard,
+  Link2, Repeat
 } from "lucide-react";
 
 /* ─── Animated Counter ─── */
@@ -47,7 +48,7 @@ const SLIDES = [
   "cust-walk-1", "cust-walk-2", "cust-walk-3",
   "emp-walk-1", "emp-walk-2", "emp-walk-3",
   "workflow", "mobile", "security",
-  "comparison", "traction", "why-us", "cta",
+  "comparison", "roi", "roi-dealer", "traction", "why-us", "cta",
 ] as const;
 type SlideId = typeof SLIDES[number];
 
@@ -105,11 +106,12 @@ function LightBadge({ label }: { label: string }) {
 }
 
 /* ─── Metric Card ─── */
-function MetricCard({ value, prefix, suffix, label, dark }: { value: number; prefix?: string; suffix?: string; label: string; dark?: boolean }) {
+function MetricCard({ value, prefix, suffix, label, dark, citation }: { value: number; prefix?: string; suffix?: string; label: string; dark?: boolean; citation?: string }) {
   return (
     <div className={`rounded-2xl p-8 text-center ${dark ? "bg-white/5 border border-white/10 backdrop-blur-sm" : "bg-card border border-border shadow-sm"}`}>
       <AnimatedNumber value={value} prefix={prefix} suffix={suffix} className={`text-5xl md:text-6xl font-black ${dark ? "text-blue-400" : "text-primary"}`} />
       <p className={`text-sm mt-3 ${dark ? "text-white/60" : "text-muted-foreground"}`}>{label}</p>
+      {citation && <p className={`text-[10px] mt-2 ${dark ? "text-white/30" : "text-muted-foreground/60"}`}>📎 {citation}</p>}
     </div>
   );
 }
@@ -179,6 +181,20 @@ function MockupFrame({ title, dark, children }: { title: string; dark?: boolean;
         <span className={`text-xs font-mono ml-2 ${dark ? "text-white/30" : "text-muted-foreground"}`}>{title}</span>
       </div>
       <div className="p-5">{children}</div>
+    </div>
+  );
+}
+
+/* ─── Acquisition Channel Card ─── */
+function ChannelCard({ icon: Icon, title, desc, active, iconColor }: { icon: any; title: string; desc: string; active?: boolean; iconColor: string }) {
+  return (
+    <div className={`rounded-2xl p-6 ${active ? "bg-white/[0.07] border border-blue-500/30" : "bg-white/5 border border-white/10"} relative`}>
+      {active && <span className="absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-blue-400 animate-pulse" />}
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${iconColor}`}>
+        <Icon className="w-6 h-6" />
+      </div>
+      <h3 className="font-bold text-lg text-white mb-2">{title}</h3>
+      <p className="text-sm text-white/50 leading-relaxed">{desc}</p>
     </div>
   );
 }
@@ -311,7 +327,7 @@ export default function PitchDeck() {
             <motion.p variants={fadeUp} custom={2} className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto mb-14 leading-relaxed">
               A full-stack, dealer-branded platform that captures, manages, and converts direct consumer vehicle purchases — end to end.
             </motion.p>
-            <motion.div variants={fadeUp} custom={3} className="flex flex-wrap items-center justify-center gap-8 text-sm text-white/40">
+            <motion.div variants={fadeUp} custom={3} className="flex flex-wrap items-center justify-center gap-8 text-sm text-white/40 mb-14">
               {[
                 { icon: Zap, label: "Cash in 24 Hours" },
                 { icon: Shield, label: "Enterprise Security" },
@@ -323,6 +339,29 @@ export default function PitchDeck() {
                 </span>
               ))}
             </motion.div>
+
+            {/* Acquisition Channel Cards */}
+            <motion.div variants={fadeUp} custom={4} className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+              <ChannelCard
+                icon={Link2}
+                title="Off Street"
+                desc="Direct consumer acquisition — customers sell their car to you from home, no trade required."
+                active
+                iconColor="bg-blue-500/20 text-blue-400"
+              />
+              <ChannelCard
+                icon={Layers}
+                title="Service Drive"
+                desc="Capture vehicles from customers already in your service lane — a goldmine of trade opportunities."
+                iconColor="bg-emerald-500/20 text-emerald-400"
+              />
+              <ChannelCard
+                icon={Repeat}
+                title="In-Store Trade"
+                desc="Shoppers at your lot — or heading in — submit their trade info before they arrive or after they leave."
+                iconColor="bg-amber-500/20 text-amber-400"
+              />
+            </motion.div>
           </motion.div>
         </Section>
 
@@ -331,16 +370,16 @@ export default function PitchDeck() {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }}>
             <GlowBadge label="Market Opportunity" />
             <motion.h2 variants={fadeUp} custom={0} className="text-4xl md:text-6xl font-black mb-6 leading-tight">
-              A <span className="text-blue-400">$400 Billion</span> Market<br />Waiting to Be Disrupted
+              A <span className="text-blue-400">$1.2 Trillion</span> Market<br />Waiting to Be Disrupted
             </motion.h2>
             <motion.p variants={fadeUp} custom={1} className="text-lg text-white/50 max-w-2xl mb-16">
-              40 million used cars are sold annually in the U.S. Dealers who can acquire inventory directly from consumers — without auctions — hold the ultimate competitive advantage.
+              40 million used cars change hands annually in the U.S. — that's 110,000 every single day. Dealers who can acquire inventory directly from consumers hold the ultimate competitive advantage.
             </motion.p>
             <motion.div variants={fadeUp} custom={2} className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-              <MetricCard value={40} suffix="M" label="Used cars sold annually in the U.S." dark />
-              <MetricCard value={400} prefix="$" suffix="B" label="Total U.S. used vehicle market" dark />
-              <MetricCard value={73} suffix="%" label="of consumers prefer selling online first" dark />
-              <MetricCard value={3200} prefix="$" label="Average profit per direct acquisition" dark />
+              <MetricCard value={40} suffix="M" label="Used vehicles sold annually in the U.S." dark citation="Cox Automotive 2024 Used Car Market Report" />
+              <MetricCard value={29} prefix="$" suffix="K" label="Average used vehicle listing price (Dec 2025)" dark citation="Cox Automotive / Manheim Used Vehicle Value Index" />
+              <MetricCard value={73} suffix="%" label="of car shoppers prefer more steps online" dark citation="CarGurus 2025 Consumer Sentiment Study" />
+              <MetricCard value={1528} prefix="$" label="Avg. used gross PVR — pre-pandemic levels" dark citation="Haig Report Q3 2025 Dealership Profitability Data" />
             </motion.div>
           </motion.div>
         </Section>
@@ -357,9 +396,9 @@ export default function PitchDeck() {
             </motion.p>
             <motion.div variants={fadeUp} custom={2} className="grid md:grid-cols-3 gap-8">
               {[
-                { icon: "💸", title: "Auction Dependency", desc: "Dealers pay premium prices at auction for inventory they could acquire directly from consumers at wholesale." },
-                { icon: "🚪", title: "Customer Walkaway", desc: "Your service customers — the ones you already have a relationship with — are selling to your competitors because you don't make it easy." },
-                { icon: "📉", title: "Margin Compression", desc: "Rising auction prices, transportation costs, and reconditioning eat into profits. Direct acquisition solves all three." },
+                { icon: "💸", title: "Auction Dependency", desc: "Dealers pay $500–1,500 per unit in auction fees plus $300–800 in transport for inventory they could acquire directly from consumers." },
+                { icon: "🚪", title: "Customer Walkaway", desc: "Your service customers — the ones you already have a relationship with — are selling to CarMax and Carvana because you don't make it easy." },
+                { icon: "📉", title: "Margin Compression", desc: "Used gross PVR has dropped back to $1,528 — pre-pandemic levels (Haig Report Q3 2025). Direct acquisition is the only way to protect margins." },
               ].map((item, i) => (
                 <motion.div key={i} variants={scaleIn} custom={i + 3} className="bg-card border border-border rounded-2xl p-8">
                   <span className="text-4xl mb-4 block">{item.icon}</span>
@@ -379,7 +418,7 @@ export default function PitchDeck() {
               They Built <span className="text-blue-400">Empires</span> on<br />Your Missed Opportunities
             </motion.h2>
             <motion.p variants={fadeUp} custom={1} className="text-lg text-white/50 max-w-2xl mb-14">
-              CarMax and Carvana proved the model works. But they have zero relationship with your customer. You have something they'll never have — trust.
+              CarMax comp sales are down 9%. Carvana is surging. Both proved the model works — but they have zero relationship with your customer. You have something they'll never have: trust, service history, and a local presence.
             </motion.p>
             <motion.div variants={fadeUp} custom={2} className="grid md:grid-cols-2 gap-8">
               <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
@@ -501,7 +540,6 @@ export default function PitchDeck() {
             </motion.p>
 
             <motion.div variants={fadeUp} custom={1} className="grid lg:grid-cols-2 gap-10">
-              {/* Left: Step-by-step walkthrough */}
               <div>
                 <WalkStep number={1} icon={Globe} title="Branded Landing Page"
                   desc="Customer sees a hero section with your dealership logo, trust badges (BBB, Google Reviews), and a clear 'Get Your Cash Offer' call-to-action."
@@ -521,7 +559,6 @@ export default function PitchDeck() {
                 />
               </div>
 
-              {/* Right: Screenshot of the form */}
               <motion.div variants={scaleIn} custom={2}>
                 <div className="rounded-2xl overflow-hidden border border-border shadow-2xl">
                   <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-muted/50">
@@ -532,7 +569,9 @@ export default function PitchDeck() {
                     </div>
                     <span className="text-xs font-mono ml-2 text-muted-foreground">hartecash.com</span>
                   </div>
-                  <img src={screenshotLanding} alt="Landing page with vehicle submission form" className="w-full" />
+                  <a href="/" target="_blank" rel="noopener noreferrer">
+                    <img src={screenshotLanding} alt="Landing page with vehicle submission form" className="w-full" />
+                  </a>
                 </div>
                 <p className="text-xs text-muted-foreground text-center mt-3 italic">Live screenshot — this is what your customers see</p>
               </motion.div>
@@ -555,7 +594,6 @@ export default function PitchDeck() {
             </motion.p>
 
             <motion.div variants={fadeUp} custom={1} className="grid lg:grid-cols-2 gap-10">
-              {/* Left: Screenshot of portal */}
               <motion.div variants={scaleIn} custom={1.5}>
                 <div className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
                   <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/10 bg-white/5">
@@ -571,7 +609,6 @@ export default function PitchDeck() {
                 <p className="text-xs text-white/30 text-center mt-3 italic">Live screenshot — personalized customer portal</p>
               </motion.div>
 
-              {/* Right: Step breakdown */}
               <div>
                 <WalkStep number={1} icon={Eye} title="Personalized Dashboard" dark
                   desc="The customer is greeted by name — 'Welcome back, Sarah!' — with their vehicle prominently displayed. It feels personal, not transactional."
@@ -609,69 +646,59 @@ export default function PitchDeck() {
             </motion.p>
 
             <motion.div variants={fadeUp} custom={1} className="grid lg:grid-cols-3 gap-8">
-              {/* Photo Upload - Real Screenshot */}
+              {/* Photos */}
               <motion.div variants={scaleIn} custom={1}>
-                <div className="rounded-2xl overflow-hidden border border-border shadow-lg">
-                  <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border bg-muted/50">
-                    <div className="flex gap-1.5">
-                      <span className="w-3 h-3 rounded-full bg-red-400/60" />
-                      <span className="w-3 h-3 rounded-full bg-yellow-400/60" />
-                      <span className="w-3 h-3 rounded-full bg-emerald-400/60" />
-                    </div>
-                    <span className="text-xs font-mono ml-2 text-muted-foreground">📸 Vehicle Photos</span>
-                  </div>
+                <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-foreground">
+                  <span className="text-xl">📸</span> Vehicle Photos
+                </h3>
+                <div className="rounded-2xl overflow-hidden border border-border shadow-xl">
                   <img src={screenshotUploadMobile} alt="Mobile photo upload interface with 6 guided categories" className="w-full" />
                 </div>
-                <p className="text-xs text-muted-foreground text-center mt-2 italic">Live mobile screenshot</p>
+                <p className="text-xs text-muted-foreground text-center mt-3 italic">Live mobile screenshot</p>
               </motion.div>
 
-              {/* Document Upload */}
+              {/* Documents */}
               <motion.div variants={scaleIn} custom={2}>
-                <MockupFrame title="📄 Documents">
+                <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-foreground">
+                  <span className="text-xl">📄</span> Documents
+                </h3>
+                <MockupFrame title="Required documents with guided slots:">
                   <div className="space-y-3">
-                    <p className="text-xs text-muted-foreground">Required documents with guided slots:</p>
-                    <div className="space-y-2">
-                      {[
-                        { name: "Driver's License", done: true },
-                        { name: "Registration", done: true },
-                        { name: "Title (Front)", done: false },
-                        { name: "Title (Back)", done: false },
-                      ].map((doc) => (
-                        <div key={doc.name} className={`flex items-center gap-3 p-2.5 rounded-lg border ${doc.done ? "border-emerald-400/30 bg-emerald-500/5" : "border-border bg-muted/30"}`}>
-                          {doc.done ? <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" /> : <Upload className="w-4 h-4 text-muted-foreground/40 shrink-0" />}
-                          <span className={`text-xs ${doc.done ? "text-foreground font-medium" : "text-muted-foreground"}`}>{doc.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="text-[10px] text-muted-foreground bg-muted/50 rounded-lg p-2 text-center">
+                    {["Driver's License", "Registration", "Title (Front)", "Title (Back)"].map(doc => (
+                      <div key={doc} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/50 border border-border">
+                        <Upload className="w-4 h-4 text-primary shrink-0" />
+                        <span className="text-sm text-foreground">{doc}</span>
+                      </div>
+                    ))}
+                    <div className="text-[10px] text-muted-foreground text-center mt-2">
                       📱 QR code on desktop → opens phone camera instantly
                     </div>
                   </div>
                 </MockupFrame>
               </motion.div>
 
-              {/* Schedule Visit */}
+              {/* Schedule */}
               <motion.div variants={scaleIn} custom={3}>
-                <MockupFrame title="📅 Schedule Visit">
-                  <div className="space-y-3">
-                    <p className="text-xs text-muted-foreground">Pre-filled appointment booking:</p>
-                    <div className="space-y-2">
-                      {[
-                        { label: "Vehicle", value: "2021 Honda Accord" },
-                        { label: "Name", value: "Sarah Johnson" },
-                        { label: "Email", value: "sarah@email.com" },
-                        { label: "Phone", value: "(860) 555-1234" },
-                      ].map((field) => (
-                        <div key={field.label} className="bg-muted/50 rounded-lg p-2.5 border border-border">
-                          <span className="text-[10px] text-muted-foreground block">{field.label}</span>
-                          <span className="text-xs text-foreground font-medium">{field.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="bg-primary text-primary-foreground rounded-lg py-2.5 text-center font-bold text-xs">
+                <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-foreground">
+                  <span className="text-xl">📅</span> Schedule Visit
+                </h3>
+                <MockupFrame title="Pre-filled appointment booking:">
+                  <div className="space-y-3 text-xs">
+                    {[
+                      { label: "Vehicle", value: "2021 Honda Accord" },
+                      { label: "Name", value: "Sarah Johnson" },
+                      { label: "Email", value: "sarah@email.com" },
+                      { label: "Phone", value: "(860) 555-1234" },
+                    ].map(f => (
+                      <div key={f.label} className="flex items-center justify-between p-2 rounded bg-muted/50 border border-border">
+                        <span className="text-muted-foreground">{f.label}</span>
+                        <span className="font-medium text-foreground">{f.value}</span>
+                      </div>
+                    ))}
+                    <button className="w-full mt-2 bg-primary text-primary-foreground rounded-lg py-2.5 text-xs font-bold">
                       Confirm Appointment →
-                    </div>
-                    <div className="text-[10px] text-muted-foreground text-center">
+                    </button>
+                    <div className="text-[10px] text-muted-foreground text-center mt-1">
                       📧 + 📱 Auto-sends email & SMS confirmation
                     </div>
                   </div>
@@ -679,12 +706,12 @@ export default function PitchDeck() {
               </motion.div>
             </motion.div>
 
-            {/* Additional context */}
+            {/* Bottom callouts */}
             <motion.div variants={fadeUp} custom={4} className="mt-12 grid md:grid-cols-3 gap-6">
               {[
                 { icon: Phone, title: "Zero Phone Calls", desc: "Everything the customer needs is in the portal. No 'call us for status.' No phone tag." },
                 { icon: KeyRound, title: "No Login Required", desc: "Customers access their portal via unique token link. No password, no account, no friction." },
-                { icon: MapPin, title: "What to Bring Card", desc: "Portal shows exactly what to bring: ID, registration, title, all keys. No surprises at the dealership." },
+                { icon: ClipboardCheck, title: "What to Bring Card", desc: "Portal shows exactly what to bring: ID, registration, title, all keys. No surprises at the dealership." },
               ].map((item, i) => (
                 <motion.div key={i} variants={scaleIn} custom={i + 5} className="flex gap-4 bg-card border border-border rounded-xl p-5">
                   <item.icon className="w-5 h-5 text-primary shrink-0 mt-0.5" />
@@ -717,7 +744,6 @@ export default function PitchDeck() {
             </motion.p>
 
             <motion.div variants={fadeUp} custom={1} className="grid lg:grid-cols-2 gap-10">
-              {/* Left: Dashboard screenshot */}
               <motion.div variants={scaleIn} custom={1.5}>
                 <div className="rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
                   <div className="flex items-center gap-2 px-4 py-2.5 border-b border-white/10 bg-white/5">
@@ -728,12 +754,13 @@ export default function PitchDeck() {
                     </div>
                     <span className="text-xs font-mono ml-2 text-white/30">hartecash.com/admin</span>
                   </div>
-                  <img src={screenshotDashboard} alt="Admin dashboard with leads table and analytics" className="w-full" />
+                  <a href="/admin" target="_blank" rel="noopener noreferrer">
+                    <img src={screenshotDashboard} alt="Admin dashboard with leads table and analytics" className="w-full" />
+                  </a>
                 </div>
                 <p className="text-xs text-white/30 text-center mt-3 italic">Live screenshot — admin command center</p>
               </motion.div>
 
-              {/* Right: Steps */}
               <div>
                 <WalkStep number={1} icon={LayoutDashboard} title="Real-Time Analytics Bar" dark
                   desc="Total leads, weekly intake, offers made, deals closed — live numbers updated with every status change. Your team knows the pulse of the operation instantly."
@@ -771,7 +798,6 @@ export default function PitchDeck() {
             </motion.p>
 
             <motion.div variants={fadeUp} custom={1} className="grid lg:grid-cols-2 gap-10">
-              {/* Left: Steps */}
               <div>
                 <WalkStep number={1} icon={DollarSign} title="Cash Offer Entry"
                   desc="Sales or Used Car Manager enters the initial cash offer. It instantly appears on the customer's portal. The customer gets notified and can view/print it immediately."
@@ -791,7 +817,6 @@ export default function PitchDeck() {
                 />
               </div>
 
-              {/* Right: Check request mockup */}
               <motion.div variants={scaleIn} custom={2} className="space-y-6">
                 <MockupFrame title="Check Request — Print Preview">
                   <div className="space-y-4 text-foreground">
@@ -865,7 +890,6 @@ export default function PitchDeck() {
             </motion.p>
 
             <motion.div variants={fadeUp} custom={1} className="grid lg:grid-cols-3 gap-8">
-              {/* Document Management */}
               <motion.div variants={scaleIn} custom={1}>
                 <MockupFrame title="📁 Internal Documents" dark>
                   <div className="space-y-3">
@@ -891,7 +915,6 @@ export default function PitchDeck() {
                 </MockupFrame>
               </motion.div>
 
-              {/* Role Management */}
               <motion.div variants={scaleIn} custom={2}>
                 <MockupFrame title="👥 Staff Management" dark>
                   <div className="space-y-3">
@@ -919,18 +942,17 @@ export default function PitchDeck() {
                 </MockupFrame>
               </motion.div>
 
-              {/* Audit Trail */}
               <motion.div variants={scaleIn} custom={3}>
                 <MockupFrame title="📋 Activity Log" dark>
                   <div className="space-y-3">
                     <p className="text-[10px] text-white/40 mb-2">Every action, logged:</p>
                     <div className="space-y-2">
                       {[
-                        { time: "2:34 PM", action: "Status → Offer Made", by: "Mike R.", byRole: "Sales" },
-                        { time: "2:35 PM", action: "Offer: $24,500", by: "Mike R.", byRole: "Sales" },
-                        { time: "3:12 PM", action: "ACV: $26,200", by: "John S.", byRole: "UCM" },
-                        { time: "3:15 PM", action: "Status → Approved", by: "Karen T.", byRole: "GSM" },
-                        { time: "3:18 PM", action: "Check Request Done", by: "Karen T.", byRole: "GSM" },
+                        { time: "2:34 PM", action: "Status → Offer Made", by: "Mike R." },
+                        { time: "2:35 PM", action: "Offer: $24,500", by: "Mike R." },
+                        { time: "3:12 PM", action: "ACV: $26,200", by: "John S." },
+                        { time: "3:15 PM", action: "Status → Approved", by: "Karen T." },
+                        { time: "3:18 PM", action: "Check Request Done", by: "Karen T." },
                       ].map((log, i) => (
                         <div key={i} className="flex gap-2 text-[10px] p-2 rounded bg-white/5 border border-white/5">
                           <span className="text-white/30 font-mono shrink-0">{log.time}</span>
@@ -947,7 +969,6 @@ export default function PitchDeck() {
               </motion.div>
             </motion.div>
 
-            {/* Bottom callouts */}
             <motion.div variants={fadeUp} custom={4} className="mt-12 grid md:grid-cols-3 gap-6">
               {[
                 { icon: MessageSquare, title: "Appointment Management", desc: "View scheduled dates, reschedule, and see appointment status — all within the lead detail modal." },
@@ -965,10 +986,6 @@ export default function PitchDeck() {
             </motion.div>
           </motion.div>
         </Section>
-
-        {/* ═══════════════════════════════════════════════════════════════
-            REMAINING SLIDES (unchanged content)
-        ═══════════════════════════════════════════════════════════════ */}
 
         {/* ═══ 13 — WORKFLOW ═══ */}
         <Section id="workflow" isPresenting={isPresenting} currentSlide={current} key={isPresenting ? current : "workflow"}>
@@ -1070,6 +1087,8 @@ export default function PitchDeck() {
                 ["Full activity audit trail", true, false],
                 ["Server-enforced pipeline stage gates", true, false],
                 ["Print-ready office records", true, false],
+                ["Service drive seed-planting SMS", true, false],
+                ["In-store trade link generation", true, false],
                 ["Basic lead capture form", true, true],
               ].map(([feature, us, them], i) => (
                 <CompRow key={i} feature={feature as string} us={us as boolean} them={them as boolean} />
@@ -1078,7 +1097,142 @@ export default function PitchDeck() {
           </motion.div>
         </Section>
 
-        {/* ═══ 17 — TRACTION ═══ */}
+        {/* ═══ 17 — ROI ═══ */}
+        <Section id="roi" isPresenting={isPresenting} currentSlide={current} key={isPresenting ? current : "roi"}>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <LightBadge label="Return on Investment" />
+            <motion.h2 variants={fadeUp} custom={0} className="text-4xl md:text-6xl font-black mb-6 leading-tight">
+              What If 20% of Your Inventory<br /><span className="text-primary">Came Direct?</span>
+            </motion.h2>
+            <motion.p variants={fadeUp} custom={1} className="text-lg text-muted-foreground max-w-3xl mb-6 leading-relaxed">
+              CarMax and Carvana retail under 3% of used cars — but they acquire <strong>13% of all consumer-to-dealer acquisitions</strong>. They proved the model works. Your platform lets <em>you</em> do the same thing — locally, with your brand, at a fraction of the cost.
+            </motion.p>
+            <motion.p variants={fadeUp} custom={1.5} className="text-lg text-muted-foreground max-w-3xl mb-14 leading-relaxed">
+              Every vehicle you acquire direct from a consumer instead of an auction saves you an average of <strong className="text-foreground">$2,000 per unit</strong> in eliminated fees, transport, and lower recon — and that goes straight to your bottom line.
+            </motion.p>
+
+            {/* Savings breakdown */}
+            <motion.div variants={fadeUp} custom={2} className="grid md:grid-cols-3 gap-6 mb-14">
+              {[
+                { amount: "$500–1,500", label: "Auction Fee Eliminated", desc: "Buyer fees, gate fees, listing fees" },
+                { amount: "$300–800", label: "Transport Eliminated", desc: "No cross-country shipping needed" },
+                { amount: "$200–500", label: "Lower Recon Costs", desc: "Consumer-maintained vs. auction-worn" },
+              ].map((item, i) => (
+                <motion.div key={i} variants={scaleIn} custom={i + 3} className="bg-card border border-border rounded-2xl p-6 text-center">
+                  <span className="text-3xl font-black text-primary block mb-2">{item.amount}</span>
+                  <h4 className="font-bold text-foreground text-sm mb-1">{item.label}</h4>
+                  <p className="text-xs text-muted-foreground">{item.desc}</p>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Auction vs Direct comparison */}
+            <motion.div variants={fadeUp} custom={4} className="grid md:grid-cols-2 gap-8">
+              <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-8">
+                <h3 className="text-xl font-black text-destructive mb-6">Auction Buy</h3>
+                <div className="space-y-4">
+                  {[
+                    { label: "Auction Fee", sub: "(avg buy fee)", value: "–$1,000" },
+                    { label: "Transport", sub: "(avg shipping)", value: "–$550" },
+                    { label: "Extra Recon", sub: "(auction-sourced avg)", value: "–$450" },
+                  ].map((row, i) => (
+                    <div key={i} className="flex items-center justify-between text-sm">
+                      <div>
+                        <span className="text-foreground font-medium">{row.label}</span>
+                        <span className="text-muted-foreground text-xs ml-1">{row.sub}</span>
+                      </div>
+                      <span className="font-bold text-destructive">{row.value}</span>
+                    </div>
+                  ))}
+                  <div className="border-t border-destructive/20 pt-4 flex justify-between items-center">
+                    <span className="font-bold text-foreground">Total Hidden Costs</span>
+                    <span className="text-2xl font-black text-destructive">–$2,000</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground italic">Eating into your PVR every unit</p>
+                  <div className="bg-destructive/10 rounded-lg p-3 text-center mt-2">
+                    <span className="text-xs text-muted-foreground block">Effective PVR</span>
+                    <span className="text-xl font-black text-destructive">$1,528</span>
+                    <span className="text-xs text-muted-foreground block">Before you even sell it</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-emerald-500/5 border border-emerald-400/20 rounded-2xl p-8">
+                <h3 className="text-xl font-black text-emerald-600 mb-6">Direct Acquire</h3>
+                <div className="space-y-4">
+                  {[
+                    { label: "Auction Fee", sub: "(no auction needed)", value: "$0" },
+                    { label: "Transport", sub: "(local consumer)", value: "$0" },
+                    { label: "Extra Recon", sub: "(consumer-maintained)", value: "$0" },
+                  ].map((row, i) => (
+                    <div key={i} className="flex items-center justify-between text-sm">
+                      <div>
+                        <span className="text-foreground font-medium">{row.label}</span>
+                        <span className="text-muted-foreground text-xs ml-1">{row.sub}</span>
+                      </div>
+                      <span className="font-bold text-emerald-600">{row.value}</span>
+                    </div>
+                  ))}
+                  <div className="border-t border-emerald-400/20 pt-4 flex justify-between items-center">
+                    <span className="font-bold text-foreground">Total Saved</span>
+                    <span className="text-2xl font-black text-emerald-600">+$2,000</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground italic">Added straight to your PVR</p>
+                  <div className="bg-emerald-500/10 rounded-lg p-3 text-center mt-2">
+                    <span className="text-xs text-muted-foreground block">Effective PVR</span>
+                    <span className="text-xl font-black text-emerald-600">$3,528</span>
+                    <span className="text-xs text-muted-foreground block">$1,528 + $2,000 advantage</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        </Section>
+
+        {/* ═══ 18 — ROI BY DEALER SIZE ═══ */}
+        <Section id="roi-dealer" dark isPresenting={isPresenting} currentSlide={current} key={isPresenting ? current : "roi-dealer"}>
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <GlowBadge label="ROI by Dealer Size" />
+            <motion.h2 variants={fadeUp} custom={0} className="text-4xl md:text-6xl font-black mb-6 leading-tight">
+              Shift 31% of Inventory to Direct —<br /><span className="text-blue-400">Here's Your Upside</span>
+            </motion.h2>
+            <motion.p variants={fadeUp} custom={1} className="text-lg text-white/50 max-w-3xl mb-16 leading-relaxed">
+              Carvana proved that <strong className="text-white/80">31% of retail inventory</strong> can be sourced directly from consumers (Q3 2019). CarMax acquires <strong className="text-white/80">87%</strong> from consumers. A dealership advertising locally can match Carvana's 31% direct-from-consumer ratio — here's what that means for your bottom line.
+            </motion.p>
+
+            <motion.div variants={fadeUp} custom={2} className="grid md:grid-cols-3 gap-8">
+              {[
+                { size: "Small Dealer", units: "~50 used units/mo", direct: "~16 units", monthly: "$32K/mo", annual: "$384K", highlight: false },
+                { size: "Mid-Size Dealer", units: "~150 used units/mo", direct: "~47 units", monthly: "$94K/mo", annual: "$1.13M", highlight: true },
+                { size: "High-Volume Dealer", units: "~400 used units/mo", direct: "~124 units", monthly: "$248K/mo", annual: "$2.98M", highlight: false },
+              ].map((tier, i) => (
+                <motion.div key={i} variants={scaleIn} custom={i + 3} className={`rounded-2xl p-8 ${tier.highlight ? "bg-blue-500/10 border-2 border-blue-500/30 relative" : "bg-white/5 border border-white/10"}`}>
+                  {tier.highlight && <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-blue-500 text-white text-[10px] font-bold rounded-full tracking-wider uppercase">Most Common</span>}
+                  <h3 className="text-xl font-black text-white mb-1">{tier.size}</h3>
+                  <p className="text-sm text-white/40 mb-6">{tier.units}</p>
+                  <div className="space-y-2 text-sm text-white/60 mb-6">
+                    <p>31% = <strong className="text-white/80">{tier.direct}</strong>/mo direct</p>
+                    <p>× $2,000 saved per unit</p>
+                  </div>
+                  <div className="border-t border-white/10 pt-4">
+                    <span className="text-xs text-white/40 block mb-1">Monthly savings</span>
+                    <span className="text-2xl font-black text-blue-400 block mb-4">{tier.monthly}</span>
+                    <div className="bg-white/5 rounded-xl p-4 text-center">
+                      <span className="text-3xl md:text-4xl font-black text-emerald-400 block">{tier.annual}</span>
+                      <span className="text-xs text-white/40">Additional annual profit</span>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            <motion.p variants={fadeUp} custom={6} className="text-xs text-white/30 text-center mt-8 max-w-3xl mx-auto leading-relaxed">
+              Based on Carvana's proven 31% consumer-sourced ratio (Q3 2019 earnings call · CEO Ernie Garcia · Carvana 10-Q) · $2,000 avg savings per unit · CarMax acquires 87% from consumers (FY26: 208,226 of 238,161 vehicles · CarMax FY-26 Form 10-Q, Nov 2025)
+            </motion.p>
+          </motion.div>
+        </Section>
+
+        {/* ═══ 19 — TRACTION ═══ */}
         <Section id="traction" isPresenting={isPresenting} currentSlide={current} key={isPresenting ? current : "traction"}>
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center">
             <LightBadge label="Built & Proven" />
@@ -1089,15 +1243,15 @@ export default function PitchDeck() {
               This isn't a pitch for something we're going to build. It's running in production today — processing real leads, real appraisals, and real purchases.
             </motion.p>
             <motion.div variants={fadeUp} custom={2} className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-              <MetricCard value={10} suffix="+" label="Pipeline stages managed" />
-              <MetricCard value={4} label="Staff permission tiers" />
-              <MetricCard value={6} label="Guided photo categories" />
-              <MetricCard value={7} label="Customer progress stages" />
+              <MetricCard value={3} label="Acquisition channels (off-street, service, trade)" />
+              <MetricCard value={10} suffix="+" label="Deal pipeline stages, fully managed" />
+              <MetricCard value={100} suffix="%" label="Dealer-branded — zero third-party logos" />
+              <MetricCard value={0} label="Manual steps to capture a lead" />
             </motion.div>
           </motion.div>
         </Section>
 
-        {/* ═══ 18 — WHY US ═══ */}
+        {/* ═══ 20 — WHY US ═══ */}
         <Section id="why-us" dark isPresenting={isPresenting} currentSlide={current} key={isPresenting ? current : "why-us"}>
           <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full bg-blue-600/8 blur-[140px] pointer-events-none" />
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center relative">
@@ -1124,7 +1278,7 @@ export default function PitchDeck() {
           </motion.div>
         </Section>
 
-        {/* ═══ 19 — CTA ═══ */}
+        {/* ═══ 21 — CTA ═══ */}
         <Section id="cta" dark isPresenting={isPresenting} currentSlide={current} key={isPresenting ? current : "cta"}>
           <div className="absolute inset-0 bg-gradient-to-b from-blue-600/5 via-transparent to-transparent pointer-events-none" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-blue-600/5 blur-[200px] pointer-events-none" />
@@ -1135,19 +1289,24 @@ export default function PitchDeck() {
               Your Dealership
             </motion.h2>
             <motion.p variants={fadeUp} custom={2} className="text-xl text-white/50 max-w-2xl mx-auto mb-12 leading-relaxed">
-              Custom-branded. Fully configured. Deployed in weeks, not months. Ready to compete with the biggest names in the industry.
+              Custom-branded. Fully configured. See it live on your brand in 48 hours. No obligation.
             </motion.p>
             <motion.div variants={fadeUp} custom={3} className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a href="tel:2035095054" className="inline-flex items-center gap-3 h-16 px-10 rounded-2xl bg-blue-600 text-white font-bold text-lg hover:bg-blue-500 transition shadow-lg shadow-blue-600/30">
-                Get Started <ArrowRight className="w-5 h-5" />
+                Schedule a Demo <ArrowRight className="w-5 h-5" />
               </a>
               <a href="tel:2035095054" className="inline-flex items-center gap-3 h-16 px-10 rounded-2xl border-2 border-white/20 text-white font-bold text-lg hover:bg-white/5 transition">
                 (203) 509-5054
               </a>
             </motion.div>
-            <motion.p variants={fadeUp} custom={4} className="text-sm text-white/30 mt-10">
-              kenc@hartecars.com · Harte Auto Group · Hartford, CT
-            </motion.p>
+            <motion.div variants={fadeUp} custom={4} className="mt-10 flex flex-col items-center gap-2">
+              <p className="text-sm text-white/30">
+                <a href="tel:2035095054" className="hover:text-white/50 transition">(203) 509-5054</a> · <a href="mailto:ken@ken.cc" className="hover:text-white/50 transition">ken@ken.cc</a>
+              </p>
+              <a href="/sitemap" className="text-xs text-white/20 hover:text-white/40 transition mt-2">
+                Explore Service Drive & In-Store Trade → <span className="underline">See Full Platform</span>
+              </a>
+            </motion.div>
           </motion.div>
         </Section>
 
