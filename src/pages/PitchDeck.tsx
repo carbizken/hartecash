@@ -3,7 +3,7 @@ import ServiceDriveInlineContent from "@/components/pitch/ServiceDriveInlineCont
 import TradePitchInlineContent from "@/components/pitch/TradePitchInlineContent";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import harteLogo from "@/assets/harte-logo.png";
-import presenterLogo from "@/assets/pitch/pitch-top-logo.png";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 import screenshotLanding from "@/assets/pitch/screenshot-landing.png";
 import screenshotPortal from "@/assets/pitch/screenshot-portal.jpg";
 import screenshotUploadMobile from "@/assets/pitch/screenshot-upload-mobile.jpg";
@@ -217,6 +217,7 @@ function ChannelCard({ icon: Icon, title, desc, active, iconColor, onClick }: { 
 
 /* ═══════════════════════════ MAIN ═══════════════════════════ */
 export default function PitchDeck() {
+  const { config } = useSiteConfig();
   const [activeProng, setActiveProng] = useState<"off-street" | "service" | "trade">("off-street");
   const heroRef = useRef<HTMLDivElement>(null);
   const [isPresenting, setIsPresenting] = useState(false);
@@ -337,7 +338,7 @@ export default function PitchDeck() {
           <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none" />
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} className="text-center relative">
             <motion.div variants={fadeUp} custom={0} className="mb-8">
-              <img src={presenterLogo} alt="Presenter" className="h-60 mx-auto" />
+              <img src={config.logo_url || harteLogo} alt={config.dealership_name} className="h-40 md:h-60 mx-auto object-contain" />
             </motion.div>
             <motion.div variants={fadeUp} custom={0.5}>
               <GlowBadge label="Introducing" />
