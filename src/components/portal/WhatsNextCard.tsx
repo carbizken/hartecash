@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Camera, FileText, CalendarCheck, ArrowRight, Sparkles, Clock } from "lucide-react";
+import { Camera, FileText, CalendarCheck, ArrowRight, Sparkles, Clock, CheckCircle2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface WhatsNextProps {
@@ -48,9 +48,9 @@ function getNextAction(status: string, photosUploaded: boolean, docsUploaded: bo
   if (["offer_made", "contacted"].includes(status)) {
     return {
       emoji: "📅",
-      title: "Schedule Your In-Person Inspection",
-      description: "You're almost there! The last step is to book your visit so we can finalize your offer and hand you a check.",
-      actionLabel: "Schedule My Inspection",
+      title: "Visit Us for Your Final Inspection",
+      description: "Everything's ready on your end! Schedule your dealership visit so we can complete a quick inspection and hand you a check.",
+      actionLabel: "Schedule My Visit",
       actionIcon: CalendarCheck,
       linkType: "schedule",
       urgent: true,
@@ -110,8 +110,24 @@ const WhatsNextCard = ({ mappedStatus, photosUploaded, docsUploaded, token, vehi
           <div className="relative overflow-hidden bg-gradient-to-br from-accent via-accent to-[hsl(210,100%,40%)] rounded-2xl p-6 shadow-xl cursor-pointer hover:shadow-2xl hover:-translate-y-1 transition-all group">
             {/* Shimmer effect */}
             <div className="absolute inset-0 -translate-x-full animate-[shimmer_3s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-            
-            {/* Pulsing ring behind icon */}
+
+            {/* Completed checklist */}
+            <div className="flex flex-wrap gap-3 mb-4">
+              {photosUploaded && (
+                <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-accent-foreground" />
+                  <span className="text-xs font-semibold text-accent-foreground/90">Photos Uploaded</span>
+                </div>
+              )}
+              {docsUploaded && (
+                <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-accent-foreground" />
+                  <span className="text-xs font-semibold text-accent-foreground/90">Documents Uploaded</span>
+                </div>
+              )}
+            </div>
+
+            {/* Main content */}
             <div className="flex items-center gap-4 mb-4">
               <div className="relative">
                 <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center shrink-0">
