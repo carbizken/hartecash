@@ -39,11 +39,12 @@ function getNextAction(status: string, photosUploaded: boolean, docsUploaded: bo
   if (["offer_made", "contacted"].includes(status)) {
     return {
       emoji: "📅",
-      title: "Schedule Your Visit",
-      description: "Everything looks great! Book a time to bring your vehicle in and finalize the deal.",
-      actionLabel: "Schedule Now",
+      title: "Schedule Your In-Person Inspection",
+      description: "You're almost there! The last step is to book your visit so we can finalize your offer and hand you a check.",
+      actionLabel: "Schedule My Inspection",
       actionIcon: CalendarCheck,
       linkType: "schedule" as const,
+      urgent: true,
     };
   }
   if (status === "inspection_scheduled") {
