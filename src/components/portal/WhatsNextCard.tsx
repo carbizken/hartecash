@@ -121,7 +121,7 @@ const WhatsNextCard = ({ mappedStatus, photosUploaded, docsUploaded, token, vehi
               )}
               {docsUploaded && (
                 <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-green-200" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-accent-foreground" />
                   <span className="text-xs font-semibold text-accent-foreground/90">Documents Uploaded</span>
                 </div>
               )}
