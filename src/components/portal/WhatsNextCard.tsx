@@ -45,7 +45,7 @@ function getNextAction(status: string, photosUploaded: boolean, docsUploaded: bo
       linkType: "docs",
     };
   }
-  if (["offer_made", "contacted"].includes(status)) {
+  if (["offer_made", "contacted", "price_agreed"].includes(status)) {
     return {
       emoji: "📅",
       title: "Visit Us for Your Final Inspection",
