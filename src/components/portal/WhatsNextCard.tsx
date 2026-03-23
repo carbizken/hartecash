@@ -156,7 +156,7 @@ const WhatsNextCard = ({ mappedStatus, photosUploaded, docsUploaded, token, vehi
                 <Clock className="w-4 h-4" />
                 <span className="text-sm font-semibold">Takes less than 1 minute</span>
               </div>
-              <div className="flex items-center gap-1.5 text-accent-foreground font-bold text-sm">
+              <div className="flex items-center gap-1.5 text-accent-foreground font-bold text-sm animate-[pulse_2s_cubic-bezier(0.4,0,0.6,1)_infinite] bg-white/20 rounded-full px-3 py-1 shadow-[0_0_12px_rgba(255,255,255,0.3)]">
                 Book Now
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
