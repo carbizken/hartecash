@@ -102,6 +102,7 @@ interface Submission {
   num_keys: string | null;
   progress_status: string;
   offered_price: number | null;
+  estimated_offer_high: number | null;
   acv_value: number | null;
   appraised_by: string | null;
   check_request_done: boolean;
