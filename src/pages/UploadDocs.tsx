@@ -85,6 +85,7 @@ const UploadDocs = () => {
   const handleUpload = async () => {
     if (!submission || files.length === 0) return;
     setUploading(true);
+    let dlFrontPath: string | null = null;
     try {
       for (const { file, docType } of files) {
         const ext = file.name.split(".").pop();
@@ -93,8 +94,26 @@ const UploadDocs = () => {
           .from("customer-documents")
           .upload(path, file, { contentType: file.type });
         if (uploadErr) throw uploadErr;
+        if (docType === "drivers_license_front") dlFrontPath = path;
       }
       await supabase.rpc("mark_docs_uploaded", { _token: token! });
+
+      // Trigger OCR on driver's license front if uploaded
+      if (dlFrontPath) {
+        try {
+          const { data: signedData } = await supabase.storage
+            .from("customer-documents")
+            .createSignedUrl(dlFrontPath, 300);
+          if (signedData?.signedUrl) {
+            await supabase.functions.invoke("parse-drivers-license", {
+              body: { imageUrl: signedData.signedUrl, submissionToken: token },
+            });
+          }
+        } catch (ocrErr) {
+          console.warn("OCR auto-fill skipped:", ocrErr);
+        }
+      }
+
       setDone(true);
     } catch {
       setError("Upload failed. Please try again.");

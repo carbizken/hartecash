@@ -98,6 +98,7 @@ const StaffFileUpload = ({ token, bucket, onUploadComplete }: StaffFileUploadPro
   const handleUpload = async () => {
     if (files.length === 0) return;
     setUploading(true);
+    let dlFrontPath: string | null = null;
     try {
       for (const file of files) {
         const ext = file.name.split(".").pop();
@@ -110,6 +111,8 @@ const StaffFileUpload = ({ token, bucket, onUploadComplete }: StaffFileUploadPro
           .from(bucket)
           .upload(path, file, { contentType: file.type });
         if (error) throw error;
+
+        if (!isPhotos && docType === "drivers_license_front") dlFrontPath = path;
       }
 
       // Mark as uploaded
@@ -117,6 +120,22 @@ const StaffFileUpload = ({ token, bucket, onUploadComplete }: StaffFileUploadPro
         await supabase.rpc("mark_photos_uploaded", { _token: token });
       } else {
         await supabase.rpc("mark_docs_uploaded", { _token: token });
+      }
+
+      // Trigger OCR on driver's license front if uploaded by staff
+      if (dlFrontPath) {
+        try {
+          const { data: signedData } = await supabase.storage
+            .from("customer-documents")
+            .createSignedUrl(dlFrontPath, 300);
+          if (signedData?.signedUrl) {
+            await supabase.functions.invoke("parse-drivers-license", {
+              body: { imageUrl: signedData.signedUrl, submissionToken: token },
+            });
+          }
+        } catch (ocrErr) {
+          console.warn("OCR auto-fill skipped:", ocrErr);
+        }
       }
 
       toast({ title: "Uploaded", description: `${files.length} file${files.length !== 1 ? "s" : ""} uploaded successfully.` });
