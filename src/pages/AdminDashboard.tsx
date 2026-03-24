@@ -2604,6 +2604,15 @@ const AdminDashboard = () => {
                           performed_by: auditLabel,
                         });
                       }
+                      if (oldSub && oldSub.acv_value !== selected.acv_value) {
+                        await supabase.from("activity_log").insert({
+                          submission_id: selected.id,
+                          action: "ACV Updated",
+                          old_value: oldSub.acv_value ? `$${oldSub.acv_value.toLocaleString()}` : "None",
+                          new_value: selected.acv_value ? `$${selected.acv_value.toLocaleString()}` : "None",
+                          performed_by: auditLabel,
+                        });
+                      }
                       // ── Notification triggers ──
                       if (oldSub) {
                         // Offer Ready: first time offered_price is set
