@@ -204,8 +204,17 @@ const AdminDashboard = () => {
   const [selectedApptLocation, setSelectedApptLocation] = useState<string | null>(null);
   const [optOutStatus, setOptOutStatus] = useState<{ email: boolean; sms: boolean }>({ email: false, sms: false });
   const [activeSection, setActiveSection] = useState("submissions");
+  const [dealerLocations, setDealerLocations] = useState<DealerLocation[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Helper: resolve a store_location value (UUID or legacy slug) to a friendly label
+  const getLocationLabel = (loc: string | null) => {
+    if (!loc) return null;
+    const found = dealerLocations.find(l => l.id === loc || l.name.toLowerCase().replace(/\s+/g, "_") === loc);
+    if (found) return `${found.name} — ${found.city}, ${found.state}`;
+    return loc; // fallback to raw value
+  };
 
   const canSetPrice = ["admin", "used_car_manager", "gsm_gm"].includes(userRole);
   const canApprove = ["admin", "gsm_gm"].includes(userRole);
