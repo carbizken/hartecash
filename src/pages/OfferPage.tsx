@@ -87,6 +87,14 @@ const KEY_OPTIONS = [
   { value: "0", label: "No Keys" },
 ];
 
+const TIRE_OPTIONS = [
+  { value: "None", label: "None" },
+  { value: "1", label: "1 Tire" },
+  { value: "2", label: "2 Tires" },
+  { value: "3", label: "3 Tires" },
+  { value: "4", label: "4 Tires" },
+];
+
 const EXTERIOR_DAMAGE_OPTIONS = [
   { value: "none", label: "None" },
   { value: "dents", label: "Dents" },
