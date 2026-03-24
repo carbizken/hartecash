@@ -4,10 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { FileText, CheckCircle, Upload, X, Plus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MobileQRBanner from "@/components/upload/MobileQRBanner";
-import harteLogo from "@/assets/harte-logo.png";
+import harteLogoWhite from "@/assets/harte-logo-white.png";
 
 const DOC_TYPES = [
-  { key: "drivers_license", label: "Driver's License", emoji: "🪪" },
+  { key: "drivers_license_front", label: "Driver's License (Front)", emoji: "🪪" },
+  { key: "drivers_license_back", label: "Driver's License (Back)", emoji: "🪪" },
   { key: "registration", label: "Registration", emoji: "📋" },
   { key: "title_inquiry", label: "Title Inquiry by Dealer", emoji: "🔍" },
   { key: "title_front", label: "Title (Front)", emoji: "📄" },
