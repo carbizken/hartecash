@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, DollarSign, Car } from "lucide-react";
+import { ArrowLeft, Car } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import harteLogoFallback from "@/assets/harte-logo.png";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
@@ -18,6 +18,8 @@ import CommunicationPreferences from "@/components/portal/CommunicationPreferenc
 import InspectionDisclosure from "@/components/portal/InspectionDisclosure";
 import WhatToExpect from "@/components/portal/WhatToExpect";
 import ProgressSteps, { mapStatusToStepIndex } from "@/components/portal/ProgressSteps";
+import PortalOfferCard from "@/components/portal/PortalOfferCard";
+import ConditionReport from "@/components/portal/ConditionReport";
 
 interface PortalSubmission {
   id: string;
@@ -42,6 +44,22 @@ interface PortalSubmission {
   estimated_offer_high: number | null;
   bb_tradein_avg: number | null;
   appointment_set: boolean;
+  zip: string | null;
+}
+
+interface ConditionData {
+  accidents: string | null;
+  drivable: string | null;
+  exterior_damage: string[] | null;
+  interior_damage: string[] | null;
+  mechanical_issues: string[] | null;
+  engine_issues: string[] | null;
+  tech_issues: string[] | null;
+  smoked_in: string | null;
+  tires_replaced: string | null;
+  num_keys: string | null;
+  windshield_damage: string | null;
+  modifications: string | null;
 }
 
 const STAGE_MAPPING: Record<string, string> = {
@@ -64,6 +82,7 @@ const CustomerPortal = () => {
   const { token } = useParams<{ token: string }>();
   const { config } = useSiteConfig();
   const [submission, setSubmission] = useState<PortalSubmission | null>(null);
+  const [condition, setCondition] = useState<ConditionData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -73,9 +92,17 @@ const CustomerPortal = () => {
       const minDelay = new Promise(r => setTimeout(r, 1200));
       const query = supabase.rpc("get_submission_portal", { _token: token });
       const [, { data, error: err }] = await Promise.all([minDelay, query]);
-      if (err || !data || data.length === 0) setError("Submission not found. Please check your link.");
-      else setSubmission(data[0] as unknown as PortalSubmission);
+      if (err || !data || data.length === 0) { setError("Submission not found. Please check your link."); setLoading(false); return; }
+      setSubmission(data[0] as unknown as PortalSubmission);
       setLoading(false);
+
+      // Fetch condition details for the "What's Behind Your Offer" section
+      const { data: condData } = await supabase
+        .from("submissions")
+        .select("accidents, drivable, exterior_damage, interior_damage, mechanical_issues, engine_issues, tech_issues, smoked_in, tires_replaced, num_keys, windshield_damage, modifications")
+        .eq("token", token)
+        .maybeSingle();
+      if (condData) setCondition(condData as ConditionData);
     };
     fetchData();
   }, [token]);
@@ -108,36 +135,6 @@ const CustomerPortal = () => {
   const scheduleLink = `/schedule?token=${s.token}&vehicle=${encodeURIComponent(vehicleStr)}&name=${encodeURIComponent(s.name || "")}&email=${encodeURIComponent(s.email || "")}&phone=${encodeURIComponent(s.phone || "")}`;
 
   /* ─── Shared blocks ─── */
-
-  const OfferCTA = (s.offered_price || s.estimated_offer_high) && (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4, delay: 0.2 }}
-    >
-      <Link to={`/offer/${s.token}`}>
-        <div className="relative overflow-hidden bg-gradient-to-r from-accent to-[hsl(210,100%,45%)] rounded-2xl p-6 shadow-xl cursor-pointer hover:shadow-2xl hover:-translate-y-0.5 transition-all">
-          <div className="absolute inset-0 -translate-x-full animate-[shimmer_3s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-accent-foreground/80 text-xs font-semibold uppercase tracking-wider mb-1">
-                {s.offered_price ? "Your Cash Offer" : "Your Estimated Offer"}
-              </p>
-              <p className="text-3xl md:text-4xl font-extrabold text-accent-foreground">
-                {s.offered_price
-                  ? `$${s.offered_price.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
-                  : `$${s.estimated_offer_low?.toLocaleString("en-US", { maximumFractionDigits: 0 })} – $${s.estimated_offer_high?.toLocaleString("en-US", { maximumFractionDigits: 0 })}`}
-              </p>
-              <p className="text-accent-foreground/70 text-sm mt-1">Tap to see your full offer with trade-in value →</p>
-            </div>
-            <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center shrink-0">
-              <DollarSign className="w-7 h-7 text-accent-foreground" />
-            </div>
-          </div>
-        </div>
-      </Link>
-    </motion.div>
-  );
 
   const VehicleDetails = (vehicleStr || s.mileage || s.exterior_color || s.overall_condition || s.loan_status) && (
     <div className="bg-card rounded-xl p-5 shadow-lg">
@@ -182,6 +179,15 @@ const CustomerPortal = () => {
     phone: s.phone || "",
   };
 
+  const offerCardProps = {
+    offeredPrice: s.offered_price,
+    estimatedOfferLow: s.estimated_offer_low,
+    estimatedOfferHigh: s.estimated_offer_high,
+    zip: s.zip,
+    vehicleStr,
+    token: s.token,
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -201,7 +207,7 @@ const CustomerPortal = () => {
         </div>
       </div>
 
-      {/* Progress bar — full width under header */}
+      {/* Progress bar */}
       <div className="max-w-5xl mx-auto px-6 -mt-0 pt-5">
         <ProgressSteps currentStageIdx={stepIdx} isComplete={isComplete} appointmentSet={s.appointment_set} scheduleLink={scheduleLink} />
       </div>
@@ -213,8 +219,9 @@ const CustomerPortal = () => {
             {/* Left column — sticky */}
             <div className="col-span-2">
               <div className="sticky top-6 space-y-5">
-                {OfferCTA}
+                <PortalOfferCard {...offerCardProps} />
                 {VehicleDetails}
+                <ConditionReport condition={condition} vehicleStr={vehicleStr} />
                 <DealerContactCard />
                 {SubmittedFooter}
               </div>
@@ -244,10 +251,11 @@ const CustomerPortal = () => {
       <div className="lg:hidden">
         <div className="max-w-lg mx-auto p-6 space-y-5">
           <WhatsNextCard {...whatsNextProps} />
-          {OfferCTA}
+          <PortalOfferCard {...offerCardProps} />
           <CompletionChecklist {...checklistProps} />
           <VehiclePhotos token={s.token} photosUploaded={s.photos_uploaded} />
           {VehicleDetails}
+          <ConditionReport condition={condition} vehicleStr={vehicleStr} />
           <PaymentInfoCard />
           {s.loan_status && ["has_loan", "lease"].includes(s.loan_status) && <LoanPayoffCard />}
           {stepIdx >= 2 && !isComplete && (
