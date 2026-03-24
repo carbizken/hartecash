@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Save, ChevronDown, Plus, X, Mail, Phone, Bell, BellOff, Moon, Loader2, UserCheck, CalendarCheck, DollarSign, CalendarClock, RefreshCw, Handshake, PartyPopper } from "lucide-react";
+import { Save, ChevronDown, Plus, X, Mail, Phone, Bell, BellOff, Moon, Loader2, UserCheck, CalendarCheck, DollarSign, CalendarClock, RefreshCw, Handshake, PartyPopper, TrendingUp } from "lucide-react";
 
 interface NotificationConfig {
   id?: string;
@@ -39,6 +39,8 @@ interface NotificationConfig {
   customer_appointment_channels: string[];
   notify_customer_offer_ready: boolean;
   customer_offer_ready_channels: string[];
+  notify_customer_offer_increased: boolean;
+  customer_offer_increased_channels: string[];
   notify_customer_appointment_reminder: boolean;
   customer_appointment_reminder_channels: string[];
   notify_customer_appointment_rescheduled: boolean;
@@ -75,6 +77,8 @@ const DEFAULTS: NotificationConfig = {
   customer_appointment_channels: ["email", "sms"],
   notify_customer_offer_ready: true,
   customer_offer_ready_channels: ["email"],
+  notify_customer_offer_increased: true,
+  customer_offer_increased_channels: ["email"],
   notify_customer_appointment_reminder: true,
   customer_appointment_reminder_channels: ["email", "sms"],
   notify_customer_appointment_rescheduled: true,
@@ -96,7 +100,8 @@ const STAFF_TRIGGERS = [
 ] as const;
 
 const CUSTOMER_TRIGGERS = [
-  { key: "customer_offer_ready", label: "Offer Ready", desc: "Notify customer when their cash offer has been set — includes offer amount & link to view", channelKey: "customer_offer_ready_channels", icon: DollarSign },
+  { key: "customer_offer_ready", label: "Offer Ready", desc: "Notify customer that their offer is ready with a link to view it (does not include the amount)", channelKey: "customer_offer_ready_channels", icon: DollarSign },
+  { key: "customer_offer_increased", label: "Offer Increased", desc: "Notify customer when staff increases their offer before it's been accepted", channelKey: "customer_offer_increased_channels", icon: TrendingUp },
   { key: "customer_offer_accepted", label: "Offer Accepted Confirmation", desc: "Confirm the accepted offer amount, vehicle details, and next steps", channelKey: "customer_offer_accepted_channels", icon: UserCheck },
   { key: "customer_appointment_booked", label: "Appointment Confirmation", desc: "Send appointment date/time, dealership address, accepted offer, and what to bring", channelKey: "customer_appointment_channels", icon: CalendarCheck },
   { key: "customer_appointment_reminder", label: "Appointment Reminder (24hr)", desc: "Remind customer 24 hours before their scheduled inspection with address and what to bring", channelKey: "customer_appointment_reminder_channels", icon: CalendarClock },
@@ -151,6 +156,8 @@ export default function NotificationSettings() {
         customer_appointment_channels: (d.customer_appointment_channels as string[]) || ["email", "sms"],
         notify_customer_offer_ready: d.notify_customer_offer_ready ?? true,
         customer_offer_ready_channels: (d.customer_offer_ready_channels as string[]) || ["email"],
+        notify_customer_offer_increased: d.notify_customer_offer_increased ?? true,
+        customer_offer_increased_channels: (d.customer_offer_increased_channels as string[]) || ["email"],
         notify_customer_appointment_reminder: d.notify_customer_appointment_reminder ?? true,
         customer_appointment_reminder_channels: (d.customer_appointment_reminder_channels as string[]) || ["email", "sms"],
         notify_customer_appointment_rescheduled: d.notify_customer_appointment_rescheduled ?? true,
