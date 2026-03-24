@@ -28,6 +28,7 @@ const Unsubscribe = lazy(() => import("./pages/Unsubscribe"));
 const TradeLanding = lazy(() => import("./pages/TradeLanding"));
 const DealAccepted = lazy(() => import("./pages/DealAccepted"));
 const OfferDisclosure = lazy(() => import("./pages/OfferDisclosure"));
+const Updates = lazy(() => import("./pages/Updates"));
 
 const queryClient = new QueryClient();
 
