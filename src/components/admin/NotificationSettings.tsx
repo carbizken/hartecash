@@ -77,6 +77,8 @@ const DEFAULTS: NotificationConfig = {
   customer_appointment_channels: ["email", "sms"],
   notify_customer_offer_ready: true,
   customer_offer_ready_channels: ["email"],
+  notify_customer_offer_increased: true,
+  customer_offer_increased_channels: ["email"],
   notify_customer_appointment_reminder: true,
   customer_appointment_reminder_channels: ["email", "sms"],
   notify_customer_appointment_rescheduled: true,
