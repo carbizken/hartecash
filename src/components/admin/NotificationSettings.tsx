@@ -451,6 +451,14 @@ export default function NotificationSettings() {
           )}
         </CollapsibleContent>
       </Collapsible>
+
+      {/* Template Editor Dialog */}
+      <NotificationTemplateEditor
+        open={!!editingTemplate}
+        onOpenChange={(open) => !open && setEditingTemplate(null)}
+        triggerKey={editingTemplate?.key ?? ""}
+        triggerLabel={editingTemplate?.label ?? ""}
+      />
     </div>
   );
 }
