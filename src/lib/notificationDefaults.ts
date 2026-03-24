@@ -1,0 +1,128 @@
+/**
+ * Default email & SMS templates for every notification trigger.
+ * Placeholders: {{customer_name}}, {{vehicle}}, {{mileage}}, {{offer_amount}},
+ * {{portal_link}}, {{appointment_date}}, {{appointment_time}}, {{location}},
+ * {{dealership_name}}, {{status}}, {{guarantee_days}}
+ */
+
+export interface TemplateDefaults {
+  email_subject: string;
+  email_body: string;
+  sms_body: string;
+}
+
+export const DEFAULT_TEMPLATES: Record<string, TemplateDefaults> = {
+  /* ───── Staff triggers ───── */
+  new_submission: {
+    email_subject: "New Vehicle Submission — {{vehicle}}",
+    email_body:
+      "A new submission has been received.\n\nCustomer: {{customer_name}}\nVehicle: {{vehicle}}\nMileage: {{mileage}}\n\nView it in the admin dashboard to review and make an offer.",
+    sms_body:
+      "New submission from {{customer_name}} for their {{vehicle}}. Review it in the admin dashboard.",
+  },
+  hot_lead: {
+    email_subject: "🔥 Hot Lead — {{customer_name}}",
+    email_body:
+      "A submission has been flagged as a hot lead.\n\nCustomer: {{customer_name}}\nVehicle: {{vehicle}}\n\nThis lead meets your configured offer rules for priority follow-up.",
+    sms_body:
+      "🔥 Hot Lead: {{customer_name}} — {{vehicle}}. Flagged for priority follow-up.",
+  },
+  appointment_booked: {
+    email_subject: "New Appointment — {{customer_name}}",
+    email_body:
+      "A customer has scheduled an inspection.\n\nCustomer: {{customer_name}}\nVehicle: {{vehicle}}\nDate: {{appointment_date}}\nTime: {{appointment_time}}\nLocation: {{location}}",
+    sms_body:
+      "New appt: {{customer_name}} — {{vehicle}} on {{appointment_date}} at {{appointment_time}}.",
+  },
+  photos_uploaded: {
+    email_subject: "Photos Uploaded — {{vehicle}}",
+    email_body:
+      "{{customer_name}} has uploaded photos for their {{vehicle}}. Review them in the admin dashboard.",
+    sms_body: "{{customer_name}} uploaded photos for their {{vehicle}}.",
+  },
+  docs_uploaded: {
+    email_subject: "Documents Uploaded — {{vehicle}}",
+    email_body:
+      "{{customer_name}} has uploaded documents for their {{vehicle}}. Review them in the admin dashboard.",
+    sms_body: "{{customer_name}} uploaded documents for their {{vehicle}}.",
+  },
+  status_change: {
+    email_subject: "Status Update — {{vehicle}}",
+    email_body:
+      "A submission status has been updated.\n\nCustomer: {{customer_name}}\nVehicle: {{vehicle}}\nNew Status: {{status}}",
+    sms_body:
+      "Status update: {{customer_name}} — {{vehicle}} is now \"{{status}}\".",
+  },
+  staff_customer_accepted: {
+    email_subject: "🎉 Customer Accepted Offer — {{customer_name}}",
+    email_body:
+      "Great news! {{customer_name}} has accepted the offer on their {{vehicle}}.\n\nOffer Amount: {{offer_amount}}\n\nFollow up to schedule their inspection visit.",
+    sms_body:
+      "🎉 {{customer_name}} accepted the offer on their {{vehicle}} ({{offer_amount}}). Follow up to schedule!",
+  },
+  staff_deal_completed: {
+    email_subject: "✅ Deal Completed — {{customer_name}}",
+    email_body:
+      "A deal has been completed.\n\nCustomer: {{customer_name}}\nVehicle: {{vehicle}}\n\nThe purchase has been finalized.",
+    sms_body: "✅ Deal completed: {{customer_name}} — {{vehicle}}.",
+  },
+
+  /* ───── Customer triggers ───── */
+  customer_offer_ready: {
+    email_subject: "Your Offer Is Ready — {{dealership_name}}",
+    email_body:
+      "Hi {{customer_name}},\n\nGreat news! We've reviewed your {{vehicle}} and your personalized offer is ready.\n\nClick below to view your offer:\n{{portal_link}}\n\nThis offer is valid for {{guarantee_days}} days.\n\nBest regards,\n{{dealership_name}}",
+    sms_body:
+      "Hi {{customer_name}}, your offer for your {{vehicle}} is ready! View it here: {{portal_link}} — {{dealership_name}}",
+  },
+  customer_offer_increased: {
+    email_subject: "Great News — Your Offer Has Been Increased!",
+    email_body:
+      "Hi {{customer_name}},\n\nWe've increased the offer on your {{vehicle}}!\n\nView your updated offer:\n{{portal_link}}\n\nDon't wait — this offer is valid for {{guarantee_days}} days.\n\nBest regards,\n{{dealership_name}}",
+    sms_body:
+      "Hi {{customer_name}}, great news! We've increased our offer on your {{vehicle}}. View it: {{portal_link}} — {{dealership_name}}",
+  },
+  customer_offer_accepted: {
+    email_subject: "Offer Accepted — Next Steps for Your {{vehicle}}",
+    email_body:
+      "Hi {{customer_name}},\n\nThank you for accepting our offer on your {{vehicle}}!\n\nOffer Amount: {{offer_amount}}\n\nNext Steps:\n1. Schedule your inspection visit\n2. Bring your title, registration, and valid ID\n3. We'll handle the rest!\n\nSchedule now: {{portal_link}}\n\nBest regards,\n{{dealership_name}}",
+    sms_body:
+      "Hi {{customer_name}}, your offer of {{offer_amount}} for your {{vehicle}} is confirmed! Schedule your visit: {{portal_link}} — {{dealership_name}}",
+  },
+  customer_appointment_booked: {
+    email_subject: "Appointment Confirmed — {{appointment_date}}",
+    email_body:
+      "Hi {{customer_name}},\n\nYour inspection is confirmed!\n\nDate: {{appointment_date}}\nTime: {{appointment_time}}\nLocation: {{location}}\nVehicle: {{vehicle}}\n\nWhat to bring:\n• Vehicle title\n• Valid photo ID\n• Registration\n• All keys & remotes\n\nSee you there!\n{{dealership_name}}",
+    sms_body:
+      "Hi {{customer_name}}, your visit is confirmed for {{appointment_date}} at {{appointment_time}} at {{location}}. Bring title, ID & keys. — {{dealership_name}}",
+  },
+  customer_appointment_reminder: {
+    email_subject: "Reminder: Your Appointment Is Tomorrow",
+    email_body:
+      "Hi {{customer_name}},\n\nJust a friendly reminder — your inspection is tomorrow!\n\nDate: {{appointment_date}}\nTime: {{appointment_time}}\nLocation: {{location}}\nVehicle: {{vehicle}}\n\nRemember to bring:\n• Vehicle title\n• Valid photo ID\n• Registration\n• All keys & remotes\n\nSee you soon!\n{{dealership_name}}",
+    sms_body:
+      "Reminder: Your visit is tomorrow at {{appointment_time}} at {{location}}. Bring title, ID & keys. See you there! — {{dealership_name}}",
+  },
+  customer_appointment_rescheduled: {
+    email_subject: "Your Appointment Has Been Rescheduled",
+    email_body:
+      "Hi {{customer_name}},\n\nYour inspection appointment has been rescheduled.\n\nNew Date: {{appointment_date}}\nNew Time: {{appointment_time}}\nLocation: {{location}}\nVehicle: {{vehicle}}\n\nIf you need to make changes, please contact us.\n\nBest regards,\n{{dealership_name}}",
+    sms_body:
+      "Hi {{customer_name}}, your appointment has been rescheduled to {{appointment_date}} at {{appointment_time}} at {{location}}. — {{dealership_name}}",
+  },
+};
+
+/** Available placeholder variables with descriptions */
+export const PLACEHOLDER_VARS: { key: string; desc: string }[] = [
+  { key: "{{customer_name}}", desc: "Customer's full name" },
+  { key: "{{vehicle}}", desc: "Year Make Model" },
+  { key: "{{mileage}}", desc: "Vehicle mileage" },
+  { key: "{{offer_amount}}", desc: "Dollar offer amount" },
+  { key: "{{portal_link}}", desc: "Customer portal URL" },
+  { key: "{{appointment_date}}", desc: "Appointment date" },
+  { key: "{{appointment_time}}", desc: "Appointment time" },
+  { key: "{{location}}", desc: "Dealership location" },
+  { key: "{{dealership_name}}", desc: "Dealership name" },
+  { key: "{{status}}", desc: "Submission status" },
+  { key: "{{guarantee_days}}", desc: "Offer guarantee days" },
+];

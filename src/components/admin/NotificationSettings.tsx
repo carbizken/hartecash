@@ -8,7 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Save, ChevronDown, Plus, X, Mail, Phone, Bell, BellOff, Moon, Loader2, UserCheck, CalendarCheck, DollarSign, CalendarClock, RefreshCw, Handshake, PartyPopper, TrendingUp } from "lucide-react";
+import { Save, ChevronDown, Plus, X, Mail, Phone, Bell, BellOff, Moon, Loader2, UserCheck, CalendarCheck, DollarSign, CalendarClock, RefreshCw, Handshake, PartyPopper, TrendingUp, Pencil } from "lucide-react";
+import NotificationTemplateEditor from "./NotificationTemplateEditor";
 
 interface NotificationConfig {
   id?: string;
@@ -115,6 +116,7 @@ export default function NotificationSettings() {
   const [saving, setSaving] = useState(false);
   const [newEmail, setNewEmail] = useState("");
   const [newPhone, setNewPhone] = useState("");
+  const [editingTemplate, setEditingTemplate] = useState<{ key: string; label: string } | null>(null);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     recipients: true,
     triggers: true,
@@ -294,7 +296,18 @@ export default function NotificationSettings() {
             </div>
           </div>
         </div>
-        {enabled && renderChannelButtons(trigger.channelKey, channels)}
+        <div className="flex items-center gap-2 shrink-0">
+          {enabled && (
+            <button
+              onClick={() => setEditingTemplate({ key: trigger.key, label: trigger.label })}
+              className="flex items-center gap-1 px-2 py-1 rounded text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              title="Edit message templates"
+            >
+              <Pencil className="w-3 h-3" />
+            </button>
+          )}
+          {enabled && renderChannelButtons(trigger.channelKey, channels)}
+        </div>
       </div>
     );
   };
@@ -438,6 +451,14 @@ export default function NotificationSettings() {
           )}
         </CollapsibleContent>
       </Collapsible>
+
+      {/* Template Editor Dialog */}
+      <NotificationTemplateEditor
+        open={!!editingTemplate}
+        onOpenChange={(open) => !open && setEditingTemplate(null)}
+        triggerKey={editingTemplate?.key ?? ""}
+        triggerLabel={editingTemplate?.label ?? ""}
+      />
     </div>
   );
 }

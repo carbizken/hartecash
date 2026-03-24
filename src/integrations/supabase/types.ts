@@ -446,6 +446,39 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_templates: {
+        Row: {
+          body: string
+          channel: string
+          created_at: string
+          dealership_id: string
+          id: string
+          subject: string | null
+          trigger_key: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          channel: string
+          created_at?: string
+          dealership_id?: string
+          id?: string
+          subject?: string | null
+          trigger_key: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          channel?: string
+          created_at?: string
+          dealership_id?: string
+          id?: string
+          subject?: string | null
+          trigger_key?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       offer_rules: {
         Row: {
           adjustment_pct: number
