@@ -1848,13 +1848,15 @@ const AdminDashboard = () => {
 
               {/* Loan Info */}
               <div data-print-section className="bg-muted/40 rounded-lg p-4">
-                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Loan & Info</h3>
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                  <DollarSign className="w-3.5 h-3.5" />Loan & Info
+                </h3>
                 <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-                  <DetailRow label="Loan Status" value={selected.loan_status} />
-                  <DetailRow label="Loan Company" value={(selected as any).loan_company} />
-                  <DetailRow label="Loan Balance" value={(selected as any).loan_balance} />
-                  <DetailRow label="Loan Payment" value={(selected as any).loan_payment} />
-                  <DetailRow label="Next Step" value={selected.next_step} />
+                  <DetailRow label="Loan Status" value={selected.loan_status} icon={<Info className="w-3.5 h-3.5" />} />
+                  <DetailRow label="Loan Company" value={(selected as any).loan_company} icon={<FileText className="w-3.5 h-3.5" />} />
+                  <DetailRow label="Loan Balance" value={(selected as any).loan_balance} icon={<DollarSign className="w-3.5 h-3.5" />} />
+                  <DetailRow label="Loan Payment" value={(selected as any).loan_payment} icon={<DollarSign className="w-3.5 h-3.5" />} />
+                  <DetailRow label="Next Step" value={selected.next_step} icon={<TrendingUp className="w-3.5 h-3.5" />} />
                   <div className="flex items-center justify-between col-span-2 mt-1">
                     <span className="text-xs text-muted-foreground">Lead Source</span>
                     <Select
