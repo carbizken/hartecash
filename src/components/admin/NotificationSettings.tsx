@@ -8,7 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Save, ChevronDown, Plus, X, Mail, Phone, Bell, BellOff, Moon, Loader2, UserCheck, CalendarCheck, DollarSign, CalendarClock, RefreshCw, Handshake, PartyPopper, TrendingUp, Pencil } from "lucide-react";
+import { Save, ChevronDown, Plus, X, Mail, Phone, Bell, BellOff, Moon, Loader2, UserCheck, CalendarCheck, DollarSign, CalendarClock, RefreshCw, Handshake, PartyPopper, TrendingUp, Pencil, Users } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
 import NotificationTemplateEditor from "./NotificationTemplateEditor";
 
 interface NotificationConfig {
@@ -50,6 +52,8 @@ interface NotificationConfig {
   quiet_hours_enabled: boolean;
   quiet_hours_start: string;
   quiet_hours_end: string;
+  // Per-trigger recipients override
+  staff_trigger_recipients: Record<string, { emails: string[]; phones: string[] }>;
 }
 
 const DEFAULTS: NotificationConfig = {
@@ -87,6 +91,7 @@ const DEFAULTS: NotificationConfig = {
   quiet_hours_enabled: false,
   quiet_hours_start: "21:00",
   quiet_hours_end: "08:00",
+  staff_trigger_recipients: {},
 };
 
 const STAFF_TRIGGERS = [
@@ -164,6 +169,7 @@ export default function NotificationSettings() {
         customer_appointment_reminder_channels: (d.customer_appointment_reminder_channels as string[]) || ["email", "sms"],
         notify_customer_appointment_rescheduled: d.notify_customer_appointment_rescheduled ?? true,
         customer_appointment_rescheduled_channels: (d.customer_appointment_rescheduled_channels as string[]) || ["email", "sms"],
+        staff_trigger_recipients: (d.staff_trigger_recipients as Record<string, { emails: string[]; phones: string[] }>) || {},
       });
     }
     setLoading(false);
@@ -242,6 +248,49 @@ export default function NotificationSettings() {
 
   const toggle = (key: string) => setOpenSections(s => ({ ...s, [key]: !s[key] }));
 
+  const getTriggerRecipients = (triggerKey: string) => {
+    return config.staff_trigger_recipients[triggerKey] || null;
+  };
+
+  const toggleTriggerEmailRecipient = (triggerKey: string, email: string) => {
+    setConfig(c => {
+      const current = c.staff_trigger_recipients[triggerKey] || { emails: [...c.email_recipients], phones: [...c.sms_recipients] };
+      const emails = current.emails.includes(email)
+        ? current.emails.filter(e => e !== email)
+        : [...current.emails, email];
+      return {
+        ...c,
+        staff_trigger_recipients: {
+          ...c.staff_trigger_recipients,
+          [triggerKey]: { ...current, emails },
+        },
+      };
+    });
+  };
+
+  const toggleTriggerSmsRecipient = (triggerKey: string, phone: string) => {
+    setConfig(c => {
+      const current = c.staff_trigger_recipients[triggerKey] || { emails: [...c.email_recipients], phones: [...c.sms_recipients] };
+      const phones = current.phones.includes(phone)
+        ? current.phones.filter(p => p !== phone)
+        : [...current.phones, phone];
+      return {
+        ...c,
+        staff_trigger_recipients: {
+          ...c.staff_trigger_recipients,
+          [triggerKey]: { ...current, phones },
+        },
+      };
+    });
+  };
+
+  const resetTriggerRecipients = (triggerKey: string) => {
+    setConfig(c => {
+      const { [triggerKey]: _, ...rest } = c.staff_trigger_recipients;
+      return { ...c, staff_trigger_recipients: rest };
+    });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -275,6 +324,88 @@ export default function NotificationSettings() {
     </div>
   );
 
+  const renderRecipientSelector = (triggerKey: string, enabled: boolean) => {
+    if (!enabled) return null;
+    const isStaff = STAFF_TRIGGERS.some(t => t.key === triggerKey);
+    if (!isStaff) return null;
+
+    const override = getTriggerRecipients(triggerKey);
+    const hasOverride = override !== null;
+    const activeEmails = hasOverride ? override.emails : config.email_recipients;
+    const activePhones = hasOverride ? override.phones : config.sms_recipients;
+    const totalRecipients = activeEmails.length + activePhones.length;
+    const globalTotal = config.email_recipients.length + config.sms_recipients.length;
+
+    return (
+      <Popover>
+        <PopoverTrigger asChild>
+          <button
+            className={`flex items-center gap-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
+              hasOverride
+                ? "bg-accent/10 text-accent border border-accent/20"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            }`}
+            title="Select who receives this notification"
+          >
+            <Users className="w-3 h-3" />
+            {hasOverride ? `${totalRecipients}` : `All (${globalTotal})`}
+          </button>
+        </PopoverTrigger>
+        <PopoverContent className="w-64 p-3" align="end">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium">Recipients</p>
+              {hasOverride && (
+                <button
+                  onClick={() => resetTriggerRecipients(triggerKey)}
+                  className="text-xs text-muted-foreground hover:text-foreground"
+                >
+                  Reset to all
+                </button>
+              )}
+            </div>
+
+            {config.email_recipients.length > 0 && (
+              <div className="space-y-1.5">
+                <p className="text-xs text-muted-foreground flex items-center gap-1"><Mail className="w-3 h-3" /> Email</p>
+                {config.email_recipients.map(email => (
+                  <label key={email} className="flex items-center gap-2 text-xs cursor-pointer hover:bg-muted/50 rounded px-1 py-0.5">
+                    <Checkbox
+                      checked={activeEmails.includes(email)}
+                      onCheckedChange={() => toggleTriggerEmailRecipient(triggerKey, email)}
+                      className="h-3.5 w-3.5"
+                    />
+                    <span className="truncate">{email}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+
+            {config.sms_recipients.length > 0 && (
+              <div className="space-y-1.5">
+                <p className="text-xs text-muted-foreground flex items-center gap-1"><Phone className="w-3 h-3" /> SMS</p>
+                {config.sms_recipients.map(phone => (
+                  <label key={phone} className="flex items-center gap-2 text-xs cursor-pointer hover:bg-muted/50 rounded px-1 py-0.5">
+                    <Checkbox
+                      checked={activePhones.includes(phone)}
+                      onCheckedChange={() => toggleTriggerSmsRecipient(triggerKey, phone)}
+                      className="h-3.5 w-3.5"
+                    />
+                    <span>{formatPhone(phone) || phone}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+
+            {config.email_recipients.length === 0 && config.sms_recipients.length === 0 && (
+              <p className="text-xs text-muted-foreground italic">Add recipients in the Staff Recipients section above first.</p>
+            )}
+          </div>
+        </PopoverContent>
+      </Popover>
+    );
+  };
+
   const renderTriggerRow = (trigger: { key: string; label: string; desc: string; channelKey: string; icon: any }) => {
     const enabled = (config as any)[`notify_${trigger.key}`] as boolean;
     const channels = (config as any)[trigger.channelKey] as string[];
@@ -306,6 +437,7 @@ export default function NotificationSettings() {
               <Pencil className="w-3 h-3" />
             </button>
           )}
+          {renderRecipientSelector(trigger.key, enabled)}
           {enabled && renderChannelButtons(trigger.channelKey, channels)}
         </div>
       </div>

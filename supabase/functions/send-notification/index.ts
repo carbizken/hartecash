@@ -235,9 +235,16 @@ Deno.serve(async (req) => {
       if (body.recipient_phone) smsRecipients = [body.recipient_phone];
       else if (sub?.phone) smsRecipients = [sub.phone];
     } else if (isStaffTrigger) {
-      // Send to configured staff recipients
-      emailRecipients = (notifSettings as any)?.email_recipients || [];
-      smsRecipients = (notifSettings as any)?.sms_recipients || [];
+      // Check for per-trigger recipient overrides
+      const triggerRecipients = (notifSettings as any)?.staff_trigger_recipients?.[trigger_key];
+      if (triggerRecipients) {
+        emailRecipients = triggerRecipients.emails || [];
+        smsRecipients = triggerRecipients.phones || [];
+      } else {
+        // Fall back to global staff recipients
+        emailRecipients = (notifSettings as any)?.email_recipients || [];
+        smsRecipients = (notifSettings as any)?.sms_recipients || [];
+      }
     }
 
     // Check opt-outs for customer triggers

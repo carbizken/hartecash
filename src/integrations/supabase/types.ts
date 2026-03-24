@@ -407,6 +407,7 @@ export type Database = {
           sms_recipients: string[]
           staff_customer_accepted_channels: string[]
           staff_deal_completed_channels: string[]
+          staff_trigger_recipients: Json
           status_change_channels: string[]
           updated_at: string
         }
@@ -446,6 +447,7 @@ export type Database = {
           sms_recipients?: string[]
           staff_customer_accepted_channels?: string[]
           staff_deal_completed_channels?: string[]
+          staff_trigger_recipients?: Json
           status_change_channels?: string[]
           updated_at?: string
         }
@@ -485,6 +487,7 @@ export type Database = {
           sms_recipients?: string[]
           staff_customer_accepted_channels?: string[]
           staff_deal_completed_channels?: string[]
+          staff_trigger_recipients?: Json
           status_change_channels?: string[]
           updated_at?: string
         }
