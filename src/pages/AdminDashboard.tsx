@@ -2338,7 +2338,7 @@ const AdminDashboard = () => {
                     </p>
                     {selectedApptLocation && (
                       <p className="text-sm text-muted-foreground">
-                        📍 {STORE_LOCATIONS.find(l => l.value === selectedApptLocation)?.label || selectedApptLocation}
+                        📍 {getLocationLabel(selectedApptLocation)}
                       </p>
                     )}
                     <Button
