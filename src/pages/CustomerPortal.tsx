@@ -74,6 +74,19 @@ const STAGE_MAPPING: Record<string, string> = {
   dead_lead: "new",
 };
 
+const ACCEPTED_PORTAL_STATUSES = new Set([
+  "contacted",
+  "offer_made",
+  "inspection_scheduled",
+  "inspection_completed",
+  "appraisal_completed",
+  "manager_approval",
+  "price_agreed",
+  "title_verified",
+  "ownership_verified",
+  "purchase_complete",
+]);
+
 const CustomerPortal = () => {
   const { token } = useParams<{ token: string }>();
   const { config } = useSiteConfig();
