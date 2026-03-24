@@ -150,6 +150,7 @@ const OfferPage = () => {
   const [offerRules, setOfferRules] = useState<OfferRule[]>([]);
   const [saving, setSaving] = useState(false);
   const [appointment, setAppointment] = useState<{ preferred_date: string; preferred_time: string; store_location: string | null } | null>(null);
+  const [dealerLocations, setDealerLocations] = useState<{ id: string; name: string; city: string; state: string; address: string | null }[]>([]);
   
   const { config } = useSiteConfig();
   const { toast } = useToast();
@@ -169,8 +170,8 @@ const OfferPage = () => {
       setSubmission(sub);
       setLoading(false);
 
-      // Fetch condition details + offer config + appointment in parallel
-      const [condRes, settingsRes, rulesRes, apptRes] = await Promise.all([
+      // Fetch condition details + offer config + appointment + locations in parallel
+      const [condRes, settingsRes, rulesRes, apptRes, locRes] = await Promise.all([
         supabase
           .from("submissions")
           .select("accidents, drivable, exterior_damage, interior_damage, mechanical_issues, engine_issues, tech_issues, smoked_in, tires_replaced, num_keys, windshield_damage, modifications, drivetrain")
@@ -185,11 +186,16 @@ const OfferPage = () => {
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle(),
+        supabase
+          .from("dealership_locations")
+          .select("id, name, city, state, address")
+          .eq("is_active", true),
       ]);
       if (condRes.data) setCondition(condRes.data as ConditionDetails);
       if (settingsRes.data) setOfferSettings(settingsRes.data as unknown as OfferSettings);
       if (rulesRes.data) setOfferRules(rulesRes.data as unknown as OfferRule[]);
       if (apptRes.data) setAppointment(apptRes.data as { preferred_date: string; preferred_time: string; store_location: string | null });
+      if (locRes.data) setDealerLocations(locRes.data as any);
     };
     fetchData();
   }, [token]);
@@ -1087,6 +1093,22 @@ const OfferPage = () => {
 
   const portalUrl = `${window.location.origin}/my-submission/${token}`;
 
+  // Resolve location UUID to human-readable label
+  const getLocationLabel = (loc: string | null): string | null => {
+    if (!loc) return null;
+    const found = dealerLocations.find(l => l.id === loc || l.name.toLowerCase().replace(/\s+/g, "_") === loc);
+    if (found) return `${found.name} — ${found.city}, ${found.state}`;
+    return loc;
+  };
+
+  const getLocationAddress = (loc: string | null): string | null => {
+    if (!loc) return null;
+    const found = dealerLocations.find(l => l.id === loc || l.name.toLowerCase().replace(/\s+/g, "_") === loc);
+    if (found?.address) return `${found.address}, ${found.city}, ${found.state}`;
+    if (found) return `${found.city}, ${found.state}`;
+    return null;
+  };
+
   const PrintLayout = (
     <div className="hidden print:block print-offer-layout">
       {/* Premium Header */}
@@ -1255,7 +1277,10 @@ const OfferPage = () => {
                 <MapPin className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
                 <div>
                   <p className="text-[9px] text-muted-foreground uppercase tracking-wide">Location</p>
-                  <p className="font-semibold text-foreground">{appointment.store_location}</p>
+                  <p className="font-semibold text-foreground">{getLocationLabel(appointment.store_location)}</p>
+                  {getLocationAddress(appointment.store_location) && (
+                    <p className="text-[9px] text-muted-foreground">{getLocationAddress(appointment.store_location)}</p>
+                  )}
                 </div>
               </div>
             )}
@@ -1301,7 +1326,7 @@ const OfferPage = () => {
       {/* Footer */}
       <div className="border-t-2 border-primary/20 pt-2 flex items-center justify-between text-[9px] text-muted-foreground">
         <p className="font-medium">Offer valid subject to in-person inspection · {config.dealership_name || "Our Dealership"}</p>
-        <p>{config.phone} · {config.address}</p>
+        <p>{config.phone}{config.phone && config.address ? " · " : ""}{config.dealership_name}{config.address ? `, ${config.address}` : ""}</p>
       </div>
     </div>
   );
