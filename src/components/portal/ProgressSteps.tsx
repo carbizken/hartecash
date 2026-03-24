@@ -1,9 +1,12 @@
-import { CheckCircle, Circle } from "lucide-react";
+import { Link } from "react-router-dom";
+import { CheckCircle, Circle, Clock } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface ProgressStepsProps {
   currentStageIdx: number;
   isComplete: boolean;
+  appointmentSet: boolean;
+  scheduleLink: string;
 }
 
 const STEPS = [
@@ -14,7 +17,7 @@ const STEPS = [
   { label: "Check Received" },
 ];
 
-const ProgressSteps = ({ currentStageIdx, isComplete }: ProgressStepsProps) => {
+const ProgressSteps = ({ currentStageIdx, isComplete, appointmentSet, scheduleLink }: ProgressStepsProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -28,8 +31,12 @@ const ProgressSteps = ({ currentStageIdx, isComplete }: ProgressStepsProps) => {
           const done = isComplete || currentStageIdx > i;
           const active = currentStageIdx === i && !isComplete;
 
-          return (
-            <div key={step.label} className="flex flex-col items-center flex-1 relative">
+          // Special: step 1 (Inspection Done) — show pending yellow if active & not yet scheduled
+          const isPendingInspection = i === 1 && active && !appointmentSet;
+          const isClickable = isPendingInspection;
+
+          const node = (
+            <div key={step.label} className={`flex flex-col items-center flex-1 relative ${isClickable ? "cursor-pointer group" : ""}`}>
               {/* Connector line */}
               {i > 0 && (
                 <div className="absolute top-3 -left-1/2 w-full h-0.5">
@@ -43,6 +50,13 @@ const ProgressSteps = ({ currentStageIdx, isComplete }: ProgressStepsProps) => {
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: i * 0.1, type: "spring" }}>
                     <CheckCircle className="w-6 h-6 text-success" />
                   </motion.div>
+                ) : isPendingInspection ? (
+                  <div className="relative">
+                    <div className="w-6 h-6 rounded-full bg-yellow-500 flex items-center justify-center group-hover:bg-yellow-400 transition-colors">
+                      <Clock className="w-3.5 h-3.5 text-white" />
+                    </div>
+                    <span className="absolute inset-0 rounded-full animate-ping bg-yellow-500/30" />
+                  </div>
                 ) : active ? (
                   <div className="relative">
                     <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center">
@@ -57,12 +71,25 @@ const ProgressSteps = ({ currentStageIdx, isComplete }: ProgressStepsProps) => {
 
               {/* Label */}
               <span className={`text-[11px] leading-tight text-center font-medium ${
-                done ? "text-card-foreground" : active ? "text-accent font-bold" : "text-muted-foreground/50"
+                done ? "text-card-foreground"
+                  : isPendingInspection ? "text-yellow-600 dark:text-yellow-400 font-bold"
+                  : active ? "text-accent font-bold"
+                  : "text-muted-foreground/50"
               }`}>
                 {step.label}
               </span>
+              {isPendingInspection && (
+                <span className="text-[9px] text-yellow-600 dark:text-yellow-400 mt-0.5 underline group-hover:no-underline">
+                  Schedule now
+                </span>
+              )}
             </div>
           );
+
+          if (isClickable) {
+            return <Link key={step.label} to={scheduleLink} className="flex-1">{node}</Link>;
+          }
+          return node;
         })}
       </div>
     </motion.div>
@@ -71,7 +98,7 @@ const ProgressSteps = ({ currentStageIdx, isComplete }: ProgressStepsProps) => {
 
 export default ProgressSteps;
 
-/** Map the DB status to 0-3 index for the 4-step bar */
+/** Map the DB status to 0-4 index for the 5-step bar */
 export function mapStatusToStepIndex(mappedStatus: string): number {
   switch (mappedStatus) {
     case "new":
