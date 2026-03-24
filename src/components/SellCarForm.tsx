@@ -314,6 +314,26 @@ const SellCarForm = ({ leadSource = "inventory" }: SellCarFormProps) => {
 
       if (error) throw error;
 
+      // Fire new_submission staff notification
+      const { data: insertedSub } = await supabase
+        .from("submissions")
+        .select("id, is_hot_lead")
+        .eq("token", generatedToken)
+        .maybeSingle();
+
+      if (insertedSub) {
+        supabase.functions.invoke("send-notification", {
+          body: { trigger_key: "new_submission", submission_id: insertedSub.id },
+        }).catch(console.error);
+
+        // If hot lead, fire hot_lead notification too
+        if (insertedSub.is_hot_lead) {
+          supabase.functions.invoke("send-notification", {
+            body: { trigger_key: "hot_lead", submission_id: insertedSub.id },
+          }).catch(console.error);
+        }
+      }
+
       localStorage.setItem("lastSubmissionTime", Date.now().toString());
 
       logConsent({

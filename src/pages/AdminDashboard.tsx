@@ -2585,6 +2585,12 @@ const AdminDashboard = () => {
                             body: { trigger_key: "staff_deal_completed", submission_id: selected.id },
                           }).catch(console.error);
                         }
+                        // Status Change: any status change
+                        if (oldSub.progress_status !== selected.progress_status) {
+                          supabase.functions.invoke("send-notification", {
+                            body: { trigger_key: "status_change", submission_id: selected.id },
+                          }).catch(console.error);
+                        }
                       }
                       // Re-fetch submission to get server-set fields like appraised_by
                       const { data: refreshed } = await supabase.from("submissions").select("*").eq("id", selected.id).maybeSingle();

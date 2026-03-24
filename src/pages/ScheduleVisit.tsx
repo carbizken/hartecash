@@ -151,6 +151,26 @@ const ScheduleVisit = () => {
         body: { appointment: form },
       });
 
+      // Fire appointment_booked staff notification
+      if (submissionToken) {
+        const { data: sub } = await supabase
+          .from("submissions")
+          .select("id")
+          .eq("token", submissionToken)
+          .maybeSingle();
+        if (sub) {
+          supabase.functions.invoke("send-notification", {
+            body: {
+              trigger_key: "appointment_booked",
+              submission_id: sub.id,
+              appointment_date: form.preferred_date,
+              appointment_time: form.preferred_time,
+              location: form.store_location || "",
+            },
+          }).catch(console.error);
+        }
+      }
+
       // Log TCPA consent
       logConsent({
         customerName: form.customer_name,
