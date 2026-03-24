@@ -149,7 +149,31 @@ const VehicleImageInventory = () => {
     setRegeneratingId(null);
   };
 
-  const filtered = images.filter((img) => {
+  const handleBulkDelete = async () => {
+    setBulkDeleting(true);
+    try {
+      // Delete all files from storage
+      const paths = images.map((img) => img.storage_path);
+      if (paths.length > 0) {
+        await supabase.storage.from("submission-photos").remove(paths);
+      }
+
+      // Delete all cache entries
+      const ids = images.map((img) => img.id);
+      for (let i = 0; i < ids.length; i += 50) {
+        const batch = ids.slice(i, i + 50);
+        await supabase.from("vehicle_image_cache").delete().in("id", batch);
+      }
+
+      setImages([]);
+      toast({ title: "All cleared", description: `${paths.length} cached image${paths.length !== 1 ? "s" : ""} deleted.` });
+    } catch (err: any) {
+      toast({ title: "Bulk delete failed", description: err.message, variant: "destructive" });
+    }
+    setBulkDeleting(false);
+    setShowBulkDelete(false);
+  };
+
     if (!search) return true;
     const q = search.toLowerCase();
     return (
