@@ -847,7 +847,7 @@ const OfferPage = () => {
                           </span>
                           <span className="font-medium text-card-foreground whitespace-nowrap">{categoryLabel}</span>
                           <InlineEdit
-                            value={item.editOptions?.find(o => o.value === item.editValue)?.label || answerPart}
+                            value={item.editValue || answerPart}
                             onSave={(val) => handleFieldUpdate(item.field!, val)}
                             type="select"
                             options={item.editOptions!}
