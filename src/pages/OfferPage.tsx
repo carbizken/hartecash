@@ -820,34 +820,60 @@ const OfferPage = () => {
                   {item.status === "good" ? <CheckCircle className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  {canEdit && item.field && item.editType === "select" ? (
-                    <InlineEdit
-                      value={item.editOptions?.find(o => o.value === item.editValue)?.label || item.label}
-                      onSave={(val) => handleFieldUpdate(item.field!, val)}
-                      type="select"
-                      options={item.editOptions!}
-                      label={item.field}
-                      className="text-sm capitalize"
-                    />
-                  ) : canEdit && item.field && item.editType === "multi-select" ? (
-                    <InlineEdit
-                      value=""
-                      onSave={() => {}}
-                      type="multi-select"
-                      options={item.editOptions!}
-                      multiValue={item.multiEditValue}
-                      onMultiSave={(vals) => handleFieldUpdate(item.field!, vals)}
-                      label={item.field}
-                      className="text-sm capitalize"
-                    />
-                  ) : (
-                    <div className="flex items-center gap-1.5">
-                      <span className={`shrink-0 ${item.status === "good" ? "text-muted-foreground" : "text-amber-600 dark:text-amber-400"}`}>
-                        {item.icon}
-                      </span>
-                      <span className="text-sm capitalize truncate">{item.label}</span>
-                    </div>
-                  )}
+                  {(() => {
+                    const categoryLabel = item.label.includes(":") ? item.label.split(":")[0] + ":" : "";
+                    const answerPart = item.label.includes(":") ? item.label.split(":").slice(1).join(":").trim() : item.label;
+                    
+                    if (canEdit && item.field && item.editType === "select") {
+                      return (
+                        <div className="flex items-center gap-1.5 text-sm">
+                          <span className={`shrink-0 ${item.status === "good" ? "text-muted-foreground" : "text-amber-600 dark:text-amber-400"}`}>
+                            {item.icon}
+                          </span>
+                          <span className="font-medium text-card-foreground whitespace-nowrap">{categoryLabel}</span>
+                          <InlineEdit
+                            value={item.editOptions?.find(o => o.value === item.editValue)?.label || answerPart}
+                            onSave={(val) => handleFieldUpdate(item.field!, val)}
+                            type="select"
+                            options={item.editOptions!}
+                            label={item.field}
+                            className="text-sm"
+                          />
+                        </div>
+                      );
+                    }
+                    if (canEdit && item.field && item.editType === "multi-select") {
+                      return (
+                        <div className="flex items-center gap-1.5 text-sm">
+                          <span className={`shrink-0 ${item.status === "good" ? "text-muted-foreground" : "text-amber-600 dark:text-amber-400"}`}>
+                            {item.icon}
+                          </span>
+                          <span className="font-medium text-card-foreground whitespace-nowrap">{categoryLabel}</span>
+                          <InlineEdit
+                            value=""
+                            onSave={() => {}}
+                            type="multi-select"
+                            options={item.editOptions!}
+                            multiValue={item.multiEditValue}
+                            onMultiSave={(vals) => handleFieldUpdate(item.field!, vals)}
+                            label={item.field}
+                            className="text-sm"
+                          />
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="flex items-center gap-1.5">
+                        <span className={`shrink-0 ${item.status === "good" ? "text-muted-foreground" : "text-amber-600 dark:text-amber-400"}`}>
+                          {item.icon}
+                        </span>
+                        <span className="text-sm">
+                          <span className="font-medium text-card-foreground">{categoryLabel}</span>{" "}
+                          <span className="text-muted-foreground">{answerPart}</span>
+                        </span>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
