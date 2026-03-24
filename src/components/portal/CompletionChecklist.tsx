@@ -79,8 +79,8 @@ const CompletionChecklist = ({ photosUploaded, docsUploaded, appointmentSet, tok
               ) : (
                 <Circle className="w-5 h-5 text-muted-foreground/40 flex-shrink-0" />
               )}
-              <Icon className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              <span className={`text-sm flex-1 ${item.done ? "text-card-foreground" : "text-muted-foreground"}`}>
+              <Icon className={`w-4 h-4 flex-shrink-0 ${item.done ? "text-success" : "text-muted-foreground"}`} />
+              <span className={`text-sm flex-1 ${item.done ? "text-success font-medium" : "text-muted-foreground"}`}>
                 {item.label}
               </span>
               {!item.done && (
@@ -89,7 +89,9 @@ const CompletionChecklist = ({ photosUploaded, docsUploaded, appointmentSet, tok
                 </span>
               )}
               {item.done && item.label !== "Schedule Inspection" && (
-                <span className="text-xs text-muted-foreground">Upload more</span>
+                <span className="text-xs text-success font-medium flex items-center gap-1">
+                  Upload More <ArrowRight className="w-3 h-3" />
+                </span>
               )}
               {item.done && item.label === "Schedule Inspection" && (
                 <span className="text-xs text-success font-medium">Booked ✓</span>
