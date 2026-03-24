@@ -39,6 +39,8 @@ interface NotificationConfig {
   customer_appointment_channels: string[];
   notify_customer_offer_ready: boolean;
   customer_offer_ready_channels: string[];
+  notify_customer_offer_increased: boolean;
+  customer_offer_increased_channels: string[];
   notify_customer_appointment_reminder: boolean;
   customer_appointment_reminder_channels: string[];
   notify_customer_appointment_rescheduled: boolean;
