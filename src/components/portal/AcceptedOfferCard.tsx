@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { DollarSign, TrendingUp, CheckCircle, ShieldCheck, Clock, PartyPopper } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { getTaxRateFromZip, calcTradeInValue, STATE_NAMES } from "@/lib/salesTax";
 
 interface AcceptedOfferCardProps {
@@ -40,8 +40,6 @@ const AcceptedOfferCard = ({
   guaranteeDays,
   compact = false,
 }: AcceptedOfferCardProps) => {
-  const [activeTab, setActiveTab] = useState<"sell" | "trade">("sell");
-
   const { state, rate: taxRate } = getTaxRateFromZip(zip || "");
   const stateName = state ? STATE_NAMES[state] || state : null;
   const taxPercent = (taxRate * 100).toFixed(2);
@@ -54,39 +52,6 @@ const AcceptedOfferCard = ({
   const { days, hours, isExpired } = useCountdown(expiresDate);
 
   const hasTax = taxRate > 0;
-
-  const CountdownBadge = (
-    <div
-      className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-semibold ${
-        isExpired
-          ? "bg-destructive/10 text-destructive"
-          : days <= 2
-          ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-          : "bg-success/10 text-success"
-      }`}
-    >
-      {isExpired ? (
-        <>
-          <Clock className="w-4 h-4" />
-          <span>Price guarantee expired — contact us for renewal</span>
-        </>
-      ) : (
-        <>
-          <ShieldCheck className="w-4 h-4" />
-          <span>
-            {days > 0
-              ? `${days}d ${hours}h remaining`
-              : `${hours}h remaining`}
-            {expiresDate && (
-              <span className="opacity-70">
-                {" "}· expires {expiresDate.toLocaleDateString()}
-              </span>
-            )}
-          </span>
-        </>
-      )}
-    </div>
-  );
 
   return (
     <motion.div
@@ -109,130 +74,95 @@ const AcceptedOfferCard = ({
         </div>
       </div>
 
-      {/* Tab switcher — only show if tax available */}
-      {hasTax && (
-        <div className="px-4 pt-4">
-          <div className="relative flex bg-muted/60 rounded-2xl p-1 border border-border/50">
-            <motion.div
-              className="absolute top-1 bottom-1 rounded-xl bg-gradient-to-r from-success to-success/80 shadow-lg shadow-success/20"
-              layout
-              transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              style={{
-                width: "calc(50% - 4px)",
-                left: activeTab === "sell" ? "4px" : "calc(50% + 0px)",
-              }}
-            />
-            <button
-              onClick={() => setActiveTab("sell")}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-2 text-xs font-bold py-2.5 px-3 rounded-xl transition-colors duration-200 ${
-                activeTab === "sell"
-                  ? "text-white"
-                  : "text-muted-foreground hover:text-card-foreground"
-              }`}
-            >
-              <DollarSign className="w-3.5 h-3.5" />
-              Cash Offer
-            </button>
-            <button
-              onClick={() => setActiveTab("trade")}
-              className={`relative z-10 flex-1 flex items-center justify-center gap-2 text-xs font-bold py-2.5 px-3 rounded-xl transition-colors duration-200 ${
-                activeTab === "trade"
-                  ? "text-white"
-                  : "text-muted-foreground hover:text-card-foreground"
-              }`}
-            >
-              <TrendingUp className="w-3.5 h-3.5" />
-              Trade-In Value
-            </button>
+      <div className={compact ? "p-4 space-y-4" : "p-5 space-y-5"}>
+        {/* Cash offer — always shown */}
+        <div className="text-center">
+          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground mb-1">
+            <DollarSign className="w-3.5 h-3.5" />
+            Accepted Cash Offer
           </div>
+          <p className={`font-extrabold text-success tracking-tight ${compact ? "text-3xl" : "text-3xl md:text-4xl"}`}>
+            ${offeredPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </p>
         </div>
-      )}
 
-      {/* Offer display */}
-      <div className={compact ? "p-4" : "p-5"}>
-        <AnimatePresence mode="wait">
-          {activeTab === "sell" ? (
-            <motion.div
-              key="sell"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2 }}
-              className="text-center"
-            >
-              <p className="text-xs text-muted-foreground mb-1">
-                Accepted Cash Offer
-              </p>
-              <p className={`font-extrabold text-success tracking-tight ${compact ? "text-3xl" : "text-3xl md:text-4xl"}`}>
-                ${offeredPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </p>
-              {hasTax && (
-                <button
-                  onClick={() => setActiveTab("trade")}
-                  className="mt-2 mx-auto flex items-center gap-1.5 text-xs font-medium text-success hover:text-success/80 transition-colors"
-                >
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  Worth ${tradeInValue.toLocaleString("en-US", { maximumFractionDigits: 0 })} as a trade-in
-                </button>
-              )}
-            </motion.div>
+        {/* Trade-in section — shown when tax applies */}
+        {hasTax && (
+          <div className="bg-success/5 border border-success/20 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-2 mb-1">
+              <TrendingUp className="w-4 h-4 text-success" />
+              <span className="text-xs font-bold text-success uppercase tracking-wider">Trade-In Total Value</span>
+            </div>
+            <p className={`font-extrabold text-success tracking-tight text-center ${compact ? "text-2xl" : "text-2xl md:text-3xl"}`}>
+              ${tradeInValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </p>
+
+            {/* Tax breakdown */}
+            <div className="bg-card rounded-lg p-3 space-y-2 text-sm">
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Cash offer</span>
+                <span className="font-semibold">
+                  ${offeredPrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">
+                  {stateName} tax rate
+                </span>
+                <span className="font-semibold">{taxPercent}%</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Tax credit savings</span>
+                <span className="font-semibold text-success">
+                  +${taxSavings.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+              <div className="border-t border-border pt-2 flex justify-between items-center">
+                <span className="font-bold text-card-foreground">Total trade-in value</span>
+                <span className="font-extrabold text-success">
+                  ${tradeInValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Countdown badge */}
+        <div
+          className={`flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-semibold ${
+            isExpired
+              ? "bg-destructive/10 text-destructive"
+              : days <= 2
+              ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+              : "bg-success/10 text-success"
+          }`}
+        >
+          {isExpired ? (
+            <>
+              <Clock className="w-4 h-4" />
+              <span>Price guarantee expired — contact us for renewal</span>
+            </>
           ) : (
-            <motion.div
-              key="trade"
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.2 }}
-            >
-              <div className="text-center mb-3">
-                <p className="text-xs text-muted-foreground mb-1">
-                  Accepted Trade-In Total Value
-                </p>
-                <p className={`font-extrabold text-success tracking-tight ${compact ? "text-3xl" : "text-3xl md:text-4xl"}`}>
-                  ${tradeInValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                </p>
-              </div>
-
-              {/* Tax breakdown */}
-              <div className="bg-muted/50 rounded-lg p-3 space-y-2 text-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Cash offer</span>
-                  <span className="font-semibold">
-                    ${offeredPrice.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+            <>
+              <ShieldCheck className="w-4 h-4" />
+              <span>
+                {days > 0
+                  ? `${days}d ${hours}h remaining`
+                  : `${hours}h remaining`}
+                {expiresDate && (
+                  <span className="opacity-70">
+                    {" "}· expires {expiresDate.toLocaleDateString()}
                   </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">
-                    {stateName} tax rate
-                  </span>
-                  <span className="font-semibold">{taxPercent}%</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Tax credit savings</span>
-                  <span className="font-semibold text-success">
-                    +${taxSavings.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-                <div className="border-t border-border pt-2 flex justify-between items-center">
-                  <span className="font-bold text-card-foreground">Total trade-in value</span>
-                  <span className="font-extrabold text-success">
-                    ${tradeInValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-              </div>
-            </motion.div>
+                )}
+              </span>
+            </>
           )}
-        </AnimatePresence>
-
-        {/* Countdown */}
-        <div className="mt-4">
-          {CountdownBadge}
         </div>
 
         {/* Link to full offer */}
         <Link
           to={`/offer/${token}`}
-          className="mt-3 block text-center text-xs text-primary hover:text-primary/80 font-medium transition-colors"
+          className="block text-center text-xs text-primary hover:text-primary/80 font-medium transition-colors"
         >
           View full offer details →
         </Link>
