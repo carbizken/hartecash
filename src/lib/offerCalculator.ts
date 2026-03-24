@@ -243,7 +243,7 @@ export function calculateOffer(
   }
   if (ded.not_drivable && formData.drivable === "no") deductions += amt.not_drivable;
   if (ded.smoked_in && formData.smokedIn === "yes") deductions += amt.smoked_in;
-  if (ded.tires_not_replaced && formData.tiresReplaced === "no") deductions += amt.tires_not_replaced;
+  if (ded.tires_not_replaced && (!formData.tiresReplaced || formData.tiresReplaced.toLowerCase() === "no" || formData.tiresReplaced.toLowerCase() === "none" || formData.tiresReplaced === "0")) deductions += amt.tires_not_replaced;
   if (ded.missing_keys) {
     if (formData.numKeys === "1") deductions += amt.missing_keys_1;
     else if (formData.numKeys === "0") deductions += amt.missing_keys_0;

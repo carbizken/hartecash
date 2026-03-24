@@ -111,7 +111,7 @@ export function recalculateFromSubmission(
   }
   if (ded.not_drivable && condition.drivable === "no") deductions += amt.not_drivable;
   if (ded.smoked_in && condition.smoked_in === "yes") deductions += amt.smoked_in;
-  if (ded.tires_not_replaced && condition.tires_replaced === "no") deductions += amt.tires_not_replaced;
+  if (ded.tires_not_replaced && (!condition.tires_replaced || condition.tires_replaced.toLowerCase() === "no" || condition.tires_replaced.toLowerCase() === "none" || condition.tires_replaced === "0")) deductions += amt.tires_not_replaced;
   if (ded.missing_keys) {
     if (condition.num_keys === "1") deductions += amt.missing_keys_1;
     else if (condition.num_keys === "0") deductions += amt.missing_keys_0;
