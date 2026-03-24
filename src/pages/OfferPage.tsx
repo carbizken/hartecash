@@ -38,6 +38,7 @@ interface OfferSubmission {
   vin: string | null;
   created_at: string | null;
   loan_status: string | null;
+  progress_status: string | null;
 }
 
 interface ConditionDetails {
@@ -305,6 +306,8 @@ const OfferPage = () => {
   const firstName = s.name?.split(" ")[0] || "";
 
   const hasOfferedPrice = !!s.offered_price;
+  const ACCEPTED_STATUSES = ['contacted', 'inspection_scheduled', 'inspection_completed', 'appraisal_completed', 'manager_approval', 'price_agreed', 'docs_title', 'purchase_complete'];
+  const isAccepted = hasOfferedPrice || (!!s.progress_status && ACCEPTED_STATUSES.includes(s.progress_status));
   const hasEstimate = !!s.estimated_offer_high;
   const cashOffer = s.offered_price || s.estimated_offer_high || 0;
   const estimateLow = s.estimated_offer_low || 0;
@@ -412,7 +415,7 @@ const OfferPage = () => {
 
   const AcceptButton = (
     <div className="print:hidden space-y-2">
-      {hasOfferedPrice ? (
+      {isAccepted ? (
         <div className="w-full py-3 flex items-center justify-center gap-2 rounded-xl bg-success text-white font-bold text-base">
           <CheckCircle className="w-5 h-5" />
           Offer Accepted
