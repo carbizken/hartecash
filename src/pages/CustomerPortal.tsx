@@ -290,7 +290,6 @@ const CustomerPortal = () => {
                 <PortalVehicleSummary {...vehicleSummaryProps} />
                 <DealerContactCard />
                 <CommunicationPreferences token={s.token} email={s.email} phone={s.phone} />
-                {SubmittedFooter}
               </div>
             </div>
 
