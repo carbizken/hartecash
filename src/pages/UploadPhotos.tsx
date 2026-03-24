@@ -177,6 +177,12 @@ const UploadPhotos = () => {
       );
       if (allRequiredPresent) {
         await supabase.rpc("mark_photos_uploaded", { _token: token });
+        // Fire photos_uploaded staff notification
+        if (submission?.id) {
+          supabase.functions.invoke("send-notification", {
+            body: { trigger_key: "photos_uploaded", submission_id: submission.id },
+          }).catch(console.error);
+        }
       }
 
       setDone(true);

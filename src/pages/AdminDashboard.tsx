@@ -687,6 +687,10 @@ const AdminDashboard = () => {
           body: { trigger_key: "staff_deal_completed", submission_id: sub.id },
         }).catch(console.error);
       }
+      // Status Change notification (for any status change)
+      supabase.functions.invoke("send-notification", {
+        body: { trigger_key: "status_change", submission_id: sub.id },
+      }).catch(console.error);
       toast({ title: "Status updated" });
     } else {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -2579,6 +2583,12 @@ const AdminDashboard = () => {
                         if (oldSub.progress_status !== "purchase_complete" && selected.progress_status === "purchase_complete") {
                           supabase.functions.invoke("send-notification", {
                             body: { trigger_key: "staff_deal_completed", submission_id: selected.id },
+                          }).catch(console.error);
+                        }
+                        // Status Change: any status change
+                        if (oldSub.progress_status !== selected.progress_status) {
+                          supabase.functions.invoke("send-notification", {
+                            body: { trigger_key: "status_change", submission_id: selected.id },
                           }).catch(console.error);
                         }
                       }

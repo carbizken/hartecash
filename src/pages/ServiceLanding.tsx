@@ -232,6 +232,19 @@ const ServiceLanding = () => {
 
       if (error) throw error;
 
+      // Fire new_submission staff notification
+      const { data: insertedSub } = await supabase
+        .from("submissions")
+        .select("id")
+        .eq("token", generatedToken)
+        .maybeSingle();
+
+      if (insertedSub) {
+        supabase.functions.invoke("send-notification", {
+          body: { trigger_key: "new_submission", submission_id: insertedSub.id },
+        }).catch(console.error);
+      }
+
       // If the customer has a pre-populated service appointment, create an appointment record
       if (hasScheduledAppointment) {
         const vehicleDesc = vehicleInfo
@@ -249,6 +262,18 @@ const ServiceLanding = () => {
           status: "confirmed",
           notes: `Auto-created from service appointment. Appraisal scheduled during service visit on ${formattedAppointment}.`,
         });
+
+        // Fire appointment_booked staff notification
+        if (insertedSub) {
+          supabase.functions.invoke("send-notification", {
+            body: {
+              trigger_key: "appointment_booked",
+              submission_id: insertedSub.id,
+              appointment_date: appointmentDate,
+              appointment_time: decodeURIComponent(appointmentTime),
+            },
+          }).catch(console.error);
+        }
       }
 
       setUploadUrl(`${window.location.origin}/upload/${generatedToken}`);

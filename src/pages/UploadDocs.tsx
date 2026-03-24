@@ -97,6 +97,12 @@ const UploadDocs = () => {
         if (docType === "drivers_license_front") dlFrontPath = path;
       }
       await supabase.rpc("mark_docs_uploaded", { _token: token! });
+      // Fire docs_uploaded staff notification
+      if (submission?.id) {
+        supabase.functions.invoke("send-notification", {
+          body: { trigger_key: "docs_uploaded", submission_id: submission.id },
+        }).catch(console.error);
+      }
 
       // Trigger OCR on driver's license front if uploaded
       if (dlFrontPath) {
