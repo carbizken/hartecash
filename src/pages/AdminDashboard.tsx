@@ -939,12 +939,15 @@ const AdminDashboard = () => {
     };
 
     // Fetch all supporting documents in parallel
-    const [appraisalImages, dlImages, titleImages, payoffImages] = await Promise.all([
+    const [appraisalImages, dlImages, dlFrontImages, dlBackImages, titleImages, payoffImages] = await Promise.all([
       fetchDocImages("appraisal"),
       fetchDocImages("drivers_license"),
+      fetchDocImages("drivers_license_front"),
+      fetchDocImages("drivers_license_back"),
       fetchDocImages("title"),
       fetchDocImages("payoff_verification"),
     ]);
+    const allDlImages = [...dlImages, ...dlFrontImages, ...dlBackImages];
 
     const printWindow = window.open("", "_blank", "width=800,height=600");
     if (!printWindow) return;
