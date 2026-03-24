@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { CheckCircle, Circle, Camera, FileText, CalendarCheck, ArrowRight } from "lucide-react";
+import { CheckCircle, Circle, Camera, FileText, CalendarCheck, ArrowRight, PartyPopper } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface CompletionChecklistProps {
@@ -43,13 +43,24 @@ const CompletionChecklist = ({ photosUploaded, docsUploaded, appointmentSet, tok
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.15 }}
-      className="bg-card rounded-xl p-5 shadow-lg"
+      className={`rounded-xl p-5 shadow-lg transition-colors ${allDone ? "bg-success/5 ring-2 ring-success/30" : "bg-card"}`}
     >
-      <div className="flex items-center gap-2 mb-3">
-        <h3 className="font-bold text-card-foreground">Your Checklist</h3>
-        <span className="text-xs text-muted-foreground ml-auto">{doneCount}/{items.length}</span>
-        {allDone && <span className="text-xs bg-success/10 text-success font-semibold px-2 py-0.5 rounded-full">All done!</span>}
-      </div>
+      {allDone ? (
+        <div className="flex items-start gap-3 mb-4">
+          <PartyPopper className="w-6 h-6 text-success flex-shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-bold text-success text-base">You're All Set!</h3>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              Everything looks great — we'll see you at your inspection to complete the sale. Just bring your vehicle and ID!
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 mb-3">
+          <h3 className="font-bold text-card-foreground">Your Checklist</h3>
+          <span className="text-xs text-muted-foreground ml-auto">{doneCount}/{items.length}</span>
+        </div>
+      )}
 
       {/* Mini progress bar */}
       <div className="w-full h-1.5 bg-muted rounded-full mb-3 overflow-hidden">
