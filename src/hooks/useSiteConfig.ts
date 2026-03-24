@@ -23,6 +23,7 @@ export interface SiteConfig {
   stats_reviews_count: string;
   enable_animations: boolean;
   use_animated_calculating: boolean;
+  enable_dl_ocr: boolean;
 }
 
 const DEFAULTS: SiteConfig = {
