@@ -331,7 +331,6 @@ const CustomerPortal = () => {
           <PortalFAQ />
           <DealerContactCard />
           <CommunicationPreferences token={s.token} email={s.email} phone={s.phone} />
-          {SubmittedFooter}
         </div>
       </div>
 
