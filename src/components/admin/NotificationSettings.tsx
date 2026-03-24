@@ -100,7 +100,8 @@ const STAFF_TRIGGERS = [
 ] as const;
 
 const CUSTOMER_TRIGGERS = [
-  { key: "customer_offer_ready", label: "Offer Ready", desc: "Notify customer when their cash offer has been set — includes offer amount & link to view", channelKey: "customer_offer_ready_channels", icon: DollarSign },
+  { key: "customer_offer_ready", label: "Offer Ready", desc: "Notify customer that their offer is ready with a link to view it (does not include the amount)", channelKey: "customer_offer_ready_channels", icon: DollarSign },
+  { key: "customer_offer_increased", label: "Offer Increased", desc: "Notify customer when staff increases their offer before it's been accepted", channelKey: "customer_offer_increased_channels", icon: TrendingUp },
   { key: "customer_offer_accepted", label: "Offer Accepted Confirmation", desc: "Confirm the accepted offer amount, vehicle details, and next steps", channelKey: "customer_offer_accepted_channels", icon: UserCheck },
   { key: "customer_appointment_booked", label: "Appointment Confirmation", desc: "Send appointment date/time, dealership address, accepted offer, and what to bring", channelKey: "customer_appointment_channels", icon: CalendarCheck },
   { key: "customer_appointment_reminder", label: "Appointment Reminder (24hr)", desc: "Remind customer 24 hours before their scheduled inspection with address and what to bring", channelKey: "customer_appointment_reminder_channels", icon: CalendarClock },
