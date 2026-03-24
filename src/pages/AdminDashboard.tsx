@@ -220,6 +220,7 @@ const AdminDashboard = () => {
   const [rescheduleAppt, setRescheduleAppt] = useState<Appointment | null>(null);
   const [rescheduleForm, setRescheduleForm] = useState({ preferred_date: "", preferred_time: "" });
   const [userRole, setUserRole] = useState<string>("");
+  const [userName, setUserName] = useState<string>("");
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [activityLog, setActivityLog] = useState<{ id: string; action: string; old_value: string | null; new_value: string | null; performed_by: string | null; created_at: string }[]>([]);
   const [duplicateWarnings, setDuplicateWarnings] = useState<Record<string, string[]>>({});
@@ -244,6 +245,12 @@ const AdminDashboard = () => {
   const canDelete = userRole === "admin";
   const canManageAccess = userRole === "admin";
   const canUpdateStatus = true; // all staff
+
+  const auditLabel = userName
+    ? `${userName} — ${ROLE_LABELS[userRole] || userRole}`
+    : ROLE_LABELS[userRole] || userRole;
+
+
 
   useEffect(() => {
     checkAuth();
@@ -295,6 +302,17 @@ const AdminDashboard = () => {
       navigate("/admin/login");
     } else {
       setUserRole(roleData.role);
+      // Fetch display name for audit trail
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+      if (profileData?.display_name) {
+        setUserName(profileData.display_name);
+      } else {
+        setUserName(session.user.email || "");
+      }
     }
   };
 
@@ -681,7 +699,7 @@ const AdminDashboard = () => {
         action: "Status Changed",
         old_value: getStatusLabel(oldStatus),
         new_value: getStatusLabel(newStatus),
-        performed_by: userRole,
+        performed_by: auditLabel,
       });
       // Deal Completed notification
       if (oldStatus !== "purchase_complete" && newStatus === "purchase_complete") {
@@ -2574,7 +2592,7 @@ const AdminDashboard = () => {
                           action: "Status Changed",
                           old_value: getStatusLabel(oldSub.progress_status),
                           new_value: getStatusLabel(selected.progress_status),
-                          performed_by: userRole,
+                          performed_by: auditLabel,
                         });
                       }
                       if (oldSub && oldSub.offered_price !== selected.offered_price) {
@@ -2583,7 +2601,7 @@ const AdminDashboard = () => {
                           action: "Price Updated",
                           old_value: oldSub.offered_price ? `$${oldSub.offered_price.toLocaleString()}` : "None",
                           new_value: selected.offered_price ? `$${selected.offered_price.toLocaleString()}` : "None",
-                          performed_by: userRole,
+                          performed_by: auditLabel,
                         });
                       }
                       // ── Notification triggers ──
