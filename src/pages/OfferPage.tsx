@@ -987,6 +987,7 @@ const OfferPage = () => {
             Actual tax may vary. Applies when used as trade-in on a new or pre-owned vehicle purchase.
           </p>
         </div>
+        </div>
       </motion.div>
     </div>
   );
