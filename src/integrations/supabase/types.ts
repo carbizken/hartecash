@@ -330,6 +330,8 @@ export type Database = {
         Row: {
           appointment_channels: string[]
           created_at: string
+          customer_appointment_channels: string[]
+          customer_offer_accepted_channels: string[]
           dealership_id: string
           docs_uploaded_channels: string[]
           email_recipients: string[]
@@ -337,6 +339,8 @@ export type Database = {
           id: string
           new_submission_channels: string[]
           notify_appointment_booked: boolean
+          notify_customer_appointment_booked: boolean
+          notify_customer_offer_accepted: boolean
           notify_docs_uploaded: boolean
           notify_hot_lead: boolean
           notify_new_submission: boolean
@@ -353,6 +357,8 @@ export type Database = {
         Insert: {
           appointment_channels?: string[]
           created_at?: string
+          customer_appointment_channels?: string[]
+          customer_offer_accepted_channels?: string[]
           dealership_id?: string
           docs_uploaded_channels?: string[]
           email_recipients?: string[]
@@ -360,6 +366,8 @@ export type Database = {
           id?: string
           new_submission_channels?: string[]
           notify_appointment_booked?: boolean
+          notify_customer_appointment_booked?: boolean
+          notify_customer_offer_accepted?: boolean
           notify_docs_uploaded?: boolean
           notify_hot_lead?: boolean
           notify_new_submission?: boolean
@@ -376,6 +384,8 @@ export type Database = {
         Update: {
           appointment_channels?: string[]
           created_at?: string
+          customer_appointment_channels?: string[]
+          customer_offer_accepted_channels?: string[]
           dealership_id?: string
           docs_uploaded_channels?: string[]
           email_recipients?: string[]
@@ -383,6 +393,8 @@ export type Database = {
           id?: string
           new_submission_channels?: string[]
           notify_appointment_booked?: boolean
+          notify_customer_appointment_booked?: boolean
+          notify_customer_offer_accepted?: boolean
           notify_docs_uploaded?: boolean
           notify_hot_lead?: boolean
           notify_new_submission?: boolean
