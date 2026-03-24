@@ -207,6 +207,17 @@ const VehicleImageInventory = () => {
             <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
+          {images.length > 0 && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setShowBulkDelete(true)}
+              disabled={bulkDeleting}
+            >
+              <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+              Clear All ({images.length})
+            </Button>
+          )}
         </div>
       </div>
 
