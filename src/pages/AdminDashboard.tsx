@@ -781,7 +781,8 @@ const AdminDashboard = () => {
     // Build deal progress HTML (uses consolidated 7-step tracker)
     const isDeadLead = s.progress_status === "dead_lead";
     const currentStageIdx = getStageIndex(s.progress_status);
-    const progressHtml = PROGRESS_STAGES.filter(st => st.key !== "dead_lead").map((st, i) => {
+    const printStages = getProgressStages(s);
+    const progressHtml = printStages.filter(st => st.key !== "dead_lead").map((st, i) => {
       const isComplete = !isDeadLead && i < currentStageIdx;
       const isCurrent = !isDeadLead && i === currentStageIdx;
       const cls = isComplete ? "stage stage-complete" : isCurrent ? "stage stage-current" : "stage stage-inactive";
