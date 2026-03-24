@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { FileText, CheckCircle, Upload, X, Plus, ArrowLeft, CircleCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MobileQRBanner from "@/components/upload/MobileQRBanner";
-import harteLogoWhite from "@/assets/harte-logo-white.png";
+import harteLogoFallback from "@/assets/harte-logo-white.png";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 
 const DOC_TYPES = [
   { key: "drivers_license_front", label: "Driver's License (Front)", emoji: "🪪" },
