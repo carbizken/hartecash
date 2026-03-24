@@ -2027,7 +2027,7 @@ const AdminDashboard = () => {
                   </div>
                 ) : (
                   <div className="flex items-center gap-0 w-full">
-                    {PROGRESS_STAGES.filter(s => s.key !== "dead_lead").map((stage, i, arr) => {
+                    {getProgressStages(selected).filter(s => s.key !== "dead_lead").map((stage, i, arr) => {
                       const currentStageIdx = getStageIndex(selected.progress_status);
                       const isComplete = i < currentStageIdx;
                       const isCurrent = i === currentStageIdx;
