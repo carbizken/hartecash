@@ -1052,8 +1052,10 @@ const AdminDashboard = () => {
       return urls;
     };
 
-    const [dlImages, regImages, titleImages, appraisalImages, carfaxImages, payoffImages, windowStickerImages] = await Promise.all([
+    const [dlImagesLegacy, dlFrontImgs, dlBackImgs, regImages, titleImages, appraisalImages, carfaxImages, payoffImages, windowStickerImages] = await Promise.all([
       fetchDocImages("drivers_license"),
+      fetchDocImages("drivers_license_front"),
+      fetchDocImages("drivers_license_back"),
       fetchDocImages("registration"),
       fetchDocImages("title"),
       fetchDocImages("appraisal"),
@@ -1061,6 +1063,7 @@ const AdminDashboard = () => {
       fetchDocImages("payoff_verification"),
       fetchDocImages("window_sticker"),
     ]);
+    const dlImages = [...dlImagesLegacy, ...dlFrontImgs, ...dlBackImgs];
 
     const allEmpty = [dlImages, regImages, titleImages, appraisalImages, carfaxImages, payoffImages, windowStickerImages].every(a => a.length === 0);
     if (allEmpty) {
