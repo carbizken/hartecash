@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import harteLogoFallback from "@/assets/harte-logo.png";
+import harteLogoWhiteFallback from "@/assets/harte-logo-white.png";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import PortalSkeleton from "@/components/PortalSkeleton";
 import WhatsNextCard from "@/components/portal/WhatsNextCard";
@@ -265,7 +266,7 @@ const CustomerPortal = () => {
             Back to my submissions
           </Link>
           <div className="flex items-center gap-3">
-            <img src={config.logo_white_url || config.logo_url || harteLogoFallback} alt={config.dealership_name || "Dealership"} className="h-12 w-auto" />
+            <img src={config.logo_white_url || harteLogoWhiteFallback} alt={config.dealership_name || "Dealership"} className="h-12 w-auto" />
             <div className="flex-1">
               <h1 className="font-bold text-lg lg:text-xl">{vehicleStr || "My Submission"}</h1>
               {firstName && <p className="text-sm opacity-80">Welcome back, {firstName}!</p>}
