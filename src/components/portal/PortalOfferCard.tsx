@@ -24,6 +24,8 @@ const PortalOfferCard = ({
   zip,
   vehicleStr,
   token,
+  createdAt,
+  guaranteeDays,
 }: PortalOfferCardProps) => {
   const [activeTab, setActiveTab] = useState<"sell" | "trade">("sell");
 
