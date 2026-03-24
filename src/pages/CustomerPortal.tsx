@@ -3,6 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import harteLogoFallback from "@/assets/harte-logo.png";
+import harteLogoWhiteFallback from "@/assets/harte-logo-white.png";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import PortalSkeleton from "@/components/PortalSkeleton";
 import WhatsNextCard from "@/components/portal/WhatsNextCard";
