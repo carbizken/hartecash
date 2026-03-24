@@ -12,7 +12,8 @@ interface StaffFileUploadProps {
 }
 
 const DOC_TYPES = [
-  { key: "drivers_license", label: "Driver's License" },
+  { key: "drivers_license_front", label: "Driver's License (Front)" },
+  { key: "drivers_license_back", label: "Driver's License (Back)" },
   { key: "registration", label: "Registration" },
   { key: "title_inquiry", label: "Title Inquiry" },
   { key: "title", label: "Title" },
