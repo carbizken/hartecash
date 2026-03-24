@@ -558,6 +558,8 @@ const AdminDashboard = () => {
 
   const DOC_TYPE_LABELS: Record<string, string> = {
     drivers_license: "Driver's License",
+    drivers_license_front: "Driver's License (Front)",
+    drivers_license_back: "Driver's License (Back)",
     registration: "Registration",
     title_inquiry: "Title Inquiry",
     title: "Title",
@@ -619,7 +621,7 @@ const AdminDashboard = () => {
     }
 
     // Fetch documents from customer-documents bucket
-    const docTypes = ["drivers_license", "registration", "title_inquiry", "title", "payoff_verification", "appraisal", "carfax", "window_sticker"];
+    const docTypes = ["drivers_license", "drivers_license_front", "drivers_license_back", "registration", "title_inquiry", "title", "payoff_verification", "appraisal", "carfax", "window_sticker"];
     const allDocs: { name: string; url: string; type: string }[] = [];
     for (const docType of docTypes) {
       const { data: docFiles } = await supabase.storage
@@ -897,11 +899,13 @@ const AdminDashboard = () => {
       return;
     }
 
-    // Validate driver's license uploaded
-    const { data: dlCheck } = await supabase.storage
-      .from("customer-documents")
-      .list(`${s.token}/drivers_license`);
-    if (!dlCheck || dlCheck.length === 0) {
+    // Validate driver's license uploaded (check both legacy and new front/back folders)
+    const [dlLegacy, dlFront] = await Promise.all([
+      supabase.storage.from("customer-documents").list(`${s.token}/drivers_license`),
+      supabase.storage.from("customer-documents").list(`${s.token}/drivers_license_front`),
+    ]);
+    const hasDL = (dlLegacy.data && dlLegacy.data.length > 0) || (dlFront.data && dlFront.data.length > 0);
+    if (!hasDL) {
       toast({ title: "Missing Driver's License", description: "Customer driver's license must be uploaded before generating a check request.", variant: "destructive" });
       return;
     }
@@ -935,12 +939,15 @@ const AdminDashboard = () => {
     };
 
     // Fetch all supporting documents in parallel
-    const [appraisalImages, dlImages, titleImages, payoffImages] = await Promise.all([
+    const [appraisalImages, dlImages, dlFrontImages, dlBackImages, titleImages, payoffImages] = await Promise.all([
       fetchDocImages("appraisal"),
       fetchDocImages("drivers_license"),
+      fetchDocImages("drivers_license_front"),
+      fetchDocImages("drivers_license_back"),
       fetchDocImages("title"),
       fetchDocImages("payoff_verification"),
     ]);
+    const allDlImages = [...dlImages, ...dlFrontImages, ...dlBackImages];
 
     const printWindow = window.open("", "_blank", "width=800,height=600");
     if (!printWindow) return;
@@ -998,7 +1005,7 @@ const AdminDashboard = () => {
         </div>
       </div>
       ${makeDocSection("Appraisal Document", appraisalImages)}
-      ${makeDocSection("Driver's License", dlImages)}
+      ${makeDocSection("Driver's License", allDlImages)}
       ${makeDocSection("Title", titleImages)}
       ${makeDocSection("Payoff Documentation", payoffImages)}
     </body></html>`;
@@ -1045,8 +1052,10 @@ const AdminDashboard = () => {
       return urls;
     };
 
-    const [dlImages, regImages, titleImages, appraisalImages, carfaxImages, payoffImages, windowStickerImages] = await Promise.all([
+    const [dlImagesLegacy, dlFrontImgs, dlBackImgs, regImages, titleImages, appraisalImages, carfaxImages, payoffImages, windowStickerImages] = await Promise.all([
       fetchDocImages("drivers_license"),
+      fetchDocImages("drivers_license_front"),
+      fetchDocImages("drivers_license_back"),
       fetchDocImages("registration"),
       fetchDocImages("title"),
       fetchDocImages("appraisal"),
@@ -1054,6 +1063,7 @@ const AdminDashboard = () => {
       fetchDocImages("payoff_verification"),
       fetchDocImages("window_sticker"),
     ]);
+    const dlImages = [...dlImagesLegacy, ...dlFrontImgs, ...dlBackImgs];
 
     const allEmpty = [dlImages, regImages, titleImages, appraisalImages, carfaxImages, payoffImages, windowStickerImages].every(a => a.length === 0);
     if (allEmpty) {

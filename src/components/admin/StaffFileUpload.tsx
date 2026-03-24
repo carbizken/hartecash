@@ -12,7 +12,8 @@ interface StaffFileUploadProps {
 }
 
 const DOC_TYPES = [
-  { key: "drivers_license", label: "Driver's License" },
+  { key: "drivers_license_front", label: "Driver's License (Front)" },
+  { key: "drivers_license_back", label: "Driver's License (Back)" },
   { key: "registration", label: "Registration" },
   { key: "title_inquiry", label: "Title Inquiry" },
   { key: "title", label: "Title" },
@@ -27,7 +28,7 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const StaffFileUpload = ({ token, bucket, onUploadComplete }: StaffFileUploadProps) => {
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<{ [key: number]: string }>({});
-  const [docType, setDocType] = useState("drivers_license");
+  const [docType, setDocType] = useState("drivers_license_front");
   const [uploading, setUploading] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
   const [isDragging, setIsDragging] = useState(false);

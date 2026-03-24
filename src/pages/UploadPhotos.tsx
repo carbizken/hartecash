@@ -5,7 +5,7 @@ import { Camera, CheckCircle, Upload, X, Plus, ImageIcon, ArrowLeft } from "luci
 import { Button } from "@/components/ui/button";
 import UploadSkeleton from "@/components/UploadSkeleton";
 import MobileQRBanner from "@/components/upload/MobileQRBanner";
-import harteLogo from "@/assets/harte-logo.png";
+import harteLogoWhite from "@/assets/harte-logo-white.png";
 
 interface SubmissionInfo {
   id: string;
@@ -222,12 +222,12 @@ const UploadPhotos = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-card text-card-foreground px-6 py-4 mb-0 shadow-md">
+      <div className="bg-primary text-primary-foreground px-6 py-4 mb-0">
         <div className="max-w-lg mx-auto flex items-center gap-3">
-          <Link to={`/my-submission/${token}`} className="text-muted-foreground hover:text-foreground transition-colors">
+          <Link to={`/my-submission/${token}`} className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <img src={harteLogo} alt="Harte" className="h-12 w-auto" />
+          <img src={harteLogoWhite} alt="Harte" className="h-12 w-auto" />
           <h1 className="font-bold text-lg">Upload Vehicle Photos</h1>
         </div>
       </div>
