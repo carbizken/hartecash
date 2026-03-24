@@ -629,9 +629,10 @@ const OfferPage = () => {
   });
 
   // Exterior damage
-  const noExteriorDmg = !condition?.exterior_damage || condition.exterior_damage.length === 0 || (condition.exterior_damage.length === 1 && condition.exterior_damage[0] === "none");
+  const extItems = condition?.exterior_damage?.filter(v => v !== "none") || [];
+  const noExteriorDmg = extItems.length === 0;
   conditionItems.push({
-    label: noExteriorDmg ? "Exterior Damage: None" : `Exterior Damage: ${condition!.exterior_damage!.filter(v => v !== "none").join(", ")}`,
+    label: noExteriorDmg ? "Exterior Damage: None" : `Exterior Damage: ${extItems.length} issue${extItems.length > 1 ? "s" : ""}`,
     status: noExteriorDmg ? "good" : "warn",
     icon: <Palette className="w-3.5 h-3.5" />,
     field: "exterior_damage",
