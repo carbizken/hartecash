@@ -174,6 +174,7 @@ const VehicleImageInventory = () => {
     setShowBulkDelete(false);
   };
 
+  const filtered = images.filter((img) => {
     if (!search) return true;
     const q = search.toLowerCase();
     return (
