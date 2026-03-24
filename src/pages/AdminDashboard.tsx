@@ -34,6 +34,7 @@ import FollowUpPanel from "@/components/admin/FollowUpPanel";
 import FollowUpLog from "@/components/admin/FollowUpLog";
 import NotificationLog from "@/components/admin/NotificationLog";
 import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface PendingRequest {
   id: string;
