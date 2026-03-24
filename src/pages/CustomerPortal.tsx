@@ -203,7 +203,7 @@ const CustomerPortal = () => {
 
       {/* Progress bar — full width under header */}
       <div className="max-w-5xl mx-auto px-6 -mt-0 pt-5">
-        <ProgressSteps currentStageIdx={stepIdx} isComplete={isComplete} />
+        <ProgressSteps currentStageIdx={stepIdx} isComplete={isComplete} appointmentSet={s.appointment_set} scheduleLink={scheduleLink} />
       </div>
 
       {/* ─── DESKTOP: Two-column layout ─── */}
