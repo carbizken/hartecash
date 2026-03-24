@@ -306,6 +306,8 @@ const OfferPage = () => {
   const firstName = s.name?.split(" ")[0] || "";
 
   const hasOfferedPrice = !!s.offered_price;
+  const ACCEPTED_STATUSES = ['contacted', 'inspection_scheduled', 'inspection_completed', 'appraisal_completed', 'manager_approval', 'price_agreed', 'docs_title', 'purchase_complete'];
+  const isAccepted = hasOfferedPrice || (!!s.progress_status && ACCEPTED_STATUSES.includes(s.progress_status));
   const hasEstimate = !!s.estimated_offer_high;
   const cashOffer = s.offered_price || s.estimated_offer_high || 0;
   const estimateLow = s.estimated_offer_low || 0;
