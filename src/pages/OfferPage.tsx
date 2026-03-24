@@ -170,8 +170,8 @@ const OfferPage = () => {
       setSubmission(sub);
       setLoading(false);
 
-      // Fetch condition details + offer config + appointment in parallel
-      const [condRes, settingsRes, rulesRes, apptRes] = await Promise.all([
+      // Fetch condition details + offer config + appointment + locations in parallel
+      const [condRes, settingsRes, rulesRes, apptRes, locRes] = await Promise.all([
         supabase
           .from("submissions")
           .select("accidents, drivable, exterior_damage, interior_damage, mechanical_issues, engine_issues, tech_issues, smoked_in, tires_replaced, num_keys, windshield_damage, modifications, drivetrain")
@@ -186,11 +186,16 @@ const OfferPage = () => {
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle(),
+        supabase
+          .from("dealership_locations")
+          .select("id, name, city, state, address")
+          .eq("is_active", true),
       ]);
       if (condRes.data) setCondition(condRes.data as ConditionDetails);
       if (settingsRes.data) setOfferSettings(settingsRes.data as unknown as OfferSettings);
       if (rulesRes.data) setOfferRules(rulesRes.data as unknown as OfferRule[]);
       if (apptRes.data) setAppointment(apptRes.data as { preferred_date: string; preferred_time: string; store_location: string | null });
+      if (locRes.data) setDealerLocations(locRes.data as any);
     };
     fetchData();
   }, [token]);
