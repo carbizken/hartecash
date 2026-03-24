@@ -102,6 +102,7 @@ interface Submission {
   num_keys: string | null;
   progress_status: string;
   offered_price: number | null;
+  estimated_offer_high: number | null;
   acv_value: number | null;
   appraised_by: string | null;
   check_request_done: boolean;
@@ -2168,29 +2169,37 @@ const AdminDashboard = () => {
               </div>
 
               {/* Offered Price */}
-              {canSetPrice ? (
-                <div data-print-section className="bg-muted/40 rounded-lg p-4">
-                  <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
-                    <DollarSign className="w-4 h-4 inline mr-1" />Offered Price
-                  </h3>
-                  <Input
-                    type="number"
-                    placeholder="Enter offer amount"
-                    defaultValue={selected.offered_price?.toString() || ""}
-                    onChange={(e) => {
-                      const price = e.target.value ? Number(e.target.value) : null;
-                      setSelected({ ...selected, offered_price: price });
-                    }}
-                  />
-                </div>
-              ) : selected.offered_price ? (
-                <div data-print-section className="bg-muted/40 rounded-lg p-4">
-                  <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
-                    <DollarSign className="w-4 h-4 inline mr-1" />Offered Price
-                  </h3>
-                  <p className="text-card-foreground font-medium">${selected.offered_price.toLocaleString()}</p>
-                </div>
-              ) : null}
+              {(() => {
+                const isAutoPopulated = selected.offered_price != null && selected.estimated_offer_high != null && selected.offered_price === selected.estimated_offer_high;
+                const priceSourceBadge = selected.offered_price != null ? (
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ml-2 ${isAutoPopulated ? "bg-accent/10 text-accent" : "bg-primary/10 text-primary"}`}>
+                    {isAutoPopulated ? "Auto · Customer Accepted" : "Staff Set"}
+                  </span>
+                ) : null;
+                return canSetPrice ? (
+                  <div data-print-section className="bg-muted/40 rounded-lg p-4">
+                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
+                      <DollarSign className="w-4 h-4 inline mr-1" />Offered Price{priceSourceBadge}
+                    </h3>
+                    <Input
+                      type="number"
+                      placeholder="Enter offer amount"
+                      defaultValue={selected.offered_price?.toString() || ""}
+                      onChange={(e) => {
+                        const price = e.target.value ? Number(e.target.value) : null;
+                        setSelected({ ...selected, offered_price: price });
+                      }}
+                    />
+                  </div>
+                ) : selected.offered_price ? (
+                  <div data-print-section className="bg-muted/40 rounded-lg p-4">
+                    <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
+                      <DollarSign className="w-4 h-4 inline mr-1" />Offered Price{priceSourceBadge}
+                    </h3>
+                    <p className="text-card-foreground font-medium">${selected.offered_price.toLocaleString()}</p>
+                  </div>
+                ) : null;
+              })()}
 
               {/* Check Request */}
               {(() => {
