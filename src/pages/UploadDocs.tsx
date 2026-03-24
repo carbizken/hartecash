@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { FileText, CheckCircle, Upload, X, Plus, ArrowLeft, CircleCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MobileQRBanner from "@/components/upload/MobileQRBanner";
-import harteLogoWhite from "@/assets/harte-logo-white.png";
+import harteLogoFallback from "@/assets/harte-logo-white.png";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 
 const DOC_TYPES = [
   { key: "drivers_license_front", label: "Driver's License (Front)", emoji: "🪪" },
@@ -25,6 +26,7 @@ interface SubmissionInfo {
 
 const UploadDocs = () => {
   const { token } = useParams<{ token: string }>();
+  const { config } = useSiteConfig();
   const [submission, setSubmission] = useState<SubmissionInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -159,7 +161,7 @@ const UploadDocs = () => {
           <Link to={`/my-submission/${token}`} className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <img src={harteLogoWhite} alt="Harte" className="h-12 w-auto" />
+          <img src={config.logo_white_url || harteLogoFallback} alt={config.dealership_name} className="h-[70px] w-auto" />
           <h1 className="font-bold text-lg">Upload Documents</h1>
         </div>
       </div>
