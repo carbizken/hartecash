@@ -7,6 +7,7 @@ interface WhatsNextProps {
   mappedStatus: string;
   photosUploaded: boolean;
   docsUploaded: boolean;
+  appointmentSet: boolean;
   token: string;
   vehicleStr: string;
   name: string;
