@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { DollarSign, TrendingUp, CheckCircle } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { DollarSign, TrendingUp, CheckCircle, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { getTaxRateFromZip, calcTradeInValue, STATE_NAMES } from "@/lib/salesTax";
 
@@ -198,10 +199,19 @@ const PortalOfferCard = ({
           )}
         </AnimatePresence>
 
+        {/* Accept button */}
+        <Link to={`/offer/${token}`}>
+          <Button className="w-full py-5 text-base font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg shadow-accent/20 gap-2 rounded-xl mt-4">
+            <CheckCircle className="w-5 h-5" />
+            Accept & Lock In Your Price
+            <ArrowRight className="w-5 h-5" />
+          </Button>
+        </Link>
+
         {/* Link to full offer page */}
         <Link
           to={`/offer/${token}`}
-          className="mt-4 block text-center text-xs text-primary hover:text-primary/80 font-medium transition-colors"
+          className="mt-3 block text-center text-xs text-primary hover:text-primary/80 font-medium transition-colors"
         >
           View full offer details →
         </Link>
