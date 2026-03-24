@@ -35,6 +35,8 @@ const VehicleImageInventory = () => {
   const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<CachedImage | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+  const [showBulkDelete, setShowBulkDelete] = useState(false);
   const { toast } = useToast();
 
   const fetchImages = async () => {
