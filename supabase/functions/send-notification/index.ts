@@ -158,7 +158,8 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     // Check if this trigger is enabled
-    const isStaffTrigger = trigger_key.startsWith("staff_");
+    const isStaffTrigger = trigger_key.startsWith("staff_") ||
+      ["new_submission", "hot_lead", "appointment_booked", "photos_uploaded", "docs_uploaded", "status_change"].includes(trigger_key);
     const isCustomerTrigger = trigger_key.startsWith("customer_");
 
     const enabledKey = `notify_${trigger_key}`;
