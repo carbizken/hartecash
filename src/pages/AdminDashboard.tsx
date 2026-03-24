@@ -1480,8 +1480,8 @@ const AdminDashboard = () => {
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="unset">Not Set</SelectItem>
-                                {STORE_LOCATIONS.map(loc => (
-                                  <SelectItem key={loc.value} value={loc.value}>{loc.label}</SelectItem>
+                                {dealerLocations.map(loc => (
+                                  <SelectItem key={loc.id} value={loc.id}>{loc.name} — {loc.city}, {loc.state}</SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
