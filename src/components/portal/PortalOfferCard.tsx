@@ -12,6 +12,8 @@ interface PortalOfferCardProps {
   zip: string | null;
   vehicleStr: string;
   token: string;
+  createdAt: string | null;
+  guaranteeDays: number;
 }
 
 const PortalOfferCard = ({
