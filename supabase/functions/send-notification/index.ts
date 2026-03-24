@@ -169,16 +169,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get channels — non-prefixed staff triggers use their key directly as column name
-    const nonPrefixedStaff = ["new_submission", "hot_lead", "appointment_booked", "photos_uploaded", "docs_uploaded", "status_change"];
-    let fullChannelKey: string;
-    if (nonPrefixedStaff.includes(trigger_key)) {
-      fullChannelKey = `${trigger_key}_channels`;
-    } else if (isCustomerTrigger) {
-      fullChannelKey = `${trigger_key}_channels`;
-    } else {
-      fullChannelKey = `${trigger_key}_channels`;
-    }
+    // Get channels — column name is always `{trigger_key}_channels`
+    const fullChannelKey = `${trigger_key}_channels`;
 
     const channels: string[] = body.channels ||
       (notifSettings as any)?.[fullChannelKey] ||
