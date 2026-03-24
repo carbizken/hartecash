@@ -7,10 +7,11 @@ interface ProgressStepsProps {
 }
 
 const STEPS = [
-  { label: "Submitted" },
-  { label: "Under Review" },
-  { label: "Offer Ready" },
-  { label: "Complete" },
+  { label: "Offer Accepted" },
+  { label: "Inspection Done" },
+  { label: "Deal Finalized" },
+  { label: "Paperwork Complete" },
+  { label: "Check Received" },
 ];
 
 const ProgressSteps = ({ currentStageIdx, isComplete }: ProgressStepsProps) => {
