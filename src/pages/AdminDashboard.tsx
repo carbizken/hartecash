@@ -1725,6 +1725,9 @@ const AdminDashboard = () => {
           {/* Follow-Ups */}
           {activeSection === "follow-ups" && <FollowUpLog />}
 
+          {/* Notification Log */}
+          {activeSection === "notification-log" && <NotificationLog />}
+
         </div>
       </div>
       </div>
