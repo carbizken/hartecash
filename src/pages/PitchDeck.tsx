@@ -864,8 +864,8 @@ export default function PitchDeck() {
                   detail="💰 Offer visible to customer in real-time, no phone call needed"
                 />
                 <WalkStep number={2} icon={ClipboardCheck} title="In-House ACV (Actual Cash Value)"
-                  desc="Only managers (Used Car Manager, GSM/GM, Admin) can enter the ACV. The system auto-records WHO appraised it: 'John S. — Used Car Manager'. Full accountability."
-                  detail="🔐 Restricted to management roles only — enforced at database level"
+                  desc="Only managers (Used Car Manager, GSM/GM, Admin) can enter the ACV. Every change is audit-logged with old value, new value, and the staff member who made it — 'John S. — Used Car Manager'. Full accountability, full paper trail."
+                  detail="🔐 Role-restricted + automatic audit log capturing every ACV change with timestamps"
                 />
                 <WalkStep number={3} icon={ShieldCheck} title="Manager Approval Gate"
                   desc="The pipeline can't advance to 'Manager Approval' or 'Purchase Complete' without a GSM/GM or Admin signing off. Server-side triggers enforce this — no workarounds."
