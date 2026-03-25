@@ -1,16 +1,27 @@
-import { useState } from "react";
-import { ArrowLeft, Sparkles, Shield, Bell, BarChart3, Wrench, Camera, FileText, Users, DollarSign, CheckCircle, ChevronDown, ChevronRight, MapPin, Smartphone, CalendarDays, MessageSquare, Star, Eye, Handshake, ClipboardCheck, ScanLine, Car, ImagePlus, Loader, SplitSquareHorizontal, FormInput, Layout, Moon, Zap, Globe, Palette, Database, ClipboardList, QrCode, Layers } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowLeft, Sparkles, Shield, Bell, BarChart3, Wrench, Camera, FileText, Users, DollarSign, CheckCircle, ChevronDown, ChevronRight, MapPin, Smartphone, CalendarDays, MessageSquare, Star, Eye, Handshake, ClipboardCheck, ScanLine, Car, ImagePlus, Loader, SplitSquareHorizontal, FormInput, Layout, Moon, Zap, Globe, Palette, Database, ClipboardList, QrCode, Layers, type LucideIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
-interface Update {
-  date: string;
+interface ChangelogEntry {
+  id: string;
+  entry_date: string;
   title: string;
   description: string;
   items: string[];
-  icon: React.ReactNode;
-  tag: "feature" | "improvement" | "fix" | "security";
+  icon: string;
+  tag: string;
 }
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  ClipboardCheck, ScanLine, SplitSquareHorizontal, ImagePlus, Loader,
+  DollarSign, Eye, Shield, Bell, MessageSquare, CheckCircle, Handshake,
+  BarChart3, FileText, Camera, CalendarDays, Users, Star, MapPin,
+  Smartphone, Wrench, Layout, Globe, Moon, Zap, QrCode, Database,
+  ClipboardList, FormInput, Layers, Car, Palette, Sparkles,
+};
 
 const TAG_STYLES: Record<string, string> = {
   feature: "bg-accent/15 text-accent",
@@ -26,607 +37,32 @@ const TAG_LABELS: Record<string, string> = {
   security: "Security",
 };
 
-const updates: Update[] = [
-  {
-    date: "2026-03-25",
-    title: "ACV Audit Logging & Portal Mobile Fix",
-    description: "Every ACV value change is now tracked with full attribution, plus mobile layout improvements.",
-    icon: <ClipboardCheck className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "ACV value changes now logged in activity log with old → new values",
-      "Staff member name + role recorded on every ACV update",
-      "Vehicle Summary card on customer portal now fully responsive",
-      "VIN display no longer overlaps mileage on mobile devices",
-      "Single-column stacked layout on small screens, 2-column grid on tablet+",
-      "Pitch deck updated with ACV audit trail in comparison table and walkthrough",
-    ],
-  },
-  {
-    date: "2026-03-25",
-    title: "AI-Powered Document OCR",
-    description: "Automated data extraction from driver's licenses and vehicle titles using vision AI.",
-    icon: <ScanLine className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Driver's license OCR extracts customer name and full address from front image",
-      "Only populates empty fields — never overwrites existing data",
-      "Configurable 'Enable DL OCR' toggle in site settings",
-      "Vehicle title OCR extracts VIN and owner name automatically",
-      "Extracted VIN is cross-checked against VIN on file",
-      "VIN mismatches flagged in activity log for staff review",
-      "Powered by Gemini vision AI — no third-party OCR service needed",
-    ],
-  },
-  {
-    date: "2026-03-25",
-    title: "Split Document Uploads & Smart Guides",
-    description: "Front/back document capture with real-time overlay guides sized to each document type.",
-    icon: <SplitSquareHorizontal className="w-5 h-5" />,
-    tag: "improvement",
-    items: [
-      "Driver's license split into separate front and back uploads",
-      "Camera capture component with real-time CSS/HTML overlay guide frames",
-      "License guide uses standard ISO ID-1 aspect ratio",
-      "Vehicle title guide aspect ratio varies by state (letter-landscape vs half-letter)",
-      "State auto-detected from customer's ZIP code",
-      "Documents marked complete only when minimum requirements met (front/back DL + registration or title)",
-      "Dealer-only documents (Title Inquiry, Payoff Verification) hidden from customer view",
-    ],
-  },
-  {
-    date: "2026-03-24",
-    title: "AI Vehicle Image Generation",
-    description: "Realistic vehicle images generated from year/make/model/color — cached for instant reuse.",
-    icon: <ImagePlus className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Edge function generates photorealistic vehicle images via AI",
-      "Images keyed by year, make, model, style, and exterior color",
-      "Vehicle image cache table prevents duplicate generation",
-      "Generated images stored in Lovable Cloud storage for fast serving",
-      "Used on offer pages, deal acceptance, and portal vehicle summary",
-      "Admin vehicle image inventory view to browse cached images",
-    ],
-  },
-  {
-    date: "2026-03-24",
-    title: "Animated Offer Calculation",
-    description: "Branded loading experience while the offer is being calculated.",
-    icon: <Loader className="w-5 h-5" />,
-    tag: "improvement",
-    items: [
-      "Animated car SVG with multi-step progress messages",
-      "Configurable via 'use_animated_calculating' toggle in site settings",
-      "Smooth transitions between calculation stages",
-      "Branded with dealership primary color",
-    ],
-  },
-  {
-    date: "2026-03-24",
-    title: "Price Attribution & Audit Trail",
-    description: "Full traceability for offered prices — know exactly who set it and how.",
-    icon: <DollarSign className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "\"Auto · Customer Accepted\" badge when price is auto-set from estimate range",
-      "\"Staff Set\" badge when price is manually entered by a manager",
-      "Tooltips explaining each badge for staff clarity",
-      "Activity log now records staff name + role (e.g. \"Jane D. — Admin\") instead of just role",
-      "All price changes logged with old → new values and who made the change",
-      "accept_offer RPC auto-populates offered_price from estimated_offer_high",
-      "Bypass flag for role-check trigger during customer acceptance flow",
-    ],
-  },
-  {
-    date: "2026-03-24",
-    title: "Platform Changelog Page",
-    description: "Public-facing changelog at /updates so staff and stakeholders can track what's new.",
-    icon: <Eye className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Chronological timeline UI with expandable accordion entries",
-      "Categorized tags: Feature, Improvement, Bug Fix, Security",
-      "Accessible from admin sidebar and public URL",
-    ],
-  },
-  {
-    date: "2026-03-23",
-    title: "Role-Based Access Controls (RBAC)",
-    description: "Server-side enforcement of who can edit prices, appraise vehicles, and advance deal stages.",
-    icon: <Shield className="w-5 h-5" />,
-    tag: "security",
-    items: [
-      "Only managers (Used Car Manager, GSM/GM, Admin) can set or update offered_price",
-      "Only managers can enter ACV appraisal values",
-      "Only GSM/GM or Admin can advance to manager_approval, price_agreed, or purchase_complete",
-      "Appraised By field auto-populated with appraiser's name and title via database trigger",
-      "Database trigger enforces all role restrictions server-side",
-    ],
-  },
-  {
-    date: "2026-03-22",
-    title: "Notification System Overhaul",
-    description: "Comprehensive multi-channel notifications with per-trigger recipient routing.",
-    icon: <Bell className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Per-trigger staff recipient routing — assign specific staff to specific notification types",
-      "Customer notifications: offer ready, offer accepted, offer increased, appointment booked/reminder/rescheduled",
-      "Staff notifications: new submission, hot lead, appointment booked, photos/docs uploaded, deal completed",
-      "Quiet hours support with configurable start/end times",
-      "Notification template editor with variable placeholders",
-      "Full notification log with delivery status tracking",
-    ],
-  },
-  {
-    date: "2026-03-22",
-    title: "Automated Follow-Up Engine",
-    description: "Multi-touch follow-up sequences to re-engage leads who haven't completed their submission.",
-    icon: <MessageSquare className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Configurable follow-up sequences via SMS and email",
-      "Touch number tracking per submission",
-      "Follow-up log with delivery status and error reporting",
-      "Admin panel to view follow-up history per lead",
-      "Edge function for processing and sending follow-ups",
-    ],
-  },
-  {
-    date: "2026-03-21",
-    title: "Customer Portal & Deal Progress",
-    description: "Self-service portal where customers track their deal from offer to purchase.",
-    icon: <CheckCircle className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "5-step horizontal progress tracker synced with admin dashboard",
-      "Accepted offer card with price display and green confirmation badge",
-      "What to bring checklist and what to expect guide",
-      "Dealer contact card with phone/email and business hours",
-      "Loan payoff information display",
-      "Condition report summary",
-      "Photo and document upload status tracking",
-      "Communication preferences with email/SMS opt-out toggles",
-    ],
-  },
-  {
-    date: "2026-03-21",
-    title: "Deal Acceptance & Celebration Flow",
-    description: "When a customer accepts their offer, they see a branded celebration page with next steps.",
-    icon: <Handshake className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Confetti celebration animation on offer acceptance",
-      "AI-generated vehicle image displayed with accepted price",
-      "Sales tax savings calculator for trade-in scenarios",
-      "What to Expect and Inspection Disclosure sections",
-      "Direct links to schedule visit, upload photos, and upload documents",
-      "Portal access for ongoing deal tracking",
-    ],
-  },
-  {
-    date: "2026-03-20",
-    title: "Offer Engine & Simulator",
-    description: "Configurable valuation engine with real-time what-if comparisons.",
-    icon: <BarChart3 className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Black Book API integration for wholesale and trade-in values",
-      "Configurable condition multipliers, mileage tiers, and age tiers",
-      "Flat-dollar deductions for damage, missing keys, accidents, etc.",
-      "Global adjustment percentage and reconditioning cost",
-      "Offer floor and ceiling guardrails",
-      "What-If simulator showing dollar impact of unsaved config changes",
-      "Custom offer rules with criteria matching and dashboard flags",
-    ],
-  },
-  {
-    date: "2026-03-20",
-    title: "Offer Disclosure Page",
-    description: "Transparent, professional disclosure of all valuation factors — credits and deductions.",
-    icon: <FileText className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Detailed breakdown of credit factors (tires, brakes, battery, service history, etc.)",
-      "Deduction factors with clear explanations",
-      "Expandable sections for each valuation component",
-      "Professional legal-style formatting for transparency and trust",
-    ],
-  },
-  {
-    date: "2026-03-19",
-    title: "Photo & Document Upload System",
-    description: "Mobile-optimized upload flows with QR code handoff and camera capture.",
-    icon: <Camera className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Guided photo capture with angle instructions (6 categories)",
-      "QR code banner for desktop-to-mobile handoff",
-      "Document camera capture with state-specific guide overlays",
-      "Driver's license dimensions (ISO ID-1) and state-specific title dimensions",
-      "AI-powered driver's license OCR to auto-fill customer details",
-      "AI-powered title/VIN parsing",
-      "Admin-only delete permissions on uploaded assets",
-    ],
-  },
-  {
-    date: "2026-03-19",
-    title: "Appointment Scheduling & Reminders",
-    description: "Integrated scheduling with location selection, confirmations, and automated reminders.",
-    icon: <CalendarDays className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Multi-location appointment booking with date/time selection",
-      "Pre-filled customer info from submission data",
-      "Automatic SMS & email confirmation to customer and staff",
-      "Appointment reminder edge function for day-before notifications",
-      "Reschedule notification support",
-      "Appointment status tracking in admin dashboard",
-    ],
-  },
-  {
-    date: "2026-03-18",
-    title: "Staff Management & Access Requests",
-    description: "Invite-based staff onboarding with role assignment and profile management.",
-    icon: <Users className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Pending access request queue for new staff sign-ups",
-      "Role assignment: Admin, Sales/BDC, Used Car Manager, GSM/GM",
-      "Staff profile management with avatar upload and cropping",
-      "Staff directory with role badges",
-      "Bulk staff import from Excel",
-    ],
-  },
-  {
-    date: "2026-03-18",
-    title: "TCPA Consent Logging",
-    description: "Full regulatory compliance for SMS and call consent under TCPA guidelines.",
-    icon: <Shield className="w-5 h-5" />,
-    tag: "security",
-    items: [
-      "Automatic consent log entry on every form submission",
-      "Records customer name, phone, email, consent text, form source, and submission token",
-      "IP address and user agent captured for audit trail",
-      "Admin consent log viewer with search and filtering",
-      "Consent text dynamically includes dealership name",
-    ],
-  },
-  {
-    date: "2026-03-17",
-    title: "Dashboard Analytics & Reporting",
-    description: "At-a-glance metrics and exportable submission data.",
-    icon: <BarChart3 className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Submission volume charts and conversion funnel",
-      "Lead source breakdown",
-      "Hot lead identification and flagging",
-      "Aging indicators on submission cards",
-      "CSV/clipboard export of filtered submissions",
-      "Print-ready check request and deal summary generation",
-    ],
-  },
-  {
-    date: "2026-03-17",
-    title: "Review Request System",
-    description: "Post-purchase review collection to build dealership reputation.",
-    icon: <Star className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "One-click review request from admin dashboard per submission",
-      "Customer-facing review page with star rating and text input",
-      "Configurable review request email subject and message",
-      "Review request tracking to prevent duplicate sends",
-    ],
-  },
-  {
-    date: "2026-03-16",
-    title: "Multi-Location Support",
-    description: "Manage multiple dealership locations with per-location scheduling and filtering.",
-    icon: <MapPin className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Dealership locations table with city/state/address",
-      "Location selector in appointment scheduling",
-      "Location filter in admin dashboard",
-      "Footer location display with toggle control",
-      "Location labels resolved from IDs throughout dashboard",
-    ],
-  },
-  {
-    date: "2026-03-16",
-    title: "Customer Lookup Portal",
-    description: "Customers can find their submission using email and phone — no login required.",
-    icon: <Smartphone className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Email + phone lookup to retrieve submission tokens",
-      "Multiple submission support if customer has more than one",
-      "Direct link to customer portal from search results",
-      "Rate limiting to prevent abuse",
-    ],
-  },
-  {
-    date: "2026-03-15",
-    title: "Service Drive Acquisition Channel",
-    description: "Capture vehicles from customers already in your service lane.",
-    icon: <Wrench className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Dedicated service drive landing page with VIN/plate lookup",
-      "Service link generator for advisors to send personalized SMS/email",
-      "Service-specific lead source tracking",
-      "Pitch deck section with Service Drive strategy and ROI analysis",
-      "Soft hand-raise flow designed for service advisors",
-    ],
-  },
-  {
-    date: "2026-03-15",
-    title: "Site Configuration & Branding",
-    description: "White-label customization from colors to content to comparison tables.",
-    icon: <FileText className="w-5 h-5" />,
-    tag: "improvement",
-    items: [
-      "Configurable dealership name, tagline, and hero text",
-      "Primary, accent, and success color theming",
-      "Logo and favicon upload (standard + white variants)",
-      "Competitor comparison table with configurable columns and features",
-      "Testimonial management with ratings and sort order",
-      "Form field toggle configuration",
-      "Stats customization (cars purchased, years in business, rating)",
-    ],
-  },
-  {
-    date: "2026-03-14",
-    title: "In-Store Trade Acquisition Channel",
-    description: "Capture trade-in info from shoppers at your lot — before or after they visit.",
-    icon: <Handshake className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Dedicated trade landing page with branded hero",
-      "Trade-specific lead source tracking",
-      "Pitch deck section with In-Store Trade strategy",
-      "\"Never Lose a Trade\" recovery flow for walk-aways",
-    ],
-  },
-  {
-    date: "2026-03-13",
-    title: "21-Slide Cinematic Pitch Deck",
-    description: "Interactive presentation at /pitch with fullscreen mode and acquisition channel deep-dives.",
-    icon: <Eye className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "21 slides covering market, problem, solution, walkthroughs, ROI, and CTA",
-      "Interactive acquisition channel cards (Off-Street, Service Drive, In-Store Trade)",
-      "Fullscreen presentation mode with keyboard navigation",
-      "Customer and Employee walkthrough sequences with live screenshots",
-      "Auction vs. Direct acquisition ROI comparison",
-      "ROI by dealer size (Small, Mid-Size, High-Volume) with cited sources",
-      "Dynamic branding from site config with white logo variant",
-    ],
-  },
-  {
-    date: "2026-03-12",
-    title: "Unsubscribe & Opt-Out Management",
-    description: "One-click opt-out handling for SMS and email with database tracking.",
-    icon: <Bell className="w-5 h-5" />,
-    tag: "security",
-    items: [
-      "Token-based unsubscribe links in all outbound messages",
-      "Per-channel opt-out (SMS, email) stored in opt_outs table",
-      "Edge function to process unsubscribe requests",
-      "Opt-out status checked before sending any notification",
-      "Customer can re-subscribe via portal communication preferences",
-    ],
-  },
-  {
-    date: "2026-03-11",
-    title: "Offer Page & Inline Editing",
-    description: "Customer-facing offer page with detailed breakdown and staff inline-edit capabilities.",
-    icon: <DollarSign className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Token-based offer page at /offer/:token accessible without login",
-      "Vehicle summary with AI-generated image, VIN, mileage, and color",
-      "Offer breakdown showing estimate range, trade-in value, and sales tax savings",
-      "QR code for easy mobile sharing of offer link",
-      "Staff inline editing of condition fields with real-time offer recalculation",
-      "Print-friendly offer layout for in-store use",
-      "Loan payoff information display when applicable",
-    ],
-  },
-  {
-    date: "2026-03-10",
-    title: "Sales Tax Savings Calculator",
-    description: "Automatic trade-in tax savings estimation by state to show customers additional value.",
-    icon: <DollarSign className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "State-by-state sales tax rate lookup from ZIP code",
-      "Trade-in tax credit calculation for states that allow it",
-      "Estimated savings prominently displayed on offer and deal acceptance pages",
-      "Human-readable state name resolution from abbreviations",
-    ],
-  },
-  {
-    date: "2026-03-09",
-    title: "Multi-Step Vehicle Submission Form",
-    description: "Guided wizard capturing vehicle details, condition, history, and customer info in one flow.",
-    icon: <FormInput className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Step 1: VIN or Year/Make/Model lookup via Black Book API",
-      "Step 2: Trim selection when multiple trims returned",
-      "Step 3: Vehicle build details — drivetrain, exterior color, moonroof",
-      "Step 4: Condition assessment — overall rating, damage, mechanical/tech issues",
-      "Step 5: Vehicle history — accidents, modifications, tire status, keys, smoke exposure",
-      "Step 6: Customer details — name, email, phone, ZIP, loan status",
-      "Animated step transitions with directional slide motion",
-      "Progress bar and step indicator throughout the form",
-      "TCPA consent checkbox with dynamic dealership name",
-      "Instant offer calculation on submission with loading animation",
-    ],
-  },
-  {
-    date: "2026-03-08",
-    title: "Dynamic Form Configuration",
-    description: "Admin-controlled toggles to show or hide individual form fields and entire steps.",
-    icon: <ClipboardList className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Per-field toggle for 20+ condition and history questions",
-      "Step-level toggles for Vehicle Build and Condition History steps",
-      "Changes take effect immediately — no redeployment needed",
-      "Form dynamically renders only enabled fields",
-      "Stored per-dealership in form_config table",
-    ],
-  },
-  {
-    date: "2026-03-07",
-    title: "Admin Dashboard & Submission Management",
-    description: "Internal management portal for reviewing, appraising, and advancing customer submissions.",
-    icon: <Layout className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Collapsible sidebar navigation with role-based menu items",
-      "Submissions table with search, status filter, and lead source filter",
-      "Full submission detail modal with all vehicle and customer data",
-      "Inline status updates with aging indicators (hours/days since last change)",
-      "Internal notes field for staff collaboration",
-      "Activity log showing all changes with timestamps and attribution",
-      "Hot lead flagging for high-priority submissions",
-    ],
-  },
-  {
-    date: "2026-03-06",
-    title: "Secure Admin Authentication",
-    description: "Email/password authentication with pending access request workflow.",
-    icon: <Shield className="w-5 h-5" />,
-    tag: "security",
-    items: [
-      "Email + password login at /admin/login",
-      "New sign-ups create a pending access request for admin approval",
-      "Session-based authentication with automatic redirect",
-      "Secure logout with session cleanup",
-      "Protected admin routes — unauthenticated users redirected to login",
-    ],
-  },
-  {
-    date: "2026-03-05",
-    title: "Landing Page & Conversion Funnel",
-    description: "High-converting home page with hero, social proof, and competitive positioning.",
-    icon: <Globe className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Hero section with dynamic headline, price guarantee badge, and benefit cards",
-      "How It Works — 3-step visual process breakdown",
-      "Value propositions section with iconography",
-      "Animated counters for cars purchased, years in business, and rating",
-      "Competitor comparison table (vs. CarMax, Carvana, Private Sale)",
-      "Customer testimonials carousel with star ratings",
-      "Trust badges section for credibility signals",
-      "FAQ accordion with common questions",
-      "CTA banner with call-to-action",
-      "Responsive header with logo and navigation",
-      "Footer with contact info, legal links, and location display",
-    ],
-  },
-  {
-    date: "2026-03-04",
-    title: "Dark Mode & Theming System",
-    description: "Full dark/light mode support with HSL-based design token architecture.",
-    icon: <Moon className="w-5 h-5" />,
-    tag: "improvement",
-    items: [
-      "ThemeProvider with system preference detection",
-      "HSL-based semantic design tokens in CSS variables",
-      "All components use semantic tokens — no hardcoded colors",
-      "Primary, accent, success, muted, and destructive color scales",
-      "Smooth theme transitions across all pages",
-    ],
-  },
-  {
-    date: "2026-03-03",
-    title: "Performance & Code Splitting",
-    description: "Lazy loading and route-based code splitting for fast initial page loads.",
-    icon: <Zap className="w-5 h-5" />,
-    tag: "improvement",
-    items: [
-      "All routes lazy-loaded with React.lazy() and Suspense",
-      "Only the home page bundle loads on initial visit",
-      "Skeleton loading states for portal and upload pages",
-      "React Query for server state with automatic caching and refetch",
-      "Optimistic UI updates where applicable",
-    ],
-  },
-  {
-    date: "2026-03-01",
-    title: "Mobile QR Code Handoff",
-    description: "Seamless desktop-to-mobile transition for photo and document uploads.",
-    icon: <QrCode className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "QR code banner displayed on desktop upload pages",
-      "Scanning opens the same upload page on mobile with camera access",
-      "Token-based URL ensures customer's submission is linked automatically",
-      "Mobile-optimized camera capture UI",
-    ],
-  },
-  {
-    date: "2026-02-27",
-    title: "Database Schema & Security Foundation",
-    description: "Core database architecture with row-level security and role-based access.",
-    icon: <Database className="w-5 h-5" />,
-    tag: "security",
-    items: [
-      "Submissions table with 50+ fields covering full vehicle and customer data",
-      "Row-level security (RLS) policies on all tables",
-      "User roles enum: Admin, Sales/BDC, Used Car Manager, GSM/GM",
-      "Security-definer helper functions (has_role, is_staff) to prevent RLS recursion",
-      "Profiles table for staff display names, photos, and contact info",
-      "Activity log table for full audit trail",
-      "Token-based submission access for customers (no login required)",
-    ],
-  },
-  {
-    date: "2026-02-25",
-    title: "Privacy Policy & Terms of Service",
-    description: "Professional legal pages covering data handling, user rights, and platform terms.",
-    icon: <FileText className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "Comprehensive privacy policy at /privacy",
-      "Terms of service at /terms",
-      "Accessible from footer and sitemap",
-      "Clear data collection and usage disclosures",
-    ],
-  },
-  {
-    date: "2026-02-20",
-    title: "Ken Garff Executive Presentation",
-    description: "Cinematic personal pitch deck for Ken Garff leadership introduction.",
-    icon: <Layers className="w-5 h-5" />,
-    tag: "feature",
-    items: [
-      "10-slide animated presentation at /ken",
-      "Career journey timeline with dealership brand logos",
-      "Stats dashboard with animated counters",
-      "Leadership philosophy and recognition sections",
-      "Fullscreen mode with keyboard navigation",
-      "Auto-rotating hero image carousel",
-    ],
-  },
-];
-
 export default function Updates() {
   const navigate = useNavigate();
   const [expandedIdx, setExpandedIdx] = useState<number | null>(0);
+  const [entries, setEntries] = useState<ChangelogEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from("changelog_entries")
+      .select("id, entry_date, title, description, items, icon, tag")
+      .eq("is_active", true)
+      .order("entry_date", { ascending: false })
+      .order("sort_order", { ascending: true })
+      .then(({ data }) => {
+        setEntries((data as ChangelogEntry[]) || []);
+        setLoading(false);
+      });
+  }, []);
+
+  const getIcon = (iconName: string) => {
+    const IconComponent = ICON_MAP[iconName] || Sparkles;
+    return <IconComponent className="w-5 h-5" />;
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-lg border-b border-border">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
@@ -639,69 +75,77 @@ export default function Updates() {
         </div>
       </header>
 
-      {/* Timeline */}
       <main className="max-w-3xl mx-auto px-4 py-8">
-        <div className="relative">
-          {/* Vertical line */}
-          <div className="absolute left-[19px] top-0 bottom-0 w-px bg-border" />
-
-          <div className="space-y-1">
-            {updates.map((update, idx) => {
-              const isExpanded = expandedIdx === idx;
-              return (
-                <div key={idx} className="relative pl-12">
-                  {/* Dot */}
-                  <div className={`absolute left-2.5 top-5 w-3 h-3 rounded-full border-2 transition-colors ${isExpanded ? "bg-primary border-primary" : "bg-background border-muted-foreground/30"}`} />
-
-                  <button
-                    onClick={() => setExpandedIdx(isExpanded ? null : idx)}
-                    className="w-full text-left py-4 group"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className={`shrink-0 p-2 rounded-lg transition-colors ${isExpanded ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
-                        {update.icon}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-xs font-mono text-muted-foreground">
-                            {new Date(update.date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                          </span>
-                          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${TAG_STYLES[update.tag]}`}>
-                            {TAG_LABELS[update.tag]}
-                          </span>
-                        </div>
-                        <h3 className="text-sm font-semibold text-foreground mt-1 group-hover:text-primary transition-colors">
-                          {update.title}
-                        </h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">{update.description}</p>
-                      </div>
-                      <div className="shrink-0 mt-1 text-muted-foreground">
-                        {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                      </div>
-                    </div>
-                  </button>
-
-                  {isExpanded && (
-                    <div className="pb-4 -mt-1">
-                      <ul className="space-y-1.5 ml-12">
-                        {update.items.map((item, i) => (
-                          <li key={i} className="flex items-start gap-2 text-xs text-card-foreground">
-                            <Sparkles className="w-3 h-3 text-accent shrink-0 mt-0.5" />
-                            <span>{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+        {loading ? (
+          <div className="space-y-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="pl-12 py-4">
+                <Skeleton className="h-4 w-32 mb-2" />
+                <Skeleton className="h-5 w-64 mb-1" />
+                <Skeleton className="h-3 w-96" />
+              </div>
+            ))}
           </div>
-        </div>
+        ) : (
+          <div className="relative">
+            <div className="absolute left-[19px] top-0 bottom-0 w-px bg-border" />
+            <div className="space-y-1">
+              {entries.map((entry, idx) => {
+                const isExpanded = expandedIdx === idx;
+                return (
+                  <div key={entry.id} className="relative pl-12">
+                    <div className={`absolute left-2.5 top-5 w-3 h-3 rounded-full border-2 transition-colors ${isExpanded ? "bg-primary border-primary" : "bg-background border-muted-foreground/30"}`} />
+                    <button
+                      onClick={() => setExpandedIdx(isExpanded ? null : idx)}
+                      className="w-full text-left py-4 group"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className={`shrink-0 p-2 rounded-lg transition-colors ${isExpanded ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                          {getIcon(entry.icon)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-xs font-mono text-muted-foreground">
+                              {new Date(entry.entry_date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                            </span>
+                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${TAG_STYLES[entry.tag] || TAG_STYLES.feature}`}>
+                              {TAG_LABELS[entry.tag] || entry.tag}
+                            </span>
+                          </div>
+                          <h3 className="text-sm font-semibold text-foreground mt-1 group-hover:text-primary transition-colors">
+                            {entry.title}
+                          </h3>
+                          <p className="text-xs text-muted-foreground mt-0.5">{entry.description}</p>
+                        </div>
+                        <div className="shrink-0 mt-1 text-muted-foreground">
+                          {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                        </div>
+                      </div>
+                    </button>
+                    {isExpanded && (
+                      <div className="pb-4 -mt-1">
+                        <ul className="space-y-1.5 ml-12">
+                          {entry.items.map((item, i) => (
+                            <li key={i} className="flex items-start gap-2 text-xs text-card-foreground">
+                              <Sparkles className="w-3 h-3 text-accent shrink-0 mt-0.5" />
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
-        <p className="text-center text-xs text-muted-foreground mt-12 pb-8">
-          — End of changelog —
-        </p>
+        {!loading && (
+          <p className="text-center text-xs text-muted-foreground mt-12 pb-8">
+            — End of changelog —
+          </p>
+        )}
       </main>
     </div>
   );
