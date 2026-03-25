@@ -12,10 +12,11 @@ import {
 } from "@/components/ui/sidebar";
 import {
   Inbox, CalendarDays, Users, ShieldCheck, SlidersHorizontal,
-  Settings, Bell, ListChecks, MessageSquareQuote, BarChart3, Send, UserCheck, MapPin, Car, ScrollText, Newspaper, FileText
+  Settings, Bell, ListChecks, MessageSquareQuote, BarChart3, Send, UserCheck, MapPin, Car, ScrollText, Newspaper, FileText, Shield, Lock
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 interface AdminSidebarProps {
   activeSection: string;
@@ -24,6 +25,10 @@ interface AdminSidebarProps {
   submissionCount: number;
   appointmentCount: number;
   pendingRequestCount: number;
+  permissionRequestCount?: number;
+  allowedSections?: string[] | null; // null = unrestricted (admin)
+  showRequestAccess?: boolean;
+  onRequestAccess?: (sectionKey: string) => void;
 }
 
 const AdminSidebar = ({
@@ -33,28 +38,34 @@ const AdminSidebar = ({
   submissionCount,
   appointmentCount,
   pendingRequestCount,
+  permissionRequestCount = 0,
+  allowedSections = null,
+  showRequestAccess = false,
+  onRequestAccess,
 }: AdminSidebarProps) => {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const navigate = useNavigate();
 
+  const isAllowed = (key: string) => allowedSections === null || allowedSections.includes(key);
+
   const mainItems = [
     { key: "submissions", label: "Submissions", icon: Inbox, badge: submissionCount > 0 ? String(submissionCount) : undefined },
     { key: "appointments", label: "Appointments", icon: CalendarDays, badge: appointmentCount > 0 ? String(appointmentCount) : undefined },
-  ];
+  ].filter((item) => isAllowed(item.key));
 
   const teamItems = canManageAccess
     ? [
         { key: "staff", label: "Staff", icon: Users },
         { key: "requests", label: "Access Requests", icon: UserCheck, badge: pendingRequestCount > 0 ? String(pendingRequestCount) : undefined, badgeVariant: "destructive" as const },
-      ]
+      ].filter((item) => isAllowed(item.key))
     : [];
 
   const complianceItems = [
     { key: "consent", label: "Consent Log", icon: ShieldCheck },
     { key: "follow-ups", label: "Follow-Ups", icon: Send },
     { key: "notification-log", label: "Notification Log", icon: ScrollText },
-  ];
+  ].filter((item) => isAllowed(item.key));
 
   const configItems = canManageAccess
     ? [
@@ -68,7 +79,14 @@ const AdminSidebar = ({
         { key: "image-inventory", label: "Image Cache", icon: Car },
         { key: "about-page", label: "About Page", icon: FileText },
         { key: "changelog", label: "Changelog", icon: Newspaper },
-      ]
+        { key: "permissions", label: "Permissions", icon: Shield, badge: permissionRequestCount > 0 ? String(permissionRequestCount) : undefined, badgeVariant: "destructive" as const },
+      ].filter((item) => isAllowed(item.key))
+    : [];
+
+  // Collect locked sections for "Request Access" display
+  const allSectionKeys = ["submissions", "appointments", "staff", "requests", "consent", "follow-ups", "notification-log", "offer-settings", "site-config", "notifications", "form-config", "testimonials", "comparison", "locations", "image-inventory", "about-page", "changelog", "permissions"];
+  const lockedSections = showRequestAccess && allowedSections !== null
+    ? allSectionKeys.filter((k) => !allowedSections.includes(k))
     : [];
 
   const renderGroup = (label: string, items: { key: string; label: string; icon: React.ElementType; badge?: string; badgeVariant?: string }[]) => {
@@ -120,6 +138,28 @@ const AdminSidebar = ({
         {renderGroup("Team", teamItems)}
         {renderGroup("Compliance", complianceItems)}
         {renderGroup("Configuration", configItems)}
+
+        {/* Request Access section for non-admins */}
+        {lockedSections.length > 0 && !collapsed && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-[10px] uppercase tracking-widest font-bold text-sidebar-foreground/50">
+              Request Access
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <div className="px-2 pb-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full gap-1.5 text-xs"
+                  onClick={() => onRequestAccess?.("request-access")}
+                >
+                  <Lock className="w-3 h-3" />
+                  Request More Access
+                </Button>
+              </div>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
       <SidebarFooter className="p-3 space-y-2">
         <SidebarMenu>
