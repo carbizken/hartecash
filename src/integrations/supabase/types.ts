@@ -761,6 +761,11 @@ export type Database = {
       }
       site_config: {
         Row: {
+          about_hero_headline: string
+          about_hero_subtext: string
+          about_milestones: Json
+          about_story: string
+          about_values: Json
           accent_color: string
           address: string | null
           comparison_features: Json
@@ -793,6 +798,11 @@ export type Database = {
           website_url: string | null
         }
         Insert: {
+          about_hero_headline?: string
+          about_hero_subtext?: string
+          about_milestones?: Json
+          about_story?: string
+          about_values?: Json
           accent_color?: string
           address?: string | null
           comparison_features?: Json
@@ -825,6 +835,11 @@ export type Database = {
           website_url?: string | null
         }
         Update: {
+          about_hero_headline?: string
+          about_hero_subtext?: string
+          about_milestones?: Json
+          about_story?: string
+          about_values?: Json
           accent_color?: string
           address?: string | null
           comparison_features?: Json
