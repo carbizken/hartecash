@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Save, Loader2, Plus, Trash2, ChevronDown, GripVertical } from "lucide-react";
+import { Save, Loader2, Plus, Trash2, ChevronDown, GripVertical, ExternalLink } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -122,10 +122,17 @@ const AboutPageConfig = () => {
           <h2 className="text-lg font-bold text-foreground">About Page</h2>
           <p className="text-xs text-muted-foreground">Customize the /about page content for your dealership.</p>
         </div>
-        <Button onClick={handleSave} disabled={saving} size="sm" className="gap-1.5">
-          {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-          Save
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="gap-1.5" asChild>
+            <a href="/about" target="_blank" rel="noopener noreferrer">
+              <ExternalLink className="w-3.5 h-3.5" /> Preview
+            </a>
+          </Button>
+          <Button onClick={handleSave} disabled={saving} size="sm" className="gap-1.5">
+            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+            Save
+          </Button>
+        </div>
       </div>
 
       {/* Hero */}
