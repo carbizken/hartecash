@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  MapPin, Phone, Clock, Shield, Star, Car,
-  Users, Building2, Award, HandshakeIcon, ChevronRight
+  Shield, Clock, Award, HandshakeIcon, ChevronRight, Building2,
 } from "lucide-react";
 import AnimatedCounter from "@/components/AnimatedCounter";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,33 +21,33 @@ interface DealerLocation {
 }
 
 const milestones = [
-  { year: "1952", label: "Founded in Hartford, CT" },
-  { year: "1970s", label: "Expanded to West Haven & Wallingford" },
-  { year: "2010s", label: "Launched digital vehicle purchasing" },
-  { year: "2024", label: "14,000+ vehicles purchased from consumers" },
-  { year: "2025", label: "Introduced 2-minute instant cash offers" },
+  { year: "1951", label: "George Harte Sr. opens his first Chevrolet dealership in Connecticut" },
+  { year: "1970s", label: "The Harte family expands into West Haven, Wallingford & beyond" },
+  { year: "2014", label: "New state-of-the-art Infiniti facility built in Wallingford" },
+  { year: "2020s", label: "Tom & Greg Harte launch Harte Cash — a digital-first vehicle buying platform" },
+  { year: "Today", label: "Four generations, five locations, and 14,000+ vehicles purchased from neighbors across CT" },
 ];
 
 const values = [
   {
-    icon: Shield,
-    title: "Transparency",
-    text: "Every offer includes a full breakdown — no hidden fees, no surprises. Our disclosure page explains exactly how we value your vehicle.",
+    icon: HandshakeIcon,
+    title: "You're Family Here",
+    text: "George Harte Sr. believed every customer deserves to be treated like family. Four generations later, that's still the standard. No pressure, no games — just honest conversations.",
   },
   {
-    icon: HandshakeIcon,
-    title: "No-Pressure Process",
-    text: "Our offers are 100% no-obligation with an 8-day price guarantee. Sell when you're ready, not when we say so.",
+    icon: Shield,
+    title: "Nothing Hidden, Ever",
+    text: "Every offer includes a full breakdown. We show you exactly how we valued your vehicle, what we factored in, and what you'll walk away with. Transparency isn't a buzzword here — it's how we were raised.",
   },
   {
     icon: Clock,
-    title: "Speed & Convenience",
-    text: "Get a firm offer in under 2 minutes. We handle loan payoffs, paperwork, and offer free pickup at your door.",
+    title: "Your Time Matters",
+    text: "We built Harte Cash so you can get a real offer in under 2 minutes — not 2 hours at a dealership. We handle the loan payoffs, the paperwork, and we'll even come pick up your car.",
   },
   {
     icon: Award,
-    title: "Trust & Reputation",
-    text: "4.9-star rating across 2,400+ verified reviews. Family-owned and operated in Connecticut since 1952.",
+    title: "Earned Trust, Not Bought",
+    text: "A 4.9-star rating across 2,400+ reviews doesn't happen by accident. It comes from decades of keeping our word and treating people right. Ask your neighbor — chances are they've worked with us.",
   },
 ];
 
@@ -58,7 +57,7 @@ const AboutPage = () => {
   const [locations, setLocations] = useState<DealerLocation[]>([]);
 
   useEffect(() => {
-    const fetch = async () => {
+    const fetchLocations = async () => {
       const { data } = await supabase
         .from("dealership_locations" as any)
         .select("id, name, city, state, address")
@@ -66,14 +65,14 @@ const AboutPage = () => {
         .order("sort_order");
       if (data) setLocations(data as unknown as DealerLocation[]);
     };
-    fetch();
+    fetchLocations();
   }, []);
 
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="About Harte Auto Group — CT's Trusted Car Buyer Since 1952"
-        description="Family-owned since 1952, Harte Auto Group has purchased 14,700+ vehicles across Connecticut. 4.9-star rating, 2,400+ reviews. Learn about our team, locations, and values."
+        title="About Harte Auto Group — CT's Trusted Car Buyer Since 1951"
+        description="Four generations of the Harte family have purchased 14,700+ vehicles across Connecticut. 4.9-star rating, 2,400+ reviews. Learn our story."
         path="/about"
       />
       <LocalBusinessJsonLd />
@@ -87,13 +86,12 @@ const AboutPage = () => {
               About Us
             </p>
             <h1 className="text-3xl md:text-5xl font-extrabold leading-tight mb-5">
-              Family-Owned. Customer-First.<br className="hidden md:block" /> Since 1952.
+              Four Generations.<br className="hidden md:block" /> One Promise.
             </h1>
-            <p className="text-lg md:text-xl opacity-80 max-w-2xl mx-auto leading-relaxed">
-              Three generations of the Harte family have built one of Connecticut's most
-              trusted car-buying services — purchasing over{" "}
-              <strong>{config.stats_cars_purchased || "14,721+"}</strong> vehicles
-              directly from consumers.
+            <p className="text-lg md:text-xl opacity-85 max-w-2xl mx-auto leading-relaxed">
+              Since 1951, the Harte family has been helping Connecticut drivers — not just
+              sell and buy cars, but feel good about the experience. That's the only way
+              we know how to do it.
             </p>
           </div>
         </section>
@@ -103,7 +101,7 @@ const AboutPage = () => {
           <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div>
               <p className="text-2xl md:text-3xl font-extrabold text-primary">
-                <AnimatedCounter target={parseInt((config.stats_years_in_business || "78").replace(/\D/g, "")) || 78} suffix="+" />
+                <AnimatedCounter target={parseInt((config.stats_years_in_business || "74").replace(/\D/g, "")) || 74} suffix="+" />
               </p>
               <p className="text-xs md:text-sm text-muted-foreground mt-1">Years in Business</p>
             </div>
@@ -134,27 +132,36 @@ const AboutPage = () => {
             </h2>
             <div className="prose prose-sm max-w-none text-foreground/85 space-y-4">
               <p>
-                In <strong>1952</strong>, the Harte family opened their first dealership in
-                Hartford, Connecticut — built on a simple idea: <em>treat every customer
-                the way you'd want to be treated</em>. That principle hasn't changed in
-                over seven decades.
+                It started with a handshake. In <strong>1951</strong>, George Harte Sr.
+                opened a Chevrolet dealership in Connecticut with one simple belief:
+                <em> treat every person who walks through your door like family</em>. He
+                didn't have a marketing team or a mission statement — just a genuine desire
+                to help his neighbors find the right car at a fair price.
               </p>
               <p>
-                Today, {name} operates <strong>{locations.length || 5} dealership locations</strong>{" "}
-                across Connecticut, representing Nissan, Infiniti, and Hyundai. While our
-                showrooms sell new and pre-owned vehicles, our{" "}
-                <strong>Harte Cash</strong> platform was created to give consumers the
-                fastest, most transparent way to sell or trade in their car — without the
-                hassle of private-party sales or lowball offers from national competitors.
+                That belief became the foundation for everything that followed. The
+                dealership grew from a single lot into{" "}
+                <strong>{locations.length || 5} locations</strong> across Connecticut,
+                representing Nissan, Infiniti, and Hyundai. George's children carried the
+                business forward, and today, brothers <strong>Tom and Greg Harte</strong>{" "}
+                lead the group as third-generation owners — with the fourth generation
+                already part of the family business.
               </p>
               <p>
-                Every offer is generated using <strong>real-time market data</strong> from
-                industry-leading valuation sources, adjusted by our proprietary condition
-                model, and backed by an{" "}
+                A lot has changed since 1951. But the way we treat people hasn't. Many of
+                our team members have been with us for <strong>10, 15, even 20+ years</strong>.
+                Customers come back generation after generation — not because we run the
+                flashiest ads, but because when they work with us, they know they'll be
+                treated honestly.
+              </p>
+              <p>
+                That's why we built <strong>Harte Cash</strong>. We wanted to bring
+                that same family-first philosophy to people who just want to sell their car
+                — quickly, fairly, and without the runaround. You get a real offer in
+                under 2 minutes, backed by an{" "}
                 <strong>{config.price_guarantee_days || 8}-day price guarantee</strong>.
-                We handle loan payoffs, paperwork, and offer{" "}
-                <strong>free vehicle pickup</strong> — so you can sell your car without
-                leaving your couch.
+                We handle the loan payoffs, the paperwork, and we'll even pick up your
+                vehicle for free. It's the kind of experience we'd want for our own family.
               </p>
             </div>
           </div>
@@ -164,7 +171,7 @@ const AboutPage = () => {
         <section className="bg-muted/40 border-y border-border py-14 px-5" aria-label="Company milestones">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-2xl font-extrabold text-foreground mb-8 text-center">
-              Milestones
+              Our Journey
             </h2>
             <ol className="relative border-l-2 border-primary/20 ml-4 space-y-8">
               {milestones.map((m) => (
@@ -181,9 +188,13 @@ const AboutPage = () => {
         {/* ── Our Values ── */}
         <section className="py-14 md:py-20 px-5" aria-label="Our values">
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-10 text-center">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-3 text-center">
               What We Stand For
             </h2>
+            <p className="text-sm text-muted-foreground text-center mb-10 max-w-xl mx-auto">
+              These aren't corporate values on a wall. They're the principles George Sr.
+              built this business on — and the ones we still live by every day.
+            </p>
             <div className="grid md:grid-cols-2 gap-6">
               {values.map((v) => (
                 <article
@@ -207,11 +218,11 @@ const AboutPage = () => {
         <section className="bg-muted/40 border-y border-border py-14 px-5" aria-label="Dealership locations">
           <div className="max-w-5xl mx-auto">
             <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-3 text-center">
-              Our Locations
+              Come See Us
             </h2>
             <p className="text-sm text-muted-foreground text-center mb-10 max-w-xl mx-auto">
-              Five dealerships across Connecticut — all accepting walk-in appraisals
-              and scheduled vehicle purchases.
+              Five dealerships across Connecticut — all welcoming walk-ins for appraisals
+              and vehicle purchases. Stop in anytime and find out why so many choose to Drive With Harte.
             </p>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -250,17 +261,17 @@ const AboutPage = () => {
           </div>
         </section>
 
-        {/* ── Contact + CTA ── */}
-        <section className="py-14 md:py-20 px-5" aria-label="Contact and get started">
+        {/* ── CTA ── */}
+        <section className="py-14 md:py-20 px-5" aria-label="Get started">
           <div className="max-w-2xl mx-auto text-center">
             <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-4">
               Ready to See What Your Car Is Worth?
             </h2>
             <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
-              Get a no-obligation cash offer in under 2 minutes — or call us at{" "}
+              Get a no-obligation cash offer in under 2 minutes — or give us a call at{" "}
               <a href={`tel:${config.phone || "(860) 506-3092"}`} className="text-primary font-semibold hover:underline">
                 {config.phone || "(860) 506-3092"}
-              </a>.
+              </a>. We'd love to hear from you.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button asChild size="lg" className="gap-2">
