@@ -351,6 +351,28 @@ const SiteConfiguration = () => {
       <Section icon={Type} title="Hero Section & Content">
         <div className="space-y-4">
           <div className="space-y-1.5">
+            <Label className="text-xs font-semibold">Hero Layout</Label>
+            <div className="flex gap-2">
+              {[
+                { value: "centered", label: "Centered (Default)" },
+                { value: "split", label: "Split (Carvana-style)" },
+              ].map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => update("hero_layout", opt.value)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                    config.hero_layout === opt.value
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-muted/50 text-muted-foreground border-border hover:bg-muted"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-1.5">
             <Label className="text-xs font-semibold">Hero Headline</Label>
             <Input value={config.hero_headline} onChange={e => update("hero_headline", e.target.value)} />
           </div>
