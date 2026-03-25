@@ -1,4 +1,4 @@
-import { Check, Star, Shield } from "lucide-react";
+import { Check, Shield } from "lucide-react";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 
 const Hero = () => {
