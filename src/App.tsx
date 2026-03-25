@@ -34,6 +34,7 @@ const Updates = lazy(() => import("./pages/Updates"));
 const queryClient = new QueryClient();
 
 const App = () => (
+  <HelmetProvider>
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <TooltipProvider>
