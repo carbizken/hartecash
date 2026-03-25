@@ -319,6 +319,15 @@ const SiteConfiguration = () => {
                     className="h-8 text-xs"
                     placeholder={`Default: ${config.accent_color}`}
                   />
+                  {config[key] && (
+                    <button
+                      type="button"
+                      onClick={() => update(key, "")}
+                      className="text-xs text-muted-foreground hover:text-foreground whitespace-nowrap"
+                    >
+                      Reset
+                    </button>
+                  )}
                 </div>
                 <p className="text-xs text-muted-foreground">{desc}</p>
               </div>
