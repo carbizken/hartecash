@@ -36,6 +36,7 @@ const AdminSidebar = ({
 }: AdminSidebarProps) => {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const navigate = useNavigate();
 
   const mainItems = [
     { key: "submissions", label: "Submissions", icon: Inbox, badge: submissionCount > 0 ? String(submissionCount) : undefined },
