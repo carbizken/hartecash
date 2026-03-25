@@ -1145,6 +1145,7 @@ export default function PitchDeck() {
                 ["Integrated appointment scheduling", true, false],
                 ["SMS & email automated notifications", true, false],
                 ["Full activity audit trail", true, false],
+                ["ACV change audit trail with old/new values", true, false],
                 ["Server-enforced pipeline stage gates", true, false],
                 ["Print-ready office records", true, false],
                 ["Service drive seed-planting SMS", true, false],
