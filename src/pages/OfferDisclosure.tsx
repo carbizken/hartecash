@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, ShieldCheck, AlertTriangle, ChevronDown } from "lucide-react";
 import harteLogo from "@/assets/harte-logo-white.png";
 import SiteFooter from "@/components/SiteFooter";
+import SEO from "@/components/SEO";
 
 // ─── Factor cards ────────────────────────────────────────────────────────────
 const factors = [
