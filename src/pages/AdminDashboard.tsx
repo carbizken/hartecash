@@ -1790,7 +1790,20 @@ const AdminDashboard = () => {
           {/* About Page */}
           {activeSection === "about-page" && canManageAccess && <AboutPageConfig />}
 
+          {/* Permissions */}
+          {activeSection === "permissions" && canManageAccess && <PermissionManagement />}
+
         </div>
+      </div>
+
+      {/* Request Access Dialog (for non-admin staff) */}
+      {userId && (
+        <RequestAccessDialog
+          open={showRequestAccessDialog}
+          onOpenChange={setShowRequestAccessDialog}
+          userId={userId}
+        />
+      )}
       </div>
       </div>
 
