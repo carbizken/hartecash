@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import harteLogo from "@/assets/harte-logo-white.png";
+import SEO from "@/components/SEO";
 
 const TermsOfService = () => {
   return (
