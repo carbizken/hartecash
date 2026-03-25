@@ -413,6 +413,32 @@ const VehicleImageInventory = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Bulk delete by manufacturer dialog */}
+      <AlertDialog open={!!bulkDeleteMake} onOpenChange={(open) => !open && setBulkDeleteMake(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete all {bulkDeleteMake} images?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete <strong>all {images.filter((i) => i.vehicle_make === bulkDeleteMake).length} cached image{images.filter((i) => i.vehicle_make === bulkDeleteMake).length !== 1 ? "s" : ""}</strong> for <strong>{bulkDeleteMake}</strong>. New images will be generated on demand when needed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={bulkDeletingMake}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => bulkDeleteMake && handleBulkDeleteMake(bulkDeleteMake)}
+              disabled={bulkDeletingMake}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {bulkDeletingMake ? (
+                <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Deleting…</>
+              ) : (
+                <>Delete All {bulkDeleteMake}</>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
