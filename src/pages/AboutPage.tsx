@@ -4,6 +4,7 @@ import {
   MapPin, Phone, Clock, Shield, Star, Car,
   Users, Building2, Award, HandshakeIcon, ChevronRight
 } from "lucide-react";
+import AnimatedCounter from "@/components/AnimatedCounter";
 import { supabase } from "@/integrations/supabase/client";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import SEO from "@/components/SEO";
@@ -100,17 +101,28 @@ const AboutPage = () => {
         {/* ── Stats Bar ── */}
         <section className="bg-card border-b border-border py-8 px-5" aria-label="Key statistics">
           <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {[
-              { value: config.stats_years_in_business || "72+", label: "Years in Business" },
-              { value: config.stats_cars_purchased || "14,721+", label: "Vehicles Purchased" },
-              { value: config.stats_rating || "4.9", label: "Average Rating" },
-              { value: config.stats_reviews_count || "2,400+", label: "Verified Reviews" },
-            ].map((s) => (
-              <div key={s.label}>
-                <p className="text-2xl md:text-3xl font-extrabold text-primary">{s.value}</p>
-                <p className="text-xs md:text-sm text-muted-foreground mt-1">{s.label}</p>
-              </div>
-            ))}
+            <div>
+              <p className="text-2xl md:text-3xl font-extrabold text-primary">
+                <AnimatedCounter target={parseInt((config.stats_years_in_business || "78").replace(/\D/g, "")) || 78} suffix="+" />
+              </p>
+              <p className="text-xs md:text-sm text-muted-foreground mt-1">Years in Business</p>
+            </div>
+            <div>
+              <p className="text-2xl md:text-3xl font-extrabold text-primary">
+                <AnimatedCounter target={parseInt((config.stats_cars_purchased || "14721").replace(/\D/g, "")) || 14721} suffix="+" />
+              </p>
+              <p className="text-xs md:text-sm text-muted-foreground mt-1">Vehicles Purchased</p>
+            </div>
+            <div>
+              <p className="text-2xl md:text-3xl font-extrabold text-primary">{config.stats_rating || "4.9"}</p>
+              <p className="text-xs md:text-sm text-muted-foreground mt-1">Average Rating</p>
+            </div>
+            <div>
+              <p className="text-2xl md:text-3xl font-extrabold text-primary">
+                <AnimatedCounter target={parseInt((config.stats_reviews_count || "2400").replace(/\D/g, "")) || 2400} suffix="+" />
+              </p>
+              <p className="text-xs md:text-sm text-muted-foreground mt-1">Verified Reviews</p>
+            </div>
           </div>
         </section>
 
