@@ -9,6 +9,7 @@ const Sitemap = () => {
       links: [
         { label: "Sell Us Landing", to: "/" },
         { label: "Service Landing", to: "/service" },
+        { label: "Trade Landing", to: "/trade" },
         { label: "Schedule a Visit", to: "/schedule" },
         { label: "About Us", to: "/about" },
       ],
