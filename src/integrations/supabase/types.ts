@@ -842,6 +842,8 @@ export type Database = {
           comparison_features: Json
           competitor_columns: Json
           created_at: string
+          cta_accept_color: string
+          cta_offer_color: string
           dealership_id: string
           dealership_name: string
           email: string | null
@@ -880,6 +882,8 @@ export type Database = {
           comparison_features?: Json
           competitor_columns?: Json
           created_at?: string
+          cta_accept_color?: string
+          cta_offer_color?: string
           dealership_id?: string
           dealership_name?: string
           email?: string | null
@@ -918,6 +922,8 @@ export type Database = {
           comparison_features?: Json
           competitor_columns?: Json
           created_at?: string
+          cta_accept_color?: string
+          cta_offer_color?: string
           dealership_id?: string
           dealership_name?: string
           email?: string | null
