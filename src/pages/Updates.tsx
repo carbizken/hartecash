@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Sparkles, Shield, Bell, BarChart3, Wrench, Camera, FileText, Users, DollarSign, CheckCircle, ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowLeft, Sparkles, Shield, Bell, BarChart3, Wrench, Camera, FileText, Users, DollarSign, CheckCircle, ChevronDown, ChevronRight, MapPin, Smartphone, CalendarDays, MessageSquare, Star, Eye, Handshake, ClipboardCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
