@@ -37,6 +37,8 @@ interface SiteConfig {
   enable_animations: boolean;
   use_animated_calculating: boolean;
   enable_dl_ocr: boolean;
+  cta_offer_color: string;
+  cta_accept_color: string;
 }
 
 const DEFAULT_CONFIG: SiteConfig = {
@@ -65,6 +67,8 @@ const DEFAULT_CONFIG: SiteConfig = {
   enable_animations: false,
   use_animated_calculating: false,
   enable_dl_ocr: false,
+  cta_offer_color: "",
+  cta_accept_color: "",
 };
 
 interface SectionProps {
@@ -290,6 +294,36 @@ const SiteConfiguration = () => {
               <p className="text-xs text-muted-foreground">{desc}</p>
             </div>
           ))}
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-border">
+          <p className="text-xs font-semibold text-card-foreground mb-1">CTA Button Overrides</p>
+          <p className="text-xs text-muted-foreground mb-3">
+            Leave blank to use the default Accent color. Set custom HSL values to override specific buttons when white-labeling.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {([
+              { key: "cta_offer_color" as const, label: "\"Get My Offer\" Button", desc: "Form submit & Continue buttons" },
+              { key: "cta_accept_color" as const, label: "\"Accept Offer\" Button", desc: "Accept & Lock In Your Price (accepted badge stays green)" },
+            ]).map(({ key, label, desc }) => (
+              <div key={key} className="space-y-1.5">
+                <Label className="text-xs font-semibold">{label}</Label>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-8 h-8 rounded-md border border-border shrink-0"
+                    style={{ backgroundColor: config[key] ? `hsl(${config[key]})` : `hsl(${config.accent_color})` }}
+                  />
+                  <Input
+                    value={config[key]}
+                    onChange={e => update(key, e.target.value)}
+                    className="h-8 text-xs"
+                    placeholder={`Default: ${config.accent_color}`}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">{desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </Section>
 

@@ -22,7 +22,13 @@ const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     if (config.success_color) {
       root.style.setProperty("--success", config.success_color);
     }
-  }, [config.primary_color, config.accent_color, config.success_color]);
+
+    // CTA button overrides — fall back to accent if not set
+    const ctaOffer = (config as any).cta_offer_color || config.accent_color;
+    const ctaAccept = (config as any).cta_accept_color || config.accent_color;
+    root.style.setProperty("--cta-offer", ctaOffer);
+    root.style.setProperty("--cta-accept", ctaAccept);
+  }, [config]);
 
   return <>{children}</>;
 };

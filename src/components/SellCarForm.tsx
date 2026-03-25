@@ -463,7 +463,8 @@ const SellCarForm = ({ leadSource = "inventory" }: SellCarFormProps) => {
               type="button"
               onClick={handleNext}
               disabled={bbLoading}
-              className="flex-1 py-4 bg-accent hover:bg-accent/90 text-accent-foreground text-[17px] font-bold shadow-lg shadow-accent/30 hover:-translate-y-0.5 transition-all"
+              className="flex-1 py-4 text-white text-[17px] font-bold shadow-lg hover:-translate-y-0.5 transition-all"
+              style={{ backgroundColor: "hsl(var(--cta-offer))", boxShadow: "0 10px 15px -3px hsl(var(--cta-offer) / 0.3)" }}
             >
               {bbLoading ? (
                 <span className="flex items-center gap-2">
@@ -478,7 +479,8 @@ const SellCarForm = ({ leadSource = "inventory" }: SellCarFormProps) => {
             <Button
               type="submit"
               disabled={submitting}
-              className="flex-1 py-4 bg-accent hover:bg-accent/90 text-accent-foreground text-[17px] font-bold shadow-lg shadow-accent/30 hover:-translate-y-0.5 transition-all"
+              className="flex-1 py-4 text-white text-[17px] font-bold shadow-lg hover:-translate-y-0.5 transition-all"
+              style={{ backgroundColor: "hsl(var(--cta-offer))", boxShadow: "0 10px 15px -3px hsl(var(--cta-offer) / 0.3)" }}
             >
               {submitting ? (
                 <span className="flex items-center gap-2">

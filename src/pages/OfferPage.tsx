@@ -438,7 +438,7 @@ const OfferPage = () => {
       ) : (
         <>
           <Link to={`/deal/${token}${activeTab === "trade" ? "?mode=trade" : ""}`}>
-            <Button className="w-full py-5 text-base font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg shadow-accent/20 gap-2 rounded-xl">
+            <Button className="w-full py-5 text-base font-bold text-white shadow-lg gap-2 rounded-xl" style={{ backgroundColor: "hsl(var(--cta-accept))", boxShadow: "0 10px 15px -3px hsl(var(--cta-accept) / 0.2)" }}>
               <CheckCircle className="w-5 h-5" />
               Accept & Lock In Your Price
               <ArrowRight className="w-5 h-5" />
@@ -1063,7 +1063,7 @@ const OfferPage = () => {
         </div>
       ) : (
         <Link to={`/deal/${token}${activeTab === "trade" ? "?mode=trade" : ""}`}>
-          <Button className="w-full py-5 text-base font-bold bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg shadow-accent/20 gap-2">
+          <Button className="w-full py-5 text-base font-bold text-white shadow-lg gap-2" style={{ backgroundColor: "hsl(var(--cta-accept))", boxShadow: "0 10px 15px -3px hsl(var(--cta-accept) / 0.2)" }}>
             <CheckCircle className="w-5 h-5" />
             Accept & Lock In Your Price
             <ArrowRight className="w-5 h-5" />
