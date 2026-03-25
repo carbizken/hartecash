@@ -102,13 +102,19 @@ const AboutPage = () => {
         <section className="bg-card border-b border-border py-8 px-5" aria-label="Key statistics">
           <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
-              { value: config.stats_years_in_business || "72+", label: "Years in Business" },
-              { value: config.stats_cars_purchased || "14,721+", label: "Vehicles Purchased" },
-              { value: config.stats_rating || "4.9", label: "Average Rating" },
-              { value: config.stats_reviews_count || "2,400+", label: "Verified Reviews" },
+              { target: parseInt((config.stats_years_in_business || "78").replace(/\D/g, "")) || 78, suffix: "+", label: "Years in Business" },
+              { target: parseInt((config.stats_cars_purchased || "14721").replace(/\D/g, "")) || 14721, suffix: "+", label: "Vehicles Purchased" },
+              { target: parseFloat(config.stats_rating || "4.9") * 10 || 49, divisor: 10, label: "Average Rating" },
+              { target: parseInt((config.stats_reviews_count || "2400").replace(/\D/g, "")) || 2400, suffix: "+", label: "Verified Reviews" },
             ].map((s) => (
               <div key={s.label}>
-                <p className="text-2xl md:text-3xl font-extrabold text-primary">{s.value}</p>
+                <p className="text-2xl md:text-3xl font-extrabold text-primary">
+                  {s.divisor ? (
+                    <AnimatedCounter target={s.target} suffix="" className="" />
+                  ) : (
+                    <AnimatedCounter target={s.target} suffix={s.suffix || ""} className="" />
+                  )}
+                </p>
                 <p className="text-xs md:text-sm text-muted-foreground mt-1">{s.label}</p>
               </div>
             ))}
