@@ -17,9 +17,9 @@ const SiteHeader = () => {
 
   return (
     <header className="bg-card sticky top-0 z-50 shadow-md">
-      <div className="max-w-6xl mx-auto px-5 py-3">
+      <div className="max-w-6xl mx-auto px-5 py-2">
         <div className="flex items-center justify-between">
-          <img src={logoSrc} alt={dealerName} className="h-24 md:h-28 w-auto" width={317} height={112} fetchPriority="high" />
+          <img src={logoSrc} alt={dealerName} className="h-[72px] md:h-[84px] w-auto" width={317} height={112} fetchPriority="high" />
 
           <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold text-card-foreground">
             <a href="#compare" className="hover:text-accent transition-colors">Why {dealerName.split(" ")[0]}</a>
