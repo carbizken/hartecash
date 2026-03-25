@@ -27,6 +27,7 @@ interface SiteConfig {
   success_color: string;
   hero_headline: string;
   hero_subtext: string;
+  hero_layout: string;
   price_guarantee_days: number;
   stats_cars_purchased: string;
   stats_years_in_business: string;
@@ -57,6 +58,7 @@ const DEFAULT_CONFIG: SiteConfig = {
   success_color: "142 71% 45%",
   hero_headline: "Sell Your Car The Easy Way",
   hero_subtext: "Get a top-dollar cash offer in 2 minutes. No haggling, no stress.",
+  hero_layout: "centered",
   price_guarantee_days: 8,
   stats_cars_purchased: "14,721+",
   stats_years_in_business: "78 yrs",
@@ -348,6 +350,28 @@ const SiteConfiguration = () => {
       {/* Hero & Content */}
       <Section icon={Type} title="Hero Section & Content">
         <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold">Hero Layout</Label>
+            <div className="flex gap-2">
+              {[
+                { value: "centered", label: "Centered (Default)" },
+                { value: "split", label: "Split (Carvana-style)" },
+              ].map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => update("hero_layout", opt.value)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+                    config.hero_layout === opt.value
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-muted/50 text-muted-foreground border-border hover:bg-muted"
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold">Hero Headline</Label>
             <Input value={config.hero_headline} onChange={e => update("hero_headline", e.target.value)} />

@@ -12,8 +12,13 @@ import FAQ from "@/components/FAQ";
 import CTABanner from "@/components/CTABanner";
 import SiteFooter from "@/components/SiteFooter";
 import AboutBlurb from "@/components/AboutBlurb";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
+import HeroSplit from "@/components/HeroSplit";
 
 const Index = () => {
+  const { config } = useSiteConfig();
+  const isSplit = config.hero_layout === "split";
+
   return (
     <div className="min-h-screen bg-background">
       <SEO
@@ -26,8 +31,14 @@ const Index = () => {
       <HowToJsonLd />
       <SiteHeader />
       <main>
-        <Hero />
-        <SellCarForm />
+        {isSplit ? (
+          <HeroSplit />
+        ) : (
+          <>
+            <Hero />
+            <SellCarForm />
+          </>
+        )}
         <HowItWorks />
         <TrustBadges />
         <CompetitorComparison />

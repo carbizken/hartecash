@@ -27,9 +27,10 @@ const stepVariants = {
 
 interface SellCarFormProps {
   leadSource?: string;
+  variant?: "default" | "split";
 }
 
-const SellCarForm = ({ leadSource = "inventory" }: SellCarFormProps) => {
+const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarFormProps) => {
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -409,7 +410,7 @@ const SellCarForm = ({ leadSource = "inventory" }: SellCarFormProps) => {
   }
 
   return (
-    <div ref={formRef} className="bg-card rounded-2xl shadow-xl mx-auto -mt-10 mb-10 p-6 md:p-8 relative z-10 max-w-lg w-[calc(100%-40px)]">
+    <div ref={formRef} className={`bg-card rounded-2xl shadow-xl p-6 md:p-8 relative z-10 ${variant === "split" ? "w-full" : "mx-auto -mt-10 mb-10 max-w-lg w-[calc(100%-40px)]"}`}>
       {/* Progress */}
       <div className="mb-6 pb-5 border-b-2 border-muted">
         <div className="flex justify-center items-center gap-3 mb-3">
