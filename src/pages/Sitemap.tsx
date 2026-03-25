@@ -39,6 +39,7 @@ const Sitemap = () => {
       links: [
         { label: "Admin Login", to: "/admin" },
       ],
+    },
   ];
 
   return (
