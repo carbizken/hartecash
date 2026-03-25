@@ -17,7 +17,7 @@ import HeroOffset from "@/components/HeroOffset";
 
 const Index = () => {
   const { config } = useSiteConfig();
-  const layout = config.hero_layout || "centered";
+  const layout = config.hero_layout || "offset_right";
 
   return (
     <div className="min-h-screen bg-background">
