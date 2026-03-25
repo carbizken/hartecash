@@ -13,11 +13,11 @@ import CTABanner from "@/components/CTABanner";
 import SiteFooter from "@/components/SiteFooter";
 import AboutBlurb from "@/components/AboutBlurb";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
-import HeroSplit from "@/components/HeroSplit";
+import HeroOffset from "@/components/HeroOffset";
 
 const Index = () => {
   const { config } = useSiteConfig();
-  const isSplit = config.hero_layout === "split";
+  const layout = config.hero_layout || "centered";
 
   return (
     <div className="min-h-screen bg-background">
@@ -31,8 +31,10 @@ const Index = () => {
       <HowToJsonLd />
       <SiteHeader />
       <main>
-        {isSplit ? (
-          <HeroSplit />
+        {layout === "offset_right" ? (
+          <HeroOffset side="right" />
+        ) : layout === "offset_left" ? (
+          <HeroOffset side="left" />
         ) : (
           <>
             <Hero />

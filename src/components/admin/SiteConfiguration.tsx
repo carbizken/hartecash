@@ -352,10 +352,11 @@ const SiteConfiguration = () => {
         <div className="space-y-4">
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold">Hero Layout</Label>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {[
-                { value: "centered", label: "Centered (Default)" },
-                { value: "split", label: "Split (Carvana-style)" },
+                { value: "centered", label: "Default" },
+                { value: "offset_right", label: "Offset Right" },
+                { value: "offset_left", label: "Offset Left" },
               ].map((opt) => (
                 <button
                   key={opt.value}
