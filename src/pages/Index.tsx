@@ -11,6 +11,7 @@ import Testimonials from "@/components/Testimonials";
 import FAQ from "@/components/FAQ";
 import CTABanner from "@/components/CTABanner";
 import SiteFooter from "@/components/SiteFooter";
+import AboutBlurb from "@/components/AboutBlurb";
 
 const Index = () => {
   return (
