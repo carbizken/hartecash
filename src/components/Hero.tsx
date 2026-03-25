@@ -5,10 +5,10 @@ const Hero = () => {
   const { config } = useSiteConfig();
 
   const benefits = [
-    { label: "Faster", desc: "Cash in 24 hours" },
-    { label: "Safer", desc: "No strangers at your home" },
-    { label: "Convenient", desc: "One visit, we handle paperwork" },
-    { label: "Private", desc: "We never share your info" },
+    { label: "Faster", desc: "Cash in 24 hrs" },
+    { label: "Safer", desc: "No strangers" },
+    { label: "Easy", desc: "We handle paperwork" },
+    { label: "Private", desc: "Info never shared" },
   ];
 
   return (
@@ -29,17 +29,26 @@ const Hero = () => {
           {config.hero_subtext || "Get a top-dollar cash offer in 2 minutes. No haggling, no stress."}
         </p>
 
-        <div className="max-w-4xl mx-auto mb-3 px-5 md:px-0">
-          <div className="flex flex-wrap justify-center gap-x-6 gap-y-1.5">
-            {benefits.map((b, i) => (
-              <div key={i} className="flex items-center gap-1.5">
-                <Check className="w-4 h-4 text-success flex-shrink-0 stroke-[3]" />
-                <span className="text-[13px] md:text-[14px] font-medium whitespace-nowrap">
-                  <strong>{b.label}:</strong> {b.desc}
-                </span>
-              </div>
-            ))}
-          </div>
+        <div className="hidden lg:flex items-center justify-center gap-5 mb-3">
+          {benefits.map((b, i) => (
+            <div key={i} className="flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-success flex-shrink-0 stroke-[3]" />
+              <span className="text-[13px] font-medium whitespace-nowrap">
+                <strong>{b.label}:</strong> {b.desc}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className="lg:hidden flex flex-wrap justify-center gap-x-5 gap-y-1 mb-3">
+          {benefits.map((b, i) => (
+            <div key={i} className="flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-success flex-shrink-0 stroke-[3]" />
+              <span className="text-[13px] font-medium whitespace-nowrap">
+                <strong>{b.label}:</strong> {b.desc}
+              </span>
+            </div>
+          ))}
         </div>
 
       </div>
