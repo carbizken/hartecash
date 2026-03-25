@@ -187,142 +187,87 @@ const VehicleImageInventory = () => {
     );
   });
 
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-        <div className="flex items-center gap-2">
-          <Car className="w-5 h-5 text-primary" />
-          <h2 className="text-lg font-semibold text-card-foreground">Vehicle Image Inventory</h2>
-          <span className="text-sm text-muted-foreground">({images.length} cached)</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
-            <Input
-              placeholder="Search year, make, model, color…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-8 h-8 w-56 text-sm"
-            />
-          </div>
-          <Button variant="outline" size="sm" onClick={fetchImages} disabled={loading}>
-            <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} />
-            Refresh
+  // Group by manufacturer
+  const grouped = useMemo(() => {
+    const map = new Map<string, CachedImage[]>();
+    for (const img of filtered) {
+      const make = img.vehicle_make || "Unknown";
+      if (!map.has(make)) map.set(make, []);
+      map.get(make)!.push(img);
+    }
+    // Sort manufacturers alphabetically
+    return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
+  }, [filtered]);
+
+  const [openMakes, setOpenMakes] = useState<Set<string>>(new Set());
+
+  // Auto-open all groups when data loads or search changes
+  useEffect(() => {
+    setOpenMakes(new Set(grouped.map(([make]) => make)));
+  }, [grouped.length, search]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const toggleMake = (make: string) => {
+    setOpenMakes((prev) => {
+      const next = new Set(prev);
+      if (next.has(make)) next.delete(make);
+      else next.add(make);
+      return next;
+    });
+  };
+
+  const colorSwatch = (color: string) => {
+    const c = color.toLowerCase();
+    const map: Record<string, string> = {
+      white: "#f5f5f5", black: "#1a1a1a", silver: "#c0c0c0", gray: "#808080", grey: "#808080",
+      red: "#cc2222", blue: "#2255cc", green: "#228833", brown: "#8B4513", gold: "#DAA520",
+      orange: "#FF6600", yellow: "#FFD700", purple: "#6B2FA0", beige: "#D2B48C",
+    };
+    return map[c] || "#999";
+  };
+
+  const renderCard = (img: CachedImage) => (
+    <div
+      key={img.id}
+      className="bg-card border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group"
+    >
+      <div className="relative aspect-[16/10] bg-muted/30 flex items-center justify-center">
+        {img.signed_url ? (
+          <img
+            src={img.signed_url}
+            alt={`${img.vehicle_year} ${img.vehicle_make} ${img.vehicle_model}`}
+            className="w-full h-full object-contain p-2"
+            loading="lazy"
+          />
+        ) : (
+          <ImageIcon className="w-8 h-8 text-muted-foreground/30" />
+        )}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+          <Button size="sm" variant="secondary" className="h-8 text-xs" onClick={() => handleRegenerate(img)} disabled={regeneratingId === img.id}>
+            {regeneratingId === img.id ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5 mr-1" />}
+            Regenerate
           </Button>
-          {images.length > 0 && (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setShowBulkDelete(true)}
-              disabled={bulkDeleting}
-            >
-              <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-              Clear All ({images.length})
-            </Button>
-          )}
+          <Button size="sm" variant="destructive" className="h-8 text-xs" onClick={() => setDeleteTarget(img)} disabled={deletingId === img.id}>
+            {deletingId === img.id ? <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" /> : <Trash2 className="w-3.5 h-3.5 mr-1" />}
+            Delete
+          </Button>
         </div>
       </div>
-
-      {loading ? (
-        <div className="flex items-center justify-center py-16">
-          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      <div className="px-3 py-2.5 border-t border-border/50">
+        <p className="text-sm font-semibold text-card-foreground truncate">
+          {img.vehicle_year} {img.vehicle_model}
+        </p>
+        <div className="flex items-center justify-between mt-1">
+          <span className="text-xs text-muted-foreground flex items-center gap-1">
+            <span className="w-3 h-3 rounded-full border border-border inline-block" style={{ backgroundColor: colorSwatch(img.exterior_color) }} />
+            {img.exterior_color}
+          </span>
+          <span className="text-[10px] text-muted-foreground/60">
+            {new Date(img.created_at).toLocaleDateString()}
+          </span>
         </div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground">
-          <ImageIcon className="w-10 h-10 mx-auto mb-3 opacity-30" />
-          <p className="font-medium">{search ? "No matches found" : "No cached images yet"}</p>
-          <p className="text-sm mt-1">Vehicle images will appear here once they&apos;re generated.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map((img) => (
-            <div
-              key={img.id}
-              className="bg-card border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group"
-            >
-              {/* Thumbnail */}
-              <div className="relative aspect-[16/10] bg-muted/30 flex items-center justify-center">
-                {img.signed_url ? (
-                  <img
-                    src={img.signed_url}
-                    alt={`${img.vehicle_year} ${img.vehicle_make} ${img.vehicle_model}`}
-                    className="w-full h-full object-contain p-2"
-                    loading="lazy"
-                  />
-                ) : (
-                  <ImageIcon className="w-8 h-8 text-muted-foreground/30" />
-                )}
-
-                {/* Overlay actions */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="h-8 text-xs"
-                    onClick={() => handleRegenerate(img)}
-                    disabled={regeneratingId === img.id}
-                  >
-                    {regeneratingId === img.id ? (
-                      <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
-                    ) : (
-                      <RefreshCw className="w-3.5 h-3.5 mr-1" />
-                    )}
-                    Regenerate
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="h-8 text-xs"
-                    onClick={() => setDeleteTarget(img)}
-                    disabled={deletingId === img.id}
-                  >
-                    {deletingId === img.id ? (
-                      <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
-                    ) : (
-                      <Trash2 className="w-3.5 h-3.5 mr-1" />
-                    )}
-                    Delete
-                  </Button>
-                </div>
-              </div>
-
-              {/* Info */}
-              <div className="px-3 py-2.5 border-t border-border/50">
-                <p className="text-sm font-semibold text-card-foreground truncate">
-                  {img.vehicle_year} {img.vehicle_make} {img.vehicle_model}
-                </p>
-                <div className="flex items-center justify-between mt-1">
-                  <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    <span
-                      className="w-3 h-3 rounded-full border border-border inline-block"
-                      style={{
-                        backgroundColor: img.exterior_color.toLowerCase() === "white" ? "#f5f5f5"
-                          : img.exterior_color.toLowerCase() === "black" ? "#1a1a1a"
-                          : img.exterior_color.toLowerCase() === "silver" ? "#c0c0c0"
-                          : img.exterior_color.toLowerCase() === "gray" || img.exterior_color.toLowerCase() === "grey" ? "#808080"
-                          : img.exterior_color.toLowerCase() === "red" ? "#cc2222"
-                          : img.exterior_color.toLowerCase() === "blue" ? "#2255cc"
-                          : img.exterior_color.toLowerCase() === "green" ? "#228833"
-                          : img.exterior_color.toLowerCase() === "brown" ? "#8B4513"
-                          : img.exterior_color.toLowerCase() === "gold" ? "#DAA520"
-                          : img.exterior_color.toLowerCase() === "orange" ? "#FF6600"
-                          : img.exterior_color.toLowerCase() === "yellow" ? "#FFD700"
-                          : img.exterior_color.toLowerCase() === "purple" ? "#6B2FA0"
-                          : img.exterior_color.toLowerCase() === "beige" ? "#D2B48C"
-                          : "#999",
-                      }}
-                    />
-                    {img.exterior_color}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground/60">
-                    {new Date(img.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      </div>
+    </div>
+  );
 
       {/* Delete confirmation dialog */}
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
