@@ -35,6 +35,9 @@ import FollowUpLog from "@/components/admin/FollowUpLog";
 import NotificationLog from "@/components/admin/NotificationLog";
 import ChangelogManagement from "@/components/admin/ChangelogManagement";
 import AboutPageConfig from "@/components/admin/AboutPageConfig";
+import PermissionManagement from "@/components/admin/PermissionManagement";
+import { useStaffPermissions } from "@/hooks/useStaffPermissions";
+import RequestAccessDialog from "@/components/admin/RequestAccessDialog";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
