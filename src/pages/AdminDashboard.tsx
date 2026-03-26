@@ -1755,6 +1755,9 @@ const AdminDashboard = () => {
           {/* Consent Log */}
           {activeSection === "consent" && <ConsentLog />}
 
+          {/* Executive KPI Hub */}
+          {activeSection === "executive" && <ExecutiveKPIHub />}
+
           {/* Offer Settings */}
           {activeSection === "offer-settings" && canManageAccess && <OfferSettings />}
 
