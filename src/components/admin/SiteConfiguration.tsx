@@ -109,16 +109,26 @@ const Section = ({ icon: Icon, title, children, defaultOpen = false }: SectionPr
   );
 };
 
+interface DealerLocation {
+  id: string;
+  name: string;
+  city: string;
+  state: string;
+}
+
 const SiteConfiguration = () => {
   const [config, setConfig] = useState<SiteConfig>(DEFAULT_CONFIG);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [savedConfig, setSavedConfig] = useState<SiteConfig>(DEFAULT_CONFIG);
+  const [dealerLocations, setDealerLocations] = useState<DealerLocation[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchConfig();
+    supabase.from("dealership_locations").select("id, name, city, state").eq("is_active", true).order("sort_order")
+      .then(({ data }) => { if (data) setDealerLocations(data); });
   }, []);
 
   const fetchConfig = async () => {
