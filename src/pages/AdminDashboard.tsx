@@ -1871,20 +1871,14 @@ const AdminDashboard = () => {
           {/* Testimonials */}
           {activeSection === "testimonials" && canManageAccess && <TestimonialManagement />}
 
-          {/* Comparison */}
-          {activeSection === "comparison" && canManageAccess && <ComparisonConfig />}
-
           {/* Locations */}
           {activeSection === "locations" && canManageAccess && <LocationManagement />}
 
           {/* Vehicle Image Inventory */}
           {activeSection === "image-inventory" && canManageAccess && <VehicleImageInventory />}
 
-          {/* Follow-Ups */}
-          {activeSection === "follow-ups" && <FollowUpLog />}
-
-          {/* Notification Log */}
-          {activeSection === "notification-log" && <NotificationLog />}
+          {/* Communication Log (Follow-Ups + Notification Log) */}
+          {activeSection === "comm-log" && <CommunicationLog />}
 
           {/* Changelog */}
           {activeSection === "changelog" && canManageAccess && <ChangelogManagement />}
