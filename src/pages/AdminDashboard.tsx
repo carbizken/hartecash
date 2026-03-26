@@ -1323,6 +1323,48 @@ const AdminDashboard = () => {
               </Button>
             </div>
 
+            {/* Quick-filter chips */}
+            <div className="mb-3 flex items-center gap-2 flex-wrap">
+              {[
+                { label: "All", value: "__all__", icon: undefined },
+                { label: "Abandoned", value: "partial", icon: <AlertTriangle className="w-3 h-3" /> },
+                { label: "New", value: "new", icon: undefined },
+                { label: "Hot Leads", value: "__hot__", icon: <TrendingUp className="w-3 h-3" /> },
+                { label: "Dead", value: "dead_lead", icon: <XCircle className="w-3 h-3" /> },
+              ].map(chip => {
+                const isActive = chip.value === "__hot__"
+                  ? statusFilter === "__hot__"
+                  : chip.value === "__all__"
+                    ? (!statusFilter || statusFilter === "__all__")
+                    : statusFilter === chip.value;
+                return (
+                  <button
+                    key={chip.value}
+                    onClick={() => setStatusFilter(chip.value)}
+                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-semibold border transition-all ${
+                      isActive
+                        ? chip.value === "partial"
+                          ? "bg-amber-500/15 border-amber-500/40 text-amber-700"
+                          : chip.value === "dead_lead"
+                            ? "bg-destructive/10 border-destructive/40 text-destructive"
+                            : chip.value === "__hot__"
+                              ? "bg-orange-500/15 border-orange-500/40 text-orange-700"
+                              : "bg-primary/10 border-primary/40 text-primary"
+                        : "bg-muted/50 border-border text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    {chip.icon}
+                    {chip.label}
+                    {chip.value === "partial" && (
+                      <span className="ml-0.5 bg-amber-500/20 px-1.5 rounded-full text-[10px]">
+                        {submissions.filter(s => s.progress_status === "partial").length}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
             {showFilterPanel && (
               <div className="mb-4 bg-muted/40 rounded-lg border border-border p-4 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
