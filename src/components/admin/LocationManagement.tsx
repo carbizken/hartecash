@@ -207,6 +207,17 @@ const LocationManagement = () => {
                     onCheckedChange={() => toggleField(loc.id, "temporarily_offline", loc.temporarily_offline)}
                   />
                 </div>
+                {locations.length > 1 && (
+                  <div className="flex items-center gap-1.5" title="Route this location's leads to the central Buying Center / BDC">
+                    <Label className={`text-[10px] ${loc.use_bdc ? 'text-blue-600 font-semibold' : 'text-muted-foreground'}`}>
+                      {loc.use_bdc ? '📞 BDC' : 'BDC'}
+                    </Label>
+                    <Switch
+                      checked={loc.use_bdc}
+                      onCheckedChange={() => toggleField(loc.id, "use_bdc", loc.use_bdc)}
+                    />
+                  </div>
+                )}
                 <Button variant="ghost" size="icon" onClick={() => deleteLocation(loc.id)} className="text-destructive hover:text-destructive/80 h-8 w-8">
                   <Trash2 className="w-4 h-4" />
                 </Button>
