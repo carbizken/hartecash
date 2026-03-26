@@ -202,6 +202,40 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
     }));
   }, [filteredSubs]);
 
+  /* ── conversion funnel ────────────────────────── */
+  const funnelStages = useMemo(() => {
+    const statusMap: Record<string, string> = {
+      new: "New",
+      partial: "Abandoned",
+      contacted: "Contacted",
+      inspection_scheduled: "Inspected",
+      inspected: "Inspected",
+      offer_made: "Contacted",
+      offer_accepted: "Contacted",
+      paperwork: "Inspected",
+      purchase_complete: "Purchased",
+      dead_lead: "Dead",
+    };
+
+    const counts: Record<string, number> = { New: 0, Abandoned: 0, Contacted: 0, Inspected: 0, Purchased: 0, Dead: 0 };
+    filteredSubs.forEach(s => {
+      const stage = statusMap[s.progress_status] || "New";
+      counts[stage]++;
+    });
+
+    const stages = [
+      { name: "New", count: counts.New + counts.Contacted + counts.Inspected + counts.Purchased, color: "hsl(210,70%,50%)" },
+      { name: "Contacted", count: counts.Contacted + counts.Inspected + counts.Purchased, color: "hsl(190,70%,45%)" },
+      { name: "Inspected", count: counts.Inspected + counts.Purchased, color: "hsl(280,60%,55%)" },
+      { name: "Purchased", count: counts.Purchased, color: "hsl(160,60%,45%)" },
+    ];
+
+    const abandoned = counts.Abandoned;
+    const dead = counts.Dead;
+
+    return { stages, abandoned, dead };
+  }, [filteredSubs]);
+
   /* ── staff performance ──────────────────────────── */
   const staffMetrics = useMemo(() => {
     const map: Record<string, { name: string; deals: number; totalValue: number }> = {};
@@ -401,7 +435,49 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
         </div>
       </div>
 
-      {/* Row 4 — Staff Performance */}
+      {/* Row 4 — Conversion Funnel */}
+      <div className="bg-card rounded-xl border border-border p-5 shadow-sm">
+        <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-5">Conversion Funnel</h3>
+        <div className="flex flex-col gap-1.5">
+          {funnelStages.stages.map((stage, i) => {
+            const maxCount = funnelStages.stages[0]?.count || 1;
+            const widthPct = Math.max((stage.count / maxCount) * 100, 8);
+            const prevCount = i > 0 ? funnelStages.stages[i - 1].count : stage.count;
+            const dropOff = prevCount > 0 && i > 0 ? Math.round(((prevCount - stage.count) / prevCount) * 100) : 0;
+            return (
+              <div key={stage.name} className="flex items-center gap-3">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase w-20 text-right shrink-0">{stage.name}</span>
+                <div className="flex-1 relative">
+                  <div
+                    className="h-9 rounded-lg flex items-center px-3 transition-all duration-500"
+                    style={{ width: `${widthPct}%`, background: stage.color, minWidth: 60 }}
+                  >
+                    <span className="text-white text-xs font-black">{stage.count}</span>
+                  </div>
+                </div>
+                {dropOff > 0 && (
+                  <span className="text-[10px] font-semibold text-red-500 w-16 shrink-0">−{dropOff}% drop</span>
+                )}
+              </div>
+            );
+          })}
+          {/* Abandoned & Dead below funnel */}
+          <div className="flex items-center gap-4 mt-2 pt-2 border-t border-border/50">
+            <div className="flex items-center gap-1.5">
+              <AlertTriangle className="w-3 h-3 text-amber-500" />
+              <span className="text-[10px] font-bold text-muted-foreground uppercase">Abandoned:</span>
+              <span className="text-xs font-black text-amber-600">{funnelStages.abandoned}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <TrendingDown className="w-3 h-3 text-red-500" />
+              <span className="text-[10px] font-bold text-muted-foreground uppercase">Dead:</span>
+              <span className="text-xs font-black text-red-500">{funnelStages.dead}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Row 5 — Staff Performance */}
       {staffMetrics.length > 0 && (
         <div className="bg-card rounded-xl border border-border p-5 shadow-sm">
           <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Staff Performance — Closed Deals</h3>
