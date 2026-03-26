@@ -19,6 +19,7 @@ interface Location {
   is_active: boolean;
   show_in_footer: boolean;
   show_in_scheduling: boolean;
+  temporarily_offline: boolean;
   zip_codes: string[];
   oem_brands: string[];
   center_zip: string;
