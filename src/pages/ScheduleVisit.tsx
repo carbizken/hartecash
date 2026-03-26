@@ -120,7 +120,7 @@ const ScheduleVisit = () => {
       toast({ title: "Please select a preferred time", variant: "destructive" });
       return;
     }
-    if (!form.store_location) {
+    if (!form.store_location && locations.length > 1) {
       toast({ title: "Please select a store location", variant: "destructive" });
       return;
     }
