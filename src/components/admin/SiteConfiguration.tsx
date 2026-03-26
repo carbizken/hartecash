@@ -663,6 +663,7 @@ const SiteConfiguration = () => {
           </div>
         </div>
       </Section>
+      )}
 
       {/* About Page */}
       <Section icon={FileText} title="About Page Content">
