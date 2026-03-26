@@ -31,6 +31,7 @@ const DealAccepted = lazy(() => import("./pages/DealAccepted"));
 const OfferDisclosure = lazy(() => import("./pages/OfferDisclosure"));
 const Updates = lazy(() => import("./pages/Updates"));
 const AboutPage = lazy(() => import("./pages/AboutPage"));
+const ExecutiveDashboard = lazy(() => import("./pages/ExecutiveDashboard"));
 
 const queryClient = new QueryClient();
 
