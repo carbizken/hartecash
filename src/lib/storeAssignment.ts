@@ -33,13 +33,22 @@ export async function findStoreByZip(customerZip: string): Promise<string | null
   const zip5 = customerZip.slice(0, 5);
   const locations = await getLocations();
 
-  // Exact match
+  // Exact match on listed ZIP codes
   for (const loc of locations) {
     if (loc.zip_codes && loc.zip_codes.includes(zip5)) return loc.id;
   }
 
-  // Prefix match (first 3 digits)
+  // Radius match: if a location has a center_zip and radius, use prefix-based proximity
+  // ZIP codes sharing the first 3 digits are typically within ~50 miles
   const prefix = zip5.slice(0, 3);
+  for (const loc of locations) {
+    if (loc.center_zip && loc.coverage_radius_miles > 0) {
+      const centerPrefix = loc.center_zip.slice(0, 3);
+      if (centerPrefix === prefix) return loc.id;
+    }
+  }
+
+  // Prefix match on listed ZIPs (first 3 digits)
   for (const loc of locations) {
     if (loc.zip_codes?.some(z => z.startsWith(prefix))) return loc.id;
   }
