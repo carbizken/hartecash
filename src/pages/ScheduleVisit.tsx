@@ -83,6 +83,13 @@ const ScheduleVisit = () => {
     vehicle_info: searchParams.get("vehicle") || "",
     notes: "",
   });
+
+  // Auto-select if only one scheduling location
+  useEffect(() => {
+    if (locations.length === 1 && !form.store_location) {
+      setForm(prev => ({ ...prev, store_location: locations[0].id }));
+    }
+  }, [locations]);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -113,7 +120,7 @@ const ScheduleVisit = () => {
       toast({ title: "Please select a preferred time", variant: "destructive" });
       return;
     }
-    if (!form.store_location) {
+    if (!form.store_location && locations.length > 1) {
       toast({ title: "Please select a store location", variant: "destructive" });
       return;
     }
@@ -375,22 +382,24 @@ const ScheduleVisit = () => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="store_location">Preferred Location *</Label>
-                <select
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                  value={form.store_location}
-                  onChange={(e) => handleChange("store_location", e.target.value)}
-                >
-                  <option value="">Select a store location</option>
-                  {locations.map((loc) => (
-                    <option key={loc.id} value={loc.id}>
-                      {loc.name} — {loc.city}, {loc.state}
-                      {loc.show_in_scheduling && loc.address ? ` (${loc.address})` : ""}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {locations.length > 1 && (
+                <div className="space-y-2">
+                  <Label htmlFor="store_location">Preferred Location *</Label>
+                  <select
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    value={form.store_location}
+                    onChange={(e) => handleChange("store_location", e.target.value)}
+                  >
+                    <option value="">Select a store location</option>
+                    {locations.map((loc) => (
+                      <option key={loc.id} value={loc.id}>
+                        {loc.name} — {loc.city}, {loc.state}
+                        {loc.address ? ` (${loc.address})` : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="vehicle_info">Vehicle Info (optional)</Label>
