@@ -43,6 +43,7 @@ const AdminSidebar = ({
   allowedSections = null,
   showRequestAccess = false,
   onRequestAccess,
+  locationCount = 0,
 }: AdminSidebarProps) => {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
