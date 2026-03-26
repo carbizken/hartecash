@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatPhone } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, Search, Trash2, Eye, ChevronLeft, ChevronRight, UserCheck, UserX, Users, Check, Circle, DollarSign, StickyNote, XCircle, Save, Printer, FileText, QrCode, ExternalLink, ClipboardCheck, Upload, CalendarDays, Plus, Phone, Mail, AlertTriangle, Clock, History, Moon, Sun, ShieldCheck, SlidersHorizontal, Settings, Bell, ListChecks, MessageSquareQuote, Star, BarChart3, Send, PanelLeftClose, PanelLeft, CalendarClock, CheckCircle, Car, Gauge, Palette, Wrench, Key, Wind, Cigarette, CircleDot, Settings2, TrendingUp, Sparkles, Info, Camera, UserPlus, PhoneCall, ClipboardList, Handshake, BadgeCheck, Trophy, type LucideIcon } from "lucide-react";
+import { LogOut, Search, Trash2, Eye, ChevronLeft, ChevronRight, UserCheck, UserX, Users, Check, Circle, DollarSign, StickyNote, XCircle, Save, Printer, FileText, QrCode, ExternalLink, ClipboardCheck, Upload, CalendarDays, Plus, Phone, Mail, AlertTriangle, Clock, History, Moon, Sun, ShieldCheck, SlidersHorizontal, Settings, Bell, ListChecks, MessageSquareQuote, Star, BarChart3, Send, PanelLeftClose, PanelLeft, CalendarClock, CheckCircle, Car, Gauge, Palette, Wrench, Key, Wind, Cigarette, CircleDot, Settings2, TrendingUp, Sparkles, Info, Camera, UserPlus, PhoneCall, ClipboardList, Handshake, BadgeCheck, Trophy, MapPin, type LucideIcon } from "lucide-react";
 import { mapStatusToStepIndex } from "@/components/portal/ProgressSteps";
 import { Checkbox } from "@/components/ui/checkbox";
 import { QRCodeSVG } from "qrcode.react";
@@ -122,6 +122,7 @@ interface Submission {
   address_city: string | null;
   address_state: string | null;
   lead_source: string;
+  store_location_id: string | null;
 }
 
 const PAGE_SIZE = 20;
@@ -1437,6 +1438,11 @@ const AdminDashboard = () => {
                               <Badge variant={sub.lead_source === "service" ? "secondary" : sub.lead_source === "in_store_trade" ? "default" : sub.lead_source === "trade" ? "default" : "outline"} className="text-xs">
                                 {sub.lead_source === "service" ? "Service" : sub.lead_source === "in_store_trade" ? "In-Store" : sub.lead_source === "trade" ? "Trade-In" : "Off Street"}
                               </Badge>
+                              {sub.store_location_id && (
+                                <p className="text-[10px] text-muted-foreground mt-0.5 truncate max-w-[120px]">
+                                  {dealerLocations.find(l => l.id === sub.store_location_id)?.name || "—"}
+                                </p>
+                              )}
                             </td>
                             <td className="px-3 py-3">
                               <div className="flex flex-col gap-1">
@@ -2377,6 +2383,25 @@ const AdminDashboard = () => {
                 </div>
               )}
 
+              {/* Assigned Store */}
+              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
+                  <MapPin className="w-4 h-4 inline mr-1" />Assigned Store
+                </h3>
+                <Select
+                  value={selected.store_location_id || "unassigned"}
+                  onValueChange={(v) => setSelected({ ...selected, store_location_id: v === "unassigned" ? null : v })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Select store" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="unassigned">— Not Assigned —</SelectItem>
+                    {dealerLocations.map(loc => (
+                      <SelectItem key={loc.id} value={loc.id}>{loc.name} — {loc.city}, {loc.state}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Internal Notes */}
               <div data-print-section className="bg-muted/40 rounded-lg p-4">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
@@ -2634,6 +2659,7 @@ const AdminDashboard = () => {
                         address_street: (selected as any).address_street,
                         address_city: (selected as any).address_city,
                         address_state: (selected as any).address_state,
+                        store_location_id: selected.store_location_id || null,
                         status_updated_at: new Date().toISOString(),
                       })
                       .eq("id", selected.id);

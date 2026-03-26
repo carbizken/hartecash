@@ -201,6 +201,7 @@ export type Database = {
           show_in_scheduling: boolean
           sort_order: number
           state: string
+          zip_codes: string[]
         }
         Insert: {
           address?: string | null
@@ -213,6 +214,7 @@ export type Database = {
           show_in_scheduling?: boolean
           sort_order?: number
           state?: string
+          zip_codes?: string[]
         }
         Update: {
           address?: string | null
@@ -225,6 +227,7 @@ export type Database = {
           show_in_scheduling?: boolean
           sort_order?: number
           state?: string
+          zip_codes?: string[]
         }
         Relationships: []
       }
@@ -1043,6 +1046,7 @@ export type Database = {
           state: string | null
           status_updated_at: string | null
           status_updated_by: string | null
+          store_location_id: string | null
           tech_issues: string[] | null
           tires_replaced: string | null
           token: string
@@ -1104,6 +1108,7 @@ export type Database = {
           state?: string | null
           status_updated_at?: string | null
           status_updated_by?: string | null
+          store_location_id?: string | null
           tech_issues?: string[] | null
           tires_replaced?: string | null
           token?: string
@@ -1165,6 +1170,7 @@ export type Database = {
           state?: string | null
           status_updated_at?: string | null
           status_updated_by?: string | null
+          store_location_id?: string | null
           tech_issues?: string[] | null
           tires_replaced?: string | null
           token?: string
@@ -1175,7 +1181,15 @@ export type Database = {
           windshield_damage?: string | null
           zip?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "submissions_store_location_id_fkey"
+            columns: ["store_location_id"]
+            isOneToOne: false
+            referencedRelation: "dealership_locations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       testimonials: {
         Row: {

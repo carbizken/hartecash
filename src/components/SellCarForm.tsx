@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { logConsent } from "@/lib/consent";
 import { calculateOffer, type OfferEstimate, type OfferSettings, type OfferRule } from "@/lib/offerCalculator";
+import { findStoreByZip } from "@/lib/storeAssignment";
 import { initialFormData } from "./sell-form/types";
 import { useFormConfig } from "@/hooks/useFormConfig";
 import type { FormData, VehicleInfo, BBVehicle } from "./sell-form/types";
@@ -268,6 +269,9 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
       // Calculate offer estimate
       const estimate = calculateOffer(bbSelectedVehicle, formData, selectedAddDeducts, offerSettingsData, offerRulesData);
 
+      // Auto-assign nearest store by ZIP
+      const storeLocationId = await findStoreByZip(formData.zip || "");
+
       const { error } = await supabase
         .from("submissions")
         .insert({
@@ -311,6 +315,7 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
           estimated_offer_high: estimate?.high || null,
           is_hot_lead: estimate?.isHotLead || false,
           matched_rule_ids: estimate?.matchedRuleIds?.length ? estimate.matchedRuleIds : null,
+          store_location_id: storeLocationId || null,
         } as any);
 
       if (error) throw error;
