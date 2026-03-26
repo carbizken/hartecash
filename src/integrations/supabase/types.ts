@@ -207,6 +207,7 @@ export type Database = {
           sort_order: number
           state: string
           temporarily_offline: boolean
+          use_bdc: boolean
           zip_codes: string[]
         }
         Insert: {
@@ -226,6 +227,7 @@ export type Database = {
           sort_order?: number
           state?: string
           temporarily_offline?: boolean
+          use_bdc?: boolean
           zip_codes?: string[]
         }
         Update: {
@@ -245,6 +247,7 @@ export type Database = {
           sort_order?: number
           state?: string
           temporarily_offline?: boolean
+          use_bdc?: boolean
           zip_codes?: string[]
         }
         Relationships: []

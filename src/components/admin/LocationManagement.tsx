@@ -20,6 +20,7 @@ interface Location {
   show_in_footer: boolean;
   show_in_scheduling: boolean;
   temporarily_offline: boolean;
+  use_bdc: boolean;
   zip_codes: string[];
   oem_brands: string[];
   center_zip: string;
@@ -78,7 +79,7 @@ const LocationManagement = () => {
     }
   };
 
-  const toggleField = async (id: string, field: "is_active" | "show_in_footer" | "show_in_scheduling" | "temporarily_offline", current: boolean) => {
+  const toggleField = async (id: string, field: "is_active" | "show_in_footer" | "show_in_scheduling" | "temporarily_offline" | "use_bdc", current: boolean) => {
     const { error } = await supabase
       .from("dealership_locations" as any)
       .update({ [field]: !current })
@@ -109,7 +110,7 @@ const LocationManagement = () => {
     for (const loc of locations) {
       const { error } = await supabase
         .from("dealership_locations" as any)
-        .update({ name: loc.name, city: loc.city, state: loc.state, address: loc.address, sort_order: loc.sort_order, zip_codes: loc.zip_codes || [], oem_brands: loc.oem_brands || [], center_zip: loc.center_zip || '', coverage_radius_miles: loc.coverage_radius_miles || 0, all_brands: loc.all_brands ?? true, excluded_oem_brands: loc.excluded_oem_brands || [], temporarily_offline: loc.temporarily_offline ?? false })
+        .update({ name: loc.name, city: loc.city, state: loc.state, address: loc.address, sort_order: loc.sort_order, zip_codes: loc.zip_codes || [], oem_brands: loc.oem_brands || [], center_zip: loc.center_zip || '', coverage_radius_miles: loc.coverage_radius_miles || 0, all_brands: loc.all_brands ?? true, excluded_oem_brands: loc.excluded_oem_brands || [], temporarily_offline: loc.temporarily_offline ?? false, use_bdc: loc.use_bdc ?? false })
         .eq("id", loc.id);
       if (error) hasError = true;
     }
@@ -207,6 +208,17 @@ const LocationManagement = () => {
                     onCheckedChange={() => toggleField(loc.id, "temporarily_offline", loc.temporarily_offline)}
                   />
                 </div>
+                {locations.length > 1 && (
+                  <div className="flex items-center gap-1.5" title="Route this location's leads to the central Buying Center / BDC">
+                    <Label className={`text-[10px] ${loc.use_bdc ? 'text-blue-600 font-semibold' : 'text-muted-foreground'}`}>
+                      {loc.use_bdc ? '📞 BDC' : 'BDC'}
+                    </Label>
+                    <Switch
+                      checked={loc.use_bdc}
+                      onCheckedChange={() => toggleField(loc.id, "use_bdc", loc.use_bdc)}
+                    />
+                  </div>
+                )}
                 <Button variant="ghost" size="icon" onClick={() => deleteLocation(loc.id)} className="text-destructive hover:text-destructive/80 h-8 w-8">
                   <Trash2 className="w-4 h-4" />
                 </Button>

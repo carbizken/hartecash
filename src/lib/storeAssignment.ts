@@ -12,6 +12,7 @@ interface LocationWithZips {
   all_brands: boolean;
   excluded_oem_brands: string[];
   temporarily_offline: boolean;
+  use_bdc: boolean;
 }
 
 let cachedLocations: LocationWithZips[] | null = null;
@@ -20,7 +21,7 @@ async function getLocations(): Promise<LocationWithZips[]> {
   if (!cachedLocations) {
     const { data } = await supabase
       .from("dealership_locations")
-      .select("id, name, city, state, zip_codes, oem_brands, center_zip, coverage_radius_miles, all_brands, excluded_oem_brands, temporarily_offline")
+      .select("id, name, city, state, zip_codes, oem_brands, center_zip, coverage_radius_miles, all_brands, excluded_oem_brands, temporarily_offline, use_bdc")
       .eq("is_active", true)
       .order("sort_order");
     cachedLocations = (data as any) || [];
@@ -97,6 +98,21 @@ export async function findStoreByBrand(vehicleMake: string): Promise<string | nu
  * Resolve the store location based on active assignment config.
  * Priority: buying center > OEM brand match > ZIP auto-assign > null
  */
+/**
+ * If a location has use_bdc enabled, redirect to the buying center.
+ */
+async function applyBdcRedirect(
+  locationId: string,
+  buyingCenterLocationId?: string | null,
+): Promise<string> {
+  const allLocations = await getLocations();
+  const loc = allLocations.find(l => l.id === locationId);
+  if (loc?.use_bdc && buyingCenterLocationId) {
+    return buyingCenterLocationId;
+  }
+  return locationId;
+}
+
 export async function resolveStoreAssignment(
   config: {
     assign_buying_center?: boolean;
@@ -107,7 +123,7 @@ export async function resolveStoreAssignment(
   vehicleMake: string,
   customerZip: string,
 ): Promise<string | null> {
-  // 1. Buying center overrides everything
+  // 1. Buying center overrides everything (group-level)
   if (config.assign_buying_center && config.buying_center_location_id) {
     return config.buying_center_location_id;
   }
@@ -115,12 +131,13 @@ export async function resolveStoreAssignment(
   // 2. OEM brand match
   if (config.assign_oem_brand_match) {
     const brandMatch = await findStoreByBrand(vehicleMake);
-    if (brandMatch) return brandMatch;
+    if (brandMatch) return applyBdcRedirect(brandMatch, config.buying_center_location_id);
   }
 
   // 3. ZIP auto-assign
   if (config.assign_auto_zip !== false) {
-    return findStoreByZip(customerZip);
+    const zipMatch = await findStoreByZip(customerZip);
+    if (zipMatch) return applyBdcRedirect(zipMatch, config.buying_center_location_id);
   }
 
   return null;
