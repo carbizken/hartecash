@@ -83,6 +83,13 @@ const ScheduleVisit = () => {
     vehicle_info: searchParams.get("vehicle") || "",
     notes: "",
   });
+
+  // Auto-select if only one scheduling location
+  useEffect(() => {
+    if (locations.length === 1 && !form.store_location) {
+      setForm(prev => ({ ...prev, store_location: locations[0].id }));
+    }
+  }, [locations]);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
