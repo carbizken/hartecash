@@ -70,6 +70,7 @@ const DEFAULTS: NotificationConfig = {
   notify_status_change: false,
   notify_staff_customer_accepted: true,
   notify_staff_deal_completed: true,
+  notify_abandoned_lead: true,
   new_submission_channels: ["email", "sms"],
   hot_lead_channels: ["email", "sms"],
   appointment_channels: ["email", "sms"],
