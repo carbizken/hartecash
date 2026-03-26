@@ -2654,6 +2654,7 @@ const AdminDashboard = () => {
                         address_street: (selected as any).address_street,
                         address_city: (selected as any).address_city,
                         address_state: (selected as any).address_state,
+                        store_location_id: selected.store_location_id || null,
                         status_updated_at: new Date().toISOString(),
                       })
                       .eq("id", selected.id);
