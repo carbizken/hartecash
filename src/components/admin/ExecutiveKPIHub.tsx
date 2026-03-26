@@ -88,12 +88,19 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
   }, []);
 
   const filteredSubs = useMemo(() => {
-    if (timeRange === "all") return subs;
-    const days = parseInt(timeRange);
-    const cutoff = new Date();
-    cutoff.setDate(cutoff.getDate() - days);
-    return subs.filter(s => new Date(s.created_at) >= cutoff);
-  }, [subs, timeRange]);
+    let result = subs;
+    // Exclude abandoned/partial leads when tracking is disabled
+    if (!trackAbandoned) {
+      result = result.filter(s => s.progress_status !== "partial");
+    }
+    if (timeRange !== "all") {
+      const days = parseInt(timeRange);
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - days);
+      result = result.filter(s => new Date(s.created_at) >= cutoff);
+    }
+    return result;
+  }, [subs, timeRange, trackAbandoned]);
 
   /* ── aggregate KPIs ─────────────────────────────── */
   const kpis = useMemo(() => {

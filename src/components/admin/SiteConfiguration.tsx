@@ -536,6 +536,25 @@ const SiteConfiguration = () => {
               }}
             />
           </div>
+
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
+            <div className="flex-1 mr-3">
+              <Label className="text-sm font-semibold">Abandoned Lead Tracking</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Automatically capture partial form submissions when a customer provides contact info but doesn't complete the process. Abandoned leads appear in the submissions list and Executive HUD for follow-up.
+              </p>
+            </div>
+            <Switch
+              checked={config.track_abandoned_leads}
+              onCheckedChange={v => {
+                setConfig(prev => {
+                  const next = { ...prev, track_abandoned_leads: v };
+                  setHasChanges(JSON.stringify(next) !== JSON.stringify(savedConfig));
+                  return next;
+                });
+              }}
+            />
+          </div>
         </div>
       </Section>
 
