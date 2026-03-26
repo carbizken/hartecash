@@ -533,7 +533,7 @@ const LocationManagement = () => {
                         </div>
                       </div>
                     )}
-                  </div>
+                  </div>}
                 </div>
               )}
             </div>
