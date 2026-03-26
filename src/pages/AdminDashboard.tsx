@@ -1482,6 +1482,7 @@ const AdminDashboard = () => {
                                   <SelectTrigger className={`w-44 h-7 text-xs font-medium ${
                                     sub.progress_status === "purchase_complete" ? "border-success/50 text-success" :
                                     sub.progress_status === "dead_lead" ? "border-destructive/50 text-destructive" :
+                                    sub.progress_status === "partial" ? "border-amber-500/50 text-amber-600" :
                                     sub.progress_status === "new" ? "border-muted text-muted-foreground" :
                                     "border-accent/50 text-accent"
                                   }`}>
