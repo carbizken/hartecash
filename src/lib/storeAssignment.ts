@@ -7,6 +7,8 @@ interface LocationWithZips {
   state: string;
   zip_codes: string[];
   oem_brands: string[];
+  center_zip: string;
+  coverage_radius_miles: number;
 }
 
 let cachedLocations: LocationWithZips[] | null = null;
@@ -15,7 +17,7 @@ async function getLocations(): Promise<LocationWithZips[]> {
   if (!cachedLocations) {
     const { data } = await supabase
       .from("dealership_locations")
-      .select("id, name, city, state, zip_codes, oem_brands")
+      .select("id, name, city, state, zip_codes, oem_brands, center_zip, coverage_radius_miles")
       .eq("is_active", true)
       .order("sort_order");
     cachedLocations = (data as any) || [];
@@ -31,13 +33,22 @@ export async function findStoreByZip(customerZip: string): Promise<string | null
   const zip5 = customerZip.slice(0, 5);
   const locations = await getLocations();
 
-  // Exact match
+  // Exact match on listed ZIP codes
   for (const loc of locations) {
     if (loc.zip_codes && loc.zip_codes.includes(zip5)) return loc.id;
   }
 
-  // Prefix match (first 3 digits)
+  // Radius match: if a location has a center_zip and radius, use prefix-based proximity
+  // ZIP codes sharing the first 3 digits are typically within ~50 miles
   const prefix = zip5.slice(0, 3);
+  for (const loc of locations) {
+    if (loc.center_zip && loc.coverage_radius_miles > 0) {
+      const centerPrefix = loc.center_zip.slice(0, 3);
+      if (centerPrefix === prefix) return loc.id;
+    }
+  }
+
+  // Prefix match on listed ZIPs (first 3 digits)
   for (const loc of locations) {
     if (loc.zip_codes?.some(z => z.startsWith(prefix))) return loc.id;
   }

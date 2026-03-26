@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, GripVertical, Save, Loader2, MapPin, ChevronDown, ChevronRight, X, MapPinned, Car } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Plus, Trash2, GripVertical, Save, Loader2, MapPin, ChevronDown, ChevronRight, X, MapPinned, Car, Radar } from "lucide-react";
 
 interface Location {
   id: string;
@@ -20,6 +21,8 @@ interface Location {
   show_in_scheduling: boolean;
   zip_codes: string[];
   oem_brands: string[];
+  center_zip: string;
+  coverage_radius_miles: number;
 }
 
 const LocationManagement = () => {
@@ -102,7 +105,7 @@ const LocationManagement = () => {
     for (const loc of locations) {
       const { error } = await supabase
         .from("dealership_locations" as any)
-        .update({ name: loc.name, city: loc.city, state: loc.state, address: loc.address, sort_order: loc.sort_order, zip_codes: loc.zip_codes || [], oem_brands: loc.oem_brands || [] })
+        .update({ name: loc.name, city: loc.city, state: loc.state, address: loc.address, sort_order: loc.sort_order, zip_codes: loc.zip_codes || [], oem_brands: loc.oem_brands || [], center_zip: loc.center_zip || '', coverage_radius_miles: loc.coverage_radius_miles || 0 })
         .eq("id", loc.id);
       if (error) hasError = true;
     }
@@ -204,7 +207,7 @@ const LocationManagement = () => {
                 className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground hover:text-foreground w-full text-left transition-colors"
               >
                 {expandedIds.has(loc.id) ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                <span>Address, ZIP Codes ({loc.zip_codes?.length || 0}), OEM Brands ({loc.oem_brands?.length || 0})</span>
+                <span>Address, ZIP Codes ({loc.zip_codes?.length || 0}){loc.coverage_radius_miles > 0 ? ` + ${loc.coverage_radius_miles}mi radius` : ''}, OEM Brands ({loc.oem_brands?.length || 0})</span>
               </button>
               {expandedIds.has(loc.id) && (
                 <div className="px-3 pb-3 space-y-4">
@@ -297,7 +300,57 @@ const LocationManagement = () => {
                     </div>
                   </div>
 
-                  {/* OEM Brands */}
+                  {/* Radius Coverage — only for multi-location groups */}
+                  {locations.length > 1 && (
+                    <div>
+                      <Label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1.5">
+                        <Radar className="w-3.5 h-3.5" /> Radius Coverage
+                      </Label>
+                      <p className="text-[11px] text-muted-foreground mb-2">
+                        Optionally set a center ZIP and radius to auto-cover surrounding areas instead of listing every ZIP manually.
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <div className="w-28">
+                          <Input
+                            value={loc.center_zip || ""}
+                            onChange={(e) => updateLocation(loc.id, "center_zip" as any, e.target.value)}
+                            placeholder="Center ZIP"
+                            className="text-sm font-mono"
+                            maxLength={5}
+                          />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">Radius</span>
+                            <span className="text-xs font-semibold tabular-nums">
+                              {loc.coverage_radius_miles || 0} mi
+                            </span>
+                          </div>
+                          <Slider
+                            value={[loc.coverage_radius_miles || 0]}
+                            onValueChange={([val]) => {
+                              setLocations(prev => prev.map(l => l.id === loc.id ? { ...l, coverage_radius_miles: val } : l));
+                            }}
+                            min={0}
+                            max={50}
+                            step={5}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-[10px] text-muted-foreground/60">
+                            <span>0</span>
+                            <span>25 mi</span>
+                            <span>50 mi</span>
+                          </div>
+                        </div>
+                      </div>
+                      {loc.center_zip && loc.coverage_radius_miles > 0 && (
+                        <p className="text-[11px] text-primary/80 mt-1.5">
+                          ✓ Leads within {loc.coverage_radius_miles} miles of {loc.center_zip} will route to this store
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   <div>
                     <Label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1.5">
                       <Car className="w-3.5 h-3.5" /> OEM Brand Mapping
