@@ -107,6 +107,8 @@ export const initialFormData: FormData = {
   loanBalance: "",
   loanPayment: "",
   nextStep: "",
+  preferredLocationId: "",
+  salespersonName: "",
 };
 
 export const STEPS = [

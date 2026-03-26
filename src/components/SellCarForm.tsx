@@ -269,8 +269,14 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
       // Calculate offer estimate
       const estimate = calculateOffer(bbSelectedVehicle, formData, selectedAddDeducts, offerSettingsData, offerRulesData);
 
-      // Auto-assign nearest store by ZIP
-      const storeLocationId = await findStoreByZip(formData.zip || "");
+      // Resolve store assignment based on admin config
+      const storeLocationId = formData.preferredLocationId
+        ? formData.preferredLocationId
+        : await resolveStoreAssignment(
+            config as any,
+            vehicleInfo?.make || "",
+            formData.zip || "",
+          );
 
       const { error } = await supabase
         .from("submissions")
