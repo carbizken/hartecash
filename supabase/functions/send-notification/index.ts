@@ -73,6 +73,11 @@ const DEFAULT_TEMPLATES: Record<string, { email_subject: string; email_body: str
     email_body: "A submission status has changed.\n\nCustomer: {{customer_name}}\nVehicle: {{vehicle}}\nNew Status: {{status}}",
     sms_body: "Status update: {{customer_name}} — {{vehicle}} is now {{status}}.",
   },
+  abandoned_lead: {
+    email_subject: "⚠️ Abandoned Lead — {{customer_name}}",
+    email_body: "A customer started the sell form but didn't finish.\n\nName: {{customer_name}}\nEmail: {{customer_email}}\nPhone: {{customer_phone}}\nVehicle: {{vehicle}}\nMileage: {{mileage}}\n\nThis lead needs immediate follow-up. They showed interest but left before getting an offer.",
+    sms_body: "⚠️ Abandoned lead: {{customer_name}} ({{vehicle}}) started the form but didn't finish. Follow up ASAP!",
+  },
 };
 
 const sanitize = (str: string | null | undefined) =>
@@ -159,7 +164,7 @@ Deno.serve(async (req) => {
 
     // Check if this trigger is enabled
     const isStaffTrigger = trigger_key.startsWith("staff_") ||
-      ["new_submission", "hot_lead", "appointment_booked", "photos_uploaded", "docs_uploaded", "status_change"].includes(trigger_key);
+      ["new_submission", "hot_lead", "appointment_booked", "photos_uploaded", "docs_uploaded", "status_change", "abandoned_lead"].includes(trigger_key);
     const isCustomerTrigger = trigger_key.startsWith("customer_");
 
     const enabledKey = `notify_${trigger_key}`;
@@ -197,6 +202,8 @@ Deno.serve(async (req) => {
 
     const templateVars: Record<string, string> = {
       customer_name: sub?.name?.split(" ")[0] || "there",
+      customer_email: sub?.email || "",
+      customer_phone: sub?.phone || "",
       vehicle,
       mileage: sub?.mileage || "",
       offer_amount: offerAmount,

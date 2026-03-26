@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Save, ChevronDown, Plus, X, Mail, Phone, Bell, BellOff, Moon, Loader2, UserCheck, CalendarCheck, DollarSign, CalendarClock, RefreshCw, Handshake, PartyPopper, TrendingUp, Pencil, Users } from "lucide-react";
+import { Save, ChevronDown, Plus, X, Mail, Phone, Bell, BellOff, Moon, Loader2, UserCheck, CalendarCheck, DollarSign, CalendarClock, RefreshCw, Handshake, PartyPopper, TrendingUp, Pencil, Users, AlertTriangle } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import NotificationTemplateEditor from "./NotificationTemplateEditor";
@@ -27,6 +27,7 @@ interface NotificationConfig {
   notify_status_change: boolean;
   notify_staff_customer_accepted: boolean;
   notify_staff_deal_completed: boolean;
+  notify_abandoned_lead: boolean;
   new_submission_channels: string[];
   hot_lead_channels: string[];
   appointment_channels: string[];
@@ -35,6 +36,7 @@ interface NotificationConfig {
   status_change_channels: string[];
   staff_customer_accepted_channels: string[];
   staff_deal_completed_channels: string[];
+  abandoned_lead_channels: string[];
   // Customer triggers
   notify_customer_offer_accepted: boolean;
   customer_offer_accepted_channels: string[];
@@ -68,6 +70,7 @@ const DEFAULTS: NotificationConfig = {
   notify_status_change: false,
   notify_staff_customer_accepted: true,
   notify_staff_deal_completed: true,
+  notify_abandoned_lead: true,
   new_submission_channels: ["email", "sms"],
   hot_lead_channels: ["email", "sms"],
   appointment_channels: ["email", "sms"],
@@ -76,6 +79,7 @@ const DEFAULTS: NotificationConfig = {
   status_change_channels: ["email"],
   staff_customer_accepted_channels: ["email", "sms"],
   staff_deal_completed_channels: ["email"],
+  abandoned_lead_channels: ["email", "sms"],
   notify_customer_offer_accepted: true,
   customer_offer_accepted_channels: ["email", "sms"],
   notify_customer_appointment_booked: true,
@@ -103,6 +107,7 @@ const STAFF_TRIGGERS = [
   { key: "status_change", label: "Status Change", desc: "When a submission status is updated", channelKey: "status_change_channels", icon: Bell },
   { key: "staff_customer_accepted", label: "Customer Accepted Offer", desc: "Alert staff immediately when a customer clicks 'Accept Offer'", channelKey: "staff_customer_accepted_channels", icon: Handshake },
   { key: "staff_deal_completed", label: "Deal Completed", desc: "When a submission reaches 'Purchase Complete' status", channelKey: "staff_deal_completed_channels", icon: PartyPopper },
+  { key: "abandoned_lead", label: "Abandoned Lead Alert", desc: "When a customer provides contact info but leaves before completing the form (checked every 15 min)", channelKey: "abandoned_lead_channels", icon: AlertTriangle },
 ] as const;
 
 const CUSTOMER_TRIGGERS = [

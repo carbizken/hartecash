@@ -438,6 +438,7 @@ export type Database = {
       }
       notification_settings: {
         Row: {
+          abandoned_lead_channels: string[]
           appointment_channels: string[]
           created_at: string
           customer_appointment_channels: string[]
@@ -452,6 +453,7 @@ export type Database = {
           hot_lead_channels: string[]
           id: string
           new_submission_channels: string[]
+          notify_abandoned_lead: boolean
           notify_appointment_booked: boolean
           notify_customer_appointment_booked: boolean
           notify_customer_appointment_reminder: boolean
@@ -478,6 +480,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          abandoned_lead_channels?: string[]
           appointment_channels?: string[]
           created_at?: string
           customer_appointment_channels?: string[]
@@ -492,6 +495,7 @@ export type Database = {
           hot_lead_channels?: string[]
           id?: string
           new_submission_channels?: string[]
+          notify_abandoned_lead?: boolean
           notify_appointment_booked?: boolean
           notify_customer_appointment_booked?: boolean
           notify_customer_appointment_reminder?: boolean
@@ -518,6 +522,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          abandoned_lead_channels?: string[]
           appointment_channels?: string[]
           created_at?: string
           customer_appointment_channels?: string[]
@@ -532,6 +537,7 @@ export type Database = {
           hot_lead_channels?: string[]
           id?: string
           new_submission_channels?: string[]
+          notify_abandoned_lead?: boolean
           notify_appointment_booked?: boolean
           notify_customer_appointment_booked?: boolean
           notify_customer_appointment_reminder?: boolean
