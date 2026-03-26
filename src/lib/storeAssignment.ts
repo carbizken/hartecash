@@ -39,7 +39,10 @@ function getAvailableLocations(locations: LocationWithZips[]): LocationWithZips[
 export async function findStoreByZip(customerZip: string): Promise<string | null> {
   if (!customerZip || customerZip.length < 5) return null;
   const zip5 = customerZip.slice(0, 5);
-  const locations = await getLocations();
+  const allLocations = await getLocations();
+  const locations = getAvailableLocations(allLocations);
+
+  if (locations.length === 0) return allLocations.length > 0 ? allLocations[0].id : null;
 
   // Exact match on listed ZIP codes
   for (const loc of locations) {
@@ -47,7 +50,6 @@ export async function findStoreByZip(customerZip: string): Promise<string | null
   }
 
   // Radius match: if a location has a center_zip and radius, use prefix-based proximity
-  // ZIP codes sharing the first 3 digits are typically within ~50 miles
   const prefix = zip5.slice(0, 3);
   for (const loc of locations) {
     if (loc.center_zip && loc.coverage_radius_miles > 0) {
@@ -61,8 +63,8 @@ export async function findStoreByZip(customerZip: string): Promise<string | null
     if (loc.zip_codes?.some(z => z.startsWith(prefix))) return loc.id;
   }
 
-  // Default to first location
-  return locations.length > 0 ? locations[0].id : null;
+  // Default to first available location
+  return locations[0].id;
 }
 
 /**
