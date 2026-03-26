@@ -1209,7 +1209,9 @@ const AdminDashboard = () => {
     }
 
     // Status filter
-    if (statusFilter && statusFilter !== "__all__" && s.progress_status !== statusFilter) return false;
+    if (statusFilter === "__hot__") {
+      if (!s.is_hot_lead) return false;
+    } else if (statusFilter && statusFilter !== "__all__" && s.progress_status !== statusFilter) return false;
 
     // Source filter
     if (sourceFilter && sourceFilter !== "__all__" && s.lead_source !== sourceFilter) return false;
