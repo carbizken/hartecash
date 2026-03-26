@@ -380,6 +380,12 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
 
       if (error) throw error;
 
+      // Clean up any partial submission we saved earlier
+      if (partialIdRef.current) {
+        supabase.from("submissions").delete().eq("id", partialIdRef.current).then(() => {});
+        partialIdRef.current = null;
+      }
+
       // Fire new_submission staff notification
       const { data: insertedSub } = await supabase
         .from("submissions")
