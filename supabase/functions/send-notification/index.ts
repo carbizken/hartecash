@@ -73,6 +73,11 @@ const DEFAULT_TEMPLATES: Record<string, { email_subject: string; email_body: str
     email_body: "A submission status has changed.\n\nCustomer: {{customer_name}}\nVehicle: {{vehicle}}\nNew Status: {{status}}",
     sms_body: "Status update: {{customer_name}} — {{vehicle}} is now {{status}}.",
   },
+  abandoned_lead: {
+    email_subject: "⚠️ Abandoned Lead — {{customer_name}}",
+    email_body: "A customer started the sell form but didn't finish.\n\nName: {{customer_name}}\nEmail: {{customer_email}}\nPhone: {{customer_phone}}\nVehicle: {{vehicle}}\nMileage: {{mileage}}\n\nThis lead needs immediate follow-up. They showed interest but left before getting an offer.",
+    sms_body: "⚠️ Abandoned lead: {{customer_name}} ({{vehicle}}) started the form but didn't finish. Follow up ASAP!",
+  },
 };
 
 const sanitize = (str: string | null | undefined) =>
