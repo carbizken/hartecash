@@ -300,7 +300,57 @@ const LocationManagement = () => {
                     </div>
                   </div>
 
-                  {/* OEM Brands */}
+                  {/* Radius Coverage — only for multi-location groups */}
+                  {locations.length > 1 && (
+                    <div>
+                      <Label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1.5">
+                        <Radar className="w-3.5 h-3.5" /> Radius Coverage
+                      </Label>
+                      <p className="text-[11px] text-muted-foreground mb-2">
+                        Optionally set a center ZIP and radius to auto-cover surrounding areas instead of listing every ZIP manually.
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <div className="w-28">
+                          <Input
+                            value={loc.center_zip || ""}
+                            onChange={(e) => updateLocation(loc.id, "center_zip" as any, e.target.value)}
+                            placeholder="Center ZIP"
+                            className="text-sm font-mono"
+                            maxLength={5}
+                          />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">Radius</span>
+                            <span className="text-xs font-semibold tabular-nums">
+                              {loc.coverage_radius_miles || 0} mi
+                            </span>
+                          </div>
+                          <Slider
+                            value={[loc.coverage_radius_miles || 0]}
+                            onValueChange={([val]) => {
+                              setLocations(prev => prev.map(l => l.id === loc.id ? { ...l, coverage_radius_miles: val } : l));
+                            }}
+                            min={0}
+                            max={50}
+                            step={5}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-[10px] text-muted-foreground/60">
+                            <span>0</span>
+                            <span>25 mi</span>
+                            <span>50 mi</span>
+                          </div>
+                        </div>
+                      </div>
+                      {loc.center_zip && loc.coverage_radius_miles > 0 && (
+                        <p className="text-[11px] text-primary/80 mt-1.5">
+                          ✓ Leads within {loc.coverage_radius_miles} miles of {loc.center_zip} will route to this store
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   <div>
                     <Label className="text-xs font-medium text-muted-foreground mb-1.5 flex items-center gap-1.5">
                       <Car className="w-3.5 h-3.5" /> OEM Brand Mapping
