@@ -202,6 +202,8 @@ Deno.serve(async (req) => {
 
     const templateVars: Record<string, string> = {
       customer_name: sub?.name?.split(" ")[0] || "there",
+      customer_email: sub?.email || "",
+      customer_phone: sub?.phone || "",
       vehicle,
       mileage: sub?.mileage || "",
       offer_amount: offerAmount,
