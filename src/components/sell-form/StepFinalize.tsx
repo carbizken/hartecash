@@ -1,22 +1,51 @@
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import FormField from "./FormField";
 import RadioOption from "./RadioOption";
 import type { FormData } from "./types";
 import type { FormConfig } from "@/hooks/useFormConfig";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
+import { supabase } from "@/integrations/supabase/client";
+
+interface DealerLocation {
+  id: string;
+  name: string;
+  city: string;
+  state: string;
+}
 
 interface Props {
   formData: FormData;
   update: (field: string, value: string) => void;
   formConfig?: FormConfig;
+  leadSource?: string;
 }
 
-const StepFinalize = ({ formData, update, formConfig }: Props) => {
+const StepFinalize = ({ formData, update, formConfig, leadSource }: Props) => {
   const { config } = useSiteConfig();
   const dealerName = config.dealership_name || "our dealership";
   const showLoanSection = !formConfig || formConfig.q_loan_details;
   const showLoanFields = showLoanSection && (formData.loanStatus === "Sell" || formData.loanStatus === "Trade-In");
   const showLeaseFields = showLoanSection && formData.loanStatus === "Lease Buyout";
+  const isTrade = leadSource === "trade";
+
+  // Show location picker for landing page if admin enabled it, or always for trade page
+  const showLocationPicker = isTrade || (config as any).assign_customer_picks === true;
+
+  const [locations, setLocations] = useState<DealerLocation[]>([]);
+
+  useEffect(() => {
+    if (showLocationPicker) {
+      supabase
+        .from("dealership_locations")
+        .select("id, name, city, state")
+        .eq("is_active", true)
+        .eq("show_in_scheduling", true)
+        .order("sort_order")
+        .then(({ data }) => { if (data) setLocations(data); });
+    }
+  }, [showLocationPicker]);
 
   return (
     <>
@@ -28,6 +57,35 @@ const StepFinalize = ({ formData, update, formConfig }: Props) => {
           className="py-3.5 px-4 text-base border-2 border-input focus:border-accent focus:ring-accent/10"
         />
       </FormField>
+
+      {showLocationPicker && locations.length > 0 && (
+        <FormField label={isTrade ? "Which location are you working with?" : "Preferred dealership location"}>
+          <Select
+            value={formData.preferredLocationId || ""}
+            onValueChange={v => update("preferredLocationId", v)}
+          >
+            <SelectTrigger className="py-3.5 px-4 text-base border-2 border-input focus:border-accent focus:ring-accent/10">
+              <SelectValue placeholder="Select a location..." />
+            </SelectTrigger>
+            <SelectContent>
+              {locations.map(loc => (
+                <SelectItem key={loc.id} value={loc.id}>{loc.name} — {loc.city}, {loc.state}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </FormField>
+      )}
+
+      {isTrade && (
+        <FormField label="Salesperson or contact you're working with" hint="Enter the name of the person at the dealership (optional).">
+          <Input
+            placeholder="e.g. Mike S."
+            value={formData.salespersonName}
+            onChange={(e) => update("salespersonName", e.target.value)}
+            className="py-3.5 px-4 text-base border-2 border-input focus:border-accent focus:ring-accent/10"
+          />
+        </FormField>
+      )}
 
       {showLoanSection && (
         <FormField label="What would you like to do?" hint="Sell outright, trade in for tax savings, or buy out your lease.">

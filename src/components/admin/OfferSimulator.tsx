@@ -36,7 +36,7 @@ function buildTestData(baseValue: number, year: string, make: string, model: str
     drivable, accidents, smokedIn, tiresReplaced: "yes", numKeys: "2",
     name: "", phone: "", email: "", zip: "",
     loanStatus: "", loanCompany: "", loanBalance: "", loanPayment: "",
-    nextStep: "",
+    nextStep: "", preferredLocationId: "", salespersonName: "",
   };
   return { bbVehicle, formData };
 }

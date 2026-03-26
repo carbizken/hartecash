@@ -197,6 +197,7 @@ export type Database = {
           id: string
           is_active: boolean
           name: string
+          oem_brands: string[]
           show_in_footer: boolean
           show_in_scheduling: boolean
           sort_order: number
@@ -210,6 +211,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           name: string
+          oem_brands?: string[]
           show_in_footer?: boolean
           show_in_scheduling?: boolean
           sort_order?: number
@@ -223,6 +225,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           name?: string
+          oem_brands?: string[]
           show_in_footer?: boolean
           show_in_scheduling?: boolean
           sort_order?: number
@@ -842,6 +845,11 @@ export type Database = {
           about_values: Json
           accent_color: string
           address: string | null
+          assign_auto_zip: boolean
+          assign_buying_center: boolean
+          assign_customer_picks: boolean
+          assign_oem_brand_match: boolean
+          buying_center_location_id: string | null
           comparison_features: Json
           competitor_columns: Json
           created_at: string
@@ -883,6 +891,11 @@ export type Database = {
           about_values?: Json
           accent_color?: string
           address?: string | null
+          assign_auto_zip?: boolean
+          assign_buying_center?: boolean
+          assign_customer_picks?: boolean
+          assign_oem_brand_match?: boolean
+          buying_center_location_id?: string | null
           comparison_features?: Json
           competitor_columns?: Json
           created_at?: string
@@ -924,6 +937,11 @@ export type Database = {
           about_values?: Json
           accent_color?: string
           address?: string | null
+          assign_auto_zip?: boolean
+          assign_buying_center?: boolean
+          assign_customer_picks?: boolean
+          assign_oem_brand_match?: boolean
+          buying_center_location_id?: string | null
           comparison_features?: Json
           competitor_columns?: Json
           created_at?: string
@@ -957,7 +975,15 @@ export type Database = {
           use_animated_calculating?: boolean
           website_url?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "site_config_buying_center_location_id_fkey"
+            columns: ["buying_center_location_id"]
+            isOneToOne: false
+            referencedRelation: "dealership_locations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       staff_permission_assignments: {
         Row: {
@@ -1042,6 +1068,7 @@ export type Database = {
           progress_status: string
           review_requested: boolean
           review_requested_at: string | null
+          salesperson_name: string | null
           smoked_in: string | null
           state: string | null
           status_updated_at: string | null
@@ -1104,6 +1131,7 @@ export type Database = {
           progress_status?: string
           review_requested?: boolean
           review_requested_at?: string | null
+          salesperson_name?: string | null
           smoked_in?: string | null
           state?: string | null
           status_updated_at?: string | null
@@ -1166,6 +1194,7 @@ export type Database = {
           progress_status?: string
           review_requested?: boolean
           review_requested_at?: string | null
+          salesperson_name?: string | null
           smoked_in?: string | null
           state?: string | null
           status_updated_at?: string | null

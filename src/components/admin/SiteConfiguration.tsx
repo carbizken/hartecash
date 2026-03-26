@@ -6,8 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Save, Loader2, ChevronDown, Building2, Palette, Type, BarChart3, Upload, Star, Sparkles, Eye, ScanLine } from "lucide-react";
+import { Save, Loader2, ChevronDown, Building2, Palette, Type, BarChart3, Upload, Star, Sparkles, Eye, ScanLine, MapPin } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import CalculatingOffer from "@/components/CalculatingOffer";
 
@@ -40,6 +41,11 @@ interface SiteConfig {
   enable_dl_ocr: boolean;
   cta_offer_color: string;
   cta_accept_color: string;
+  assign_customer_picks: boolean;
+  assign_auto_zip: boolean;
+  assign_oem_brand_match: boolean;
+  assign_buying_center: boolean;
+  buying_center_location_id: string | null;
 }
 
 const DEFAULT_CONFIG: SiteConfig = {
@@ -71,6 +77,11 @@ const DEFAULT_CONFIG: SiteConfig = {
   enable_dl_ocr: false,
   cta_offer_color: "",
   cta_accept_color: "",
+  assign_customer_picks: false,
+  assign_auto_zip: true,
+  assign_oem_brand_match: false,
+  assign_buying_center: false,
+  buying_center_location_id: null,
 };
 
 interface SectionProps {
@@ -98,16 +109,26 @@ const Section = ({ icon: Icon, title, children, defaultOpen = false }: SectionPr
   );
 };
 
+interface DealerLocation {
+  id: string;
+  name: string;
+  city: string;
+  state: string;
+}
+
 const SiteConfiguration = () => {
   const [config, setConfig] = useState<SiteConfig>(DEFAULT_CONFIG);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [savedConfig, setSavedConfig] = useState<SiteConfig>(DEFAULT_CONFIG);
+  const [dealerLocations, setDealerLocations] = useState<DealerLocation[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
     fetchConfig();
+    supabase.from("dealership_locations").select("id, name, city, state").eq("is_active", true).order("sort_order")
+      .then(({ data }) => { if (data) setDealerLocations(data); });
   }, []);
 
   const fetchConfig = async () => {
@@ -511,6 +532,110 @@ const SiteConfiguration = () => {
                 });
               }}
             />
+          </div>
+        </div>
+      </Section>
+
+      {/* Store Assignment */}
+      <Section icon={MapPin} title="Store Assignment Rules">
+        <p className="text-xs text-muted-foreground mb-4">
+          Control how incoming leads from the <strong>Sell Your Car</strong> landing page are assigned to dealership locations. These settings do not affect the /trade page.
+        </p>
+        <div className="space-y-4">
+          {/* Customer Picks */}
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
+            <div className="flex-1 mr-3">
+              <Label className="text-sm font-semibold">Let Customer Choose Location</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Show a location dropdown on the form so the customer can pick their preferred dealership.</p>
+            </div>
+            <Switch
+              checked={config.assign_customer_picks}
+              onCheckedChange={v => {
+                setConfig(prev => {
+                  const next = { ...prev, assign_customer_picks: v };
+                  setHasChanges(JSON.stringify(next) !== JSON.stringify(savedConfig));
+                  return next;
+                });
+              }}
+            />
+          </div>
+
+          {/* Auto ZIP */}
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
+            <div className="flex-1 mr-3">
+              <Label className="text-sm font-semibold">Auto-Assign by ZIP Code</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Automatically assign the nearest store based on the customer's ZIP code.</p>
+            </div>
+            <Switch
+              checked={config.assign_auto_zip}
+              onCheckedChange={v => {
+                setConfig(prev => {
+                  const next = { ...prev, assign_auto_zip: v };
+                  setHasChanges(JSON.stringify(next) !== JSON.stringify(savedConfig));
+                  return next;
+                });
+              }}
+            />
+          </div>
+
+          {/* OEM Brand Match */}
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
+            <div className="flex-1 mr-3">
+              <Label className="text-sm font-semibold">Match Vehicle Brand to OEM Dealership</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">Route a Nissan to Harte Nissan, an Infiniti to Harte Infiniti, etc. based on the vehicle make being sold.</p>
+            </div>
+            <Switch
+              checked={config.assign_oem_brand_match}
+              onCheckedChange={v => {
+                setConfig(prev => {
+                  const next = { ...prev, assign_oem_brand_match: v };
+                  setHasChanges(JSON.stringify(next) !== JSON.stringify(savedConfig));
+                  return next;
+                });
+              }}
+            />
+          </div>
+
+          {/* Buying Center */}
+          <div className="p-3 rounded-lg bg-muted/30 border border-border space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex-1 mr-3">
+                <Label className="text-sm font-semibold">Buying Center Mode</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">Send ALL incoming leads to a single designated buying center location. Overrides ZIP and OEM matching.</p>
+              </div>
+              <Switch
+                checked={config.assign_buying_center}
+                onCheckedChange={v => {
+                  setConfig(prev => {
+                    const next = { ...prev, assign_buying_center: v };
+                    setHasChanges(JSON.stringify(next) !== JSON.stringify(savedConfig));
+                    return next;
+                  });
+                }}
+              />
+            </div>
+            {config.assign_buying_center && (
+              <div className="space-y-1.5 pl-1">
+                <Label className="text-xs font-semibold">Buying Center Location</Label>
+                <Select
+                  value={config.buying_center_location_id || ""}
+                  onValueChange={v => {
+                    setConfig(prev => {
+                      const next = { ...prev, buying_center_location_id: v || null };
+                      setHasChanges(JSON.stringify(next) !== JSON.stringify(savedConfig));
+                      return next;
+                    });
+                  }}
+                >
+                  <SelectTrigger><SelectValue placeholder="Select location..." /></SelectTrigger>
+                  <SelectContent>
+                    {dealerLocations.map(loc => (
+                      <SelectItem key={loc.id} value={loc.id}>{loc.name} — {loc.city}, {loc.state}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
         </div>
       </Section>

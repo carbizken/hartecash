@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { logConsent } from "@/lib/consent";
 import { calculateOffer, type OfferEstimate, type OfferSettings, type OfferRule } from "@/lib/offerCalculator";
-import { findStoreByZip } from "@/lib/storeAssignment";
+import { resolveStoreAssignment } from "@/lib/storeAssignment";
 import { initialFormData } from "./sell-form/types";
 import { useFormConfig } from "@/hooks/useFormConfig";
 import type { FormData, VehicleInfo, BBVehicle } from "./sell-form/types";
@@ -269,8 +269,14 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
       // Calculate offer estimate
       const estimate = calculateOffer(bbSelectedVehicle, formData, selectedAddDeducts, offerSettingsData, offerRulesData);
 
-      // Auto-assign nearest store by ZIP
-      const storeLocationId = await findStoreByZip(formData.zip || "");
+      // Resolve store assignment based on admin config
+      const storeLocationId = formData.preferredLocationId
+        ? formData.preferredLocationId
+        : await resolveStoreAssignment(
+            config as any,
+            vehicleInfo?.make || "",
+            formData.zip || "",
+          );
 
       const { error } = await supabase
         .from("submissions")
@@ -316,6 +322,7 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
           is_hot_lead: estimate?.isHotLead || false,
           matched_rule_ids: estimate?.matchedRuleIds?.length ? estimate.matchedRuleIds : null,
           store_location_id: storeLocationId || null,
+          salesperson_name: formData.salespersonName || null,
         } as any);
 
       if (error) throw error;
@@ -395,7 +402,7 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
       case "History":
         return <StepHistory formData={formData} update={update} formConfig={formConfig} />;
       case "Finalize":
-        return <StepFinalize formData={formData} update={update} formConfig={formConfig} />;
+        return <StepFinalize formData={formData} update={update} formConfig={formConfig} leadSource={leadSource} />;
       default:
         return null;
     }

@@ -40,12 +40,12 @@ export interface FormData {
   mileage: string;
   // Black Book data
   bbUvc: string;
-  bbSelectedAddDeducts: string[]; // UOC codes selected by user
+  bbSelectedAddDeducts: string[];
   // Vehicle Build
   exteriorColor: string;
   drivetrain: string;
   modifications: string;
-  // Condition & History (all on one page)
+  // Condition & History
   overallCondition: string;
   exteriorDamage: string[];
   windshieldDamage: string;
@@ -70,6 +70,9 @@ export interface FormData {
   loanPayment: string;
   // Next Steps
   nextStep: string;
+  // Store assignment
+  preferredLocationId: string;
+  salespersonName: string;
 }
 
 export const initialFormData: FormData = {
@@ -104,6 +107,8 @@ export const initialFormData: FormData = {
   loanBalance: "",
   loanPayment: "",
   nextStep: "",
+  preferredLocationId: "",
+  salespersonName: "",
 };
 
 export const STEPS = [
