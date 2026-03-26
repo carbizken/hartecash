@@ -160,6 +160,7 @@ const PROGRESS_STAGES = PROGRESS_STAGES_NOT_ACCEPTED;
 
 // Full list of DB status keys for dropdowns (preserves granular control)
 const ALL_STATUS_OPTIONS = [
+  { key: "partial", label: "Abandoned" },
   { key: "new", label: "New Lead" },
   { key: "contacted", label: "Contacted" },
   { key: "inspection_scheduled", label: "Inspection Scheduled" },
