@@ -268,9 +268,11 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
       </div>
 
       {/* Row 1 — Top KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
         <KpiCard label="Total Leads" value={kpis.total} icon={Users} color="text-blue-500" bg="from-blue-500/15 to-blue-600/5" />
         <KpiCard label="Active Deals" value={kpis.active} icon={Target} color="text-violet-500" bg="from-violet-500/15 to-violet-600/5" />
+        <KpiCard label="Abandoned" value={kpis.abandoned} icon={AlertTriangle} color="text-amber-500" bg="from-amber-500/15 to-amber-600/5"
+          badge={kpis.dropOffRate > 0 ? { value: `${kpis.dropOffRate}% drop-off`, positive: false } : undefined} />
         <KpiCard label="Conversion" value={`${kpis.convRate}%`} icon={TrendingUp} color="text-emerald-500" bg="from-emerald-500/15 to-emerald-600/5"
           badge={kpis.trend !== 0 ? { value: `${kpis.trend > 0 ? "+" : ""}${kpis.trend}%`, positive: kpis.trend > 0 } : undefined} />
         <KpiCard label="Pipeline Value" value={`$${(kpis.pipeline / 1000).toFixed(0)}k`} icon={DollarSign} color="text-amber-500" bg="from-amber-500/15 to-amber-600/5" />
