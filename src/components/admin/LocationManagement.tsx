@@ -210,7 +210,7 @@ const LocationManagement = () => {
                 className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground hover:text-foreground w-full text-left transition-colors"
               >
                 {expandedIds.has(loc.id) ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
-                <span>Address, ZIP Codes ({loc.zip_codes?.length || 0}){loc.coverage_radius_miles > 0 ? ` + ${loc.coverage_radius_miles}mi radius` : ''}, OEM Brands ({loc.oem_brands?.length || 0})</span>
+                <span>Address, ZIP Codes ({loc.zip_codes?.length || 0}){loc.coverage_radius_miles > 0 ? ` + ${loc.coverage_radius_miles}mi radius` : ''}, Brands: {(loc.all_brands ?? true) ? `All${(loc.excluded_oem_brands?.length || 0) > 0 ? ` (−${loc.excluded_oem_brands.length})` : ''}` : `${loc.oem_brands?.length || 0} specific`}</span>
               </button>
               {expandedIds.has(loc.id) && (
                 <div className="px-3 pb-3 space-y-4">
