@@ -40,6 +40,7 @@ interface SiteConfig {
   enable_animations: boolean;
   use_animated_calculating: boolean;
   enable_dl_ocr: boolean;
+  track_abandoned_leads: boolean;
   cta_offer_color: string;
   cta_accept_color: string;
   assign_customer_picks: boolean;
