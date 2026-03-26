@@ -668,6 +668,11 @@ const SiteConfiguration = () => {
         <AboutPageConfig />
       </Section>
 
+      {/* Comparison Table */}
+      <Section icon={GitCompare} title="Competitor Comparison Table">
+        <ComparisonConfig />
+      </Section>
+
       {/* Preview */}
       <div className="rounded-xl border border-border bg-muted/30 p-4">
         <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">Live Preview</h4>
