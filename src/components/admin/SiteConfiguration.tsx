@@ -8,10 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Save, Loader2, ChevronDown, Building2, Palette, Type, BarChart3, Upload, Star, Sparkles, Eye, ScanLine, MapPin, FileText } from "lucide-react";
+import { Save, Loader2, ChevronDown, Building2, Palette, Type, BarChart3, Upload, Star, Sparkles, Eye, ScanLine, MapPin, FileText, GitCompare } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import CalculatingOffer from "@/components/CalculatingOffer";
 import AboutPageConfig from "@/components/admin/AboutPageConfig";
+import ComparisonConfig from "@/components/admin/ComparisonConfig";
 
 interface SiteConfig {
   id: string;
@@ -558,7 +559,8 @@ const SiteConfiguration = () => {
         </div>
       </Section>
 
-      {/* Store Assignment */}
+      {/* Store Assignment — only show when multiple locations */}
+      {dealerLocations.length > 1 && (
       <Section icon={MapPin} title="Store Assignment Rules">
         <p className="text-xs text-muted-foreground mb-4">
           Control how incoming leads from the <strong>Sell Your Car</strong> landing page are assigned to dealership locations. These settings do not affect the /trade page.
@@ -661,10 +663,16 @@ const SiteConfiguration = () => {
           </div>
         </div>
       </Section>
+      )}
 
       {/* About Page */}
       <Section icon={FileText} title="About Page Content">
         <AboutPageConfig />
+      </Section>
+
+      {/* Comparison Table */}
+      <Section icon={GitCompare} title="Competitor Comparison Table">
+        <ComparisonConfig />
       </Section>
 
       {/* Preview */}

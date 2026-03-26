@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import {
   Inbox, CalendarDays, Users, ShieldCheck, SlidersHorizontal,
-  Settings, Bell, ListChecks, MessageSquareQuote, BarChart3, Send, UserCheck, MapPin, Car, ScrollText, Newspaper, Shield, Lock, Wrench
+  Settings, Bell, ListChecks, MessageSquareQuote, BarChart3, Send, UserCheck, MapPin, Car, ScrollText, Newspaper, Shield, Lock, Wrench, MessageCircle
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
@@ -29,6 +29,7 @@ interface AdminSidebarProps {
   allowedSections?: string[] | null; // null = unrestricted (admin)
   showRequestAccess?: boolean;
   onRequestAccess?: (sectionKey: string) => void;
+  locationCount?: number;
 }
 
 const AdminSidebar = ({
@@ -42,6 +43,7 @@ const AdminSidebar = ({
   allowedSections = null,
   showRequestAccess = false,
   onRequestAccess,
+  locationCount = 0,
 }: AdminSidebarProps) => {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
@@ -78,17 +80,15 @@ const AdminSidebar = ({
   const storefrontItems = canManageAccess
     ? [
         { key: "site-config", label: "Site Config", icon: Settings },
-        { key: "locations", label: "Locations", icon: MapPin },
+        ...(locationCount > 1 ? [{ key: "locations", label: "Locations", icon: MapPin }] : []),
         { key: "testimonials", label: "Testimonials", icon: MessageSquareQuote },
-        { key: "comparison", label: "Comparison", icon: BarChart3 },
       ].filter((item) => isAllowed(item.key))
     : [];
 
   // ── Compliance (audit trails) ──
   const complianceItems = [
     { key: "consent", label: "Consent Log", icon: ShieldCheck },
-    { key: "follow-ups", label: "Follow-Ups", icon: Send },
-    { key: "notification-log", label: "Notification Log", icon: ScrollText },
+    { key: "comm-log", label: "Communication Log", icon: MessageCircle },
   ].filter((item) => isAllowed(item.key));
 
   // ── Tools (utilities) ──
@@ -100,7 +100,7 @@ const AdminSidebar = ({
     : [];
 
   // Collect locked sections for "Request Access" display
-  const allSectionKeys = ["submissions", "appointments", "executive", "staff", "permissions", "requests", "offer-settings", "form-config", "notifications", "site-config", "locations", "testimonials", "comparison", "consent", "follow-ups", "notification-log", "image-inventory", "changelog"];
+  const allSectionKeys = ["submissions", "appointments", "executive", "staff", "permissions", "requests", "offer-settings", "form-config", "notifications", "site-config", "locations", "testimonials", "consent", "comm-log", "image-inventory", "changelog"];
   const lockedSections = showRequestAccess && allowedSections !== null
     ? allSectionKeys.filter((k) => !allowedSections.includes(k))
     : [];
