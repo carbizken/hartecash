@@ -11,6 +11,7 @@ interface LocationWithZips {
   coverage_radius_miles: number;
   all_brands: boolean;
   excluded_oem_brands: string[];
+  temporarily_offline: boolean;
 }
 
 let cachedLocations: LocationWithZips[] | null = null;
@@ -19,12 +20,17 @@ async function getLocations(): Promise<LocationWithZips[]> {
   if (!cachedLocations) {
     const { data } = await supabase
       .from("dealership_locations")
-      .select("id, name, city, state, zip_codes, oem_brands, center_zip, coverage_radius_miles, all_brands, excluded_oem_brands")
+      .select("id, name, city, state, zip_codes, oem_brands, center_zip, coverage_radius_miles, all_brands, excluded_oem_brands, temporarily_offline")
       .eq("is_active", true)
       .order("sort_order");
     cachedLocations = (data as any) || [];
   }
   return cachedLocations!;
+}
+
+/** Returns only locations that are not temporarily offline */
+function getAvailableLocations(locations: LocationWithZips[]): LocationWithZips[] {
+  return locations.filter(l => !l.temporarily_offline);
 }
 
 /**
@@ -33,7 +39,10 @@ async function getLocations(): Promise<LocationWithZips[]> {
 export async function findStoreByZip(customerZip: string): Promise<string | null> {
   if (!customerZip || customerZip.length < 5) return null;
   const zip5 = customerZip.slice(0, 5);
-  const locations = await getLocations();
+  const allLocations = await getLocations();
+  const locations = getAvailableLocations(allLocations);
+
+  if (locations.length === 0) return allLocations.length > 0 ? allLocations[0].id : null;
 
   // Exact match on listed ZIP codes
   for (const loc of locations) {
@@ -41,7 +50,6 @@ export async function findStoreByZip(customerZip: string): Promise<string | null
   }
 
   // Radius match: if a location has a center_zip and radius, use prefix-based proximity
-  // ZIP codes sharing the first 3 digits are typically within ~50 miles
   const prefix = zip5.slice(0, 3);
   for (const loc of locations) {
     if (loc.center_zip && loc.coverage_radius_miles > 0) {
@@ -55,8 +63,8 @@ export async function findStoreByZip(customerZip: string): Promise<string | null
     if (loc.zip_codes?.some(z => z.startsWith(prefix))) return loc.id;
   }
 
-  // Default to first location
-  return locations.length > 0 ? locations[0].id : null;
+  // Default to first available location
+  return locations[0].id;
 }
 
 /**
@@ -65,7 +73,8 @@ export async function findStoreByZip(customerZip: string): Promise<string | null
  */
 export async function findStoreByBrand(vehicleMake: string): Promise<string | null> {
   if (!vehicleMake) return null;
-  const locations = await getLocations();
+  const allLocations = await getLocations();
+  const locations = getAvailableLocations(allLocations);
   const make = vehicleMake.toLowerCase();
 
   // First try specific brand match (locations with all_brands OFF)

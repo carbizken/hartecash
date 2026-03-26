@@ -64,9 +64,10 @@ const ScheduleVisit = () => {
     const fetchLocations = async () => {
       const { data } = await supabase
         .from("dealership_locations" as any)
-        .select("id, name, city, state, address, show_in_scheduling")
+        .select("id, name, city, state, address, show_in_scheduling, temporarily_offline")
         .eq("is_active", true)
         .eq("show_in_scheduling", true)
+        .eq("temporarily_offline", false)
         .order("sort_order");
       if (data) setLocations(data as unknown as DealerLocation[]);
     };
