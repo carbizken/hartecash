@@ -1,8 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  TrendingUp, TrendingDown, Users, DollarSign, Clock, Building2,
-  UserCheck, Target, Calendar, ArrowUpRight, ArrowDownRight, BarChart3
+  TrendingUp, TrendingDown, Users, DollarSign, Target, UserCheck, Building2
 } from "lucide-react";
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -18,6 +17,7 @@ interface Sub {
   offered_price: number | null;
   acv_value: number | null;
   lead_source: string;
+  store_location_id: string | null;
   status_updated_at: string | null;
   status_updated_by: string | null;
   appraised_by: string | null;
@@ -30,33 +30,21 @@ interface Location {
   state: string;
 }
 
-interface StoreMetrics {
-  name: string;
-  total: number;
-  newLeads: number;
-  contacted: number;
-  inProgress: number;
-  completed: number;
-  dead: number;
-  conversionRate: number;
-  avgDays: number;
-  pendingValue: number;
-  closedValue: number;
-  totalPipeline: number;
-}
-
 const SOURCE_LABELS: Record<string, string> = {
-  inventory: "Off Street Purchase",
+  inventory: "Off Street",
   service: "Service Drive",
   trade: "Trade-In",
   in_store_trade: "In-Store Trade",
 };
 
+const STORE_COLORS = [
+  "hsl(210,70%,50%)", "hsl(160,60%,45%)", "hsl(280,60%,55%)",
+  "hsl(35,85%,55%)", "hsl(340,65%,50%)", "hsl(190,70%,45%)",
+];
 const SOURCE_COLORS = ["hsl(210,70%,50%)", "hsl(160,60%,45%)", "hsl(280,60%,55%)", "hsl(35,85%,55%)", "hsl(0,0%,60%)"];
 
-const COMPLETED_STATUSES = ["purchase_complete"];
-const DEAD_STATUSES = ["dead_lead"];
-const IN_PROGRESS_STATUSES = ["contacted", "inspection_scheduled", "inspection_completed", "appraisal_completed", "manager_approval", "price_agreed", "title_verified", "ownership_verified"];
+const COMPLETED = ["purchase_complete"];
+const DEAD = ["dead_lead"];
 
 /* ── helpers ──────────────────────────────────────────── */
 
@@ -71,7 +59,7 @@ function getWeekLabel(date: Date) {
   return `${date.getMonth() + 1}/${date.getDate()}`;
 }
 
-/* ── main component ───────────────────────────────────── */
+/* ── main ─────────────────────────────────────────────── */
 
 interface ExecutiveKPIHubProps {
   standalone?: boolean;
@@ -84,18 +72,15 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
   const [timeRange, setTimeRange] = useState<"30" | "60" | "90" | "all">("all");
 
   useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    const [{ data: subData }, { data: locData }] = await Promise.all([
-      supabase.from("submissions").select("id, created_at, progress_status, offered_price, acv_value, lead_source, status_updated_at, status_updated_by, appraised_by"),
+    Promise.all([
+      supabase.from("submissions").select("id, created_at, progress_status, offered_price, acv_value, lead_source, store_location_id, status_updated_at, status_updated_by, appraised_by"),
       supabase.from("dealership_locations").select("id, name, city, state").eq("is_active", true).order("sort_order"),
-    ]);
-    if (subData) setSubs(subData);
-    if (locData) setLocations(locData);
-    setLoading(false);
-  };
+    ]).then(([{ data: subData }, { data: locData }]) => {
+      if (subData) setSubs(subData as any);
+      if (locData) setLocations(locData);
+      setLoading(false);
+    });
+  }, []);
 
   const filteredSubs = useMemo(() => {
     if (timeRange === "all") return subs;
@@ -105,7 +90,91 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
     return subs.filter(s => new Date(s.created_at) >= cutoff);
   }, [subs, timeRange]);
 
-  /* ── per-source metrics ─────────────────────────── */
+  /* ── aggregate KPIs ─────────────────────────────── */
+  const kpis = useMemo(() => {
+    const total = filteredSubs.length;
+    const completed = filteredSubs.filter(s => COMPLETED.includes(s.progress_status)).length;
+    const dead = filteredSubs.filter(s => DEAD.includes(s.progress_status)).length;
+    const active = total - completed - dead;
+    const convRate = total > 0 ? Math.round((completed / total) * 1000) / 10 : 0;
+
+    let pipeline = 0, closed = 0;
+    filteredSubs.forEach(s => {
+      const val = s.offered_price || s.acv_value || 0;
+      if (val > 0) {
+        if (COMPLETED.includes(s.progress_status)) closed += val;
+        else if (!DEAD.includes(s.progress_status)) pipeline += val;
+      }
+    });
+
+    const now = new Date();
+    const thisMonth = filteredSubs.filter(s => {
+      const d = new Date(s.created_at);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }).length;
+    const lastMonth = filteredSubs.filter(s => {
+      const d = new Date(s.created_at);
+      const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      return d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear();
+    }).length;
+    const trend = lastMonth > 0 ? Math.round(((thisMonth - lastMonth) / lastMonth) * 100) : thisMonth > 0 ? 100 : 0;
+
+    return { total, completed, dead, active, convRate, pipeline, closed, trend };
+  }, [filteredSubs]);
+
+  /* ── per-store breakdown ────────────────────────── */
+  const storeBreakdown = useMemo(() => {
+    const locMap = new Map(locations.map(l => [l.id, l]));
+    const map: Record<string, { name: string; subs: Sub[] }> = {};
+
+    filteredSubs.forEach(s => {
+      const storeId = s.store_location_id || "__unassigned";
+      if (!map[storeId]) {
+        const loc = locMap.get(storeId);
+        map[storeId] = { name: loc ? loc.name : "Unassigned", subs: [] };
+      }
+      map[storeId].subs.push(s);
+    });
+
+    return Object.entries(map).map(([id, { name, subs: items }]) => {
+      const completed = items.filter(s => COMPLETED.includes(s.progress_status)).length;
+      const dead = items.filter(s => DEAD.includes(s.progress_status)).length;
+      const active = items.length - completed - dead;
+      let pipeline = 0, closed = 0;
+      items.forEach(s => {
+        const val = s.offered_price || s.acv_value || 0;
+        if (val > 0) {
+          if (COMPLETED.includes(s.progress_status)) closed += val;
+          else if (!DEAD.includes(s.progress_status)) pipeline += val;
+        }
+      });
+
+      // Channel breakdown within this store
+      const channels: Record<string, number> = {};
+      items.forEach(s => {
+        const src = s.lead_source || "inventory";
+        channels[src] = (channels[src] || 0) + 1;
+      });
+
+      return {
+        id,
+        name,
+        total: items.length,
+        active,
+        completed,
+        dead,
+        convRate: items.length > 0 ? Math.round((completed / items.length) * 1000) / 10 : 0,
+        pipeline,
+        closed,
+        channels: Object.entries(channels).map(([k, v]) => ({
+          channel: SOURCE_LABELS[k] || k,
+          count: v,
+        })).sort((a, b) => b.count - a.count),
+      };
+    }).sort((a, b) => b.total - a.total);
+  }, [filteredSubs, locations]);
+
+  /* ── source pie ─────────────────────────────────── */
   const sourceMetrics = useMemo(() => {
     const map: Record<string, number> = {};
     filteredSubs.forEach(s => {
@@ -119,57 +188,6 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
     }));
   }, [filteredSubs]);
 
-  /* ── per-store metrics ──────────────────────────── */
-  const storeMetrics = useMemo((): StoreMetrics[] => {
-    // Group subs by source as a proxy for "store" — since lead_source maps to store channels
-    const sourceMap: Record<string, Sub[]> = {};
-    filteredSubs.forEach(s => {
-      const src = s.lead_source || "inventory";
-      if (!sourceMap[src]) sourceMap[src] = [];
-      sourceMap[src].push(s);
-    });
-
-    return Object.entries(sourceMap).map(([key, items]) => {
-      const completed = items.filter(s => COMPLETED_STATUSES.includes(s.progress_status)).length;
-      const dead = items.filter(s => DEAD_STATUSES.includes(s.progress_status)).length;
-      const inProgress = items.filter(s => IN_PROGRESS_STATUSES.includes(s.progress_status)).length;
-      const newLeads = items.filter(s => s.progress_status === "new").length;
-      const contacted = items.filter(s => s.progress_status === "contacted").length;
-
-      let totalDays = 0, dayCount = 0;
-      items.forEach(s => {
-        if (s.status_updated_at && s.progress_status !== "new") {
-          const days = (new Date(s.status_updated_at).getTime() - new Date(s.created_at).getTime()) / 864e5;
-          if (days >= 0 && days < 365) { totalDays += days; dayCount++; }
-        }
-      });
-
-      let pendingValue = 0, closedValue = 0;
-      items.forEach(s => {
-        const val = s.offered_price || s.acv_value || 0;
-        if (val > 0) {
-          if (COMPLETED_STATUSES.includes(s.progress_status)) closedValue += val;
-          else if (!DEAD_STATUSES.includes(s.progress_status)) pendingValue += val;
-        }
-      });
-
-      return {
-        name: SOURCE_LABELS[key] || key,
-        total: items.length,
-        newLeads,
-        contacted,
-        inProgress,
-        completed,
-        dead,
-        conversionRate: items.length > 0 ? Math.round((completed / items.length) * 1000) / 10 : 0,
-        avgDays: dayCount > 0 ? Math.round((totalDays / dayCount) * 10) / 10 : 0,
-        pendingValue,
-        closedValue,
-        totalPipeline: pendingValue + closedValue,
-      };
-    }).sort((a, b) => b.total - a.total);
-  }, [filteredSubs]);
-
   /* ── staff performance ──────────────────────────── */
   const staffMetrics = useMemo(() => {
     const map: Record<string, { name: string; deals: number; totalValue: number }> = {};
@@ -178,7 +196,7 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
       if (!who) return;
       const clean = who.split("—")[0].trim();
       if (!map[clean]) map[clean] = { name: clean, deals: 0, totalValue: 0 };
-      if (COMPLETED_STATUSES.includes(s.progress_status)) {
+      if (COMPLETED.includes(s.progress_status)) {
         map[clean].deals++;
         map[clean].totalValue += s.offered_price || s.acv_value || 0;
       }
@@ -186,7 +204,7 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
     return Object.values(map).sort((a, b) => b.deals - a.deals).slice(0, 10);
   }, [filteredSubs]);
 
-  /* ── weekly trend ───────────────────────────────── */
+  /* ── 12-week trend ──────────────────────────────── */
   const weeklyTrend = useMemo(() => {
     const weeks: { label: string; start: Date; end: Date; leads: number; closed: number }[] = [];
     for (let i = 11; i >= 0; i--) {
@@ -199,61 +217,24 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
       weeks.forEach(w => {
         if (d >= w.start && d < w.end) {
           w.leads++;
-          if (COMPLETED_STATUSES.includes(s.progress_status)) w.closed++;
+          if (COMPLETED.includes(s.progress_status)) w.closed++;
         }
       });
     });
     return weeks.map(w => ({ week: w.label, Leads: w.leads, Closed: w.closed }));
   }, [subs]);
 
-  /* ── aggregate KPIs ─────────────────────────────── */
-  const kpis = useMemo(() => {
-    const total = filteredSubs.length;
-    const completed = filteredSubs.filter(s => COMPLETED_STATUSES.includes(s.progress_status)).length;
-    const dead = filteredSubs.filter(s => DEAD_STATUSES.includes(s.progress_status)).length;
-    const active = total - completed - dead;
-    const convRate = total > 0 ? Math.round((completed / total) * 1000) / 10 : 0;
-
-    let pipeline = 0, closed = 0;
-    filteredSubs.forEach(s => {
-      const val = s.offered_price || s.acv_value || 0;
-      if (val > 0) {
-        if (COMPLETED_STATUSES.includes(s.progress_status)) closed += val;
-        else if (!DEAD_STATUSES.includes(s.progress_status)) pipeline += val;
-      }
-    });
-
-    // Month trend
-    const now = new Date();
-    const thisMonth = filteredSubs.filter(s => {
-      const d = new Date(s.created_at);
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    }).length;
-    const lastMonth = filteredSubs.filter(s => {
-      const d = new Date(s.created_at);
-      const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      return d.getMonth() === lm.getMonth() && d.getFullYear() === lm.getFullYear();
-    }).length;
-    const trend = lastMonth > 0 ? Math.round(((thisMonth - lastMonth) / lastMonth) * 100) : thisMonth > 0 ? 100 : 0;
-
-    return { total, completed, dead, active, convRate, pipeline, closed, thisMonth, trend };
-  }, [filteredSubs]);
-
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="text-muted-foreground text-sm">Loading executive dashboard…</div>
-      </div>
-    );
+    return <div className="flex items-center justify-center py-20"><p className="text-muted-foreground text-sm">Loading executive dashboard…</p></div>;
   }
 
   return (
     <div className={`space-y-6 ${standalone ? "p-6 max-w-[1600px] mx-auto" : ""}`}>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-2xl font-black text-card-foreground tracking-tight">Executive Dashboard</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">Enterprise performance at a glance</p>
+          <p className="text-sm text-muted-foreground mt-0.5">Multi-rooftop performance at a glance</p>
         </div>
         <div className="flex items-center gap-2">
           {(["30", "60", "90", "all"] as const).map(r => (
@@ -282,59 +263,70 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
         <KpiCard label="Closed Revenue" value={`$${(kpis.closed / 1000).toFixed(0)}k`} icon={UserCheck} color="text-emerald-600" bg="from-emerald-600/15 to-emerald-700/5" />
       </div>
 
-      {/* Row 2 — Per-Channel Breakdown Table + Source Pie */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Channel Table */}
-        <div className="lg:col-span-2 bg-card rounded-xl border border-border p-5 shadow-sm overflow-x-auto">
-          <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Performance by Channel</h3>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-2 text-[10px] font-bold text-muted-foreground uppercase">Channel</th>
-                <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Leads</th>
-                <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Active</th>
-                <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Closed</th>
-                <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Conv %</th>
-                <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Avg Days</th>
-                <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Pipeline</th>
-                <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Closed $</th>
-              </tr>
-            </thead>
-            <tbody>
-              {storeMetrics.map((sm, i) => (
-                <tr key={sm.name} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors">
-                  <td className="py-2.5 font-semibold text-card-foreground flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: SOURCE_COLORS[i % SOURCE_COLORS.length] }} />
-                    {sm.name}
-                  </td>
-                  <td className="text-right py-2.5 font-bold text-card-foreground">{sm.total}</td>
-                  <td className="text-right py-2.5 text-muted-foreground">{sm.inProgress + sm.newLeads + sm.contacted}</td>
-                  <td className="text-right py-2.5 text-emerald-600 font-semibold">{sm.completed}</td>
-                  <td className="text-right py-2.5">
-                    <span className={`font-bold ${sm.conversionRate >= 10 ? "text-emerald-600" : sm.conversionRate >= 5 ? "text-amber-600" : "text-red-500"}`}>
-                      {sm.conversionRate}%
-                    </span>
-                  </td>
-                  <td className="text-right py-2.5 text-muted-foreground">{sm.avgDays}</td>
-                  <td className="text-right py-2.5 font-semibold text-amber-600">${sm.pendingValue.toLocaleString()}</td>
-                  <td className="text-right py-2.5 font-semibold text-emerald-600">${sm.closedValue.toLocaleString()}</td>
-                </tr>
-              ))}
-              {/* Totals row */}
-              <tr className="bg-muted/30 font-bold">
-                <td className="py-2.5 text-card-foreground">Total</td>
-                <td className="text-right py-2.5">{kpis.total}</td>
-                <td className="text-right py-2.5">{kpis.active}</td>
-                <td className="text-right py-2.5 text-emerald-600">{kpis.completed}</td>
-                <td className="text-right py-2.5 text-emerald-600">{kpis.convRate}%</td>
-                <td className="text-right py-2.5">—</td>
-                <td className="text-right py-2.5 text-amber-600">${kpis.pipeline.toLocaleString()}</td>
-                <td className="text-right py-2.5 text-emerald-600">${kpis.closed.toLocaleString()}</td>
-              </tr>
-            </tbody>
-          </table>
+      {/* Row 2 — Store Breakdown Table */}
+      <div className="bg-card rounded-xl border border-border p-5 shadow-sm overflow-x-auto">
+        <div className="flex items-center gap-2 mb-4">
+          <Building2 className="w-4 h-4 text-muted-foreground" />
+          <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Performance by Store</h3>
         </div>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border">
+              <th className="text-left py-2 text-[10px] font-bold text-muted-foreground uppercase">Store</th>
+              <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Leads</th>
+              <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Active</th>
+              <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Closed</th>
+              <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Conv %</th>
+              <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Pipeline</th>
+              <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Closed $</th>
+              <th className="text-left py-2 text-[10px] font-bold text-muted-foreground uppercase pl-4">Channel Mix</th>
+            </tr>
+          </thead>
+          <tbody>
+            {storeBreakdown.map((sm, i) => (
+              <tr key={sm.id} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors">
+                <td className="py-2.5 font-semibold text-card-foreground flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: STORE_COLORS[i % STORE_COLORS.length] }} />
+                  {sm.name}
+                </td>
+                <td className="text-right py-2.5 font-bold text-card-foreground">{sm.total}</td>
+                <td className="text-right py-2.5 text-muted-foreground">{sm.active}</td>
+                <td className="text-right py-2.5 text-emerald-600 font-semibold">{sm.completed}</td>
+                <td className="text-right py-2.5">
+                  <span className={`font-bold ${sm.convRate >= 10 ? "text-emerald-600" : sm.convRate >= 5 ? "text-amber-600" : "text-red-500"}`}>
+                    {sm.convRate}%
+                  </span>
+                </td>
+                <td className="text-right py-2.5 font-semibold text-amber-600">${sm.pipeline.toLocaleString()}</td>
+                <td className="text-right py-2.5 font-semibold text-emerald-600">${sm.closed.toLocaleString()}</td>
+                <td className="py-2.5 pl-4">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {sm.channels.map(ch => (
+                      <span key={ch.channel} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted/60 text-[10px] font-medium text-muted-foreground">
+                        {ch.channel}: {ch.count}
+                      </span>
+                    ))}
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {/* Totals */}
+            <tr className="bg-muted/30 font-bold">
+              <td className="py-2.5 text-card-foreground">All Stores</td>
+              <td className="text-right py-2.5">{kpis.total}</td>
+              <td className="text-right py-2.5">{kpis.active}</td>
+              <td className="text-right py-2.5 text-emerald-600">{kpis.completed}</td>
+              <td className="text-right py-2.5 text-emerald-600">{kpis.convRate}%</td>
+              <td className="text-right py-2.5 text-amber-600">${kpis.pipeline.toLocaleString()}</td>
+              <td className="text-right py-2.5 text-emerald-600">${kpis.closed.toLocaleString()}</td>
+              <td className="py-2.5 pl-4"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
+      {/* Row 3 — Source Pie + Trend Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Source Pie */}
         <div className="bg-card rounded-xl border border-border p-5 shadow-sm flex flex-col items-center justify-center">
           <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-3 self-start">Lead Sources</h3>
@@ -358,14 +350,11 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Row 3 — Trend Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Weekly Lead Volume */}
         <div className="bg-card rounded-xl border border-border p-5 shadow-sm">
           <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-4">12-Week Lead Volume</h3>
-          <ResponsiveContainer width="100%" height={240}>
+          <ResponsiveContainer width="100%" height={220}>
             <BarChart data={weeklyTrend}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
               <XAxis dataKey="week" tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }} />
@@ -380,8 +369,8 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
 
         {/* Conversion Trend */}
         <div className="bg-card rounded-xl border border-border p-5 shadow-sm">
-          <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Weekly Conversion Trend</h3>
-          <ResponsiveContainer width="100%" height={240}>
+          <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Conversion Trend</h3>
+          <ResponsiveContainer width="100%" height={220}>
             <LineChart data={weeklyTrend.map(w => ({
               ...w,
               Rate: w.Leads > 0 ? Math.round((w.Closed / w.Leads) * 100) : 0,
@@ -411,7 +400,7 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
                 </tr>
               </thead>
               <tbody>
-                {staffMetrics.map((sm, i) => {
+                {staffMetrics.map(sm => {
                   const maxDeals = staffMetrics[0]?.deals || 1;
                   const pct = Math.round((sm.deals / maxDeals) * 100);
                   return (
@@ -421,7 +410,7 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
                       <td className="text-right py-2.5 font-semibold text-emerald-600">${sm.totalValue.toLocaleString()}</td>
                       <td className="py-2.5 pl-4">
                         <div className="h-5 bg-muted/30 rounded-full overflow-hidden w-40">
-                          <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-violet-500 transition-all duration-500" style={{ width: `${pct}%` }} />
+                          <div className="h-full rounded-full bg-gradient-to-r from-primary/80 to-primary transition-all duration-500" style={{ width: `${pct}%` }} />
                         </div>
                       </td>
                     </tr>
