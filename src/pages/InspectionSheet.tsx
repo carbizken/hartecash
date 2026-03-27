@@ -154,8 +154,7 @@ const InspectionSheet = () => {
                     year={submission.vehicle_year}
                     make={submission.vehicle_make}
                     model={submission.vehicle_model}
-                    color={submission.exterior_color}
-                    className="w-full h-full object-cover"
+                    selectedColor={submission.exterior_color || "white"}
                   />
                 </div>
                 <div>

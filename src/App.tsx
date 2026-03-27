@@ -69,6 +69,7 @@ const AnimatedRoutes = () => {
             <Route path="/updates" element={<Updates />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/executive" element={<ExecutiveDashboard />} />
+            <Route path="/inspection/:id" element={<InspectionSheet />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
