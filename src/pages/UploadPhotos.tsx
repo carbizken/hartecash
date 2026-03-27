@@ -40,6 +40,7 @@ type CategoryUploads = Record<string, { file?: File; preview?: string; uploaded?
 const UploadPhotos = () => {
   const { token } = useParams<{ token: string }>();
   const { config } = useSiteConfig();
+  const isMobile = useIsMobile();
   const [submission, setSubmission] = useState<SubmissionInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -49,6 +50,7 @@ const UploadPhotos = () => {
   const [uploading, setUploading] = useState(false);
   const [done, setDone] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [cameraCategory, setCameraCategory] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const extraInputRef = useRef<HTMLInputElement>(null);
 
