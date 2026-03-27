@@ -9,6 +9,7 @@ import { Calculator, TrendingDown, TrendingUp, Minus, ArrowRight, Search, Loader
 import { calculateOffer, type OfferSettings, type OfferRule, type OfferEstimate } from "@/lib/offerCalculator";
 import type { FormData, BBVehicle, BBAddDeduct } from "@/components/sell-form/types";
 import { supabase } from "@/integrations/supabase/client";
+import OfferWaterfall from "./OfferWaterfall";
 import { useToast } from "@/hooks/use-toast";
 
 interface Props {
