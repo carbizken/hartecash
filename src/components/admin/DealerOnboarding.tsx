@@ -218,6 +218,9 @@ const DealerOnboarding = ({ isAdmin = false }: DealerOnboardingProps) => {
         </Badge>
       </div>
 
+      {/* Onboarding Checklist */}
+      <OnboardingChecklist />
+
       {/* Architecture */}
       <Card>
         <CardHeader className="pb-3">
