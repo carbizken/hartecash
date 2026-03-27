@@ -2,7 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800;900&display=swap');
+
+/* Premium display font for headlines */
+.font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* VIN glow effect on 17-char match */
+.vin-glow {
+  box-shadow: 0 0 0 3px hsl(var(--success) / 0.3), 0 0 20px hsl(var(--success) / 0.15);
+  border-color: hsl(var(--success)) !important;
+  transition: box-shadow 0.4s ease, border-color 0.4s ease;
+}
 
 @layer base {
   :root {

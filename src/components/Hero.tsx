@@ -22,7 +22,7 @@ const Hero = () => {
           </span>
         </div>
 
-        <h1 className="text-[28px] md:text-[34px] lg:text-[42px] font-extrabold tracking-wide leading-tight mb-3 uppercase">
+        <h1 className="font-display text-[28px] md:text-[34px] lg:text-[42px] font-extrabold tracking-wide leading-tight mb-3 uppercase">
           {config.hero_headline || "Sell Your Car\nThe Easy Way"}
         </h1>
         <p className="text-base lg:text-lg font-normal opacity-95 mb-6 lg:mb-8 leading-relaxed max-w-xl mx-auto">
