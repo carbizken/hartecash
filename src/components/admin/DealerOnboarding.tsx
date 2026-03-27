@@ -16,6 +16,7 @@ import {
   Save, Loader2, CalendarIcon, Building2, Phone as PhoneIcon, Bot,
   Store, Network, Building, Rocket, CheckCircle, Clock, Pause, XCircle
 } from "lucide-react";
+import OnboardingChecklist from "./OnboardingChecklist";
 
 interface DealerAccount {
   id: string;
