@@ -50,7 +50,7 @@ const OnboardingChecklist = () => {
         key: "branding",
         label: "Dealership name configured",
         icon: FileText,
-        done: !!(cfg?.dealership_name && cfg.dealership_name !== "Harte Auto Group"),
+        done: !!(cfg?.dealership_name && cfg.dealership_name.trim().length > 0),
       },
       {
         key: "logo",
