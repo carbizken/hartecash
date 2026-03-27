@@ -1272,10 +1272,12 @@ const AdminDashboard = () => {
         appointmentCount={appointments.length}
         pendingRequestCount={pendingRequests.length}
         permissionRequestCount={permissionRequestCount}
+        pricingAccessRequestCount={pricingAccessRequestCount}
         allowedSections={allowedSections}
         showRequestAccess={showRequestAccessToggle && !canManageAccess}
         onRequestAccess={() => setShowRequestAccessDialog(true)}
         locationCount={dealerLocations.length}
+        userRole={userRole}
       />
 
       <div className="flex-1 flex flex-col min-w-0">
