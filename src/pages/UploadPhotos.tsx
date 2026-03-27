@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Camera, CheckCircle, Upload, X, Plus, ImageIcon, ArrowLeft } from "lucide-react";
+import {
+  Camera, CheckCircle, X, Plus, ArrowLeft, Upload,
+  Car, Gauge, Armchair, AlertTriangle, CircleDot, Eye
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UploadSkeleton from "@/components/UploadSkeleton";
 import MobileQRBanner from "@/components/upload/MobileQRBanner";
@@ -21,16 +24,16 @@ interface SubmissionInfo {
 }
 
 const REQUIRED_CATEGORIES = [
-  { id: "front", label: "Front", icon: "🚗", desc: "Centered, full vehicle visible" },
-  { id: "rear", label: "Rear", icon: "🔙", desc: "Centered, license plate visible" },
-  { id: "driver-side", label: "Driver Side", icon: "🚘", desc: "Full side view from a few feet away" },
-  { id: "passenger-side", label: "Passenger Side", icon: "🚘", desc: "Full side view from a few feet away" },
-  { id: "dashboard", label: "Dashboard", icon: "📊", desc: "Odometer reading clearly visible" },
-  { id: "interior", label: "Interior", icon: "💺", desc: "Front seats, console, and steering wheel" },
+  { id: "front", label: "Front", icon: Car, desc: "Centered, full vehicle visible" },
+  { id: "rear", label: "Rear", icon: Eye, desc: "Centered, license plate visible" },
+  { id: "driver-side", label: "Driver Side", icon: Car, desc: "Full side view from a few feet away" },
+  { id: "passenger-side", label: "Passenger Side", icon: Car, desc: "Full side view from a few feet away" },
+  { id: "dashboard", label: "Dashboard", icon: Gauge, desc: "Odometer reading clearly visible" },
+  { id: "interior", label: "Interior", icon: Armchair, desc: "Front seats, console, and steering wheel" },
 ];
 
 const OPTIONAL_CATEGORIES = [
-  { id: "damage", label: "Damage (if any)", icon: "⚠️", desc: "Close-up of any scratches, dents, or wear" },
+  { id: "damage", label: "Damage (if any)", icon: AlertTriangle, desc: "Close-up of any scratches, dents, or wear" },
 ];
 
 const ALL_CATEGORIES = [...REQUIRED_CATEGORIES, ...OPTIONAL_CATEGORIES];
@@ -67,7 +70,6 @@ const UploadPhotos = () => {
     fetchSubmission();
   }, [token]);
 
-  // Check existing uploads on load
   useEffect(() => {
     if (!token || !submission) return;
     const checkExisting = async () => {
@@ -164,7 +166,6 @@ const UploadPhotos = () => {
     if (!submission || !hasNewUploads) return;
     setUploading(true);
     try {
-      // Upload category photos
       for (const [catId, val] of Object.entries(categoryUploads)) {
         if (!val.file) continue;
         const ext = val.file.name.split(".").pop();
@@ -174,7 +175,6 @@ const UploadPhotos = () => {
           .upload(path, val.file, { contentType: val.file.type, upsert: false });
         if (uploadErr) throw uploadErr;
       }
-      // Upload extra photos
       for (const file of extraFiles) {
         const ext = file.name.split(".").pop();
         const path = `${token}/extra-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
@@ -184,7 +184,6 @@ const UploadPhotos = () => {
         if (uploadErr) throw uploadErr;
       }
 
-      // Check if all required categories now have uploads
       const { data: allFiles } = await supabase.storage
         .from("submission-photos")
         .list(token, { limit: 100 });
@@ -193,7 +192,6 @@ const UploadPhotos = () => {
       );
       if (allRequiredPresent) {
         await supabase.rpc("mark_photos_uploaded", { _token: token });
-        // Fire photos_uploaded staff notification
         if (submission?.id) {
           supabase.functions.invoke("send-notification", {
             body: { trigger_key: "photos_uploaded", submission_id: submission.id },
@@ -201,7 +199,6 @@ const UploadPhotos = () => {
         }
       }
 
-      // Trigger AI damage analysis for each uploaded category photo (fire-and-forget)
       if (submission?.id) {
         for (const [catId, val] of Object.entries(categoryUploads)) {
           if (!val.file) continue;
@@ -230,9 +227,11 @@ const UploadPhotos = () => {
 
   if (error && !submission) return (
     <div className="min-h-screen flex items-center justify-center bg-background p-6">
-      <div className="text-center">
-        <div className="text-5xl mb-4">😕</div>
-        <h1 className="text-xl font-bold text-foreground mb-2">Oops!</h1>
+      <div className="text-center max-w-sm">
+        <div className="w-20 h-20 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-5">
+          <X className="w-10 h-10 text-destructive" />
+        </div>
+        <h1 className="font-display text-2xl text-foreground mb-2">Oops!</h1>
         <p className="text-muted-foreground">{error}</p>
       </div>
     </div>
@@ -240,10 +239,12 @@ const UploadPhotos = () => {
 
   if (done) return (
     <div className="min-h-screen flex items-center justify-center bg-background p-6">
-      <div className="text-center max-w-sm">
-        <CheckCircle className="w-16 h-16 text-success mx-auto mb-4" />
-        <h1 className="text-2xl font-bold text-foreground mb-2">Photos Received!</h1>
-        <p className="text-muted-foreground">
+      <div className="text-center max-w-md">
+        <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-5">
+          <CheckCircle className="w-10 h-10 text-success" />
+        </div>
+        <h1 className="font-display text-3xl text-foreground mb-3">Photos Received!</h1>
+        <p className="text-muted-foreground leading-relaxed">
           Thank you{submission?.name ? `, ${submission.name}` : ""}! We've received your photos
           {submission?.vehicle_year && ` for your ${submission.vehicle_year} ${submission.vehicle_make} ${submission.vehicle_model}`}.
           {requiredComplete
@@ -251,7 +252,7 @@ const UploadPhotos = () => {
             : " Upload the remaining required photos when you're ready."}
         </p>
         <Link to={`/my-submission/${token}`}>
-          <Button variant="outline" className="mt-4 gap-2">
+          <Button variant="outline" className="mt-6 gap-2 border-border hover:bg-muted">
             <ArrowLeft className="w-4 h-4" /> Back to My Submission
           </Button>
         </Link>
@@ -263,161 +264,195 @@ const UploadPhotos = () => {
     (c) => categoryUploads[c.id]?.file || categoryUploads[c.id]?.uploaded
   ).length;
 
+  const vehicleLabel = submission
+    ? `${submission.vehicle_year ?? ""} ${submission.vehicle_make ?? ""} ${submission.vehicle_model ?? ""}`.trim()
+    : "";
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-primary text-primary-foreground px-6 py-4 mb-0">
-        <div className="max-w-lg mx-auto flex items-center gap-3">
-          <Link to={`/my-submission/${token}`} className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <img src={config.logo_white_url || harteLogoFallback} alt={config.dealership_name} className="h-[70px] w-auto" />
-          <h1 className="font-bold text-lg">Upload Vehicle Photos</h1>
+      {/* Premium header matching site nav style */}
+      <header className="bg-card sticky top-0 z-40 shadow-md">
+        <div className="max-w-6xl mx-auto px-5 py-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Link
+                to={`/my-submission/${token}`}
+                className="text-muted-foreground hover:text-foreground transition-colors p-1"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Link>
+              <img
+                src={config.logo_url || harteLogoFallback}
+                alt={config.dealership_name}
+                className="h-[56px] md:h-[72px] w-auto"
+              />
+            </div>
+            <div className="text-right">
+              <h1 className="font-display text-lg md:text-xl text-card-foreground tracking-wide">
+                Upload Photos
+              </h1>
+              {vehicleLabel && (
+                <p className="text-xs text-muted-foreground">{vehicleLabel}</p>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="max-w-lg mx-auto p-6">
-        {submission && (
-          <p className="text-muted-foreground text-sm text-center mb-4">
-            {submission.vehicle_year} {submission.vehicle_make} {submission.vehicle_model}
-          </p>
-        )}
+      </header>
 
+      <div className="max-w-lg mx-auto px-5 py-8">
         <MobileQRBanner url={`${window.location.origin}/upload/${token}`} />
 
         <PhotoGuide />
 
         {/* Progress indicator */}
-        <div className="mb-5">
-          <div className="flex items-center justify-between mb-1.5">
+        <div className="bg-card rounded-xl p-5 shadow-sm border border-border mb-6">
+          <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-semibold text-card-foreground">
-              {filledCount} of {REQUIRED_CATEGORIES.length} required photos
+              {filledCount} of {REQUIRED_CATEGORIES.length} required
             </span>
             {requiredComplete && (
-              <span className="text-xs font-medium text-success flex items-center gap-1">
-                <CheckCircle className="w-3.5 h-3.5" /> All required photos added
+              <span className="text-xs font-semibold text-success flex items-center gap-1.5 bg-success/10 px-2.5 py-1 rounded-full">
+                <CheckCircle className="w-3.5 h-3.5" /> Complete
               </span>
             )}
           </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
+          <div className="h-2.5 bg-muted rounded-full overflow-hidden">
             <div
-              className="h-full bg-success rounded-full transition-all duration-500"
+              className="h-full bg-success rounded-full transition-all duration-500 ease-out"
               style={{ width: `${(filledCount / REQUIRED_CATEGORIES.length) * 100}%` }}
             />
           </div>
         </div>
 
         {/* Required photo cards */}
-        <div className="space-y-2 mb-4">
-          <h3 className="font-bold text-card-foreground text-sm">Required Photos:</h3>
-          <div className="grid grid-cols-2 gap-2">
+        <section className="mb-6">
+          <h3 className="font-display text-base text-card-foreground mb-3 tracking-wide">Required Photos</h3>
+          <div className="grid grid-cols-2 gap-3">
             {REQUIRED_CATEGORIES.map((cat) => {
               const upload = categoryUploads[cat.id];
               const hasPhoto = upload?.file || upload?.uploaded;
+              const Icon = cat.icon;
               return (
                 <button
                   key={cat.id}
                   type="button"
                   onClick={() => handleCategoryClick(cat.id)}
-                  className={`relative bg-card rounded-xl overflow-hidden border-2 transition-all ${
-                    hasPhoto ? "border-success/50" : "border-input hover:border-accent"
+                  className={`group relative bg-card rounded-xl overflow-hidden border transition-all shadow-sm hover:shadow-md ${
+                    hasPhoto
+                      ? "border-success/40 ring-1 ring-success/20"
+                      : "border-border hover:border-primary/30"
                   }`}
                 >
                   {upload?.preview ? (
                     <div className="relative aspect-[4/3]">
                       <img src={upload.preview} alt={cat.label} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                      <span className="absolute bottom-2 left-2 text-white text-xs font-semibold">{cat.label}</span>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                      <span className="absolute bottom-2.5 left-3 text-white text-xs font-bold tracking-wide">
+                        {cat.label}
+                      </span>
                       {!upload.uploaded && (
                         <button
                           onClick={(e) => { e.stopPropagation(); removeCategory(cat.id); }}
-                          className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center"
+                          className="absolute top-2 right-2 bg-destructive/90 backdrop-blur-sm text-destructive-foreground rounded-full w-6 h-6 flex items-center justify-center shadow-lg hover:bg-destructive transition-colors"
                         >
-                          <X className="w-3 h-3" />
+                          <X className="w-3.5 h-3.5" />
                         </button>
                       )}
                       {hasPhoto && (
-                        <CheckCircle className="absolute top-1 left-1 w-5 h-5 text-success drop-shadow" />
+                        <div className="absolute top-2 left-2 bg-success/90 backdrop-blur-sm rounded-full p-0.5 shadow-lg">
+                          <CheckCircle className="w-4 h-4 text-success-foreground" />
+                        </div>
                       )}
                     </div>
                   ) : (
-                    <div className="p-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-lg">{cat.icon}</span>
-                        <span className="text-sm font-semibold text-card-foreground">{cat.label}</span>
+                    <div className="p-4 aspect-[4/3] flex flex-col justify-center items-center text-center gap-2">
+                      <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                        <Icon className="w-5 h-5 text-primary/70" />
                       </div>
-                      <p className="text-xs text-muted-foreground">{cat.desc}</p>
+                      <span className="text-sm font-semibold text-card-foreground">{cat.label}</span>
+                      <p className="text-[11px] text-muted-foreground leading-tight">{cat.desc}</p>
+                      <Camera className="w-3.5 h-3.5 text-muted-foreground/50 mt-0.5" />
                     </div>
                   )}
                 </button>
               );
             })}
           </div>
-        </div>
+        </section>
 
         {/* Optional photo cards */}
-        <div className="space-y-2 mb-4">
-          <h3 className="font-bold text-card-foreground text-sm">Optional:</h3>
-          <div className="grid grid-cols-2 gap-2">
+        <section className="mb-6">
+          <h3 className="font-display text-base text-card-foreground mb-3 tracking-wide">Optional</h3>
+          <div className="grid grid-cols-2 gap-3">
             {OPTIONAL_CATEGORIES.map((cat) => {
               const upload = categoryUploads[cat.id];
               const hasPhoto = upload?.file || upload?.uploaded;
+              const Icon = cat.icon;
               return (
                 <button
                   key={cat.id}
                   type="button"
                   onClick={() => handleCategoryClick(cat.id)}
-                  className={`relative bg-card rounded-xl overflow-hidden border-2 transition-all ${
-                    hasPhoto ? "border-success/50" : "border-dashed border-input hover:border-accent"
+                  className={`group relative bg-card rounded-xl overflow-hidden border transition-all shadow-sm hover:shadow-md ${
+                    hasPhoto
+                      ? "border-success/40 ring-1 ring-success/20"
+                      : "border-dashed border-border hover:border-primary/30"
                   }`}
                 >
                   {upload?.preview ? (
                     <div className="relative aspect-[4/3]">
                       <img src={upload.preview} alt={cat.label} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                      <span className="absolute bottom-2 left-2 text-white text-xs font-semibold">{cat.label}</span>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                      <span className="absolute bottom-2.5 left-3 text-white text-xs font-bold tracking-wide">
+                        {cat.label}
+                      </span>
                       {!upload.uploaded && (
                         <button
                           onClick={(e) => { e.stopPropagation(); removeCategory(cat.id); }}
-                          className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center"
+                          className="absolute top-2 right-2 bg-destructive/90 backdrop-blur-sm text-destructive-foreground rounded-full w-6 h-6 flex items-center justify-center shadow-lg hover:bg-destructive transition-colors"
                         >
-                          <X className="w-3 h-3" />
+                          <X className="w-3.5 h-3.5" />
                         </button>
                       )}
-                      <CheckCircle className="absolute top-1 left-1 w-5 h-5 text-success drop-shadow" />
+                      <div className="absolute top-2 left-2 bg-success/90 backdrop-blur-sm rounded-full p-0.5 shadow-lg">
+                        <CheckCircle className="w-4 h-4 text-success-foreground" />
+                      </div>
                     </div>
                   ) : (
-                    <div className="p-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-lg">{cat.icon}</span>
-                        <span className="text-sm font-semibold text-card-foreground">{cat.label}</span>
+                    <div className="p-4 aspect-[4/3] flex flex-col justify-center items-center text-center gap-2">
+                      <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center group-hover:bg-muted/80 transition-colors">
+                        <Icon className="w-5 h-5 text-muted-foreground" />
                       </div>
-                      <p className="text-xs text-muted-foreground">{cat.desc}</p>
+                      <span className="text-sm font-semibold text-card-foreground">{cat.label}</span>
+                      <p className="text-[11px] text-muted-foreground leading-tight">{cat.desc}</p>
+                      <Camera className="w-3.5 h-3.5 text-muted-foreground/50 mt-0.5" />
                     </div>
                   )}
                 </button>
               );
             })}
           </div>
-        </div>
+        </section>
 
         {/* Extra photos */}
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-bold text-card-foreground text-sm">Additional Photos</h3>
+        <section className="mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-display text-base text-card-foreground tracking-wide">Additional Photos</h3>
             <button
               onClick={() => extraInputRef.current?.click()}
-              className="text-sm text-accent font-medium flex items-center gap-1"
+              className="text-sm text-primary font-semibold flex items-center gap-1.5 hover:text-primary/80 transition-colors"
             >
               <Plus className="w-4 h-4" /> Add
             </button>
           </div>
           {extraPreviews.length > 0 && (
-            <div className="grid grid-cols-4 gap-1.5 mb-2">
+            <div className="grid grid-cols-4 gap-2 mb-3">
               {extraPreviews.map((src, i) => (
-                <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+                <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-muted border border-border shadow-sm">
                   <img src={src} alt={`Extra ${i + 1}`} className="w-full h-full object-cover" />
                   <button
                     onClick={() => removeExtra(i)}
-                    className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center"
+                    className="absolute top-1 right-1 bg-destructive/90 backdrop-blur-sm text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center shadow-lg"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -425,7 +460,16 @@ const UploadPhotos = () => {
               ))}
             </div>
           )}
-        </div>
+          {extraPreviews.length === 0 && (
+            <button
+              onClick={() => extraInputRef.current?.click()}
+              className="w-full border-2 border-dashed border-border rounded-xl p-6 text-center hover:border-primary/30 hover:bg-muted/30 transition-all group"
+            >
+              <CircleDot className="w-8 h-8 text-muted-foreground/40 mx-auto mb-2 group-hover:text-primary/40 transition-colors" />
+              <p className="text-sm text-muted-foreground">Tap to add extra photos</p>
+            </button>
+          )}
+        </section>
 
         <input
           ref={fileInputRef}
@@ -445,18 +489,27 @@ const UploadPhotos = () => {
           onChange={(e) => addExtraFiles(e.target.files)}
         />
 
-        {error && <p className="text-destructive text-sm text-center mb-4">{error}</p>}
+        {error && (
+          <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-3 mb-4 text-center">
+            <p className="text-destructive text-sm font-medium">{error}</p>
+          </div>
+        )}
 
         <Button
           onClick={handleUpload}
           disabled={!hasNewUploads || uploading}
-          className="w-full py-4 bg-accent hover:bg-accent/90 text-accent-foreground text-[17px] font-bold shadow-lg shadow-accent/30"
+          size="lg"
+          className="w-full py-5 bg-accent hover:bg-accent/90 text-accent-foreground text-[17px] font-bold shadow-lg shadow-accent/20 rounded-xl gap-2"
         >
-          {uploading ? "Uploading..." : `Upload Photos`}
+          <Upload className="w-5 h-5" />
+          {uploading ? "Uploading..." : "Upload Photos"}
         </Button>
 
-        <p className="text-center mt-4 text-[13px] text-muted-foreground">
-          🔒 Your photos are securely uploaded and only used for your vehicle appraisal.
+        <p className="text-center mt-5 text-xs text-muted-foreground flex items-center justify-center gap-1.5">
+          <span className="inline-block w-4 h-4 rounded-full bg-success/10 flex items-center justify-center">
+            <CheckCircle className="w-3 h-3 text-success" />
+          </span>
+          Your photos are securely uploaded and only used for your vehicle appraisal.
         </p>
       </div>
 
