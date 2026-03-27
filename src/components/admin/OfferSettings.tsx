@@ -274,6 +274,7 @@ const OfferSettings = () => {
       offer_ceiling: settings.offer_ceiling,
       age_tiers: settings.age_tiers as any,
       mileage_tiers: settings.mileage_tiers as any,
+      regional_adjustment_pct: settings.regional_adjustment_pct,
       updated_at: new Date().toISOString(),
     } as any).eq("id", settings.id);
 
