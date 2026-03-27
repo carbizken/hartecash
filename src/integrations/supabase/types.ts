@@ -703,6 +703,7 @@ export type Database = {
           offer_ceiling: number | null
           offer_floor: number
           recon_cost: number
+          regional_adjustment_pct: number
           updated_at: string
         }
         Insert: {
@@ -719,6 +720,7 @@ export type Database = {
           offer_ceiling?: number | null
           offer_floor?: number
           recon_cost?: number
+          regional_adjustment_pct?: number
           updated_at?: string
         }
         Update: {
@@ -735,6 +737,7 @@ export type Database = {
           offer_ceiling?: number | null
           offer_floor?: number
           recon_cost?: number
+          regional_adjustment_pct?: number
           updated_at?: string
         }
         Relationships: []
@@ -1105,7 +1108,18 @@ export type Database = {
           appointment_date: string | null
           appointment_set: boolean
           appraised_by: string | null
+          bb_add_deducts: Json | null
+          bb_base_whole_avg: number | null
+          bb_class_name: string | null
+          bb_drivetrain: string | null
+          bb_engine: string | null
+          bb_fuel_type: string | null
+          bb_mileage_adj: number | null
+          bb_msrp: number | null
+          bb_regional_adj: number | null
+          bb_retail_avg: number | null
           bb_tradein_avg: number | null
+          bb_transmission: string | null
           bb_wholesale_avg: number | null
           check_request_done: boolean
           created_at: string
@@ -1168,7 +1182,18 @@ export type Database = {
           appointment_date?: string | null
           appointment_set?: boolean
           appraised_by?: string | null
+          bb_add_deducts?: Json | null
+          bb_base_whole_avg?: number | null
+          bb_class_name?: string | null
+          bb_drivetrain?: string | null
+          bb_engine?: string | null
+          bb_fuel_type?: string | null
+          bb_mileage_adj?: number | null
+          bb_msrp?: number | null
+          bb_regional_adj?: number | null
+          bb_retail_avg?: number | null
           bb_tradein_avg?: number | null
+          bb_transmission?: string | null
           bb_wholesale_avg?: number | null
           check_request_done?: boolean
           created_at?: string
@@ -1231,7 +1256,18 @@ export type Database = {
           appointment_date?: string | null
           appointment_set?: boolean
           appraised_by?: string | null
+          bb_add_deducts?: Json | null
+          bb_base_whole_avg?: number | null
+          bb_class_name?: string | null
+          bb_drivetrain?: string | null
+          bb_engine?: string | null
+          bb_fuel_type?: string | null
+          bb_mileage_adj?: number | null
+          bb_msrp?: number | null
+          bb_regional_adj?: number | null
+          bb_retail_avg?: number | null
           bb_tradein_avg?: number | null
+          bb_transmission?: string | null
           bb_wholesale_avg?: number | null
           check_request_done?: boolean
           created_at?: string
