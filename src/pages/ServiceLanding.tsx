@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { logConsent } from "@/lib/consent";
 import serviceLogo from "@/assets/harte-service-logo.png";
 import SEO from "@/components/SEO";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 
 interface VehicleInfo {
   year: string;
