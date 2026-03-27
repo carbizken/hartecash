@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Bell, BellOff, Mail, MessageSquare, Loader2 } from "lucide-react";
+import { Bell, Mail, MessageSquare, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
@@ -46,7 +46,6 @@ const CommunicationPreferences = ({ token, email, phone }: CommunicationPreferen
 
     try {
       if (isOptedOut) {
-        // Re-subscribe: delete the opt-out record
         const contactField = channel === "email" ? "email" : "phone";
         await supabase
           .from("opt_outs" as any)
@@ -62,7 +61,6 @@ const CommunicationPreferences = ({ token, email, phone }: CommunicationPreferen
           description: `You'll receive ${channel === "email" ? "email" : "SMS"} updates again.`,
         });
       } else {
-        // Opt out: call the edge function
         await supabase.functions.invoke("handle-unsubscribe", {
           body: { token, channel },
         });
@@ -94,85 +92,94 @@ const CommunicationPreferences = ({ token, email, phone }: CommunicationPreferen
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.5 }}
-      className="bg-card rounded-xl p-5 shadow-lg"
+      className="bg-card rounded-xl shadow-lg overflow-hidden"
     >
-      <div className="flex items-center gap-2 mb-3">
-        <Bell className="w-5 h-5 text-primary" />
-        <h3 className="font-bold text-card-foreground">Communication Preferences</h3>
-      </div>
-      <p className="text-xs text-muted-foreground mb-4">
-        Control how we reach out to you about your vehicle submission.
-      </p>
-
-      {loading ? (
-        <div className="flex items-center justify-center py-4">
-          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+      <div className="bg-gradient-to-r from-primary/5 to-primary/10 px-5 py-3 border-b border-border/50">
+        <div className="flex items-center gap-2">
+          <Bell className="w-5 h-5 text-primary" />
+          <h3 className="font-bold text-card-foreground">Communication Preferences</h3>
         </div>
-      ) : (
-        <div className="space-y-3">
-          {email && (
-            <div className="flex items-center justify-between p-3 rounded-lg border border-border">
-              <div className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">Email updates</p>
-                  <p className="text-xs text-muted-foreground truncate max-w-[180px]">{email}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => handleToggle("email")}
-                disabled={toggling === "email"}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors active:scale-95 ${
-                  !emailOptedOut ? "bg-success" : "bg-muted-foreground/30"
-                }`}
-              >
-                {toggling === "email" ? (
-                  <Loader2 className="w-4 h-4 animate-spin absolute left-1/2 -translate-x-1/2 text-white" />
-                ) : (
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                      !emailOptedOut ? "translate-x-6" : "translate-x-1"
-                    }`}
-                  />
-                )}
-              </button>
-            </div>
-          )}
+      </div>
+      <div className="p-5">
+        <p className="text-xs text-muted-foreground mb-4">
+          Control how we reach out to you about your vehicle submission.
+        </p>
 
-          {phone && (
+        {loading ? (
+          <div className="flex items-center justify-center py-4">
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {email && (
+              <div className="flex items-center justify-between p-3 rounded-lg border border-border">
+                <div className="flex items-center gap-3">
+                  <Mail className="w-4 h-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Email updates</p>
+                    <p className="text-xs text-muted-foreground truncate max-w-[180px]">{email}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleToggle("email")}
+                  disabled={toggling === "email"}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors active:scale-95 ${
+                    !emailOptedOut ? "bg-success" : "bg-muted-foreground/30"
+                  }`}
+                >
+                  {toggling === "email" ? (
+                    <Loader2 className="w-4 h-4 animate-spin absolute left-1/2 -translate-x-1/2 text-white" />
+                  ) : (
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
+                        !emailOptedOut ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  )}
+                </button>
+              </div>
+            )}
+
+            {/* SMS toggle — always visible */}
             <div className="flex items-center justify-between p-3 rounded-lg border border-border">
               <div className="flex items-center gap-3">
                 <MessageSquare className="w-4 h-4 text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">SMS updates</p>
-                  <p className="text-xs text-muted-foreground">{phone}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {phone || "No phone on file"}
+                  </p>
                 </div>
               </div>
-              <button
-                onClick={() => handleToggle("sms")}
-                disabled={toggling === "sms"}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors active:scale-95 ${
-                  !smsOptedOut ? "bg-success" : "bg-muted-foreground/30"
-                }`}
-              >
-                {toggling === "sms" ? (
-                  <Loader2 className="w-4 h-4 animate-spin absolute left-1/2 -translate-x-1/2 text-white" />
-                ) : (
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
-                      !smsOptedOut ? "translate-x-6" : "translate-x-1"
-                    }`}
-                  />
-                )}
-              </button>
+              {phone ? (
+                <button
+                  onClick={() => handleToggle("sms")}
+                  disabled={toggling === "sms"}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors active:scale-95 ${
+                    !smsOptedOut ? "bg-success" : "bg-muted-foreground/30"
+                  }`}
+                >
+                  {toggling === "sms" ? (
+                    <Loader2 className="w-4 h-4 animate-spin absolute left-1/2 -translate-x-1/2 text-white" />
+                  ) : (
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${
+                        !smsOptedOut ? "translate-x-6" : "translate-x-1"
+                      }`}
+                    />
+                  )}
+                </button>
+              ) : (
+                <span className="text-[10px] text-muted-foreground/60 italic">N/A</span>
+              )}
             </div>
-          )}
 
-          <p className="text-xs text-muted-foreground pt-1">
-            You can also reply STOP to any SMS to opt out. To re-subscribe, toggle the switch back on.
-          </p>
-        </div>
-      )}
+            <p className="text-xs text-muted-foreground pt-1">
+              You can also reply STOP to any SMS to opt out. To re-subscribe, toggle the switch back on.
+            </p>
+          </div>
+        )}
+      </div>
     </motion.div>
   );
 };

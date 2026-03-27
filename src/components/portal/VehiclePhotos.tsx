@@ -42,23 +42,29 @@ const VehiclePhotos = ({ token, photosUploaded }: VehiclePhotosProps) => {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.2 }}
-        className="bg-card rounded-xl p-5 shadow-lg"
+        className="bg-card rounded-xl shadow-lg overflow-hidden"
       >
-        <div className="flex items-center gap-2 mb-3">
-          <Camera className="w-5 h-5 text-primary" />
-          <h3 className="font-bold text-card-foreground">Your Photos</h3>
-          <span className="text-xs text-muted-foreground ml-auto">{photos.length} photo{photos.length !== 1 ? "s" : ""}</span>
+        <div className="bg-gradient-to-r from-primary/5 to-primary/10 px-5 py-3 border-b border-border/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Camera className="w-5 h-5 text-primary" />
+              <h3 className="font-bold text-card-foreground">Your Photos</h3>
+            </div>
+            <span className="text-xs text-muted-foreground">{photos.length} photo{photos.length !== 1 ? "s" : ""}</span>
+          </div>
         </div>
-        <div className="grid grid-cols-3 gap-1.5">
-          {photos.map((url, i) => (
-            <button
-              key={i}
-              onClick={() => setSelectedPhoto(url)}
-              className="aspect-square rounded-lg overflow-hidden bg-muted hover:opacity-80 transition-opacity"
-            >
-              <img src={url} alt={`Vehicle photo ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
-            </button>
-          ))}
+        <div className="p-5">
+          <div className="grid grid-cols-3 gap-1.5">
+            {photos.map((url, i) => (
+              <button
+                key={i}
+                onClick={() => setSelectedPhoto(url)}
+                className="aspect-square rounded-lg overflow-hidden bg-muted hover:opacity-80 transition-opacity"
+              >
+                <img src={url} alt={`Vehicle photo ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
+              </button>
+            ))}
+          </div>
         </div>
       </motion.div>
 

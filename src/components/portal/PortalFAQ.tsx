@@ -33,37 +33,41 @@ const PortalFAQ = () => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.25 }}
-      className="bg-card rounded-xl p-5 shadow-lg"
+      className="bg-card rounded-xl shadow-lg overflow-hidden"
     >
-      <div className="flex items-center gap-2 mb-3">
-        <HelpCircle className="w-5 h-5 text-primary" />
-        <h3 className="font-bold text-card-foreground">Common Questions</h3>
+      <div className="bg-gradient-to-r from-primary/5 to-primary/10 px-5 py-3 border-b border-border/50">
+        <div className="flex items-center gap-2">
+          <HelpCircle className="w-5 h-5 text-primary" />
+          <h3 className="font-bold text-card-foreground">Common Questions</h3>
+        </div>
       </div>
-      <div className="space-y-1">
-        {faqs.map((faq, i) => (
-          <div key={i}>
-            <button
-              onClick={() => setOpenIndex(openIndex === i ? null : i)}
-              className="w-full flex items-center justify-between py-2.5 text-left text-sm font-medium text-card-foreground hover:text-accent transition-colors"
-            >
-              {faq.q}
-              <ChevronDown
-                className={`w-4 h-4 text-muted-foreground flex-shrink-0 ml-2 transition-transform ${
-                  openIndex === i ? "rotate-180" : ""
+      <div className="p-5">
+        <div className="space-y-1">
+          {faqs.map((faq, i) => (
+            <div key={i}>
+              <button
+                onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                className="w-full flex items-center justify-between py-2.5 text-left text-sm font-medium text-card-foreground hover:text-accent transition-colors"
+              >
+                {faq.q}
+                <ChevronDown
+                  className={`w-4 h-4 text-muted-foreground flex-shrink-0 ml-2 transition-transform ${
+                    openIndex === i ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              <div
+                className={`overflow-hidden transition-all duration-300 ${
+                  openIndex === i ? "max-h-[200px] pb-2" : "max-h-0"
                 }`}
-              />
-            </button>
-            <div
-              className={`overflow-hidden transition-all duration-300 ${
-                openIndex === i ? "max-h-[200px] pb-2" : "max-h-0"
-              }`}
-            >
-              <p className="text-sm text-muted-foreground leading-relaxed pl-0.5">
-                {faq.a}
-              </p>
+              >
+                <p className="text-sm text-muted-foreground leading-relaxed pl-0.5">
+                  {faq.a}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </motion.div>
   );
