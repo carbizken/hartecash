@@ -62,10 +62,10 @@ const HeroOffset = ({ side, leadSource, headlineOverride, subtextOverride }: Her
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
       <h1 className="font-display text-[48px] font-extrabold tracking-[0.08em] leading-tight mb-3 uppercase">
-        {config.hero_headline || "Sell Your Car\nThe Easy Way"}
+        {headline}
       </h1>
       <p className="text-xl font-medium opacity-95 mb-6 leading-relaxed">
-        {config.hero_subtext || "Get a top-dollar cash offer in 2 minutes. No haggling, no stress."}
+        {subtext}
       </p>
       {renderBenefits()}
       {renderStars()}
