@@ -238,6 +238,7 @@ const DealerOnboarding = ({ isAdmin = false }: DealerOnboardingProps) => {
                   disabled={readOnly}
                   className={cn(
                     "flex items-start gap-3 p-4 rounded-lg border text-left transition-all",
+                    readOnly && "opacity-70 cursor-default",
                     selected
                       ? "border-primary bg-primary/5 ring-1 ring-primary/20"
                       : "border-border hover:border-primary/40 hover:bg-muted/30"
