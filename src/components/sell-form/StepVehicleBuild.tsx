@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, CheckCircle, XCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import FormField from "./FormField";
 import RadioOption from "./RadioOption";
@@ -96,10 +96,28 @@ const ColorDropdown = ({ value, onChange }: { value: string; onChange: (v: strin
   );
 };
 
+/** Verified spec badge — green check or red X */
+const VerifiedBadge = ({ label, value, verified }: { label: string; value: string; verified: boolean }) => (
+  <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm border ${
+    verified
+      ? "bg-success/5 border-success/20 text-card-foreground"
+      : "bg-destructive/5 border-destructive/20 text-card-foreground"
+  }`}>
+    {verified ? (
+      <CheckCircle className="w-4 h-4 text-success shrink-0" />
+    ) : (
+      <XCircle className="w-4 h-4 text-destructive shrink-0" />
+    )}
+    <span className="font-medium">{label}:</span>
+    <span className="text-muted-foreground">{value || "Unknown"}</span>
+  </div>
+);
 
 const StepVehicleBuild = ({ formData, update, vehicleInfo, bbVehicle, selectedAddDeducts, onToggleAddDeduct, formConfig }: Props) => {
-  // Derive drivetrain from BB data if available (from price_includes or style)
-  const bbDrivetrain = bbVehicle
+  // Auto-populate drivetrain from BB data
+  const bbDrivetrain = bbVehicle?.drivetrain
+    ? bbVehicle.drivetrain.toUpperCase()
+    : bbVehicle
     ? (() => {
         const style = (bbVehicle.style || "").toUpperCase();
         const includes = (bbVehicle.price_includes || "").toUpperCase();
@@ -124,6 +142,16 @@ const StepVehicleBuild = ({ formData, update, vehicleInfo, bbVehicle, selectedAd
   // Filter add/deducts: only show non-auto-selected ones for user choice
   const userAddDeducts = bbVehicle?.add_deduct_list?.filter((ad) => ad.auto === "N") || [];
   const autoAddDeducts = bbVehicle?.add_deduct_list?.filter((ad) => ad.auto !== "N") || [];
+
+  // Build verified specs from BB data
+  const verifiedSpecs = bbVehicle ? [
+    { label: "Class", value: bbVehicle.class_name, verified: !!bbVehicle.class_name },
+    { label: "Drivetrain", value: bbDrivetrain || "Unknown", verified: !!bbDrivetrain },
+    { label: "Transmission", value: bbVehicle.transmission || "Unknown", verified: !!bbVehicle.transmission },
+    { label: "Engine", value: bbVehicle.engine || "Unknown", verified: !!bbVehicle.engine },
+    { label: "Fuel Type", value: bbVehicle.fuel_type || "Unknown", verified: !!bbVehicle.fuel_type },
+    { label: "Original MSRP", value: bbVehicle.msrp ? `$${bbVehicle.msrp.toLocaleString()}` : "N/A", verified: !!bbVehicle.msrp },
+  ].filter(s => s.value && s.value !== "Unknown" && s.value !== "N/A" && s.value !== "") : [];
 
   return (
     <>
@@ -150,13 +178,30 @@ const StepVehicleBuild = ({ formData, update, vehicleInfo, bbVehicle, selectedAd
         />
       )}
 
+      {/* Verified Vehicle Specs from Black Book */}
+      {verifiedSpecs.length > 0 && (
+        <FormField label="Verified Vehicle Specifications">
+          <div className="grid gap-1.5">
+            {verifiedSpecs.map((spec) => (
+              <VerifiedBadge
+                key={spec.label}
+                label={spec.label}
+                value={spec.value}
+                verified={spec.verified}
+              />
+            ))}
+          </div>
+        </FormField>
+      )}
+
       {(!formConfig || formConfig.q_exterior_color) && (
         <FormField label="What color is your vehicle?">
           <ColorDropdown value={formData.exteriorColor} onChange={(v) => update("exteriorColor", v)} />
         </FormField>
       )}
 
-      {(!formConfig || formConfig.q_drivetrain) && (
+      {/* Only show drivetrain question if BB didn't provide it */}
+      {(!formConfig || formConfig.q_drivetrain) && !bbDrivetrain && (
         <FormField label="What is your vehicle's drivetrain?">
           <div className="grid grid-cols-2 gap-2">
             {["FWD", "RWD", "AWD", "4WD"].map((opt) => (
@@ -168,11 +213,6 @@ const StepVehicleBuild = ({ formData, update, vehicleInfo, bbVehicle, selectedAd
               />
             ))}
           </div>
-          {bbDrivetrain && (
-            <p className="text-xs text-muted-foreground mt-1.5">
-              Auto-detected: <strong>{bbDrivetrain}</strong> — change if incorrect
-            </p>
-          )}
         </FormField>
       )}
 
@@ -182,8 +222,13 @@ const StepVehicleBuild = ({ formData, update, vehicleInfo, bbVehicle, selectedAd
           <div className="grid gap-1.5">
             {autoAddDeducts.map((ad) => (
               <div key={ad.uoc} className="px-3 py-2 bg-success/10 border border-success/20 rounded-lg text-sm text-card-foreground flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-success shrink-0" />
+                <CheckCircle className="w-4 h-4 text-success shrink-0" />
                 {ad.name}
+                {ad.avg !== 0 && (
+                  <span className={`ml-auto text-xs font-medium ${ad.avg > 0 ? "text-success" : "text-destructive"}`}>
+                    {ad.avg > 0 ? "+" : ""}${ad.avg.toLocaleString()}
+                  </span>
+                )}
               </div>
             ))}
           </div>
@@ -197,7 +242,7 @@ const StepVehicleBuild = ({ formData, update, vehicleInfo, bbVehicle, selectedAd
             {userAddDeducts.map((ad) => (
               <CheckboxOption
                 key={ad.uoc}
-                label={ad.name}
+                label={`${ad.name}${ad.avg !== 0 ? ` (${ad.avg > 0 ? "+" : ""}$${ad.avg.toLocaleString()})` : ""}`}
                 checked={selectedAddDeducts.includes(ad.uoc)}
                 onClick={() => onToggleAddDeduct(ad.uoc)}
               />
