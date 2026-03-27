@@ -240,7 +240,10 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
       if (formConfig.q_overall_condition && !formData.overallCondition) missing.push("Overall Condition");
       if (formConfig.q_exterior_damage && formData.exteriorDamage.length === 0) missing.push("Exterior Damage");
       if (formConfig.q_windshield_damage && !formData.windshieldDamage) missing.push("Windshield Damage");
-      if (formConfig.q_moonroof && !formData.moonroof) missing.push("Moonroof");
+      const noMoonroofDetectable = bbSelectedVehicle && !bbSelectedVehicle.add_deduct_list?.some(
+        ad => /moon|sun|panoramic/i.test(ad.name)
+      );
+      if (formConfig.q_moonroof && !formData.moonroof && !noMoonroofDetectable) missing.push("Moonroof");
       if (formConfig.q_interior_damage && formData.interiorDamage.length === 0) missing.push("Interior Damage");
       if (formConfig.q_tech_issues && formData.techIssues.length === 0) missing.push("Technology Issues");
       if (formConfig.q_engine_issues && formData.engineIssues.length === 0) missing.push("Engine Issues");
