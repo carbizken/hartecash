@@ -153,7 +153,9 @@ const DealerOnboarding = () => {
     }
 
     // BDC-based auto-config
-    if (account.bdc_model === "single_bdc") {
+    if (account.bdc_model === "no_bdc") {
+      updates.assign_buying_center = false;
+    } else if (account.bdc_model === "single_bdc") {
       updates.assign_buying_center = true;
     } else if (account.bdc_model === "ai_bdc") {
       updates.track_abandoned_leads = true;
