@@ -42,6 +42,11 @@ export default function Updates() {
   const [expandedIdx, setExpandedIdx] = useState<number | null>(0);
   const [entries, setEntries] = useState<ChangelogEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+
+  const filteredEntries = activeFilter
+    ? entries.filter((e) => e.tag === activeFilter)
+    : entries;
 
   useEffect(() => {
     supabase
