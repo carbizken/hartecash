@@ -158,13 +158,11 @@ const DealAccepted = () => {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Success banner */}
       <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+        {...entrance(1)}
         className="bg-success/10 border-b border-success/20"
       >
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center gap-3">
