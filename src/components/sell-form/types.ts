@@ -26,6 +26,15 @@ export interface BBVehicle {
   class_name: string;
   msrp: number;
   price_includes: string;
+  // Vehicle specs from BB
+  drivetrain: string;
+  transmission: string;
+  engine: string;
+  fuel_type: string;
+  // Value adjustments
+  mileage_adj: number;
+  regional_adj: number;
+  base_whole_avg: number;
   add_deduct_list: BBAddDeduct[];
   wholesale: { xclean: number; clean: number; avg: number; rough: number };
   tradein: { clean: number; avg: number; rough: number };

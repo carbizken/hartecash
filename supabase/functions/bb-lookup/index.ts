@@ -79,7 +79,7 @@ serve(async (req) => {
 
     const vehicleList = bbData.used_vehicles?.used_vehicle_list || [];
 
-    // Transform each vehicle into a simplified response
+    // Transform each vehicle into a comprehensive response
     const vehicles = vehicleList.map((v: Record<string, unknown>) => ({
       uvc: v.uvc,
       vin: v.vin,
@@ -92,11 +92,22 @@ serve(async (req) => {
       msrp: v.msrp || 0,
       price_includes: v.price_includes || "",
 
+      // Vehicle specs — auto-populate instead of asking customer
+      drivetrain: v.drivetrain || "",
+      transmission: v.transmission || "",
+      engine: v.engine_description || "",
+      fuel_type: v.fuel_type || "",
+
+      // Mileage & regional adjustments
+      mileage_adj: v.mileage_category || 0,
+      regional_adj: v.regional_adjustment || 0,
+      base_whole_avg: v.base_whole_avg || 0,
+
       // Add/deducts for options/equipment selection
       add_deduct_list: (v.add_deduct_list as Array<Record<string, unknown>> || []).map((ad) => ({
         uoc: ad.uoc,
         name: ad.name,
-        auto: ad.auto, // Y=auto-selected, N=not, M=matched
+        auto: ad.auto, // Y=auto-selected, N=not, M=matched, D=default
         avg: ad.avg,
         clean: ad.clean,
         rough: ad.rough,
@@ -126,8 +137,6 @@ serve(async (req) => {
         rough: v.adjusted_retail_rough || v.final_retail_rough || 0,
       },
     }));
-
-
 
     return new Response(JSON.stringify({ error: null, vehicles }), {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
