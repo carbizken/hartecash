@@ -189,6 +189,54 @@ export type Database = {
         }
         Relationships: []
       }
+      dealer_accounts: {
+        Row: {
+          architecture: string
+          bdc_model: string
+          billing_date: number | null
+          created_at: string
+          dealership_id: string
+          id: string
+          onboarded_by: string | null
+          onboarding_status: string
+          plan_cost: number
+          plan_tier: string
+          special_instructions: string
+          start_date: string | null
+          updated_at: string
+        }
+        Insert: {
+          architecture?: string
+          bdc_model?: string
+          billing_date?: number | null
+          created_at?: string
+          dealership_id?: string
+          id?: string
+          onboarded_by?: string | null
+          onboarding_status?: string
+          plan_cost?: number
+          plan_tier?: string
+          special_instructions?: string
+          start_date?: string | null
+          updated_at?: string
+        }
+        Update: {
+          architecture?: string
+          bdc_model?: string
+          billing_date?: number | null
+          created_at?: string
+          dealership_id?: string
+          id?: string
+          onboarded_by?: string | null
+          onboarding_status?: string
+          plan_cost?: number
+          plan_tier?: string
+          special_instructions?: string
+          start_date?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       dealership_locations: {
         Row: {
           address: string | null
