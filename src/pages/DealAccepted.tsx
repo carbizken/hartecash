@@ -36,18 +36,14 @@ const DealAccepted = () => {
   const [searchParams] = useSearchParams();
   const [submission, setSubmission] = useState<DealSubmission | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isFirstVisit, setIsFirstVisit] = useState(false);
+  const confettiKey = `confetti_shown_${token}`;
+  const [isFirstVisit] = useState(() => !sessionStorage.getItem(confettiKey));
   const { config } = useSiteConfig();
 
   // Confetti celebration — only on first visit
   useEffect(() => {
-    const key = `confetti_shown_${token}`;
-    if (sessionStorage.getItem(key)) {
-      setIsFirstVisit(false);
-      return;
-    }
-    setIsFirstVisit(true);
-    sessionStorage.setItem(key, "1");
+    if (!isFirstVisit) return;
+    sessionStorage.setItem(confettiKey, "1");
 
     const duration = 2500;
     const end = Date.now() + duration;
@@ -57,7 +53,7 @@ const DealAccepted = () => {
       if (Date.now() < end) requestAnimationFrame(frame);
     };
     frame();
-  }, [token]);
+  }, [isFirstVisit, confettiKey]);
 
   useEffect(() => {
     const fetchData = async () => {
