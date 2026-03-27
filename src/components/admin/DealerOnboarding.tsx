@@ -399,6 +399,7 @@ const DealerOnboarding = ({ isAdmin = false }: DealerOnboardingProps) => {
             <Select
               value={account.onboarding_status}
               onValueChange={v => updateField("onboarding_status", v)}
+              disabled={readOnly}
             >
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
