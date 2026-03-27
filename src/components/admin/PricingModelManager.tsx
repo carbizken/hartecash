@@ -210,7 +210,7 @@ interface Props {
   onRegisterSync?: (syncFn: (settings: OfferSettings) => void) => void;
 }
 
-const PricingModelManager = ({ onModelChange }: Props) => {
+const PricingModelManager = ({ onModelChange, onRegisterSync }: Props) => {
   const { toast } = useToast();
   const [models, setModels] = useState<PricingModel[]>([]);
   const [loading, setLoading] = useState(true);
