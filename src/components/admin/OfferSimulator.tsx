@@ -530,15 +530,22 @@ const ResultCard = ({
         ${result.low.toLocaleString()} – ${result.high.toLocaleString()}
       </div>
 
-      <div className="grid grid-cols-2 gap-2 text-xs">
-        <Stat label="Base Value" value={`$${result.baseValue.toLocaleString()}`} />
-        <Stat label="Condition" value={`×${condMult}`} icon={condMult >= 1 ? "up" : "down"} />
-        <Stat label="Deductions" value={`−$${result.totalDeductions.toLocaleString()}`} icon="down" />
-        <Stat label="Recon Cost" value={`−$${result.reconCost.toLocaleString()}`} icon="down" />
-        {equipmentTotal !== undefined && equipmentTotal !== 0 && (
-          <Stat label="Equipment" value={`${equipmentTotal > 0 ? "+" : ""}$${Math.abs(equipmentTotal).toLocaleString()}`} icon={equipmentTotal >= 0 ? "up" : "down"} />
-        )}
-      </div>
+      {/* Waterfall Chart */}
+      <OfferWaterfall
+        baseValue={result.baseValue}
+        conditionMultiplier={condMult}
+        deductions={result.totalDeductions}
+        reconCost={result.reconCost}
+        equipmentTotal={equipmentTotal || 0}
+        ageTierAdjustment={matchedAgeTier?.adjustment_pct || 0}
+        mileageTierAdjustment={matchedMileageTier?.adjustment_flat || 0}
+        regionalPct={settings.regional_adjustment_pct || 0}
+        globalPct={settings.global_adjustment_pct || 0}
+        rulesAdjustment={result.matchedRuleIds.length}
+        finalHigh={result.high}
+        floor={settings.offer_floor || 500}
+        ceiling={settings.offer_ceiling}
+      />
 
       {(matchedAgeTier || matchedMileageTier || result.matchedRuleIds.length > 0) && (
         <div className="flex flex-wrap gap-1.5 pt-1">
@@ -563,13 +570,6 @@ const ResultCard = ({
             </span>
           )}
         </div>
-      )}
-
-      {settings.global_adjustment_pct !== 0 && (
-        <p className="text-xs text-muted-foreground">Global: {settings.global_adjustment_pct > 0 ? "+" : ""}{settings.global_adjustment_pct}%</p>
-      )}
-      {(settings.regional_adjustment_pct || 0) !== 0 && (
-        <p className="text-xs text-muted-foreground">Regional: {settings.regional_adjustment_pct > 0 ? "+" : ""}{settings.regional_adjustment_pct}%</p>
       )}
     </div>
   );
