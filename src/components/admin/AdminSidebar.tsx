@@ -92,13 +92,11 @@ const AdminSidebar = ({
   ].filter((item) => isAllowed(item.key));
 
   // ── Tools (utilities) ──
-  const toolsItems = canManageAccess
-    ? [
-        { key: "onboarding", label: "Dealer Onboarding", icon: Rocket },
-        { key: "image-inventory", label: "Image Cache", icon: Car },
-        { key: "changelog", label: "Changelog", icon: Newspaper },
-      ].filter((item) => isAllowed(item.key))
-    : [];
+  const toolsItems = [
+    ...(canManageAccess ? [{ key: "image-inventory", label: "Image Cache", icon: Car }] : []),
+    ...(canManageAccess ? [{ key: "changelog", label: "Changelog", icon: Newspaper }] : []),
+    { key: "onboarding", label: "Dealer Onboarding", icon: Rocket },
+  ].filter((item) => isAllowed(item.key));
 
   // Collect locked sections for "Request Access" display
   const allSectionKeys = ["submissions", "appointments", "executive", "staff", "permissions", "requests", "offer-settings", "form-config", "notifications", "site-config", "locations", "testimonials", "consent", "comm-log", "image-inventory", "changelog"];
