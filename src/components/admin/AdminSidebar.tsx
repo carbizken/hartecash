@@ -59,7 +59,7 @@ const AdminSidebar = ({
   const pipelineItems = [
     { key: "submissions", label: "Submissions", icon: Inbox, badge: submissionCount > 0 ? String(submissionCount) : undefined },
     { key: "appointments", label: "Appointments", icon: CalendarDays, badge: appointmentCount > 0 ? String(appointmentCount) : undefined },
-    { key: "executive", label: "Executive HUD", icon: BarChart3 },
+    { key: "executive", label: "Performance", icon: BarChart3 },
   ].filter((item) => isAllowed(item.key));
 
   // ── Team (people & access) ──
