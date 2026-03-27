@@ -1170,12 +1170,23 @@ const OfferPage = () => {
           Offer Accepted
         </div>
       ) : (
-        <SlideToAccept
-          onAccept={() => {
-            window.location.href = `/deal/${token}${activeTab === "trade" ? "?mode=trade" : ""}`;
-          }}
-          label="Slide to Accept Your Price"
-        />
+        <>
+          <div className="lg:hidden">
+            <SlideToAccept
+              onAccept={() => { window.location.href = acceptUrl; }}
+              label="Slide to Accept Your Price"
+            />
+          </div>
+          <div className="hidden lg:block">
+            <Link to={acceptUrl}>
+              <Button className="w-full py-5 text-base font-bold text-white shadow-lg gap-2 rounded-xl" style={{ backgroundColor: "hsl(var(--cta-accept))", boxShadow: "0 10px 15px -3px hsl(var(--cta-accept) / 0.2)" }}>
+                <CheckCircle className="w-5 h-5" />
+                Accept & Lock In Your Price
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </Link>
+          </div>
+        </>
       )}
 
       <div className="flex items-start gap-2 mt-4 pt-3 border-t border-border/50">
