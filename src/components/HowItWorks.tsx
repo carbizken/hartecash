@@ -19,7 +19,7 @@ const HowItWorks = () => {
 
   return (
     <section className="py-16 px-5 bg-card">
-      <h2 className="font-display text-2xl md:text-[28px] lg:text-[34px] font-extrabold text-center mb-12 text-card-foreground">
+      <h2 className="font-display text-2xl md:text-[28px] lg:text-[34px] font-extrabold text-center mb-12 text-card-foreground tracking-[0.04em]">
         How It Works
       </h2>
       <div className="max-w-[400px] lg:max-w-4xl mx-auto lg:grid lg:grid-cols-3 lg:gap-10">

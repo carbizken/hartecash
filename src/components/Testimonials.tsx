@@ -89,7 +89,7 @@ const Testimonials = () => {
         <span className="text-lg font-bold text-card-foreground">{config.stats_rating || "4.9"}</span>
         <span className="text-xs text-muted-foreground">{config.stats_reviews_count || "2,400+"} reviews</span>
       </div>
-      <h2 className="font-display text-2xl md:text-[28px] lg:text-[34px] font-extrabold text-center mb-3 text-card-foreground">
+      <h2 className="font-display text-2xl md:text-[28px] lg:text-[34px] font-extrabold text-center mb-3 text-card-foreground tracking-[0.04em]">
         What Our Customers Say
       </h2>
       <p className="text-center text-sm text-muted-foreground mb-10">

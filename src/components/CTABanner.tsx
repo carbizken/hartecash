@@ -11,7 +11,7 @@ const CTABanner = () => {
   return (
     <section className="bg-gradient-to-br from-accent to-[hsl(0,77%,40%)] text-accent-foreground py-12 lg:py-20 px-5 text-center">
       <div className="max-w-3xl mx-auto">
-        <h2 className="font-display text-[28px] lg:text-[38px] font-extrabold mb-4">
+        <h2 className="font-display text-[28px] lg:text-[38px] font-extrabold mb-4 tracking-[0.04em]">
           Ready to Sell Your Car?
         </h2>
         <p className="text-base lg:text-lg mb-4 opacity-95">

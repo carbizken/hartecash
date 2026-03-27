@@ -37,7 +37,7 @@ const FAQ = () => {
 
   return (
     <section className="py-16 px-5 bg-background">
-      <h2 className="font-display text-2xl md:text-[28px] lg:text-[34px] font-extrabold text-center mb-12 text-foreground">
+      <h2 className="font-display text-2xl md:text-[28px] lg:text-[34px] font-extrabold text-center mb-12 text-foreground tracking-[0.04em]">
         Frequently Asked Questions
       </h2>
       <div className="max-w-[600px] lg:max-w-3xl mx-auto lg:columns-2 lg:gap-4">

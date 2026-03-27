@@ -54,7 +54,7 @@ const CompetitorComparison = () => {
     <section ref={sectionRef} className="bg-background px-5 py-14" id="compare">
       <div className="max-w-3xl mx-auto">
         <motion.h2
-          className="font-display text-2xl md:text-3xl font-extrabold text-foreground text-center mb-2"
+          className="font-display text-2xl md:text-3xl font-extrabold text-foreground text-center mb-2 tracking-[0.04em]"
           initial={animate ? { opacity: 0, y: 16, filter: "blur(4px)" } : false}
           animate={shouldAnimate ? { opacity: 1, y: 0, filter: "blur(0px)" } : undefined}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
