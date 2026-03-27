@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { logConsent } from "@/lib/consent";
 import serviceLogo from "@/assets/harte-service-logo.png";
 import SEO from "@/components/SEO";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 
 interface VehicleInfo {
   year: string;
@@ -100,6 +101,7 @@ const benefits = [
 ];
 
 const ServiceLanding = () => {
+  const { config: siteConfig } = useSiteConfig();
   const [searchParams] = useSearchParams();
   const vinParam = searchParams.get("vin") || "";
   const appointmentDate = searchParams.get("date") || "";
@@ -332,11 +334,14 @@ const ServiceLanding = () => {
               </>
             ) : (
               <>
-                There's Never Been a{" "}
-                <span className="bg-gradient-to-r from-[hsl(210,80%,60%)] to-[hsl(250,80%,70%)] bg-clip-text text-transparent">
-                  Better Time
-                </span>{" "}
-                to Upgrade or Sell
+                {(() => {
+                  const headline = siteConfig.service_hero_headline || "There's Never Been a Better Time to Upgrade or Sell";
+                  const parts = headline.split("||");
+                  if (parts.length >= 3) {
+                    return <>{parts[0]}<span className="bg-gradient-to-r from-[hsl(210,80%,60%)] to-[hsl(250,80%,70%)] bg-clip-text text-transparent">{parts[1]}</span>{parts[2]}</>;
+                  }
+                  return headline;
+                })()}
               </>
             )}
           </motion.h1>
@@ -344,7 +349,7 @@ const ServiceLanding = () => {
           <motion.p variants={fadeUp} custom={2} className="text-lg md:text-xl text-[hsl(215,20%,65%)] mb-10 leading-relaxed max-w-xl mx-auto">
             {formattedAppointment
               ? `While you're here on ${formattedAppointment.split(" at")[0]} for service, let us show you what your ${vehicleLabel || "vehicle"} is worth — it only takes 2 minutes.`
-              : `You're already trusting us with your vehicle's care. Let us show you what it's worth — and how easy upgrading can be.`}
+              : (siteConfig.service_hero_subtext || `You're already trusting us with your vehicle's care. Let us show you what it's worth — and how easy upgrading can be.`)}
           </motion.p>
 
           <motion.div variants={fadeUp} custom={3} className="flex items-center justify-center gap-1 mb-2">

@@ -47,6 +47,10 @@ export interface SiteConfig {
   assign_oem_brand_match: boolean;
   assign_buying_center: boolean;
   buying_center_location_id: string | null;
+  service_hero_headline: string;
+  service_hero_subtext: string;
+  trade_hero_headline: string;
+  trade_hero_subtext: string;
 }
 
 const DEFAULTS: SiteConfig = {
@@ -84,6 +88,10 @@ const DEFAULTS: SiteConfig = {
   assign_oem_brand_match: false,
   assign_buying_center: false,
   buying_center_location_id: null,
+  service_hero_headline: "There's Never Been a Better Time to Upgrade or Sell",
+  service_hero_subtext: "You're already coming in for service. Let us show you what your car is worth — it takes less than 2 minutes.",
+  trade_hero_headline: "Submit Your Trade-In Info",
+  trade_hero_subtext: "Already shopping with us? Send us your trade details from home — we'll have your value ready.",
 };
 
 let cachedConfig: SiteConfig | null = null;

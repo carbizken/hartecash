@@ -398,17 +398,47 @@ const SiteConfiguration = () => {
               ))}
             </div>
           </div>
+          {/* Main Landing Page (/) */}
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold">Hero Headline</Label>
+            <Label className="text-xs font-semibold">Main Page Headline <span className="text-muted-foreground font-normal">(/)</span></Label>
             <Input value={config.hero_headline} onChange={e => update("hero_headline", e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold">Hero Subtext</Label>
+            <Label className="text-xs font-semibold">Main Page Subtext</Label>
             <Textarea value={config.hero_subtext} onChange={e => update("hero_subtext", e.target.value)} rows={2} />
           </div>
+
+          {/* Service Landing Page (/service) */}
+          <div className="border-t border-border pt-4 mt-4">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-3">Service Page (/service)</p>
+          </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-semibold">Price Guarantee (days)</Label>
-            <Input type="number" value={config.price_guarantee_days} onChange={e => update("price_guarantee_days", parseInt(e.target.value) || 0)} className="w-24" />
+            <Label className="text-xs font-semibold">Service Page Headline</Label>
+            <Input value={(config as any).service_hero_headline || ""} onChange={e => update("service_hero_headline" as any, e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold">Service Page Subtext</Label>
+            <Textarea value={(config as any).service_hero_subtext || ""} onChange={e => update("service_hero_subtext" as any, e.target.value)} rows={2} />
+          </div>
+
+          {/* Trade Landing Page (/trade) */}
+          <div className="border-t border-border pt-4 mt-4">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-3">Trade Page (/trade)</p>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold">Trade Page Headline</Label>
+            <Input value={(config as any).trade_hero_headline || ""} onChange={e => update("trade_hero_headline" as any, e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold">Trade Page Subtext</Label>
+            <Textarea value={(config as any).trade_hero_subtext || ""} onChange={e => update("trade_hero_subtext" as any, e.target.value)} rows={2} />
+          </div>
+
+          <div className="border-t border-border pt-4 mt-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Price Guarantee (days)</Label>
+              <Input type="number" value={config.price_guarantee_days} onChange={e => update("price_guarantee_days", parseInt(e.target.value) || 0)} className="w-24" />
+            </div>
           </div>
         </div>
       </Section>

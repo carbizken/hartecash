@@ -23,10 +23,10 @@ const TradeHero = () => {
         </div>
 
         <h1 className="text-[26px] md:text-[32px] lg:text-[44px] font-extrabold tracking-wide leading-tight mb-4 uppercase">
-          Submit Your{"\n"}Trade-In Info
+          {config.trade_hero_headline || "Submit Your Trade-In Info"}
         </h1>
         <p className="text-lg lg:text-xl font-normal opacity-95 mb-6 lg:mb-10 leading-relaxed max-w-xl mx-auto">
-          Already shopping with us? Send us your trade details from home — we'll have your value ready.
+          {config.trade_hero_subtext || "Already shopping with us? Send us your trade details from home — we'll have your value ready."}
         </p>
 
         <div className="max-w-[500px] lg:max-w-none mx-auto mb-8 text-left px-5 md:px-0">
