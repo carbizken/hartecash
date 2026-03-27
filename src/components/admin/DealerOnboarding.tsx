@@ -234,7 +234,8 @@ const DealerOnboarding = ({ isAdmin = false }: DealerOnboardingProps) => {
               return (
                 <button
                   key={opt.value}
-                  onClick={() => updateField("architecture", opt.value)}
+                  onClick={() => !readOnly && updateField("architecture", opt.value)}
+                  disabled={readOnly}
                   className={cn(
                     "flex items-start gap-3 p-4 rounded-lg border text-left transition-all",
                     selected
