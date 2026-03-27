@@ -459,6 +459,20 @@ const UploadPhotos = () => {
           🔒 Your photos are securely uploaded and only used for your vehicle appraisal.
         </p>
       </div>
+
+      {/* Guided camera capture overlay for mobile */}
+      {cameraCategory && (() => {
+        const cat = ALL_CATEGORIES.find(c => c.id === cameraCategory);
+        return cat ? (
+          <VehicleCameraCapture
+            categoryId={cat.id}
+            categoryLabel={cat.label}
+            categoryDesc={cat.desc}
+            onCapture={handleCameraCapture}
+            onClose={() => setCameraCategory(null)}
+          />
+        ) : null;
+      })()}
     </div>
   );
 };
