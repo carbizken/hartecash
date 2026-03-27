@@ -127,7 +127,8 @@ serve(async (req) => {
       },
     }));
 
-    return new Response(JSON.stringify({ error: null, vehicles }), {
+    // Return both parsed vehicles AND the raw BB response for field discovery
+    return new Response(JSON.stringify({ error: null, vehicles, raw_bb_response: bbData }), {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
     });
 
