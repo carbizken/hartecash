@@ -739,8 +739,9 @@ const OfferPage = () => {
   // Accidents
   const accidentsVal = (condition?.accidents || "").toLowerCase();
   const noAccidents = !condition?.accidents || accidentsVal.includes("no") || accidentsVal === "none" || accidentsVal === "0";
+  const accidentDisplay = noAccidents ? "None" : accidentsVal === "1" ? "1" : accidentsVal === "2" ? "2" : accidentsVal === "3+" ? "3+" : condition!.accidents;
   conditionItems.push({
-    label: noAccidents ? "Accidents: None" : `Accidents: ${condition!.accidents}`,
+    label: `Accidents: ${accidentDisplay}`,
     status: noAccidents ? "good" : "warn",
     icon: <Car className="w-3.5 h-3.5" />,
     field: "accidents",
