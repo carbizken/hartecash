@@ -266,13 +266,15 @@ const PortalOfferCard = ({
           </Link>
         )}
 
-        {/* Link to full offer page */}
-        <Link
-          to={`/offer/${token}`}
-          className="mt-3 block text-center text-xs text-primary hover:text-primary/80 font-medium transition-colors"
-        >
-          View full offer details →
-        </Link>
+        {/* Link to full offer page - only show for non-accepted */}
+        {!isAccepted && (
+          <Link
+            to={`/offer/${token}`}
+            className="mt-3 block text-center text-xs text-primary hover:text-primary/80 font-medium transition-colors"
+          >
+            View full offer details →
+          </Link>
+        )}
       </div>
     </motion.div>
   );
