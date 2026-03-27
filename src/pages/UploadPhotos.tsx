@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import UploadSkeleton from "@/components/UploadSkeleton";
 import MobileQRBanner from "@/components/upload/MobileQRBanner";
 import PhotoGuide from "@/components/upload/PhotoGuide";
+import VehicleCameraCapture from "@/components/upload/VehicleCameraCapture";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
+import { useIsMobile } from "@/hooks/use-mobile";
 import harteLogoFallback from "@/assets/harte-logo-white.png";
 
 interface SubmissionInfo {
@@ -38,6 +40,7 @@ type CategoryUploads = Record<string, { file?: File; preview?: string; uploaded?
 const UploadPhotos = () => {
   const { token } = useParams<{ token: string }>();
   const { config } = useSiteConfig();
+  const isMobile = useIsMobile();
   const [submission, setSubmission] = useState<SubmissionInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -47,6 +50,7 @@ const UploadPhotos = () => {
   const [uploading, setUploading] = useState(false);
   const [done, setDone] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [cameraCategory, setCameraCategory] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const extraInputRef = useRef<HTMLInputElement>(null);
 
@@ -89,8 +93,20 @@ const UploadPhotos = () => {
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
   const handleCategoryClick = (categoryId: string) => {
-    setActiveCategory(categoryId);
-    fileInputRef.current?.click();
+    if (isMobile) {
+      setCameraCategory(categoryId);
+    } else {
+      setActiveCategory(categoryId);
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleCameraCapture = (file: File, preview: string) => {
+    setCategoryUploads((prev) => ({
+      ...prev,
+      [cameraCategory!]: { file, preview },
+    }));
+    setCameraCategory(null);
   };
 
   const handleCategoryFile = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -443,6 +459,20 @@ const UploadPhotos = () => {
           🔒 Your photos are securely uploaded and only used for your vehicle appraisal.
         </p>
       </div>
+
+      {/* Guided camera capture overlay for mobile */}
+      {cameraCategory && (() => {
+        const cat = ALL_CATEGORIES.find(c => c.id === cameraCategory);
+        return cat ? (
+          <VehicleCameraCapture
+            categoryId={cat.id}
+            categoryLabel={cat.label}
+            categoryDesc={cat.desc}
+            onCapture={handleCameraCapture}
+            onClose={() => setCameraCategory(null)}
+          />
+        ) : null;
+      })()}
     </div>
   );
 };
