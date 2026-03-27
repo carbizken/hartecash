@@ -241,6 +241,7 @@ const AdminDashboard = () => {
   const [dealerLocations, setDealerLocations] = useState<DealerLocation[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
   const [permissionRequestCount, setPermissionRequestCount] = useState(0);
+  const [pricingAccessRequestCount, setPricingAccessRequestCount] = useState(0);
   const [showRequestAccessDialog, setShowRequestAccessDialog] = useState(false);
   const [showRequestAccessToggle, setShowRequestAccessToggle] = useState(true);
   const navigate = useNavigate();
@@ -337,6 +338,15 @@ const AdminDashboard = () => {
           .select("id", { count: "exact", head: true })
           .eq("status", "pending");
         setPermissionRequestCount(count || 0);
+      }
+
+      // Fetch pricing access request count for admin/GM
+      if (roleData.role === "admin" || roleData.role === "gsm_gm") {
+        const { count: pricingCount } = await supabase
+          .from("pricing_model_access_requests" as any)
+          .select("id", { count: "exact", head: true })
+          .eq("status", "pending");
+        setPricingAccessRequestCount(pricingCount || 0);
       }
 
       // Fetch show_request_access toggle
@@ -1271,10 +1281,12 @@ const AdminDashboard = () => {
         appointmentCount={appointments.length}
         pendingRequestCount={pendingRequests.length}
         permissionRequestCount={permissionRequestCount}
+        pricingAccessRequestCount={pricingAccessRequestCount}
         allowedSections={allowedSections}
         showRequestAccess={showRequestAccessToggle && !canManageAccess}
         onRequestAccess={() => setShowRequestAccessDialog(true)}
         locationCount={dealerLocations.length}
+        userRole={userRole}
       />
 
       <div className="flex-1 flex flex-col min-w-0">
@@ -1858,7 +1870,7 @@ const AdminDashboard = () => {
           {activeSection === "executive" && <ExecutiveKPIHub />}
 
           {/* Offer Settings */}
-          {activeSection === "offer-settings" && canManageAccess && <OfferSettings />}
+          {activeSection === "offer-settings" && (canManageAccess || userRole === "gsm_gm") && <OfferSettings userId={userId || undefined} userRole={userRole} />}
 
           {/* Site Config */}
           {activeSection === "site-config" && canManageAccess && <SiteConfiguration />}

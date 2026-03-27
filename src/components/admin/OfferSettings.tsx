@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import OfferSimulator from "./OfferSimulator";
 import PricingModelManager from "./PricingModelManager";
+import PricingAccessGate from "./PricingAccessGate";
+import PricingAccessRequests from "./PricingAccessRequests";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { OfferSettings as OfferSettingsType } from "@/lib/offerCalculator";
@@ -212,7 +214,12 @@ const emptyRule: Omit<OfferRule, "id" | "dealership_id"> = {
   priority: 0,
 };
 
-const OfferSettings = () => {
+interface OfferSettingsProps {
+  userId?: string;
+  userRole?: string;
+}
+
+const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -386,8 +393,17 @@ const OfferSettings = () => {
   const criteriaRules = rules.filter((r) => r.rule_type === "criteria");
   const hotListRules = rules.filter((r) => r.rule_type === "hot_list");
 
+  const canManageRequests = userRole === "admin" || userRole === "gsm_gm";
+
   return (
     <div className="space-y-4">
+      {/* Admin/GM: show pending GSM access requests */}
+      {canManageRequests && userId && (
+        <PricingAccessRequests userId={userId} />
+      )}
+
+      {/* Gate pricing tools behind access control */}
+      <PricingAccessGate userId={userId || ""} userRole={userRole || "admin"}>
       {/* ── Price Builder Workbench — Simulator First ── */}
       <div className="bg-gradient-to-r from-primary/5 to-accent/5 rounded-xl border border-primary/20 p-5 mb-2">
         <div className="flex items-center gap-2 mb-1">
@@ -820,6 +836,7 @@ const OfferSettings = () => {
           )}
         </DialogContent>
       </Dialog>
+      </PricingAccessGate>
     </div>
   );
 };
