@@ -536,7 +536,7 @@ const OfferSimulator = ({ settings, savedSettings, rules, inlineControls = true,
                 </div>
 
                 {/* ── RIGHT: Results Panel ── */}
-                <div className="space-y-4">
+                <div className="space-y-4 overflow-y-auto max-h-[600px] pr-1">
                   {liveResult && (
                     <>
                       {/* What-If Toggle */}
