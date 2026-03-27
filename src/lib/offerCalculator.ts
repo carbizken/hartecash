@@ -143,6 +143,7 @@ const DEFAULT_SETTINGS: OfferSettings = {
   offer_ceiling: null,
   age_tiers: [],
   mileage_tiers: [],
+  regional_adjustment_pct: 0,
 };
 
 /** Extract the correct BB value based on the configured basis */

@@ -367,7 +367,7 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
           loan_company: formData.loanCompany || null,
           loan_balance: formData.loanBalance || null,
           loan_payment: formData.loanPayment || null,
-          next_step: "photos", // default — they'll choose on offer page
+          next_step: "photos",
           lead_source: leadSource,
           bb_tradein_avg: bbSelectedVehicle?.tradein?.avg || null,
           bb_wholesale_avg: bbSelectedVehicle?.wholesale?.avg || null,
@@ -377,6 +377,18 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
           matched_rule_ids: estimate?.matchedRuleIds?.length ? estimate.matchedRuleIds : null,
           store_location_id: storeLocationId || null,
           salesperson_name: formData.salespersonName || null,
+          // New BB data fields
+          bb_msrp: bbSelectedVehicle?.msrp || null,
+          bb_class_name: bbSelectedVehicle?.class_name || null,
+          bb_drivetrain: bbSelectedVehicle?.drivetrain || null,
+          bb_transmission: bbSelectedVehicle?.transmission || null,
+          bb_fuel_type: bbSelectedVehicle?.fuel_type || null,
+          bb_engine: bbSelectedVehicle?.engine || null,
+          bb_mileage_adj: bbSelectedVehicle?.mileage_adj || null,
+          bb_regional_adj: bbSelectedVehicle?.regional_adj || null,
+          bb_base_whole_avg: bbSelectedVehicle?.base_whole_avg || null,
+          bb_retail_avg: bbSelectedVehicle?.retail?.avg || null,
+          bb_add_deducts: bbSelectedVehicle?.add_deduct_list ? JSON.stringify(bbSelectedVehicle.add_deduct_list) : null,
         } as any);
 
       if (error) throw error;
