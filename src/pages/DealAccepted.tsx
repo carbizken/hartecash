@@ -128,10 +128,23 @@ const DealAccepted = () => {
 
   const scheduleLink = `/schedule?token=${token}&vehicle=${encodeURIComponent(vehicleStr)}&name=${encodeURIComponent(s.name || "")}&email=${encodeURIComponent(s.email || "")}&phone=${encodeURIComponent(s.phone || "")}`;
 
+  // Animation variants: dramatic spring on first visit, subtle fade on revisit
+  const stagger = isFirstVisit ? 0.15 : 0.05;
+  const baseDelay = isFirstVisit ? 0.3 : 0;
+  const entrance = (i: number) => ({
+    initial: isFirstVisit
+      ? { opacity: 0, y: 24, scale: 0.97 }
+      : { opacity: 0, y: 8 },
+    animate: { opacity: 1, y: 0, scale: 1 },
+    transition: isFirstVisit
+      ? { type: "spring", stiffness: 120, damping: 18, delay: baseDelay + i * stagger }
+      : { duration: 0.35, delay: baseDelay + i * stagger },
+  });
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary via-[hsl(210,100%,30%)] to-primary text-primary-foreground px-6 py-1">
+      <motion.div {...entrance(0)} className="bg-gradient-to-r from-primary via-[hsl(210,100%,30%)] to-primary text-primary-foreground px-6 py-1">
         <div className="max-w-5xl mx-auto">
           <Link to={`/offer/${token}`} className="inline-flex items-center gap-1 text-xs text-primary-foreground/70 hover:text-primary-foreground transition-colors mb-1.5">
             <ArrowLeft className="w-3.5 h-3.5" />
