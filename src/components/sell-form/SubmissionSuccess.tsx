@@ -5,6 +5,7 @@ import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import type { VehicleInfo } from "./types";
 import type { OfferEstimate } from "@/lib/offerCalculator";
+import harteLogo from "@/assets/harte-logo.png";
 
 interface Props {
   uploadUrl: string;
