@@ -395,18 +395,20 @@ const OfferSettings = () => {
           <h2 className="text-lg font-bold text-card-foreground">Price Builder Workbench</h2>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          Build, test, and save pricing models. Adjust any setting below and watch the simulator update in real-time. Save named models to switch strategies instantly.
+          Look up any VIN to see real-time valuations. Adjust every pricing lever inline and watch the offer, profit gauge, and market context update instantly. Save your formula as a named pricing model.
         </p>
 
-        {/* Pricing Model Manager — embedded controls */}
+        {/* Pricing Model Manager — model save/load/schedule */}
         <PricingModelManager onModelChange={setModelOverrideSettings} />
 
-        {/* Simulator — uses model override settings when available */}
+        {/* Unified Simulator — all controls inline alongside results */}
         <div className="mt-4">
           <OfferSimulator
             settings={modelOverrideSettings || settings}
             savedSettings={savedSettings}
             rules={rules}
+            inlineControls={true}
+            onSettingsChange={(newSettings) => setModelOverrideSettings(newSettings)}
           />
         </div>
       </div>
