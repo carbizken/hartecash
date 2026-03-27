@@ -13,6 +13,11 @@ interface CheckItem {
   label: string;
   icon: React.ElementType;
   done: boolean;
+  section?: string; // admin sidebar section key to navigate to
+}
+
+interface OnboardingChecklistProps {
+  onNavigate?: (section: string) => void;
 }
 
 const OnboardingChecklist = () => {
