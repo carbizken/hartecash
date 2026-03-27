@@ -18,7 +18,7 @@ import {
   BadgeDollarSign, Handshake, PartyPopper, CircleDot,
   ShieldCheck, MousePointerClick, Send, Phone, Mail,
   CreditCard, KeyRound, MapPin, AlertCircle, LayoutDashboard,
-  Link2, Repeat
+  Link2, Repeat, ChevronUp
 } from "lucide-react";
 
 /* ─── Animated Counter ─── */
