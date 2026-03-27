@@ -36,12 +36,17 @@ const DealAccepted = () => {
   const [searchParams] = useSearchParams();
   const [submission, setSubmission] = useState<DealSubmission | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isFirstVisit, setIsFirstVisit] = useState(false);
   const { config } = useSiteConfig();
 
   // Confetti celebration — only on first visit
   useEffect(() => {
     const key = `confetti_shown_${token}`;
-    if (sessionStorage.getItem(key)) return;
+    if (sessionStorage.getItem(key)) {
+      setIsFirstVisit(false);
+      return;
+    }
+    setIsFirstVisit(true);
     sessionStorage.setItem(key, "1");
 
     const duration = 2500;
