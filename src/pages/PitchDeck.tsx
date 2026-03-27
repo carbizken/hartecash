@@ -946,10 +946,10 @@ export default function PitchDeck() {
               Full Control: <span className="text-blue-400">Docs, Roles & Oversight</span>
             </motion.h2>
             <motion.p variants={fadeUp} custom={0.5} className="text-lg text-white/50 max-w-3xl mb-12">
-              Internal document management, staff permissions, and complete audit trails — everything a GM needs to run the operation with confidence.
+              Internal document management, staff permissions, complete audit trails, and a dedicated Executive KPI Hub — everything a GM needs to run the operation with confidence.
             </motion.p>
 
-            <motion.div variants={fadeUp} custom={1} className="grid lg:grid-cols-3 gap-8">
+            <motion.div variants={fadeUp} custom={1} className="grid lg:grid-cols-4 gap-6">
               <motion.div variants={scaleIn} custom={1}>
                 <MockupFrame title="📁 Internal Documents" dark>
                   <div className="space-y-3">
@@ -1023,6 +1023,44 @@ export default function PitchDeck() {
                     </div>
                     <div className="text-[10px] text-white/30 text-center">
                       Full timestamp, user, and before/after values
+                    </div>
+                  </div>
+                </MockupFrame>
+              </motion.div>
+
+              <motion.div variants={scaleIn} custom={4}>
+                <MockupFrame title="📊 Executive KPI Hub" dark>
+                  <div className="space-y-3">
+                    <p className="text-[10px] text-white/40 mb-2">GM-level analytics at a glance:</p>
+                    <div className="space-y-2">
+                      {[
+                        { label: "Conversion Rate", value: "34.2%", trend: "↑ 8%", color: "text-emerald-400" },
+                        { label: "Avg Offer", value: "$22,450", trend: "↑ $1.2k", color: "text-emerald-400" },
+                        { label: "Pipeline Value", value: "$487k", trend: "12 active", color: "text-blue-400" },
+                        { label: "Abandoned Drop-off", value: "18%", trend: "↓ 3%", color: "text-emerald-400" },
+                      ].map((kpi) => (
+                        <div key={kpi.label} className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/10">
+                          <span className="text-[10px] text-white/60">{kpi.label}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-white/90 font-mono">{kpi.value}</span>
+                            <span className={`text-[9px] ${kpi.color}`}>{kpi.trend}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-2 p-2 rounded-lg bg-white/5 border border-white/10">
+                      <div className="text-[9px] text-white/40 mb-1.5">Conversion Funnel</div>
+                      <div className="flex gap-1 items-end h-6">
+                        {[100, 72, 45, 34].map((h, i) => (
+                          <div key={i} className="flex-1 rounded-sm bg-blue-500/60" style={{ height: `${h}%` }} />
+                        ))}
+                      </div>
+                      <div className="flex justify-between text-[8px] text-white/30 mt-1">
+                        <span>New</span><span>Contacted</span><span>Inspected</span><span>Purchased</span>
+                      </div>
+                    </div>
+                    <div className="text-[10px] text-white/30 text-center">
+                      Dedicated /executive route for GMs
                     </div>
                   </div>
                 </MockupFrame>
