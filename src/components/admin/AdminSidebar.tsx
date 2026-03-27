@@ -26,10 +26,12 @@ interface AdminSidebarProps {
   appointmentCount: number;
   pendingRequestCount: number;
   permissionRequestCount?: number;
+  pricingAccessRequestCount?: number;
   allowedSections?: string[] | null; // null = unrestricted (admin)
   showRequestAccess?: boolean;
   onRequestAccess?: (sectionKey: string) => void;
   locationCount?: number;
+  userRole?: string;
 }
 
 const AdminSidebar = ({
