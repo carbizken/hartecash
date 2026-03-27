@@ -470,9 +470,9 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
           />
         );
       case "Condition":
-        return <StepCondition formData={formData} updateArray={updateArray} update={update} formConfig={formConfig} />;
+        return <StepCondition formData={formData} updateArray={updateArray} update={update} formConfig={formConfig} bbVehicle={bbSelectedVehicle} vehicleInfo={vehicleInfo} />;
       case "History":
-        return <StepHistory formData={formData} update={update} formConfig={formConfig} />;
+        return <StepHistory formData={formData} update={update} formConfig={formConfig} bbVehicle={bbSelectedVehicle} vehicleInfo={vehicleInfo} />;
       case "Finalize":
         return <StepFinalize formData={formData} update={update} formConfig={formConfig} leadSource={leadSource} />;
       default:

@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Check, Info } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Check, Info, Zap } from "lucide-react";
+import { Dialog, DialogContent, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import FormField from "./FormField";
 import RadioOption from "./RadioOption";
 import CheckboxOption from "./CheckboxOption";
-import type { FormData } from "./types";
+import VehicleSummaryBar from "./VehicleSummaryBar";
+import type { FormData, BBVehicle, VehicleInfo } from "./types";
 import type { FormConfig } from "@/hooks/useFormConfig";
 
 interface Props {
@@ -13,6 +14,8 @@ interface Props {
   updateArray: (field: string, value: string) => void;
   update: (field: string, value: string) => void;
   formConfig?: FormConfig;
+  bbVehicle?: BBVehicle | null;
+  vehicleInfo?: VehicleInfo | null;
 }
 
 const conditionRatings = [
@@ -83,11 +86,43 @@ const kbbDefinitions = [
   },
 ];
 
-const StepCondition = ({ formData, updateArray, update, formConfig }: Props) => {
+const StepCondition = ({ formData, updateArray, update, formConfig, bbVehicle, vehicleInfo }: Props) => {
   const [showKbb, setShowKbb] = useState(false);
+
+  // Detect if vehicle is electric from BB data
+  const fuelType = (bbVehicle?.fuel_type || "").toLowerCase();
+  const isElectric = fuelType.includes("electric") || fuelType.includes("bev");
+  const isHybrid = fuelType.includes("hybrid") || fuelType.includes("phev");
+
+  // Check if moonroof/sunroof is in BB equipment list
+  const hasMoonroofEquipment = bbVehicle?.add_deduct_list?.some(
+    ad => ad.auto !== "N" && /moon|sun|panoramic/i.test(ad.name)
+  );
+  const noMoonroofDetectable = bbVehicle && !bbVehicle.add_deduct_list?.some(
+    ad => /moon|sun|panoramic/i.test(ad.name)
+  );
+
+  // Personalized labels from BB specs
+  const engineLabel = bbVehicle?.engine
+    ? `Are there any issues with your ${bbVehicle.engine}?`
+    : "Are there any engine issues?";
+
+  const transmissionHint = bbVehicle?.transmission
+    ? ` (${bbVehicle.transmission})`
+    : "";
+
+  // Build personalized mechanical options
+  const personalizedMechanicalOptions = mechanicalOptions.map(opt => {
+    if (opt.value === "transmission" && transmissionHint) {
+      return { ...opt, label: `Transmission / drivetrain issues${transmissionHint}` };
+    }
+    return opt;
+  });
 
   return (
     <>
+      <VehicleSummaryBar vehicleInfo={vehicleInfo} bbVehicle={bbVehicle} />
+
       <Dialog open={showKbb} onOpenChange={setShowKbb}>
         <DialogContent className="max-h-[80vh] overflow-y-auto p-0">
           <div className="sticky top-0 z-10 bg-primary text-primary-foreground px-6 py-4 rounded-t-lg text-center">
@@ -174,10 +209,14 @@ const StepCondition = ({ formData, updateArray, update, formConfig }: Props) => 
         </FormField>
       )}
 
-      {(!formConfig || formConfig.q_moonroof) && (
-        <FormField label="If your vehicle has a moonroof, does it work?">
+      {/* Moonroof: auto-skip if BB shows no moonroof in equipment, show if detected or unknown */}
+      {(!formConfig || formConfig.q_moonroof) && !noMoonroofDetectable && (
+        <FormField label={hasMoonroofEquipment
+          ? "Your vehicle has a moonroof/sunroof — does it work?"
+          : "If your vehicle has a moonroof, does it work?"
+        }>
           <div className="grid gap-2">
-            {["Works great", "Doesn't work", "No moonroof"].map((opt) => (
+            {["Works great", "Doesn't work", ...(hasMoonroofEquipment ? [] : ["No moonroof"])].map((opt) => (
               <RadioOption key={opt} label={opt} selected={formData.moonroof === opt} onClick={() => update("moonroof", opt)} />
             ))}
           </div>
@@ -204,8 +243,15 @@ const StepCondition = ({ formData, updateArray, update, formConfig }: Props) => 
         </FormField>
       )}
 
-      {(!formConfig || formConfig.q_engine_issues) && (
-        <FormField label="Are there any engine issues?">
+      {/* Engine issues: skip entirely for EVs */}
+      {(!formConfig || formConfig.q_engine_issues) && !isElectric && (
+        <FormField label={engineLabel}>
+          {isHybrid && (
+            <div className="flex items-center gap-1.5 text-xs text-primary mb-2 font-medium">
+              <Zap className="w-3.5 h-3.5" />
+              Hybrid vehicle — these apply to the combustion engine
+            </div>
+          )}
           <div className="grid gap-2">
             {engineOptions.map((opt) => (
               <CheckboxOption key={opt.value} label={opt.label} subtitle={opt.subtitle} checked={formData.engineIssues.includes(opt.value)} onClick={() => updateArray("engineIssues", opt.value)} />
@@ -214,10 +260,18 @@ const StepCondition = ({ formData, updateArray, update, formConfig }: Props) => 
         </FormField>
       )}
 
+      {/* EV-specific notice when engine questions are skipped */}
+      {(!formConfig || formConfig.q_engine_issues) && isElectric && (
+        <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-primary/5 border border-primary/15 text-sm text-muted-foreground">
+          <Zap className="w-4 h-4 text-primary shrink-0" />
+          <span>Engine questions skipped — your vehicle is identified as <strong className="text-card-foreground">{bbVehicle?.fuel_type}</strong></span>
+        </div>
+      )}
+
       {(!formConfig || formConfig.q_mechanical_issues) && (
         <FormField label="Are there any mechanical or electrical issues?">
           <div className="grid gap-2">
-            {mechanicalOptions.map((opt) => (
+            {personalizedMechanicalOptions.map((opt) => (
               <CheckboxOption key={opt.value} label={opt.label} subtitle={opt.subtitle} checked={formData.mechanicalIssues.includes(opt.value)} onClick={() => updateArray("mechanicalIssues", opt.value)} />
             ))}
           </div>

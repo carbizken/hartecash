@@ -1,18 +1,23 @@
 import { Input } from "@/components/ui/input";
 import FormField from "./FormField";
 import RadioOption from "./RadioOption";
-import type { FormData } from "./types";
+import VehicleSummaryBar from "./VehicleSummaryBar";
+import type { FormData, BBVehicle, VehicleInfo } from "./types";
 import type { FormConfig } from "@/hooks/useFormConfig";
 
 interface Props {
   formData: FormData;
   update: (field: string, value: string) => void;
   formConfig?: FormConfig;
+  bbVehicle?: BBVehicle | null;
+  vehicleInfo?: VehicleInfo | null;
 }
 
-const StepHistory = ({ formData, update, formConfig }: Props) => {
+const StepHistory = ({ formData, update, formConfig, bbVehicle, vehicleInfo }: Props) => {
   return (
     <>
+      <VehicleSummaryBar vehicleInfo={vehicleInfo} bbVehicle={bbVehicle} />
+
       <FormField label="How many total miles are on your vehicle?">
         <Input
           placeholder="e.g. 45,000"
