@@ -61,9 +61,6 @@ const ScheduleVisit = () => {
   const { toast } = useToast();
   const { config } = useSiteConfig();
   const [locations, setLocations] = useState<DealerLocation[]>([]);
-  const submissionToken = searchParams.get("token") || "";
-  const { toast } = useToast();
-  const [locations, setLocations] = useState<DealerLocation[]>([]);
 
   useEffect(() => {
     const fetchLocations = async () => {
