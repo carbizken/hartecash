@@ -556,7 +556,7 @@ const SubmissionDetailSheet = ({
                 </div>
               )}
 
-              {(sub.progress_status === "appraisal_completed" || sub.progress_status === "manager_approval") && (
+              {(sub.progress_status === "inspection_completed" || sub.progress_status === "manager_approval_inspection") && (
                 <div className="mt-3 flex justify-end">
                   <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => window.open(getDocsUrl(sub.token), "_blank")}>
                     <Upload className="w-3 h-3 mr-1" /> Upload Appraisal
