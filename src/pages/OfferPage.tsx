@@ -1548,7 +1548,7 @@ const OfferPage = () => {
 
         <div className="max-w-lg mx-auto p-6 space-y-5">
           {s.vehicle_year && s.vehicle_make && s.vehicle_model && (
-            <div className="bg-card rounded-xl shadow-lg overflow-hidden">
+            <div className="overflow-hidden -mx-2 mb-2">
               <VehicleImage
                 year={s.vehicle_year}
                 make={s.vehicle_make}

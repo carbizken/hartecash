@@ -64,7 +64,7 @@ serve(async (req) => {
     // 2. Generate image via AI
     const vehicleDesc = `${year} ${make} ${model}${style ? ` ${style}` : ""}`;
     const colorDesc = color && color.toLowerCase() !== "other" ? color : "white";
-    const prompt = `A photorealistic side profile view of a ${vehicleDesc} car in ${colorDesc} color, on a clean solid white background. Professional automotive photography style, studio lighting, sharp details, no text or watermarks. The car should be facing right. The car body color must be clearly ${colorDesc}. Clean isolated vehicle shot suitable for a car dealership website.`;
+    const prompt = `A photorealistic three-quarter front angle view of a ${vehicleDesc} in ${colorDesc} color, isolated on a perfectly clean transparent white background with no ground shadow. Professional automotive studio photography, dramatic studio lighting with soft reflections, ultra sharp details, no text or watermarks. The car should be angled slightly toward the viewer showing the front and driver side. The car body color must be clearly ${colorDesc}. High-end dealership hero image style, the vehicle should look premium and aspirational.`;
 
     const models = [
       "google/gemini-3.1-flash-image-preview",
