@@ -96,6 +96,7 @@ const InspectionConfiguration = () => {
 
   // Tire credit/deduction policy
   const [enableTireAdjustments, setEnableTireAdjustments] = useState(false);
+  const [tireAdjustmentMode, setTireAdjustmentMode] = useState<"whole" | "per_tire">("whole");
   const [tireCreditThreshold, setTireCreditThreshold] = useState(6);
   const [tireDeductThreshold, setTireDeductThreshold] = useState(3);
   const [tireCreditPer32, setTireCreditPer32] = useState(25);
