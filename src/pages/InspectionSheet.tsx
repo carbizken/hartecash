@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Printer, Camera, AlertTriangle, CheckCircle, Car, Gauge, Wrench, Droplets, Save } from "lucide-react";
+import { ArrowLeft, Printer, Camera, AlertTriangle, CheckCircle, Car, Gauge, Wrench, Droplets, Save, Smartphone } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
