@@ -47,7 +47,7 @@ export const getStageIndex = (dbStatus: string): number => {
 export const ALL_STATUS_OPTIONS = [
   { key: "new", label: "New Lead" },
   { key: "offer_accepted", label: "Offer Accepted" },
-  { key: "not_contacted", label: "Not Contacted" },
+  { key: "no_contact", label: "Unable to Reach" },
   { key: "inspection_scheduled", label: "Inspection Scheduled" },
   { key: "inspection_completed", label: "Inspection Completed" },
   { key: "deal_finalized", label: "Deal Finalized" },
