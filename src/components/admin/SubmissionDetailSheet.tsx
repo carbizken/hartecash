@@ -333,7 +333,7 @@ const SubmissionDetailSheet = ({
               </SheetTitle>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="sm" onClick={() => window.open(`${window.location.origin}/inspection/${sub.id}`, "_blank")} className="text-primary-foreground hover:bg-primary-foreground/20 print:hidden">
-                  <ClipboardList className="w-4 h-4 mr-1" /> Inspection Needed
+                  <ClipboardList className="w-4 h-4 mr-1" /> Inspection
                 </Button>
                 <Button variant="ghost" size="sm" onClick={handlePrint} className="text-primary-foreground hover:bg-primary-foreground/20 print:hidden">
                   <Printer className="w-4 h-4 mr-1" /> Print
