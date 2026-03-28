@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import TreadDepthPicker from "@/components/inspection/TreadDepthPicker";
+import BrakePadPicker from "@/components/inspection/BrakePadPicker";
 
 interface DamageItem {
   type: string;
@@ -53,10 +54,10 @@ const MobileInspection = () => {
   const [tireRR, setTireRR] = useState<number | null>(null);
 
   // Other fields
-  const [brakeLF, setBrakeLF] = useState("");
-  const [brakeRF, setBrakeRF] = useState("");
-  const [brakeLR, setBrakeLR] = useState("");
-  const [brakeRR, setBrakeRR] = useState("");
+  const [brakeLF, setBrakeLF] = useState<number | null>(null);
+  const [brakeRF, setBrakeRF] = useState<number | null>(null);
+  const [brakeLR, setBrakeLR] = useState<number | null>(null);
+  const [brakeRR, setBrakeRR] = useState<number | null>(null);
   const [paintReading, setPaintReading] = useState("");
   const [oilLife, setOilLife] = useState("");
   const [batteryHealth, setBatteryHealth] = useState("");
@@ -120,7 +121,7 @@ const MobileInspection = () => {
     const notes = [
       `[INSPECTION ${new Date().toLocaleString()}]`,
       tireLF !== null ? `Tires (tread /32): LF:${tireLF} RF:${tireRF} LR:${tireLR} RR:${tireRR}` : null,
-      `Brakes (mm): LF:${brakeLF} RF:${brakeRF} LR:${brakeLR} RR:${brakeRR}`,
+      `Brakes (mm): LF:${brakeLF ?? "—"} RF:${brakeRF ?? "—"} LR:${brakeLR ?? "—"} RR:${brakeRR ?? "—"}`,
       paintReading && `Paint: ${paintReading}`,
       oilLife && `Oil: ${oilLife}`,
       batteryHealth && `Battery: ${batteryHealth}`,
@@ -280,14 +281,13 @@ const MobileInspection = () => {
             <CardTitle className="text-sm flex items-center gap-2">
               <Gauge className="h-4 w-4 text-primary" /> Brake Pad Thickness (mm)
             </CardTitle>
+            <p className="text-[10px] text-muted-foreground mt-1">Tap the measured thickness for each brake</p>
           </CardHeader>
-          <CardContent className="px-4 pb-4">
-            <div className="grid grid-cols-2 gap-3">
-              <MobileField label="Left Front" value={brakeLF} onChange={setBrakeLF} placeholder="mm" />
-              <MobileField label="Right Front" value={brakeRF} onChange={setBrakeRF} placeholder="mm" />
-              <MobileField label="Left Rear" value={brakeLR} onChange={setBrakeLR} placeholder="mm" />
-              <MobileField label="Right Rear" value={brakeRR} onChange={setBrakeRR} placeholder="mm" />
-            </div>
+          <CardContent className="px-4 pb-4 space-y-4">
+            <BrakePadPicker label="Left Front" value={brakeLF} onChange={setBrakeLF} />
+            <BrakePadPicker label="Right Front" value={brakeRF} onChange={setBrakeRF} />
+            <BrakePadPicker label="Left Rear" value={brakeLR} onChange={setBrakeLR} />
+            <BrakePadPicker label="Right Rear" value={brakeRR} onChange={setBrakeRR} />
           </CardContent>
         </Card>
 

@@ -11,6 +11,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import TreadDepthPicker from "@/components/inspection/TreadDepthPicker";
+import BrakePadPicker from "@/components/inspection/BrakePadPicker";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -434,7 +435,7 @@ const InspectionSheet = () => {
 
   // Tire & brake
   const [tireDepth, setTireDepth] = useState<{ lf: number | null; rf: number | null; lr: number | null; rr: number | null }>({ lf: null, rf: null, lr: null, rr: null });
-  const [brakeDepth, setBrakeDepth] = useState({ lf: "", rf: "", lr: "", rr: "" });
+  const [brakeDepth, setBrakeDepth] = useState<{ lf: number | null; rf: number | null; lr: number | null; rr: number | null }>({ lf: null, rf: null, lr: null, rr: null });
 
   // Mechanical fields
   const [inspectorNotes, setInspectorNotes] = useState("");
@@ -558,7 +559,7 @@ const InspectionSheet = () => {
       `[INSPECTION ${new Date().toLocaleString()}]`,
       ...(inspConfig.section_tires ? [
         `Tires (tread /32): LF:${tireDepth.lf ?? "—"} RF:${tireDepth.rf ?? "—"} LR:${tireDepth.lr ?? "—"} RR:${tireDepth.rr ?? "—"}`,
-        `Brakes (mm): LF:${brakeDepth.lf} RF:${brakeDepth.rf} LR:${brakeDepth.lr} RR:${brakeDepth.rr}`,
+        `Brakes (mm): LF:${brakeDepth.lf ?? "—"} RF:${brakeDepth.rf ?? "—"} LR:${brakeDepth.lr ?? "—"} RR:${brakeDepth.rr ?? "—"}`,
       ] : []),
       ...(inspConfig.section_measurements ? [
         paintReading && `Paint: ${paintReading}`,
@@ -629,7 +630,7 @@ const InspectionSheet = () => {
           <thead><tr style="background:#f1f5f9;"><th style="padding:6px;font-size:11px;border-bottom:1px solid #e2e8f0;"></th><th style="padding:6px;font-size:11px;border-bottom:1px solid #e2e8f0;">LF</th><th style="padding:6px;font-size:11px;border-bottom:1px solid #e2e8f0;">RF</th><th style="padding:6px;font-size:11px;border-bottom:1px solid #e2e8f0;">LR</th><th style="padding:6px;font-size:11px;border-bottom:1px solid #e2e8f0;">RR</th></tr></thead>
           <tbody>
             <tr><td style="padding:6px;font-size:12px;font-weight:600;border-bottom:1px solid #e2e8f0;">Tread (/32)</td><td style="padding:6px;text-align:center;border-bottom:1px solid #e2e8f0;">${tireDepth.lf ?? "—"}</td><td style="padding:6px;text-align:center;border-bottom:1px solid #e2e8f0;">${tireDepth.rf ?? "—"}</td><td style="padding:6px;text-align:center;border-bottom:1px solid #e2e8f0;">${tireDepth.lr ?? "—"}</td><td style="padding:6px;text-align:center;border-bottom:1px solid #e2e8f0;">${tireDepth.rr ?? "—"}</td></tr>
-            <tr><td style="padding:6px;font-size:12px;font-weight:600;">Brake (mm)</td><td style="padding:6px;text-align:center;">${brakeDepth.lf || "—"}</td><td style="padding:6px;text-align:center;">${brakeDepth.rf || "—"}</td><td style="padding:6px;text-align:center;">${brakeDepth.lr || "—"}</td><td style="padding:6px;text-align:center;">${brakeDepth.rr || "—"}</td></tr>
+            <tr><td style="padding:6px;font-size:12px;font-weight:600;">Brake (mm)</td><td style="padding:6px;text-align:center;">${brakeDepth.lf ?? "—"}</td><td style="padding:6px;text-align:center;">${brakeDepth.rf ?? "—"}</td><td style="padding:6px;text-align:center;">${brakeDepth.lr ?? "—"}</td><td style="padding:6px;text-align:center;">${brakeDepth.rr ?? "—"}</td></tr>
           </tbody>
         </table>
       </div>`;
@@ -966,11 +967,11 @@ const InspectionSheet = () => {
                             </div>
                           )}
                           {inspConfig.show_brake_pad_measurements && (
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                              <TireBrakeInput label="LF Brake" value={brakeDepth.lf} onChange={v => setBrakeDepth(p => ({ ...p, lf: v }))} placeholder="mm" accent />
-                              <TireBrakeInput label="RF Brake" value={brakeDepth.rf} onChange={v => setBrakeDepth(p => ({ ...p, rf: v }))} placeholder="mm" accent />
-                              <TireBrakeInput label="LR Brake" value={brakeDepth.lr} onChange={v => setBrakeDepth(p => ({ ...p, lr: v }))} placeholder="mm" accent />
-                              <TireBrakeInput label="RR Brake" value={brakeDepth.rr} onChange={v => setBrakeDepth(p => ({ ...p, rr: v }))} placeholder="mm" accent />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                              <BrakePadPicker label="Left Front" value={brakeDepth.lf} onChange={v => setBrakeDepth(p => ({ ...p, lf: v }))} />
+                              <BrakePadPicker label="Right Front" value={brakeDepth.rf} onChange={v => setBrakeDepth(p => ({ ...p, rf: v }))} />
+                              <BrakePadPicker label="Left Rear" value={brakeDepth.lr} onChange={v => setBrakeDepth(p => ({ ...p, lr: v }))} />
+                              <BrakePadPicker label="Right Rear" value={brakeDepth.rr} onChange={v => setBrakeDepth(p => ({ ...p, rr: v }))} />
                             </div>
                           )}
                         </CardContent>
