@@ -721,9 +721,9 @@ const InspectionSheet = () => {
   );
 
   // Overall completion
-  const totalChecked = ALL_ITEMS.filter(i => !!allGrades[i]).length;
-  const totalIssues = ALL_ITEMS.filter(i => allGrades[i] === "poor" || allGrades[i] === "damaged").length;
-  const progressPct = ALL_ITEMS.length > 0 ? (totalChecked / ALL_ITEMS.length) * 100 : 0;
+  const totalChecked = ACTIVE_ALL_ITEMS.filter(i => !!allGrades[i]).length;
+  const totalIssues = ACTIVE_ALL_ITEMS.filter(i => allGrades[i] === "poor" || allGrades[i] === "damaged").length;
+  const progressPct = ACTIVE_ALL_ITEMS.length > 0 ? (totalChecked / ACTIVE_ALL_ITEMS.length) * 100 : 0;
 
   return (
     <div className="min-h-screen bg-background pb-24">
