@@ -332,21 +332,9 @@ const SubmissionDetailSheet = ({
                 {sub.vehicle_year} {sub.vehicle_make} {sub.vehicle_model || "Submission Details"}
               </SheetTitle>
               <div className="flex items-center gap-2">
-                {(() => {
-                  const ACCEPTED_STATUSES = ['contacted','inspection_scheduled','inspection_completed','appraisal_completed','manager_approval','price_agreed','title_verified','ownership_verified','purchase_complete'];
-                  const isAccepted = !!sub.offered_price || ACCEPTED_STATUSES.includes(sub.progress_status);
-                  const isInspected = ['inspection_completed','appraisal_completed','manager_approval','price_agreed','title_verified','ownership_verified','purchase_complete'].includes(sub.progress_status);
-                  const inspBtnClass = isInspected
-                    ? "bg-gradient-to-r from-emerald-500 to-green-500 text-white hover:from-emerald-600 hover:to-green-600 border-0 shadow-sm"
-                    : isAccepted
-                    ? "bg-gradient-to-r from-orange-400 to-amber-500 text-white hover:from-orange-500 hover:to-amber-600 border-0 shadow-sm"
-                    : "text-primary-foreground hover:bg-primary-foreground/20";
-                  return (
-                    <Button variant="ghost" size="sm" onClick={() => window.open(`${window.location.origin}/inspection/${sub.id}`, "_blank")} className={`print:hidden ${inspBtnClass}`}>
-                      <ClipboardList className="w-4 h-4 mr-1" /> Inspection
-                    </Button>
-                  );
-                })()}
+                <Button variant="ghost" size="sm" onClick={() => window.open(`${window.location.origin}/inspection/${sub.id}`, "_blank")} className="text-primary-foreground hover:bg-primary-foreground/20 print:hidden">
+                  <ClipboardList className="w-4 h-4 mr-1" /> Inspection
+                </Button>
                 <Button variant="ghost" size="sm" onClick={handlePrint} className="text-primary-foreground hover:bg-primary-foreground/20 print:hidden">
                   <Printer className="w-4 h-4 mr-1" /> Print
                 </Button>
