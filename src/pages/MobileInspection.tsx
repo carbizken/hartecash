@@ -93,10 +93,11 @@ const MobileInspection = () => {
       inspectorNotes && `Notes: ${inspectorNotes}`,
     ].filter(Boolean).join("\n");
 
-    const { error } = await supabase.from("submissions").update({
-      internal_notes: notes,
-      overall_condition: overallGrade || undefined,
-    }).eq("id", id!);
+    const { error } = await supabase.rpc("save_mobile_inspection", {
+      _submission_id: id!,
+      _internal_notes: notes,
+      _overall_condition: overallGrade || null,
+    });
 
     setSaving(false);
     if (error) {
