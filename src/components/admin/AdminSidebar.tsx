@@ -88,11 +88,10 @@ const AdminSidebar = ({
       ].filter((item) => isAllowed(item.key))
     : [];
 
-  // ── Compliance (audit trails) ──
+  // ── Compliance (merged into single tabbed page) ──
   const complianceItems = [
-    { key: "consent", label: "Consent Log", icon: ShieldCheck },
-    { key: "comm-log", label: "Communication Log", icon: MessageCircle },
-  ].filter((item) => isAllowed(item.key));
+    { key: "compliance", label: "Compliance", icon: ShieldCheck },
+  ].filter((item) => isAllowed(item.key) || isAllowed("consent") || isAllowed("comm-log"));
 
   // ── Tools (utilities) ──
   const toolsItems = [
