@@ -74,6 +74,9 @@ const arrVal = (a: string[] | null) =>
 const makeDocSection = (title: string, images: string[]) =>
   images.length > 0 ? `<div class="doc-section"><h2>${title}</h2>${images.map(url => `<img class="doc-img" src="${url}" />`).join("")}</div>` : "";
 
+const makeTextDocSection = (title: string, text: string) =>
+  text ? `<div class="doc-section"><h2>${title}</h2><pre style="white-space:pre-wrap;font-family:Inter,-apple-system,sans-serif;font-size:13px;color:#1a2a3a;background:#f8fafc;border:1px solid #e2e6ea;border-radius:8px;padding:16px;line-height:1.6;">${text}</pre></div>` : "";
+
 const waitAndPrint = (win: Window, html: string) => {
   win.document.write(html);
   win.document.close();
@@ -250,6 +253,7 @@ export function printCheckRequest(
   s: PrintSubmission,
   logoBase64: string,
   docSections: { title: string; images: string[] }[],
+  textSections?: { title: string; text: string }[],
 ) {
   const vehicleStr = [s.vehicle_year, s.vehicle_make, s.vehicle_model].filter(Boolean).join(" ") || "N/A";
   const today = new Date().toLocaleDateString();
@@ -302,6 +306,7 @@ export function printCheckRequest(
       </div>
     </div>
     ${docSections.map(s => makeDocSection(s.title, s.images)).join("")}
+    ${textSections ? textSections.map(s => makeTextDocSection(s.title, s.text)).join("") : ""}
   </body></html>`;
 
   const printWindow = window.open("", "_blank", "width=800,height=600");
