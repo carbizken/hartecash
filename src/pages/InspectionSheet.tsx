@@ -11,6 +11,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import TreadDepthPicker from "@/components/inspection/TreadDepthPicker";
+import BrakePadPicker from "@/components/inspection/BrakePadPicker";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
