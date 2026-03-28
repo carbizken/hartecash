@@ -359,7 +359,7 @@ const InspectionSheet = () => {
   // Overall completion stats
   const allItems = [...EXTERIOR_ITEMS, ...INTERIOR_ITEMS, ...MECHANICAL_ITEMS, ...ELECTRICAL_ITEMS, ...GLASS_LIGHTS_ITEMS];
   const allGrades = { ...exteriorGrades, ...interiorGrades, ...mechanicalGrades, ...electricalGrades, ...glassGrades };
-  const totalChecked = allItems.filter(i => allGrades[i] && allGrades[i] !== "").length;
+  const totalChecked = allItems.filter(i => !!allGrades[i]).length;
   const totalIssues = allItems.filter(i => allGrades[i] === "poor" || allGrades[i] === "damaged").length;
 
   return (
