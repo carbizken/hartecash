@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Printer, Camera, AlertTriangle, CheckCircle, Car, Gauge, Wrench, Droplets, Save } from "lucide-react";
+import { ArrowLeft, Printer, Camera, AlertTriangle, CheckCircle, Car, Gauge, Wrench, Droplets, Save, Smartphone } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -118,9 +119,16 @@ const InspectionSheet = () => {
             <p className="text-sm text-muted-foreground">{vehicleTitle}</p>
           </div>
         </div>
-        <Button onClick={handlePrint} className="gap-2">
-          <Printer className="h-4 w-4" /> Print
-        </Button>
+        <div className="flex items-center gap-2">
+          <Link to={`/inspect/${id}`}>
+            <Button variant="outline" className="gap-2">
+              <Smartphone className="h-4 w-4" /> Mobile View
+            </Button>
+          </Link>
+          <Button onClick={handlePrint} className="gap-2">
+            <Printer className="h-4 w-4" /> Print
+          </Button>
+        </div>
       </div>
 
       <div ref={printRef} className="max-w-4xl mx-auto p-6 print:p-4 print:max-w-none space-y-6">
@@ -131,9 +139,19 @@ const InspectionSheet = () => {
               <h1 className="text-2xl font-black tracking-tight">{config?.dealership_name || "Dealership"}</h1>
               <p className="text-sm text-muted-foreground">Vehicle Inspection Report</p>
             </div>
-            <div className="text-right text-sm">
-              <p className="font-semibold">Date: {new Date().toLocaleDateString()}</p>
-              <p>Inspector: ____________________</p>
+            <div className="flex items-start gap-4">
+              <div className="text-right text-sm">
+                <p className="font-semibold">Date: {new Date().toLocaleDateString()}</p>
+                <p>Inspector: ____________________</p>
+                <p className="text-[10px] text-muted-foreground mt-1">Scan to fill digitally →</p>
+              </div>
+              <div className="border border-foreground/20 rounded p-1">
+                <QRCodeSVG
+                  value={`${window.location.origin}/inspect/${id}`}
+                  size={64}
+                  level="M"
+                />
+              </div>
             </div>
           </div>
         </div>
