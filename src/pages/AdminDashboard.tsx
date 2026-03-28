@@ -290,17 +290,73 @@ const AdminDashboard = () => {
             )}
 
             {activeSection === "staff" && (
-              <StaffManagement
-                pendingRequests={pendingRequests}
-                canManageAccess={canManageAccess}
-                approveRole={approveRole}
-                setApproveRole={setApproveRole}
-                onApprove={handleApprove}
-                onReject={handleReject}
-              />
+              <div className="space-y-6">
+                <StaffManagement />
+                {canManageAccess && (
+                  <>
+                    <div className="border-t border-border pt-6">
+                      <h2 className="text-lg font-semibold text-card-foreground mb-4">Permission Groups</h2>
+                      <PermissionManagement />
+                    </div>
+                    <div className="border-t border-border pt-6">
+                      <h2 className="text-lg font-semibold text-card-foreground mb-4">Access Requests</h2>
+                      {pendingRequests.length === 0 ? (
+                        <div className="text-center py-8 text-muted-foreground">No pending access requests.</div>
+                      ) : (
+                        <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+                          <table className="w-full text-sm">
+                            <thead><tr className="border-b border-border bg-muted/50">
+                              <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Email</th>
+                              <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Requested</th>
+                              <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Role</th>
+                              <th className="text-right px-4 py-3 font-semibold text-muted-foreground">Actions</th>
+                            </tr></thead>
+                            <tbody>
+                              {pendingRequests.map((req) => (
+                                <tr key={req.id} className="border-b border-border last:border-0 hover:bg-muted/30">
+                                  <td className="px-4 py-3 font-medium">{req.email}</td>
+                                  <td className="px-4 py-3 text-muted-foreground">{new Date(req.created_at).toLocaleDateString()}</td>
+                                  <td className="px-4 py-3">
+                                    <Select value={approveRole} onValueChange={setApproveRole}>
+                                      <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="sales_bdc">Sales / BDC</SelectItem>
+                                        <SelectItem value="used_car_manager">Used Car Manager</SelectItem>
+                                        <SelectItem value="gsm_gm">GSM / GM</SelectItem>
+                                        <SelectItem value="admin">Admin</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </td>
+                                  <td className="px-4 py-3 text-right">
+                                    <div className="flex justify-end gap-2">
+                                      <Button size="sm" onClick={() => handleApprove(req)} className="bg-success hover:bg-success/90 text-success-foreground"><UserCheck className="w-4 h-4 mr-1" /> Approve</Button>
+                                      <Button size="sm" variant="destructive" onClick={() => handleReject(req)}><UserX className="w-4 h-4 mr-1" /> Reject</Button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
             )}
 
-            {activeSection === "compliance" && <CompliancePage />}
+            {activeSection === "compliance" && (
+              <div className="space-y-6">
+                <h2 className="text-lg font-semibold text-card-foreground">Compliance</h2>
+                <div className="space-y-6">
+                  <ConsentLog />
+                  <div className="border-t border-border pt-6">
+                    <CommunicationLog />
+                  </div>
+                </div>
+              </div>
+            )}
+
             {activeSection === "executive" && <ExecutiveKPIHub />}
             {activeSection === "offer-settings" && (canManageAccess || userRole === "gsm_gm") && <OfferSettings userId={userId || undefined} userRole={userRole} />}
             {activeSection === "site-config" && canManageAccess && <SiteConfiguration />}
@@ -309,7 +365,14 @@ const AdminDashboard = () => {
             {activeSection === "testimonials" && canManageAccess && <TestimonialManagement />}
             {activeSection === "locations" && canManageAccess && <LocationManagement />}
             {activeSection === "image-inventory" && canManageAccess && <VehicleImageInventory />}
-            {activeSection === "system-settings" && canManageAccess && <SystemSettingsPage />}
+
+            {activeSection === "system-settings" && canManageAccess && (
+              <div className="space-y-6">
+                <h2 className="text-lg font-semibold text-card-foreground">System Settings</h2>
+                <ChangelogManagement />
+              </div>
+            )}
+
             {activeSection === "onboarding" && <DealerOnboarding isAdmin={canManageAccess} onNavigate={setActiveSection} />}
             {activeSection === "reports" && <ReportsExport />}
           </div>
