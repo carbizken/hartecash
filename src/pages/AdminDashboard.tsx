@@ -4,13 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatPhone } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { LogOut, Search, Trash2, Eye, ChevronLeft, ChevronRight, UserCheck, UserX, Users, Check, Circle, DollarSign, StickyNote, XCircle, Save, Printer, FileText, QrCode, ExternalLink, ClipboardCheck, Upload, CalendarDays, Plus, Phone, Mail, AlertTriangle, Clock, History, Moon, Sun, ShieldCheck, SlidersHorizontal, Settings, Bell, ListChecks, MessageSquareQuote, Star, BarChart3, Send, PanelLeftClose, PanelLeft, CalendarClock, CheckCircle, Car, Gauge, Palette, Wrench, Key, Wind, Cigarette, CircleDot, Settings2, TrendingUp, Sparkles, Info, Camera, UserPlus, PhoneCall, ClipboardList, Handshake, BadgeCheck, Trophy, MapPin, type LucideIcon } from "lucide-react";
-import { mapStatusToStepIndex } from "@/components/portal/ProgressSteps";
+import { LogOut, Search, Trash2, Eye, ChevronLeft, ChevronRight, UserCheck, UserX, Users, Check, Circle, DollarSign, StickyNote, XCircle, Save, Printer, FileText, QrCode, ExternalLink, ClipboardCheck, Upload, CalendarDays, Plus, Phone, Mail, AlertTriangle, Clock, History, Moon, Sun, ShieldCheck, SlidersHorizontal, Settings, Bell, ListChecks, MessageSquareQuote, Star, BarChart3, Send, PanelLeftClose, PanelLeft, CalendarClock, CheckCircle, Car, Gauge, Palette, Wrench, Key, Wind, Cigarette, CircleDot, Settings2, TrendingUp, Sparkles, Info, Camera, UserPlus, PhoneCall, ClipboardList, Handshake, BadgeCheck, Trophy, MapPin, X, type LucideIcon } from "lucide-react";
+
 import { Checkbox } from "@/components/ui/checkbox";
 import { QRCodeSVG } from "qrcode.react";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 import { useToast } from "@/hooks/use-toast";
@@ -266,7 +268,7 @@ const AdminDashboard = () => {
     ? `${userName} — ${ROLE_LABELS[userRole] || userRole}`
     : ROLE_LABELS[userRole] || userRole;
 
-
+              
 
   useEffect(() => {
     checkAuth();
@@ -1916,28 +1918,45 @@ const AdminDashboard = () => {
       )}
 
       {/* Detail Modal */}
-      <Dialog open={!!selected} onOpenChange={() => { setSelected(null); setPhotos([]); setDocs([]); }}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 print:max-h-none print:overflow-visible">
-          <div className="sticky top-0 z-10 bg-primary text-primary-foreground px-6 py-4 rounded-t-lg print:static">
-            <DialogHeader>
+      <Sheet open={!!selected} onOpenChange={() => { setSelected(null); setPhotos([]); setDocs([]); }}>
+        <SheetContent side="right" className="w-full sm:max-w-3xl lg:max-w-4xl p-0 flex flex-col overflow-hidden [&>button]:hidden">
+          {/* Sticky Header */}
+          <div className="sticky top-0 z-10 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-6 py-4">
+            <SheetHeader>
               <div className="flex items-center justify-between">
-                <DialogTitle className="text-xl font-bold text-primary-foreground">
+                <SheetTitle className="text-xl font-bold text-primary-foreground font-display tracking-wide">
                   {selected?.vehicle_year} {selected?.vehicle_make} {selected?.vehicle_model || "Submission Details"}
-                </DialogTitle>
-                <Button variant="ghost" size="sm" onClick={handlePrint} className="text-primary-foreground hover:bg-primary-foreground/20 print:hidden">
-                  <Printer className="w-4 h-4 mr-1" /> Print
-                </Button>
+                </SheetTitle>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm" onClick={handlePrint} className="text-primary-foreground hover:bg-primary-foreground/20 print:hidden">
+                    <Printer className="w-4 h-4 mr-1" /> Print
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => { setSelected(null); setPhotos([]); setDocs([]); }} className="text-primary-foreground hover:bg-primary-foreground/20 h-8 w-8">
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
               {selected && (
-                <p className="text-primary-foreground/80 text-sm mt-1">
-                  Submitted {new Date(selected.created_at).toLocaleDateString()} • {selected.name || "Unknown"}
-                </p>
+                <div className="flex items-center gap-3 mt-1">
+                  <p className="text-primary-foreground/80 text-sm">
+                    Submitted {new Date(selected.created_at).toLocaleDateString()} • {selected.name || "Unknown"}
+                  </p>
+                  <Badge className={`text-[10px] ${
+                    selected.progress_status === "purchase_complete" ? "bg-success/20 text-success border-success/30" :
+                    selected.progress_status === "dead_lead" ? "bg-destructive/20 text-destructive-foreground border-destructive/30" :
+                    "bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30"
+                  }`}>
+                    {getStatusLabel(selected.progress_status)}
+                  </Badge>
+                </div>
               )}
-            </DialogHeader>
+            </SheetHeader>
           </div>
 
           {selected && (
-            <div className="px-6 pb-6 space-y-5 pt-4">
+            <ScrollArea className="flex-1">
+            <div className="p-6 space-y-5">
+              {/* Full-width alerts */}
               {/* Duplicate Warning */}
               {duplicateWarnings[selected.id] && duplicateWarnings[selected.id].length > 0 && (
                 <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3 flex items-start gap-2">
@@ -1974,9 +1993,15 @@ const AdminDashboard = () => {
                 </div>
               )}
 
+              {/* Two-Column Layout: Contact + Vehicle */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
               {/* Contact Card - Editable */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
-                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-1.5"><Users className="w-3.5 h-3.5" />Contact Information</h3>
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-4">
+                <div className="bg-gradient-to-r from-primary/10 to-primary/5 px-4 py-2.5 border-b border-border">
+                  <h3 className="text-xs font-bold text-foreground uppercase tracking-widest flex items-center gap-1.5"><Users className="w-3.5 h-3.5 text-primary" />Contact Information</h3>
+                </div>
+                <div className="p-4">
                 <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                   <div className="space-y-1">
                     <Label className="text-xs text-muted-foreground">Name</Label>
@@ -2048,13 +2073,14 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                 </div>
+                </div>
               </div>
 
               {/* Vehicle Card */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
-                    <Car className="w-3.5 h-3.5" />Vehicle Details
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-4">
+                <div className="bg-gradient-to-r from-primary/10 to-primary/5 px-4 py-2.5 border-b border-border flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-foreground uppercase tracking-widest flex items-center gap-1.5">
+                    <Car className="w-3.5 h-3.5 text-primary" />Vehicle Details
                   </h3>
                   <Button
                     variant="outline"
@@ -2065,6 +2091,7 @@ const AdminDashboard = () => {
                     <ClipboardList className="w-3.5 h-3.5" /> Inspection Sheet
                   </Button>
                 </div>
+                <div className="p-4">
                 {/* Vehicle Image */}
                 {selected.vehicle_year && selected.vehicle_make && selected.vehicle_model && (
                   <div className="mb-4 rounded-lg overflow-hidden bg-gradient-to-b from-muted/30 to-transparent" style={{ aspectRatio: "16/7" }}>
@@ -2086,10 +2113,15 @@ const AdminDashboard = () => {
                   <DetailRow label="Drivetrain" value={selected.drivetrain} icon={<Settings2 className="w-3.5 h-3.5" />} />
                   <DetailRow label="Modifications" value={selected.modifications} icon={<Settings2 className="w-3.5 h-3.5" />} />
                 </div>
+                </div>
               </div>
 
+              </div>{/* End 2-column grid */}
+
+              {/* Two-Column: Condition + Loan */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {/* Condition Card */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-4">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-1.5">
                   <Search className="w-3.5 h-3.5" />Condition & History
                 </h3>
@@ -2111,7 +2143,7 @@ const AdminDashboard = () => {
               </div>
 
               {/* Loan Info */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-4">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-1.5">
                   <DollarSign className="w-3.5 h-3.5" />Loan & Info
                 </h3>
@@ -2147,107 +2179,40 @@ const AdminDashboard = () => {
                   </div>
                 </div>
               </div>
+              </div>{/* End Condition + Loan grid */}
 
-              {/* Customer Deal Progress — mirrors the customer portal view */}
-              {selected.progress_status !== "new" && selected.progress_status !== "dead_lead" && (() => {
-                const STAGE_MAPPING: Record<string, string> = {
-                  title_verified: "inspection_completed",
-                  ownership_verified: "inspection_completed",
-                  appraisal_completed: "inspection_completed",
-                  manager_approval: "inspection_completed",
-                  dead_lead: "new",
-                };
-                let mappedStatus = STAGE_MAPPING[selected.progress_status] || selected.progress_status;
-                if (mappedStatus === "contacted" && selected.offered_price) mappedStatus = "offer_made";
-                const stepIdx = mapStatusToStepIndex(mappedStatus);
-                const isComplete = mappedStatus === "purchase_complete";
+              {/* Unified Acquisition Tracker */}
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-xs font-bold text-foreground uppercase tracking-widest">Acquisition Tracker</h3>
+                  {selected.progress_status !== "new" && selected.progress_status !== "dead_lead" && (
+                    <span className="text-[10px] text-muted-foreground italic">Customer view synced</span>
+                  )}
+                </div>
 
-                const CUSTOMER_STEPS = [
-                  { label: "Offer Accepted", icon: CheckCircle },
-                  { label: "Inspection Scheduled", icon: ClipboardList },
-                  { label: "Deal Finalized", icon: Handshake },
-                  { label: "Paperwork Complete", icon: BadgeCheck },
-                  { label: "Check Received", icon: Trophy },
-                ];
-
-                return (
-                  <div data-print-section className="bg-muted/40 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
-                        <Eye className="w-3.5 h-3.5" />
-                        Customer's Deal Progress
-                      </h3>
-                      <span className="text-[10px] text-muted-foreground">What the customer sees</span>
-                    </div>
-
-                    {/* Checklist status pills */}
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                        selected.appointment_set ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
-                      }`}>
-                        <CalendarDays className="w-3 h-3" />
-                        Inspection {selected.appointment_set ? "Scheduled" : "Not Set"}
-                      </div>
-                      <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                        selected.docs_uploaded ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
-                      }`}>
-                        <FileText className="w-3 h-3" />
-                        Docs {selected.docs_uploaded ? "Uploaded" : "Pending"}
-                      </div>
-                      <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                        selected.photos_uploaded ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
-                      }`}>
-                        <Camera className="w-3 h-3" />
-                        Photos {selected.photos_uploaded ? "Uploaded" : "Pending"}
-                      </div>
-                    </div>
-
-                    {/* 5-step progress bar */}
-                    <div className="flex items-start justify-between gap-0">
-                      {CUSTOMER_STEPS.map((step, i, arr) => {
-                        const done = isComplete || stepIdx > i;
-                        const active = stepIdx === i && !isComplete;
-                        const StepIcon = step.icon;
-                        const isPendingInspection = i === 1 && active && !selected.appointment_set;
-
-                        return (
-                          <div key={step.label} className="flex items-center flex-1 min-w-0">
-                            <div className="flex flex-col items-center w-full">
-                              <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
-                                done ? "bg-success text-white shadow-sm" :
-                                isPendingInspection ? "bg-yellow-500 text-white shadow-sm" :
-                                active ? "bg-accent text-accent-foreground shadow-md ring-2 ring-accent/30" :
-                                "bg-muted text-muted-foreground"
-                              }`}>
-                                {done ? <Check className="w-3.5 h-3.5" /> :
-                                 isPendingInspection ? <Clock className="w-3.5 h-3.5" /> :
-                                 <StepIcon className="w-3.5 h-3.5" />}
-                              </div>
-                              <span className={`text-[10px] mt-1.5 text-center leading-tight max-w-[70px] ${
-                                done ? "font-medium text-card-foreground" :
-                                isPendingInspection ? "font-bold text-yellow-600 dark:text-yellow-400" :
-                                active ? "font-bold text-card-foreground" :
-                                "text-muted-foreground/50"
-                              }`}>
-                                {step.label}
-                              </span>
-                            </div>
-                            {i < arr.length - 1 && (
-                              <div className={`h-[2px] flex-1 min-w-[8px] -mt-4 ${
-                                done ? "bg-success" : "bg-border"
-                              }`} />
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
+                {/* Checklist status pills */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                    selected.appointment_set ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
+                  }`}>
+                    <CalendarDays className="w-3 h-3" />
+                    Inspection {selected.appointment_set ? "Scheduled" : "Not Set"}
                   </div>
-                );
-              })()}
+                  <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                    selected.docs_uploaded ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
+                  }`}>
+                    <FileText className="w-3 h-3" />
+                    Docs {selected.docs_uploaded ? "Uploaded" : "Pending"}
+                  </div>
+                  <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                    selected.photos_uploaded ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"
+                  }`}>
+                    <Camera className="w-3 h-3" />
+                    Photos {selected.photos_uploaded ? "Uploaded" : "Pending"}
+                  </div>
+                </div>
 
-              {/* Acquisition Tracker — Horizontal Progress Bar */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
-                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Acquisition Tracker</h3>
+                {/* Horizontal Progress Bar */}
                 {selected.progress_status === "dead_lead" ? (
                   <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-destructive/15">
                     <XCircle className="w-5 h-5 text-destructive" />
@@ -2376,7 +2341,7 @@ const AdminDashboard = () => {
                   </TooltipProvider>
                 ) : null;
                 return canSetPrice ? (
-                  <div data-print-section className="bg-muted/40 rounded-lg p-4">
+                  <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-4">
                     <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                       <DollarSign className="w-4 h-4 inline mr-1" />Offered Price{priceSourceBadge}
                     </h3>
@@ -2391,7 +2356,7 @@ const AdminDashboard = () => {
                     />
                   </div>
                 ) : selected.offered_price ? (
-                  <div data-print-section className="bg-muted/40 rounded-lg p-4">
+                  <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-4">
                     <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                       <DollarSign className="w-4 h-4 inline mr-1" />Offered Price{priceSourceBadge}
                     </h3>
@@ -2406,7 +2371,7 @@ const AdminDashboard = () => {
                 const currentIdx = getStageIndex(selected.progress_status);
                 const isPriceAgreedOrBeyond = selected.progress_status !== "dead_lead" && currentIdx >= priceAgreedIdx && selected.offered_price;
                 return (
-                  <div data-print-section className="bg-muted/40 rounded-lg p-4">
+                  <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-4">
                     <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                       <ClipboardCheck className="w-4 h-4 inline mr-1" />Check Request
                     </h3>
@@ -2493,7 +2458,7 @@ const AdminDashboard = () => {
               )}
 
               {/* Assigned Store */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-4">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                   <MapPin className="w-4 h-4 inline mr-1" />Assigned Store
                 </h3>
@@ -2512,7 +2477,7 @@ const AdminDashboard = () => {
               </div>
 
               {/* Internal Notes */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-4">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                   <StickyNote className="w-4 h-4 inline mr-1" />Internal Notes
                 </h3>
@@ -2526,8 +2491,10 @@ const AdminDashboard = () => {
                 />
               </div>
 
+              {/* Two-Column: Photos + Documents */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {/* Photos */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-4">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                   Photos {photos.length > 0 && `(${photos.length})`}
                 </h3>
@@ -2557,7 +2524,7 @@ const AdminDashboard = () => {
               </div>
 
               {/* Uploaded Documents */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-4">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                   <FileText className="w-4 h-4 inline mr-1" />Documents {docs.length > 0 && `(${docs.length})`}
                 </h3>
@@ -2611,8 +2578,10 @@ const AdminDashboard = () => {
                 <StaffFileUpload token={selected.token} bucket="customer-documents" onUploadComplete={() => handleView(selected)} />
               </div>
 
+              </div>{/* End Photos + Docs grid */}
+
               {/* Schedule Appointment from Submission */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-4">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                   <CalendarDays className="w-4 h-4 inline mr-1" />Appointment
                 </h3>
@@ -2673,7 +2642,7 @@ const AdminDashboard = () => {
               </div>
 
               {/* Document Upload Link & QR */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4 print:break-before-page">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden print:break-before-page">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                   <FileText className="w-4 h-4 inline mr-1" />Customer Documents
                 </h3>
@@ -2719,7 +2688,7 @@ const AdminDashboard = () => {
               />
 
               {/* Activity Log */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden p-4">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                   <History className="w-4 h-4 inline mr-1" />Activity Log
                 </h3>
@@ -2856,9 +2825,10 @@ const AdminDashboard = () => {
                 )}
               </div>
             </div>
+            </ScrollArea>
           )}
-        </DialogContent>
-      </Dialog>
+        </SheetContent>
+      </Sheet>
 
       {/* Create Appointment Dialog */}
       <Dialog open={showCreateAppt} onOpenChange={setShowCreateAppt}>
