@@ -94,6 +94,13 @@ const InspectionConfiguration = () => {
   const [showOilLife, setShowOilLife] = useState(true);
   const [showBatteryHealth, setShowBatteryHealth] = useState(true);
 
+  // Tire credit/deduction policy
+  const [enableTireAdjustments, setEnableTireAdjustments] = useState(false);
+  const [tireCreditThreshold, setTireCreditThreshold] = useState(6);
+  const [tireDeductThreshold, setTireDeductThreshold] = useState(3);
+  const [tireCreditPer32, setTireCreditPer32] = useState(25);
+  const [tireDeductPer32, setTireDeductPer32] = useState(50);
+
   // Requirements
   const [requirePhotos, setRequirePhotos] = useState<Record<string, boolean>>({});
   const [requireNotes, setRequireNotes] = useState<Record<string, boolean>>({});
