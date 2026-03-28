@@ -379,6 +379,7 @@ const InspectionSheet = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const { config } = useSiteConfig();
+  const { config: inspConfig, loading: inspConfigLoading } = useInspectionConfig();
   const printRef = useRef<HTMLDivElement>(null);
 
   const [submission, setSubmission] = useState<any>(null);
@@ -387,6 +388,35 @@ const InspectionSheet = () => {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [showMobileQR, setShowMobileQR] = useState(false);
+
+  // Build config-aware section definitions
+  const sectionToggleMap: Record<string, boolean> = {
+    tires: inspConfig.section_tires,
+    measurements: inspConfig.section_measurements,
+    exterior: inspConfig.section_exterior,
+    interior: inspConfig.section_interior,
+    mechanical: inspConfig.section_mechanical,
+    electrical: inspConfig.section_electrical,
+    glass: inspConfig.section_glass,
+  };
+
+  // Reorder + filter sections based on config
+  const ACTIVE_SECTION_DEFS = inspConfig.section_order
+    .filter(key => sectionToggleMap[key] !== false)
+    .map(key => {
+      const def = SECTION_DEFS.find(s => s.key === key);
+      if (!def) return null;
+      // Filter out disabled fields and add custom items
+      const filteredItems = def.items.filter(item => !inspConfig.disabled_fields[item]);
+      const customForSection = inspConfig.custom_items
+        .filter(ci => ci.section === key)
+        .map(ci => ci.label);
+      return { ...def, items: [...filteredItems, ...customForSection] };
+    })
+    .filter(Boolean) as typeof SECTION_DEFS;
+
+  const ACTIVE_CHECKLIST_SECTIONS = ACTIVE_SECTION_DEFS.filter(s => s.items.length > 0);
+  const ACTIVE_ALL_ITEMS = ACTIVE_CHECKLIST_SECTIONS.flatMap(s => s.items);
 
   // #6 — Sticky tab active section
   const [activeTab, setActiveTab] = useState("tires");
