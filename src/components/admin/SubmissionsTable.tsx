@@ -289,7 +289,7 @@ const SubmissionsTable = ({
                               sub.progress_status === "purchase_complete" ? "border-success/50 text-success" :
                               sub.progress_status === "dead_lead" ? "border-destructive/50 text-destructive" :
                               sub.progress_status === "partial" ? "border-amber-500/50 text-amber-600" :
-                              sub.progress_status === "new" ? "border-muted text-muted-foreground" :
+                              sub.progress_status === "new" || sub.progress_status === "not_contacted" ? "border-muted text-muted-foreground" :
                               "border-accent/50 text-accent"
                             }`}>
                               <SelectValue />
