@@ -31,7 +31,19 @@ export const PROGRESS_STAGES_ACCEPTED: ProgressStage[] = [
   { key: "dead_lead", label: "Dead Deal", dbKeys: ["dead_lead"], icon: XCircle },
 ];
 
-export const ALL_STATUS_OPTIONS = [
+export const PROGRESS_STAGES = PROGRESS_STAGES_NOT_ACCEPTED;
+
+export const getProgressStages = (sub: { offered_price?: number | null; progress_status: string }) => {
+  const ACCEPTED_STATUSES = ['offer_accepted', 'inspection_scheduled', 'inspection_completed', 'deal_finalized', 'title_ownership_verified', 'check_request_submitted', 'purchase_complete'];
+  const isAccepted = !!sub.offered_price || ACCEPTED_STATUSES.includes(sub.progress_status);
+  return isAccepted ? PROGRESS_STAGES_ACCEPTED : PROGRESS_STAGES_NOT_ACCEPTED;
+};
+
+export const getStageIndex = (dbStatus: string): number => {
+  const idx = PROGRESS_STAGES.findIndex(s => s.dbKeys.includes(dbStatus));
+  return idx >= 0 ? idx : 0;
+};
+
   { key: "new", label: "New Lead" },
   { key: "offer_accepted", label: "Offer Accepted" },
   { key: "not_contacted", label: "Not Contacted" },
