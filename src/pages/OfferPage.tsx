@@ -1569,12 +1569,6 @@ const OfferPage = () => {
               <Printer className="w-4 h-4" />
               Print Offer
             </Button>
-            <Link to={`/inspection/${s.id}`} className="flex-1">
-              <Button variant="outline" className="w-full gap-2">
-                <Search className="w-4 h-4" />
-                Inspection Sheet
-              </Button>
-            </Link>
           </div>
           <div className="print:hidden">
             <Link to={`/my-submission/${token}`}>
