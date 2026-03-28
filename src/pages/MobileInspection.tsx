@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Save, CheckCircle, Gauge, Wrench, Car } from "lucide-react";
+import { Save, CheckCircle, Gauge, Wrench, Car, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 interface DamageItem {
   type: string;
@@ -22,13 +23,26 @@ const severityColor = (s: string) => {
   return "bg-green-100 text-green-800 border-green-300";
 };
 
+const MobileField = ({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder: string }) => (
+  <div>
+    <label className="text-xs font-semibold text-muted-foreground mb-1 block">{label}</label>
+    <Input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className="text-sm h-10" inputMode="text" />
+  </div>
+);
+
 const MobileInspection = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
 
+  // PIN gate state
+  const [pinVerified, setPinVerified] = useState(false);
+  const [pinInput, setPinInput] = useState("");
+  const [pinError, setPinError] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+
   const [submission, setSubmission] = useState<any>(null);
   const [damageItems, setDamageItems] = useState<DamageItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Editable fields
@@ -50,8 +64,34 @@ const MobileInspection = () => {
   const [overallGrade, setOverallGrade] = useState("");
   const [inspectorNotes, setInspectorNotes] = useState("");
 
+  // Verify PIN
+  const handleVerifyPin = async () => {
+    if (!id || pinInput.length !== 4) return;
+    setVerifying(true);
+    setPinError(false);
+    const { data } = await supabase.rpc("verify_inspection_pin", {
+      _submission_id: id,
+      _pin: pinInput,
+    });
+    setVerifying(false);
+    if (data === true) {
+      setPinVerified(true);
+    } else {
+      setPinError(true);
+      setPinInput("");
+    }
+  };
+
+  // Auto-submit when 4 digits entered
   useEffect(() => {
-    if (!id) return;
+    if (pinInput.length === 4 && !pinVerified) {
+      handleVerifyPin();
+    }
+  }, [pinInput]);
+
+  // Load data after PIN verified
+  useEffect(() => {
+    if (!id || !pinVerified) return;
     const fetchData = async () => {
       setLoading(true);
       const [subRes, dmgRes] = await Promise.all([
@@ -73,11 +113,10 @@ const MobileInspection = () => {
       setLoading(false);
     };
     fetchData();
-  }, [id]);
+  }, [id, pinVerified]);
 
   const handleSave = async () => {
     setSaving(true);
-    // For now we save inspector notes to the submission's internal_notes
     const notes = [
       `[INSPECTION ${new Date().toLocaleString()}]`,
       `Tires (tread /32): LF:${tireLF} RF:${tireRF} LR:${tireLR} RR:${tireRR}`,
@@ -106,6 +145,39 @@ const MobileInspection = () => {
       toast({ title: "Inspection saved", description: "Data synced to the submission record." });
     }
   };
+
+  // PIN entry screen
+  if (!pinVerified) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="w-full max-w-xs text-center space-y-6">
+          <div className="mx-auto w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <Lock className="h-8 w-8 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-card-foreground">Inspection Access</h1>
+            <p className="text-sm text-muted-foreground mt-1">Enter the 4-digit PIN shown on the inspection sheet</p>
+          </div>
+          <div className="flex justify-center">
+            <InputOTP maxLength={4} value={pinInput} onChange={setPinInput}>
+              <InputOTPGroup>
+                <InputOTPSlot index={0} />
+                <InputOTPSlot index={1} />
+                <InputOTPSlot index={2} />
+                <InputOTPSlot index={3} />
+              </InputOTPGroup>
+            </InputOTP>
+          </div>
+          {pinError && (
+            <p className="text-sm text-destructive font-medium">Incorrect PIN. Please try again.</p>
+          )}
+          {verifying && (
+            <p className="text-sm text-muted-foreground animate-pulse">Verifying...</p>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -280,12 +352,5 @@ const MobileInspection = () => {
     </div>
   );
 };
-
-const MobileField = ({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder: string }) => (
-  <div>
-    <label className="text-xs font-semibold text-muted-foreground mb-1 block">{label}</label>
-    <Input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} className="text-sm h-10" inputMode="text" />
-  </div>
-);
 
 export default MobileInspection;

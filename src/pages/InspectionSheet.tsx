@@ -725,6 +725,12 @@ const InspectionSheet = () => {
                   <div className="bg-white p-3 rounded-lg inline-block border shadow-sm mb-3">
                     <QRCodeSVG value={`${window.location.origin}/inspect/${id}`} size={160} level="H" />
                   </div>
+                  {submission?.inspection_pin && (
+                    <div className="bg-muted rounded-lg p-2 mb-2">
+                      <p className="text-[10px] text-muted-foreground mb-0.5">Access PIN</p>
+                      <p className="text-2xl font-mono font-black tracking-[0.3em] text-card-foreground">{submission.inspection_pin}</p>
+                    </div>
+                  )}
                   <p className="text-[10px] text-muted-foreground">Point your phone camera at the code</p>
                   <button onClick={() => setShowMobileQR(false)} className="mt-3 text-xs text-muted-foreground hover:text-foreground underline">Close</button>
                 </div>
