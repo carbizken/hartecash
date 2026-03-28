@@ -2119,7 +2119,7 @@ const AdminDashboard = () => {
               </div>{/* End 2-column grid */}
 
               {/* Condition Card */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-1.5">
                   <Search className="w-3.5 h-3.5" />Condition & History
                 </h3>
@@ -2141,7 +2141,7 @@ const AdminDashboard = () => {
               </div>
 
               {/* Loan Info */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3 flex items-center gap-1.5">
                   <DollarSign className="w-3.5 h-3.5" />Loan & Info
                 </h3>
@@ -2201,7 +2201,7 @@ const AdminDashboard = () => {
                 ];
 
                 return (
-                  <div data-print-section className="bg-muted/40 rounded-lg p-4">
+                  <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
                         <Eye className="w-3.5 h-3.5" />
@@ -2276,7 +2276,7 @@ const AdminDashboard = () => {
               })()}
 
               {/* Acquisition Tracker — Horizontal Progress Bar */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-4">Acquisition Tracker</h3>
                 {selected.progress_status === "dead_lead" ? (
                   <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-destructive/15">
@@ -2406,7 +2406,7 @@ const AdminDashboard = () => {
                   </TooltipProvider>
                 ) : null;
                 return canSetPrice ? (
-                  <div data-print-section className="bg-muted/40 rounded-lg p-4">
+                  <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                     <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                       <DollarSign className="w-4 h-4 inline mr-1" />Offered Price{priceSourceBadge}
                     </h3>
@@ -2421,7 +2421,7 @@ const AdminDashboard = () => {
                     />
                   </div>
                 ) : selected.offered_price ? (
-                  <div data-print-section className="bg-muted/40 rounded-lg p-4">
+                  <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                     <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                       <DollarSign className="w-4 h-4 inline mr-1" />Offered Price{priceSourceBadge}
                     </h3>
@@ -2436,7 +2436,7 @@ const AdminDashboard = () => {
                 const currentIdx = getStageIndex(selected.progress_status);
                 const isPriceAgreedOrBeyond = selected.progress_status !== "dead_lead" && currentIdx >= priceAgreedIdx && selected.offered_price;
                 return (
-                  <div data-print-section className="bg-muted/40 rounded-lg p-4">
+                  <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                     <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                       <ClipboardCheck className="w-4 h-4 inline mr-1" />Check Request
                     </h3>
@@ -2523,7 +2523,7 @@ const AdminDashboard = () => {
               )}
 
               {/* Assigned Store */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                   <MapPin className="w-4 h-4 inline mr-1" />Assigned Store
                 </h3>
@@ -2542,7 +2542,7 @@ const AdminDashboard = () => {
               </div>
 
               {/* Internal Notes */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                   <StickyNote className="w-4 h-4 inline mr-1" />Internal Notes
                 </h3>
@@ -2557,7 +2557,7 @@ const AdminDashboard = () => {
               </div>
 
               {/* Photos */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                   Photos {photos.length > 0 && `(${photos.length})`}
                 </h3>
@@ -2587,7 +2587,7 @@ const AdminDashboard = () => {
               </div>
 
               {/* Uploaded Documents */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                   <FileText className="w-4 h-4 inline mr-1" />Documents {docs.length > 0 && `(${docs.length})`}
                 </h3>
@@ -2642,7 +2642,7 @@ const AdminDashboard = () => {
               </div>
 
               {/* Schedule Appointment from Submission */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                   <CalendarDays className="w-4 h-4 inline mr-1" />Appointment
                 </h3>
@@ -2703,7 +2703,7 @@ const AdminDashboard = () => {
               </div>
 
               {/* Document Upload Link & QR */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4 print:break-before-page">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden print:break-before-page">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                   <FileText className="w-4 h-4 inline mr-1" />Customer Documents
                 </h3>
@@ -2749,7 +2749,7 @@ const AdminDashboard = () => {
               />
 
               {/* Activity Log */}
-              <div data-print-section className="bg-muted/40 rounded-lg p-4">
+              <div data-print-section className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
                 <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">
                   <History className="w-4 h-4 inline mr-1" />Activity Log
                 </h3>
