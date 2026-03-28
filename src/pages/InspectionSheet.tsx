@@ -433,7 +433,7 @@ const InspectionSheet = () => {
   const vehicleCardRef = useRef<HTMLDivElement>(null);
 
   // Tire & brake
-  const [tireDepth, setTireDepth] = useState({ lf: "", rf: "", lr: "", rr: "" });
+  const [tireDepth, setTireDepth] = useState<{ lf: number | null; rf: number | null; lr: number | null; rr: number | null }>({ lf: null, rf: null, lr: null, rr: null });
   const [brakeDepth, setBrakeDepth] = useState({ lf: "", rf: "", lr: "", rr: "" });
 
   // Mechanical fields
