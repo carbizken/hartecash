@@ -6,21 +6,19 @@ interface TreadDepthPickerProps {
   onChange: (depth: number) => void;
 }
 
-const DEPTHS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+const DEPTHS = [2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 const getColor = (d: number) => {
   if (d >= 6) return "bg-green-500 border-green-600 text-white";
   if (d >= 4) return "bg-amber-400 border-amber-500 text-amber-950";
-  if (d >= 1) return "bg-red-500 border-red-600 text-white";
-  return "bg-red-700 border-red-800 text-white";
+  return "bg-red-500 border-red-600 text-white";
 };
 
 const getZoneLabel = (d: number) => {
   if (d >= 10) return "New";
   if (d >= 6) return "Good";
   if (d >= 4) return "Fair";
-  if (d >= 1) return "Low";
-  return "Bald";
+  return "Replace";
 };
 
 const TreadDepthPicker = ({ label, value, onChange }: TreadDepthPickerProps) => {
@@ -44,7 +42,7 @@ const TreadDepthPicker = ({ label, value, onChange }: TreadDepthPickerProps) => 
             type="button"
             onClick={() => onChange(d)}
             className={cn(
-              "flex-1 h-10 rounded-md text-xs font-bold border transition-all active:scale-95",
+              "flex-1 h-11 rounded-md text-sm font-bold border transition-all active:scale-95",
               value === d
                 ? cn(getColor(d), "ring-2 ring-offset-1 ring-primary shadow-md scale-105")
                 : "bg-muted/50 border-border text-muted-foreground hover:bg-muted"

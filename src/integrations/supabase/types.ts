@@ -498,6 +498,7 @@ export type Database = {
           show_oil_life: boolean
           show_paint_readings: boolean
           show_tire_tread_depth: boolean
+          tire_adjustment_mode: string
           tire_credit_per_32: number
           tire_credit_threshold: number
           tire_deduct_per_32: number
@@ -526,6 +527,7 @@ export type Database = {
           show_oil_life?: boolean
           show_paint_readings?: boolean
           show_tire_tread_depth?: boolean
+          tire_adjustment_mode?: string
           tire_credit_per_32?: number
           tire_credit_threshold?: number
           tire_deduct_per_32?: number
@@ -554,6 +556,7 @@ export type Database = {
           show_oil_life?: boolean
           show_paint_readings?: boolean
           show_tire_tread_depth?: boolean
+          tire_adjustment_mode?: string
           tire_credit_per_32?: number
           tire_credit_threshold?: number
           tire_deduct_per_32?: number
