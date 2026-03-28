@@ -958,11 +958,11 @@ const InspectionSheet = () => {
                       <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }} className="overflow-hidden">
                         <CardContent className="pt-2">
                           {inspConfig.show_tire_tread_depth && (
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                              <TireBrakeInput label="LF Tread" value={tireDepth.lf} onChange={v => setTireDepth(p => ({ ...p, lf: v }))} placeholder="/32" />
-                              <TireBrakeInput label="RF Tread" value={tireDepth.rf} onChange={v => setTireDepth(p => ({ ...p, rf: v }))} placeholder="/32" />
-                              <TireBrakeInput label="LR Tread" value={tireDepth.lr} onChange={v => setTireDepth(p => ({ ...p, lr: v }))} placeholder="/32" />
-                              <TireBrakeInput label="RR Tread" value={tireDepth.rr} onChange={v => setTireDepth(p => ({ ...p, rr: v }))} placeholder="/32" />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                              <TreadDepthPicker label="Left Front" value={tireDepth.lf} onChange={v => setTireDepth(p => ({ ...p, lf: v }))} />
+                              <TreadDepthPicker label="Right Front" value={tireDepth.rf} onChange={v => setTireDepth(p => ({ ...p, rf: v }))} />
+                              <TreadDepthPicker label="Left Rear" value={tireDepth.lr} onChange={v => setTireDepth(p => ({ ...p, lr: v }))} />
+                              <TreadDepthPicker label="Right Rear" value={tireDepth.rr} onChange={v => setTireDepth(p => ({ ...p, rr: v }))} />
                             </div>
                           )}
                           {inspConfig.show_brake_pad_measurements && (
@@ -971,14 +971,6 @@ const InspectionSheet = () => {
                               <TireBrakeInput label="RF Brake" value={brakeDepth.rf} onChange={v => setBrakeDepth(p => ({ ...p, rf: v }))} placeholder="mm" accent />
                               <TireBrakeInput label="LR Brake" value={brakeDepth.lr} onChange={v => setBrakeDepth(p => ({ ...p, lr: v }))} placeholder="mm" accent />
                               <TireBrakeInput label="RR Brake" value={brakeDepth.rr} onChange={v => setBrakeDepth(p => ({ ...p, rr: v }))} placeholder="mm" accent />
-                            </div>
-                          )}
-                          {inspConfig.show_tire_tread_depth && (
-                            <div className="grid grid-cols-4 gap-2 text-center text-xs">
-                              <TreadGuide label="New" range="10-11/32" color="bg-emerald-500" />
-                              <TreadGuide label="Good" range="6-9/32" color="bg-emerald-400" />
-                              <TreadGuide label="Fair" range="4-5/32" color="bg-amber-400" />
-                              <TreadGuide label="Replace" range="≤3/32" color="bg-red-500" />
                             </div>
                           )}
                         </CardContent>
