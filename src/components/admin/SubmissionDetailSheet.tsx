@@ -568,9 +568,9 @@ const SubmissionDetailSheet = ({
                 <label className="text-xs font-medium text-muted-foreground mb-1 block">Update Status</label>
                 <Select
                   value={sub.progress_status}
-                  disabled={!canUpdateStatus || (["manager_approval", "price_agreed", "purchase_complete"].includes(sub.progress_status) && !canApprove)}
+                  disabled={!canUpdateStatus || (["deal_finalized", "check_request_submitted", "purchase_complete"].includes(sub.progress_status) && !canApprove)}
                   onValueChange={(val) => {
-                    if (["manager_approval", "price_agreed", "purchase_complete"].includes(val) && !canApprove) {
+                    if (["deal_finalized", "check_request_submitted", "purchase_complete"].includes(val) && !canApprove) {
                       toast({ title: "Not authorized", description: "Only GSM/GM can approve.", variant: "destructive" });
                       return;
                     }
