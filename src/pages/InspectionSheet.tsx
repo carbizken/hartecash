@@ -555,12 +555,16 @@ const InspectionSheet = () => {
 
     const sections = [
       `[INSPECTION ${new Date().toLocaleString()}]`,
-      `Tires (tread /32): LF:${tireDepth.lf} RF:${tireDepth.rf} LR:${tireDepth.lr} RR:${tireDepth.rr}`,
-      `Brakes (mm): LF:${brakeDepth.lf} RF:${brakeDepth.rf} LR:${brakeDepth.lr} RR:${brakeDepth.rr}`,
-      paintReading && `Paint: ${paintReading}`,
-      oilLife && `Oil: ${oilLife}`,
-      batteryHealth && `Battery: ${batteryHealth}`,
-      ...ALL_CHECKLIST_SECTIONS.map(s => gatherSection(s.label.toUpperCase(), s.items)),
+      ...(inspConfig.section_tires ? [
+        `Tires (tread /32): LF:${tireDepth.lf} RF:${tireDepth.rf} LR:${tireDepth.lr} RR:${tireDepth.rr}`,
+        `Brakes (mm): LF:${brakeDepth.lf} RF:${brakeDepth.rf} LR:${brakeDepth.lr} RR:${brakeDepth.rr}`,
+      ] : []),
+      ...(inspConfig.section_measurements ? [
+        paintReading && `Paint: ${paintReading}`,
+        oilLife && `Oil: ${oilLife}`,
+        batteryHealth && `Battery: ${batteryHealth}`,
+      ].filter(Boolean) : []),
+      ...ACTIVE_CHECKLIST_SECTIONS.map(s => gatherSection(s.label.toUpperCase(), s.items)),
       overallGrade && `Grade: ${overallGrade}`,
       inspectorNotes && `Notes: ${inspectorNotes}`,
     ].filter(Boolean).join("\n\n");
