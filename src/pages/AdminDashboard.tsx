@@ -364,6 +364,7 @@ const AdminDashboard = () => {
             {activeSection === "site-config" && canManageAccess && <SiteConfiguration />}
             {activeSection === "notifications" && canManageAccess && <NotificationSettings />}
             {activeSection === "form-config" && canManageAccess && <FormConfiguration />}
+            {activeSection === "inspection-config" && canManageAccess && <InspectionConfiguration />}
             {activeSection === "testimonials" && canManageAccess && <TestimonialManagement />}
             {activeSection === "locations" && canManageAccess && <LocationManagement />}
             {activeSection === "image-inventory" && canManageAccess && <VehicleImageInventory />}
