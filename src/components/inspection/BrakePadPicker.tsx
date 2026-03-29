@@ -7,14 +7,12 @@ interface BrakePadPickerProps {
 }
 
 const MIN = 1;
-const MAX = 12;
+const MAX = 9;
 const TICKS = Array.from({ length: MAX - MIN + 1 }, (_, i) => i + MIN);
 
 const getColor = (d: number) => {
-  if (d >= 8) return { fill: "#22c55e", text: "text-green-600", label: "New" };
-  if (d >= 6) return { fill: "#4ade80", text: "text-green-500", label: "Good" };
-  if (d >= 4) return { fill: "#facc15", text: "text-amber-500", label: "Fair" };
-  if (d >= 2) return { fill: "#f97316", text: "text-orange-500", label: "Low" };
+  if (d >= 6) return { fill: "#22c55e", text: "text-green-600", label: "Good" };
+  if (d >= 4) return { fill: "#f59e0b", text: "text-amber-500", label: "Fair" };
   return { fill: "#ef4444", text: "text-red-500", label: "Replace" };
 };
 
@@ -50,7 +48,7 @@ const BrakePadPicker = ({ label, value, onChange }: BrakePadPickerProps) => {
         <span className="text-xs font-semibold text-muted-foreground">{label}</span>
         {value !== null && info && (
           <span className={cn("text-xs font-bold", info.text)}>
-            {value}mm · {info.label}
+            {value}/32 · {info.label}
           </span>
         )}
       </div>
@@ -163,7 +161,7 @@ const BrakePadPicker = ({ label, value, onChange }: BrakePadPickerProps) => {
             fill="hsl(var(--muted-foreground))"
             fontSize="7"
           >
-            mm
+            /32"
           </text>
         </svg>
       </div>
