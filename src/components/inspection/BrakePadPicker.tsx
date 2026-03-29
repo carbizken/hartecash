@@ -7,14 +7,12 @@ interface BrakePadPickerProps {
 }
 
 const MIN = 1;
-const MAX = 12;
+const MAX = 9;
 const TICKS = Array.from({ length: MAX - MIN + 1 }, (_, i) => i + MIN);
 
 const getColor = (d: number) => {
-  if (d >= 8) return { fill: "#22c55e", text: "text-green-600", label: "New" };
-  if (d >= 6) return { fill: "#4ade80", text: "text-green-500", label: "Good" };
-  if (d >= 4) return { fill: "#facc15", text: "text-amber-500", label: "Fair" };
-  if (d >= 2) return { fill: "#f97316", text: "text-orange-500", label: "Low" };
+  if (d >= 6) return { fill: "#22c55e", text: "text-green-600", label: "Good" };
+  if (d >= 4) return { fill: "#f59e0b", text: "text-amber-500", label: "Fair" };
   return { fill: "#ef4444", text: "text-red-500", label: "Replace" };
 };
 
