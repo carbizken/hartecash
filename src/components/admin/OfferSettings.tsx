@@ -259,6 +259,7 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
         age_tiers: Array.isArray(d.age_tiers) ? d.age_tiers : [],
         mileage_tiers: Array.isArray(d.mileage_tiers) ? d.mileage_tiers : [],
         regional_adjustment_pct: d.regional_adjustment_pct ?? 0,
+        retail_search_radius: d.retail_search_radius ?? 100,
       } as OfferSettingsRow);
       setSavedSettings({
         ...d,
