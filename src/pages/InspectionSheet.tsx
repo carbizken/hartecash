@@ -740,104 +740,256 @@ const InspectionSheet = () => {
   const handlePrint = () => {
     const vTitle = `${submission.vehicle_year || ""} ${submission.vehicle_make || ""} ${submission.vehicle_model || ""}`.trim();
     const dealerName = config?.dealership_name || "Dealership";
+    const isStandard = inspectionMode === "ucm";
+    const formTitle = isStandard ? "Standard Vehicle Inspection" : "Full Technical Inspection";
 
-    const gradeHTML = (g: ConditionGrade) => {
-      const colors: Record<string, string> = { good: "#10b981", fair: "#f59e0b", poor: "#f97316", damaged: "#ef4444" };
-      const color = colors[g] || "#94a3b8";
-      const label = g ? g.charAt(0).toUpperCase() + g.slice(1) : "Not Checked";
-      return `<span style="display:inline-block;padding:1px 8px;border-radius:4px;font-size:11px;font-weight:600;color:${color};border:1.5px solid ${color}30;background:${color}15;">${label}</span>`;
-    };
+    // ── Shared Styles ──
+    const css = `
+      @page { size: letter; margin: 0.4in 0.5in; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; color: #1a1a1a; font-size: 11px; line-height: 1.4; }
+      .header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 3px solid #111; padding-bottom: 10px; margin-bottom: 14px; }
+      .header h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+      .header .subtitle { font-size: 12px; color: #555; font-weight: 500; margin-top: 2px; }
+      .header .right { text-align: right; font-size: 10px; color: #666; }
+      .header .right .date { font-weight: 700; font-size: 11px; color: #111; }
+      .vehicle-bar { display: flex; gap: 2px; margin-bottom: 14px; border: 1.5px solid #222; border-radius: 6px; overflow: hidden; }
+      .vehicle-bar .cell { flex: 1; padding: 6px 10px; border-right: 1px solid #ddd; }
+      .vehicle-bar .cell:last-child { border-right: none; }
+      .vehicle-bar .cell-label { font-size: 8px; text-transform: uppercase; letter-spacing: 0.8px; color: #888; font-weight: 600; }
+      .vehicle-bar .cell-value { font-size: 12px; font-weight: 700; margin-top: 1px; }
+      .vehicle-bar .cell-mono { font-family: 'SF Mono', 'Consolas', monospace; font-size: 10px; letter-spacing: 0.5px; }
+      .section { break-inside: avoid; margin-bottom: 12px; border: 1.5px solid #ccc; border-radius: 6px; overflow: hidden; }
+      .section-header { background: #f5f5f5; padding: 6px 10px; border-bottom: 2px solid #333; display: flex; justify-content: space-between; align-items: center; }
+      .section-header h2 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+      .section-header .badge { font-size: 9px; color: #666; font-weight: 500; }
+      .grid-2 { display: grid; grid-template-columns: 1fr 1fr; }
+      .grid-2 .item { border-bottom: 1px solid #e5e5e5; border-right: 1px solid #e5e5e5; }
+      .grid-2 .item:nth-child(2n) { border-right: none; }
+      .item { display: flex; align-items: flex-start; gap: 6px; padding: 5px 8px; }
+      .cb { width: 13px; height: 13px; border: 1.5px solid #555; border-radius: 2px; flex-shrink: 0; margin-top: 1px; }
+      .item-label { font-size: 10.5px; font-weight: 500; flex: 1; }
+      .item-grade { display: flex; gap: 3px; flex-shrink: 0; }
+      .item-grade .g { width: 14px; height: 14px; border: 1px solid #bbb; border-radius: 2px; text-align: center; font-size: 7px; line-height: 14px; font-weight: 600; color: #888; }
+      .note-line { border-bottom: 1px dotted #bbb; height: 16px; flex: 1; min-width: 60px; }
+      .tire-table { width: 100%; border-collapse: collapse; }
+      .tire-table th, .tire-table td { padding: 5px 8px; border-bottom: 1px solid #e5e5e5; text-align: center; font-size: 11px; }
+      .tire-table th { background: #fafafa; font-weight: 600; font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #666; }
+      .tire-table td.label-cell { text-align: left; font-weight: 600; }
+      .tire-table .write-box { width: 40px; height: 18px; border: 1px solid #bbb; border-radius: 2px; display: inline-block; }
+      .measure-row { display: flex; align-items: center; gap: 8px; padding: 5px 10px; border-bottom: 1px solid #e5e5e5; }
+      .measure-label { font-weight: 600; font-size: 10.5px; width: 100px; flex-shrink: 0; }
+      .measure-line { flex: 1; border-bottom: 1px solid #bbb; height: 16px; }
+      .notes-box { border: 1.5px solid #ccc; border-radius: 6px; overflow: hidden; break-inside: avoid; margin-bottom: 12px; }
+      .notes-header { background: #f5f5f5; padding: 6px 10px; border-bottom: 1.5px solid #aaa; font-weight: 700; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+      .notes-lines { padding: 8px 10px; }
+      .notes-lines .line { border-bottom: 1px dotted #ccc; height: 22px; }
+      .grade-box { display: inline-flex; gap: 10px; margin: 4px 0; }
+      .grade-option { display: flex; align-items: center; gap: 4px; font-size: 10px; }
+      .grade-option .radio { width: 12px; height: 12px; border: 1.5px solid #555; border-radius: 50%; }
+      .signatures { margin-top: 24px; padding-top: 14px; border-top: 2px solid #ddd; display: flex; justify-content: space-between; gap: 40px; }
+      .sig-block { flex: 1; }
+      .sig-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; font-weight: 600; margin-bottom: 4px; }
+      .sig-line { border-bottom: 1.5px solid #333; height: 28px; }
+      .sig-date { margin-top: 4px; font-size: 9px; color: #aaa; }
+      .test-drive-section .item { padding: 4px 8px; }
+      .footer { text-align: center; margin-top: 16px; font-size: 8px; color: #bbb; }
+    `;
 
-    const sectionRows = (items: string[]) =>
-      items.map(item => {
-        const g = allGrades[item] || "";
-        const n = allNotes[item] || "";
-        return `<tr><td style="padding:4px 8px;border-bottom:1px solid #e5e7eb;font-size:12px;">${item}</td><td style="padding:4px 8px;border-bottom:1px solid #e5e7eb;text-align:center;">${gradeHTML(g as ConditionGrade)}</td><td style="padding:4px 8px;border-bottom:1px solid #e5e7eb;font-size:11px;color:#6b7280;">${n}</td></tr>`;
-      }).join("");
+    // ── Grade Columns for Full Mode ──
+    const gradeColumns = `
+      <div class="item-grade">
+        <div class="g">G</div>
+        <div class="g">F</div>
+        <div class="g">P</div>
+        <div class="g">D</div>
+      </div>`;
 
-    const sectionBlock = (title: string, items: string[]) => {
+    // ── Build checklist item row ──
+    const checkItem = (label: string, withGrades: boolean, withNote: boolean = true) => `
+      <div class="item">
+        <div class="cb"></div>
+        <span class="item-label">${label}</span>
+        ${withNote ? '<div class="note-line"></div>' : ''}
+        ${withGrades ? gradeColumns : ''}
+      </div>`;
+
+    // ── Standard Mode: Test Drive + checklist categories ──
+    const standardTestDrive = `
+      <div class="section test-drive-section">
+        <div class="section-header" style="border-bottom-color:#0ea5e9;">
+          <h2>🚗 Test Drive</h2>
+          <span class="badge">Required</span>
+        </div>
+        <div class="grid-2">
+          ${["Test drive completed", "Transmission shifts correctly", "No unusual engine noise", "Brakes feel normal", "Steering straight / no pull", "Suspension smooth — no clunks", "No warning lights on dash", "A/C blows cold", "Heat works"].map(i => checkItem(i, false, false)).join("")}
+        </div>
+        <div style="padding:6px 10px;border-top:1px solid #e5e5e5;">
+          <span style="font-size:9px;font-weight:600;color:#888;text-transform:uppercase;">Test Drive Notes</span>
+          <div class="note-line" style="height:20px;margin-top:4px;"></div>
+        </div>
+      </div>`;
+
+    const standardSection = (title: string, items: string[], color: string) => `
+      <div class="section">
+        <div class="section-header" style="border-bottom-color:${color};">
+          <h2>${title}</h2>
+          <span class="badge">${items.length} items</span>
+        </div>
+        <div class="grid-2">
+          ${items.map(i => checkItem(i, false)).join("")}
+        </div>
+      </div>`;
+
+    // ── Full Mode: grade-based checklist ──
+    const fullSection = (title: string, items: string[], color: string) => {
       if (!items.length) return "";
-      const checked = items.filter(i => !!allGrades[i]).length;
-      const issues = items.filter(i => allGrades[i] === "poor" || allGrades[i] === "damaged").length;
       return `
-        <div style="break-inside:avoid;margin-bottom:16px;">
-          <div style="background:#f8fafc;padding:8px 12px;border-radius:6px 6px 0 0;border:1px solid #e2e8f0;border-bottom:2px solid #3b82f6;">
-            <strong style="font-size:13px;">${title}</strong>
-            <span style="float:right;font-size:11px;color:#64748b;">${checked}/${items.length} checked${issues > 0 ? ` · <span style="color:#ef4444">${issues} issue${issues > 1 ? "s" : ""}</span>` : ""}</span>
+        <div class="section">
+          <div class="section-header" style="border-bottom-color:${color};">
+            <h2>${title}</h2>
+            <span class="badge">G=Good · F=Fair · P=Poor · D=Damaged</span>
           </div>
-          <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-top:none;">
-            <thead><tr style="background:#f1f5f9;"><th style="padding:4px 8px;text-align:left;font-size:11px;font-weight:600;border-bottom:1px solid #e2e8f0;">Item</th><th style="padding:4px 8px;text-align:center;font-size:11px;font-weight:600;border-bottom:1px solid #e2e8f0;width:100px;">Grade</th><th style="padding:4px 8px;text-align:left;font-size:11px;font-weight:600;border-bottom:1px solid #e2e8f0;">Notes</th></tr></thead>
-            <tbody>${sectionRows(items)}</tbody>
-          </table>
+          <div class="grid-2">
+            ${items.map(i => checkItem(i, true)).join("")}
+          </div>
         </div>`;
     };
 
-    const tireBrakeHTML = `
-      <div style="break-inside:avoid;margin-bottom:16px;">
-        <div style="background:#f8fafc;padding:8px 12px;border-radius:6px 6px 0 0;border:1px solid #e2e8f0;border-bottom:2px solid #0ea5e9;">
-          <strong style="font-size:13px;">Tire Tread & Brake Pads</strong>
+    // ── Tire & Brake Table (shared) ──
+    const tireBrakeSection = `
+      <div class="section">
+        <div class="section-header" style="border-bottom-color:#0ea5e9;">
+          <h2>Tire Tread & Brake Pads</h2>
+          <span class="badge">Depth in /32"</span>
         </div>
-        <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-top:none;">
-          <thead><tr style="background:#f1f5f9;"><th style="padding:6px;font-size:11px;border-bottom:1px solid #e2e8f0;"></th><th style="padding:6px;font-size:11px;border-bottom:1px solid #e2e8f0;">LF</th><th style="padding:6px;font-size:11px;border-bottom:1px solid #e2e8f0;">RF</th><th style="padding:6px;font-size:11px;border-bottom:1px solid #e2e8f0;">LR</th><th style="padding:6px;font-size:11px;border-bottom:1px solid #e2e8f0;">RR</th></tr></thead>
+        <table class="tire-table">
+          <thead>
+            <tr><th></th><th>Left Front</th><th>Right Front</th><th>Left Rear</th><th>Right Rear</th><th>Avg</th></tr>
+          </thead>
           <tbody>
-            <tr><td style="padding:6px;font-size:12px;font-weight:600;border-bottom:1px solid #e2e8f0;">Tread (/32)</td><td style="padding:6px;text-align:center;border-bottom:1px solid #e2e8f0;">${tireDepth.lf ?? "—"}</td><td style="padding:6px;text-align:center;border-bottom:1px solid #e2e8f0;">${tireDepth.rf ?? "—"}</td><td style="padding:6px;text-align:center;border-bottom:1px solid #e2e8f0;">${tireDepth.lr ?? "—"}</td><td style="padding:6px;text-align:center;border-bottom:1px solid #e2e8f0;">${tireDepth.rr ?? "—"}</td></tr>
-            <tr><td style="padding:6px;font-size:12px;font-weight:600;">Brake (/32)</td><td style="padding:6px;text-align:center;">${brakeDepth.lf ?? "—"}</td><td style="padding:6px;text-align:center;">${brakeDepth.rf ?? "—"}</td><td style="padding:6px;text-align:center;">${brakeDepth.lr ?? "—"}</td><td style="padding:6px;text-align:center;">${brakeDepth.rr ?? "—"}</td></tr>
+            <tr>
+              <td class="label-cell">Tire Tread</td>
+              <td><div class="write-box"></div></td><td><div class="write-box"></div></td>
+              <td><div class="write-box"></div></td><td><div class="write-box"></div></td>
+              <td><div class="write-box"></div></td>
+            </tr>
+            <tr>
+              <td class="label-cell">Brake Pads</td>
+              <td><div class="write-box"></div></td><td><div class="write-box"></div></td>
+              <td><div class="write-box"></div></td><td><div class="write-box"></div></td>
+              <td><div class="write-box"></div></td>
+            </tr>
           </tbody>
         </table>
+        <div style="padding:4px 10px;font-size:9px;color:#888;background:#fafafa;border-top:1px solid #e5e5e5;">
+          Tire Brand: __________________ &nbsp;&nbsp; Tire Size: __________________ &nbsp;&nbsp; Match: ☐ Yes ☐ No &nbsp;&nbsp; Spare Present: ☐ Yes ☐ No
+        </div>
       </div>`;
 
-    const measurementsHTML = (paintReading || oilLife || batteryHealth) ? `
-      <div style="break-inside:avoid;margin-bottom:16px;">
-        <div style="background:#f8fafc;padding:8px 12px;border-radius:6px 6px 0 0;border:1px solid #e2e8f0;border-bottom:2px solid #8b5cf6;">
-          <strong style="font-size:13px;">Quick Measurements</strong>
+    // ── Measurements Section (Full only) ──
+    const measurementsSection = `
+      <div class="section">
+        <div class="section-header" style="border-bottom-color:#8b5cf6;">
+          <h2>Measurements & Readings</h2>
         </div>
-        <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-top:none;">
-          <tbody>
-            ${paintReading ? `<tr><td style="padding:6px 8px;font-size:12px;font-weight:600;border-bottom:1px solid #e2e8f0;width:140px;">Paint Meter</td><td style="padding:6px 8px;font-size:12px;border-bottom:1px solid #e2e8f0;">${paintReading}</td></tr>` : ""}
-            ${oilLife ? `<tr><td style="padding:6px 8px;font-size:12px;font-weight:600;border-bottom:1px solid #e2e8f0;">Oil Life</td><td style="padding:6px 8px;font-size:12px;border-bottom:1px solid #e2e8f0;">${oilLife}</td></tr>` : ""}
-            ${batteryHealth ? `<tr><td style="padding:6px 8px;font-size:12px;font-weight:600;">Battery Health</td><td style="padding:6px 8px;font-size:12px;">${batteryHealth}</td></tr>` : ""}
-          </tbody>
-        </table>
-      </div>` : "";
-
-    const notesHTML = inspectorNotes ? `<div style="break-inside:avoid;margin-bottom:16px;"><div style="background:#f8fafc;padding:8px 12px;border-radius:6px 6px 0 0;border:1px solid #e2e8f0;border-bottom:2px solid #64748b;"><strong style="font-size:13px;">Inspector Notes</strong></div><div style="border:1px solid #e2e8f0;border-top:none;padding:10px 12px;font-size:12px;white-space:pre-wrap;">${inspectorNotes}</div></div>` : "";
-
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Inspection — ${vTitle}</title>
-      <style>@media print{body{margin:0;padding:16px;}@page{size:letter;margin:0.5in;}}</style>
-    </head><body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1e293b;max-width:800px;margin:0 auto;padding:20px;">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1e293b;padding-bottom:12px;margin-bottom:16px;">
         <div>
-          <h1 style="margin:0;font-size:22px;letter-spacing:-0.5px;">${dealerName}</h1>
-          <p style="margin:2px 0 0;font-size:13px;color:#64748b;">Vehicle Inspection Report</p>
+          ${["Paint Meter (mil)", "Oil Life %", "Battery Voltage", "Coolant Level", "Transmission Fluid"].map(m => `
+            <div class="measure-row"><span class="measure-label">${m}</span><div class="measure-line"></div></div>
+          `).join("")}
         </div>
-        <div style="text-align:right;font-size:12px;">
-          <p style="margin:0;font-weight:600;">Date: ${new Date().toLocaleDateString()}</p>
-          <p style="margin:2px 0 0;color:#64748b;">Stock #: ${submission.id?.slice(0, 8).toUpperCase() || "—"}</p>
+      </div>`;
+
+    // ── Overall Grade Box ──
+    const overallGradeBox = `
+      <div class="section">
+        <div class="section-header" style="border-bottom-color:#10b981;">
+          <h2>Overall Vehicle Grade</h2>
+        </div>
+        <div style="padding:8px 10px;">
+          <div class="grade-box">
+            ${["Excellent", "Good", "Fair", "Rough", "Poor"].map(g => `
+              <div class="grade-option"><div class="radio"></div><span>${g}</span></div>
+            `).join("")}
+          </div>
+        </div>
+      </div>`;
+
+    // ── Notes Box ──
+    const notesBox = `
+      <div class="notes-box">
+        <div class="notes-header">${isStandard ? "Manager" : "Inspector"} Notes</div>
+        <div class="notes-lines">
+          ${Array(5).fill('<div class="line"></div>').join("")}
+        </div>
+      </div>`;
+
+    // ── Compose Body ──
+    let body = "";
+
+    body += tireBrakeSection;
+
+    if (isStandard) {
+      body += standardTestDrive;
+      body += standardSection("Exterior", UCM_ITEMS.exterior, "#0284c7");
+      body += standardSection("Interior", UCM_ITEMS.interior, "#d97706");
+      body += standardSection("Mechanical", UCM_ITEMS.mechanical, "#475569");
+      body += standardSection("Electrical", UCM_ITEMS.electrical, "#ca8a04");
+      body += standardSection("Glass & Lights", UCM_ITEMS.glass || [], "#0d9488");
+    } else {
+      body += measurementsSection;
+      ACTIVE_CHECKLIST_SECTIONS.forEach(s => {
+        const colors: Record<string, string> = {
+          exterior: "#0284c7", interior: "#d97706", mechanical: "#475569",
+          electrical: "#ca8a04", glass: "#0d9488",
+        };
+        body += fullSection(s.label, s.items, colors[s.key] || "#666");
+      });
+    }
+
+    body += overallGradeBox;
+    body += notesBox;
+
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+      <title>${formTitle} — ${vTitle}</title>
+      <style>${css}</style>
+    </head><body>
+      <div class="header">
+        <div>
+          <h1>${dealerName}</h1>
+          <div class="subtitle">${formTitle}</div>
+        </div>
+        <div class="right">
+          <div class="date">Date: _____ / _____ / _____</div>
+          <div style="margin-top:3px;">Stock #: ${submission.id?.slice(0, 8).toUpperCase() || "________"}</div>
+          <div style="margin-top:2px;">Inspector: ____________________</div>
         </div>
       </div>
 
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;margin-bottom:16px;display:flex;gap:32px;flex-wrap:wrap;">
-        <div><span style="font-size:10px;text-transform:uppercase;color:#94a3b8;letter-spacing:0.5px;">Vehicle</span><br><strong style="font-size:14px;">${vTitle}</strong></div>
-        <div><span style="font-size:10px;text-transform:uppercase;color:#94a3b8;letter-spacing:0.5px;">VIN</span><br><strong style="font-size:12px;font-family:monospace;">${submission.vin || "N/A"}</strong></div>
-        <div><span style="font-size:10px;text-transform:uppercase;color:#94a3b8;letter-spacing:0.5px;">Mileage</span><br><strong style="font-size:14px;">${submission.mileage ? Number(submission.mileage).toLocaleString() + " mi" : "N/A"}</strong></div>
-        <div><span style="font-size:10px;text-transform:uppercase;color:#94a3b8;letter-spacing:0.5px;">Color</span><br><strong style="font-size:14px;">${submission.exterior_color || "N/A"}</strong></div>
-        ${overallGrade ? `<div><span style="font-size:10px;text-transform:uppercase;color:#94a3b8;letter-spacing:0.5px;">Overall Grade</span><br><strong style="font-size:14px;text-transform:capitalize;">${overallGrade}</strong></div>` : ""}
+      <div class="vehicle-bar">
+        <div class="cell"><div class="cell-label">Vehicle</div><div class="cell-value">${vTitle || "_______________"}</div></div>
+        <div class="cell"><div class="cell-label">VIN</div><div class="cell-value cell-mono">${submission.vin || "_________________"}</div></div>
+        <div class="cell"><div class="cell-label">Mileage</div><div class="cell-value">${submission.mileage ? Number(submission.mileage).toLocaleString() + " mi" : "________"}</div></div>
+        <div class="cell"><div class="cell-label">Color</div><div class="cell-value">${submission.exterior_color || "________"}</div></div>
+        <div class="cell"><div class="cell-label">Plate / State</div><div class="cell-value">${submission.plate || "______"} / ${submission.state || "__"}</div></div>
       </div>
 
-      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-        <span style="font-size:11px;font-weight:600;color:#64748b;">Completion: ${totalChecked}/${ACTIVE_ALL_ITEMS.length} (${Math.round(progressPct)}%)</span>
-        ${totalIssues > 0 ? `<span style="font-size:11px;font-weight:600;color:#ef4444;">· ${totalIssues} issue${totalIssues > 1 ? "s" : ""} flagged</span>` : ""}
+      ${body}
+
+      <div class="signatures">
+        <div class="sig-block">
+          <div class="sig-label">${isStandard ? "Manager" : "Inspector"} Signature</div>
+          <div class="sig-line"></div>
+          <div class="sig-date">Date: _____ / _____ / _____</div>
+        </div>
+        <div class="sig-block">
+          <div class="sig-label">${isStandard ? "Sales Advisor" : "Manager"} Signature</div>
+          <div class="sig-line"></div>
+          <div class="sig-date">Date: _____ / _____ / _____</div>
+        </div>
       </div>
 
-      ${tireBrakeHTML}
-      ${measurementsHTML}
-      ${ACTIVE_CHECKLIST_SECTIONS.map(s => sectionBlock(s.label, s.items)).join("")}
-      ${notesHTML}
-
-      <div style="margin-top:32px;padding-top:16px;border-top:2px solid #e2e8f0;display:flex;justify-content:space-between;">
-        <div style="font-size:11px;color:#94a3b8;">Inspector Signature: ________________________________</div>
-        <div style="font-size:11px;color:#94a3b8;">Manager Signature: ________________________________</div>
-      </div>
+      <div class="footer">Confidential — ${dealerName} Internal Use Only</div>
     </body></html>`;
 
     const w = window.open("", "_blank");
