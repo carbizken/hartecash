@@ -253,6 +253,7 @@ const OfferSimulator = ({ settings, savedSettings, rules, inlineControls = true,
   // Live VIN mode state
   const [liveVin, setLiveVin] = useState("");
   const [liveMileage, setLiveMileage] = useState("50000");
+  const [liveZip, setLiveZip] = useState("");
   const [liveCondition, setLiveCondition] = useState<string>("good");
   const [liveAccidents, setLiveAccidents] = useState("0");
   const [liveDrivable, setLiveDrivable] = useState("yes");
