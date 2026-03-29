@@ -39,14 +39,16 @@ const DealerContactCard = () => {
             <span>{config.address}</span>
           </a>
         )}
-        <div className="flex items-start gap-2.5 text-muted-foreground">
-          <Clock className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-          <div className="text-xs leading-relaxed">
-            <p>Mon–Thu: 9 AM – 7 PM</p>
-            <p>Fri–Sat: 9 AM – 6 PM</p>
-            <p>Sun: Closed</p>
+        {config.business_hours && config.business_hours.length > 0 && (
+          <div className="flex items-start gap-2.5 text-muted-foreground">
+            <Clock className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+            <div className="text-xs leading-relaxed">
+              {config.business_hours.map((h, i) => (
+                <p key={i}>{h.days}: {h.hours}</p>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </motion.div>
   );

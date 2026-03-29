@@ -136,6 +136,27 @@ const OnboardingChecklist = ({ onNavigate }: OnboardingChecklistProps) => {
         done: staffCount >= 2,
         section: "staff",
       },
+      {
+        key: "hours",
+        label: "Business hours configured",
+        icon: Clock,
+        done: !!(cfg?.business_hours && (cfg.business_hours as any[]).length > 0),
+        section: "site-config",
+      },
+      {
+        key: "social",
+        label: "Social media links added",
+        icon: Facebook,
+        done: !!((cfg as any)?.facebook_url || (cfg as any)?.instagram_url),
+        section: "site-config",
+      },
+      {
+        key: "google_review",
+        label: "Google review link added",
+        icon: Star,
+        done: !!((cfg as any)?.google_review_url && (cfg as any).google_review_url.length > 0),
+        section: "site-config",
+      },
     ];
 
     setItems(checks);
