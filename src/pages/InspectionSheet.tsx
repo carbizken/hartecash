@@ -958,7 +958,7 @@ const InspectionSheet = () => {
           <Card className="print:shadow-none print:border-foreground/30">
             <CardContent className="py-3 px-4">
               <div className="flex items-center gap-4">
-                <div className="w-20 h-14 rounded overflow-hidden bg-muted flex-shrink-0">
+                <div className="w-40 h-24 rounded-lg overflow-hidden flex-shrink-0">
                   <VehicleImage year={submission.vehicle_year} make={submission.vehicle_make} model={submission.vehicle_model} selectedColor={submission.exterior_color || "white"} hideColorLabel />
                 </div>
                 <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-1 text-sm">
