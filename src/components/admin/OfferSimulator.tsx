@@ -455,6 +455,10 @@ const OfferSimulator = ({ settings, savedSettings, rules, inlineControls = true,
           <Label className="text-xs font-semibold">Mileage</Label>
           <Input type="number" value={liveMileage} onChange={e => setLiveMileage(e.target.value)} step="5000" className="h-9" />
         </div>
+        <div className="w-24">
+          <Label className="text-xs font-semibold">ZIP Code</Label>
+          <Input value={liveZip} onChange={e => setLiveZip(e.target.value.replace(/\D/g, "").slice(0, 5))} placeholder="06001" maxLength={5} className="h-9" />
+        </div>
         <div className="flex items-end">
           <Button onClick={handleVinLookup} disabled={liveLoading || liveVin.trim().length !== 17} className="h-9 gap-1.5">
             {liveLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
