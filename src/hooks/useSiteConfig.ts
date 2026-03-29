@@ -51,6 +51,12 @@ export interface SiteConfig {
   service_hero_subtext: string;
   trade_hero_headline: string;
   trade_hero_subtext: string;
+  business_hours: { days: string; hours: string }[];
+  facebook_url: string;
+  instagram_url: string;
+  google_review_url: string;
+  tiktok_url: string;
+  youtube_url: string;
 }
 
 const DEFAULTS: SiteConfig = {
@@ -92,6 +98,16 @@ const DEFAULTS: SiteConfig = {
   service_hero_subtext: "You're already coming in for service. Let us show you what your car is worth — it takes less than 2 minutes.",
   trade_hero_headline: "Submit Your Trade-In Info",
   trade_hero_subtext: "Already shopping with us? Send us your trade details from home — we'll have your value ready.",
+  business_hours: [
+    { days: "Mon–Thu", hours: "9 AM – 7 PM" },
+    { days: "Fri–Sat", hours: "9 AM – 6 PM" },
+    { days: "Sun", hours: "Closed" },
+  ],
+  facebook_url: "",
+  instagram_url: "",
+  google_review_url: "",
+  tiktok_url: "",
+  youtube_url: "",
 };
 
 let cachedConfig: SiteConfig | null = null;

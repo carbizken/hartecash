@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
+import { Facebook, Instagram, Youtube } from "lucide-react";
 
 interface DealerLocation {
   id: string;
@@ -79,6 +80,30 @@ const SiteFooter = () => {
             <Link to="/admin/login" className="text-xs opacity-40 hover:opacity-70 transition-opacity mt-2">Admin</Link>
             <Link to="/sitemap" className="text-xs opacity-40 hover:opacity-70 transition-opacity">.</Link>
           </div>
+          {(config.facebook_url || config.instagram_url || config.youtube_url || config.tiktok_url) && (
+            <div className="flex gap-3 mt-4 lg:justify-start justify-center">
+              {config.facebook_url && (
+                <a href={config.facebook_url} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="opacity-60 hover:opacity-100 transition-opacity">
+                  <Facebook className="w-5 h-5" />
+                </a>
+              )}
+              {config.instagram_url && (
+                <a href={config.instagram_url} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="opacity-60 hover:opacity-100 transition-opacity">
+                  <Instagram className="w-5 h-5" />
+                </a>
+              )}
+              {config.youtube_url && (
+                <a href={config.youtube_url} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="opacity-60 hover:opacity-100 transition-opacity">
+                  <Youtube className="w-5 h-5" />
+                </a>
+              )}
+              {config.tiktok_url && (
+                <a href={config.tiktok_url} target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="opacity-60 hover:opacity-100 transition-opacity text-xs font-bold">
+                  TikTok
+                </a>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </footer>

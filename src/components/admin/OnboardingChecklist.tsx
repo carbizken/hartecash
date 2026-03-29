@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 import {
   CheckCircle, Circle, Image, MapPin, Bell, Building2, Palette, Phone,
-  Mail, Globe, FileText, Users, ScanLine
+  Mail, Globe, FileText, Users, ScanLine, Clock, Facebook, Star
 } from "lucide-react";
 
 interface CheckItem {
@@ -31,7 +31,7 @@ const OnboardingChecklist = ({ onNavigate }: OnboardingChecklistProps) => {
   const checkAll = async () => {
     // Fetch all data in parallel
     const [configRes, locRes, notifRes, staffRes, accountRes] = await Promise.all([
-      supabase.from("site_config").select("dealership_name, logo_url, logo_white_url, favicon_url, phone, email, address, website_url, primary_color, hero_headline").eq("dealership_id", "default").maybeSingle(),
+      supabase.from("site_config").select("dealership_name, logo_url, logo_white_url, favicon_url, phone, email, address, website_url, primary_color, hero_headline, business_hours, facebook_url, instagram_url, google_review_url").eq("dealership_id", "default").maybeSingle(),
       supabase.from("dealership_locations").select("id").eq("is_active", true),
       supabase.from("notification_settings").select("email_recipients, sms_recipients").eq("dealership_id", "default").maybeSingle(),
       supabase.from("user_roles").select("id"),
@@ -135,6 +135,27 @@ const OnboardingChecklist = ({ onNavigate }: OnboardingChecklistProps) => {
         icon: Users,
         done: staffCount >= 2,
         section: "staff",
+      },
+      {
+        key: "hours",
+        label: "Business hours configured",
+        icon: Clock,
+        done: !!(cfg?.business_hours && (cfg.business_hours as any[]).length > 0),
+        section: "site-config",
+      },
+      {
+        key: "social",
+        label: "Social media links added",
+        icon: Facebook,
+        done: !!((cfg as any)?.facebook_url || (cfg as any)?.instagram_url),
+        section: "site-config",
+      },
+      {
+        key: "google_review",
+        label: "Google review link added",
+        icon: Star,
+        done: !!((cfg as any)?.google_review_url && (cfg as any).google_review_url.length > 0),
+        section: "site-config",
       },
     ];
 

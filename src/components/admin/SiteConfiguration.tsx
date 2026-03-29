@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Save, Loader2, ChevronDown, Building2, Palette, Type, BarChart3, Upload, Star, Sparkles, Eye, ScanLine, MapPin, FileText, GitCompare } from "lucide-react";
+import { Save, Loader2, ChevronDown, Building2, Palette, Type, BarChart3, Upload, Star, Sparkles, Eye, ScanLine, MapPin, FileText, GitCompare, Clock, Facebook, Instagram, Youtube, Globe, Plus, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import CalculatingOffer from "@/components/CalculatingOffer";
 import AboutPageConfig from "@/components/admin/AboutPageConfig";
@@ -255,6 +255,85 @@ const SiteConfiguration = () => {
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold">Website URL</Label>
             <Input value={config.website_url} onChange={e => update("website_url", e.target.value)} placeholder="https://www.dealership.com" />
+          </div>
+        </div>
+      </Section>
+
+      {/* Business Hours */}
+      <Section icon={Clock} title="Business Hours">
+        <p className="text-xs text-muted-foreground mb-3">Set your dealership hours. These appear on the customer portal and contact cards.</p>
+        <div className="space-y-2">
+          {((config as any).business_hours || []).map((row: any, i: number) => (
+            <div key={i} className="flex items-center gap-2">
+              <Input
+                value={row.days}
+                onChange={e => {
+                  const hrs = [...((config as any).business_hours || [])];
+                  hrs[i] = { ...hrs[i], days: e.target.value };
+                  update("business_hours" as any, hrs as any);
+                }}
+                placeholder="Mon–Fri"
+                className="h-8 text-xs w-32"
+              />
+              <Input
+                value={row.hours}
+                onChange={e => {
+                  const hrs = [...((config as any).business_hours || [])];
+                  hrs[i] = { ...hrs[i], hours: e.target.value };
+                  update("business_hours" as any, hrs as any);
+                }}
+                placeholder="9 AM – 7 PM"
+                className="h-8 text-xs flex-1"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const hrs = ((config as any).business_hours || []).filter((_: any, j: number) => j !== i);
+                  update("business_hours" as any, hrs as any);
+                }}
+                className="text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={() => {
+              const hrs = [...((config as any).business_hours || []), { days: "", hours: "" }];
+              update("business_hours" as any, hrs as any);
+            }}
+            className="flex items-center gap-1 text-xs text-primary hover:underline"
+          >
+            <Plus className="w-3 h-3" /> Add row
+          </button>
+        </div>
+      </Section>
+
+      {/* Social & Review Links */}
+      <Section icon={Globe} title="Social Media & Review Links">
+        <p className="text-xs text-muted-foreground mb-3">Add your social profiles and Google review link. These appear in the footer and contact cards.</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold flex items-center gap-1.5"><Facebook className="w-3.5 h-3.5" /> Facebook URL</Label>
+            <Input value={(config as any).facebook_url || ""} onChange={e => update("facebook_url" as any, e.target.value)} placeholder="https://facebook.com/dealership" className="h-8 text-xs" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold flex items-center gap-1.5"><Instagram className="w-3.5 h-3.5" /> Instagram URL</Label>
+            <Input value={(config as any).instagram_url || ""} onChange={e => update("instagram_url" as any, e.target.value)} placeholder="https://instagram.com/dealership" className="h-8 text-xs" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold flex items-center gap-1.5"><Youtube className="w-3.5 h-3.5" /> YouTube URL</Label>
+            <Input value={(config as any).youtube_url || ""} onChange={e => update("youtube_url" as any, e.target.value)} placeholder="https://youtube.com/@dealership" className="h-8 text-xs" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold flex items-center gap-1.5">TikTok URL</Label>
+            <Input value={(config as any).tiktok_url || ""} onChange={e => update("tiktok_url" as any, e.target.value)} placeholder="https://tiktok.com/@dealership" className="h-8 text-xs" />
+          </div>
+          <div className="sm:col-span-2 space-y-1.5">
+            <Label className="text-xs font-semibold flex items-center gap-1.5"><Star className="w-3.5 h-3.5" /> Google Review URL</Label>
+            <Input value={(config as any).google_review_url || ""} onChange={e => update("google_review_url" as any, e.target.value)} placeholder="https://g.page/r/..." className="h-8 text-xs" />
+            <p className="text-xs text-muted-foreground">Used for the review request email and footer link.</p>
           </div>
         </div>
       </Section>
