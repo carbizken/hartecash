@@ -10,6 +10,7 @@ interface Props {
   style?: string;
   selectedColor: string;
   compact?: boolean;
+  uvc?: string;
 }
 
 // Preload an image and resolve when ready
@@ -21,7 +22,7 @@ const preloadImage = (url: string): Promise<string> =>
     img.src = url;
   });
 
-const VehicleImage = ({ year, make, model, style, selectedColor, compact = false }: Props) => {
+const VehicleImage = ({ year, make, model, style, selectedColor, compact = false, uvc }: Props) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -60,7 +61,7 @@ const VehicleImage = ({ year, make, model, style, selectedColor, compact = false
 
     try {
       const { data, error: fnErr } = await supabase.functions.invoke("generate-vehicle-image", {
-        body: { year, make, model, style, color: color || "white" },
+        body: { year, make, model, style, color: color || "white", uvc },
       });
 
       if (currentColorRef.current !== color && !isPrefetch) return;

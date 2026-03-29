@@ -175,6 +175,7 @@ const StepVehicleBuild = ({ formData, update, vehicleInfo, bbVehicle, selectedAd
           model={displayInfo.model}
           style={bbVehicle?.style}
           selectedColor={formData.exteriorColor}
+          uvc={bbVehicle?.uvc}
         />
       )}
 
