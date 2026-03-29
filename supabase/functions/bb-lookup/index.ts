@@ -164,9 +164,8 @@ serve(async (req) => {
 
     // Transform each vehicle into a comprehensive response
     const vehicles = vehicleList.map((v: Record<string, unknown>, i: number) => {
-      const gql = allGqlResults[i] || { colors: [], specs: {} };
-      // deno-lint-ignore no-explicit-any
-      const specs = gql.specs as any;
+      const gql = allGqlResults[i] || { colors: [] };
+      const parsedSpecs = parseSpecs((v.style as string) || "", (v.price_includes as string) || "");
       return {
       uvc: v.uvc,
       vin: v.vin,
@@ -179,11 +178,11 @@ serve(async (req) => {
       msrp: v.msrp || 0,
       price_includes: v.price_includes || "",
 
-      // Vehicle specs from GraphQL drilldown
-      drivetrain: specs?.drivetrain || "",
-      transmission: specs?.transmission || "",
-      engine: specs?.engine || "",
-      fuel_type: specs?.fuel_type || "",
+      // Vehicle specs parsed from style/price_includes
+      drivetrain: parsedSpecs.drivetrain,
+      transmission: parsedSpecs.transmission,
+      engine: parsedSpecs.engine,
+      fuel_type: parsedSpecs.fuel_type,
 
       // Exterior colors from BB
       exterior_colors: gql.colors || [],
