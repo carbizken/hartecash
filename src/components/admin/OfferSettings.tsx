@@ -526,6 +526,18 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
               </div>
             </div>
           </div>
+          <div className="flex items-center gap-3 mt-4 p-3 rounded-lg border border-border bg-muted/30">
+            <Switch
+              checked={settings.hide_pack_from_appraisal}
+              onCheckedChange={(checked) => setSettings({ ...settings, hide_pack_from_appraisal: checked })}
+            />
+            <div>
+              <Label className="text-sm font-semibold">Combine Pack into Reconditioning</Label>
+              <p className="text-[10px] text-muted-foreground">
+                When enabled, the appraisal tool will show a single "Reconditioning" line (recon + pack combined) instead of separate entries. This hides the dealer pack amount from staff.
+              </p>
+            </div>
+          </div>
           <div className="flex justify-end mt-4">
             <Button size="sm" onClick={handleSaveSettings} disabled={saving}>
               {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
