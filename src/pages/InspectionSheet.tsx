@@ -467,7 +467,7 @@ const InspectionSheet = () => {
         .map(ci => ci.label);
       return { ...def, items: [...filteredItems, ...customForSection] };
     })
-    .filter(Boolean) as typeof SECTION_DEFS;
+    .filter(Boolean) as typeof FULL_SECTION_DEFS;
 
   const ACTIVE_CHECKLIST_SECTIONS = ACTIVE_SECTION_DEFS.filter(s => s.items.length > 0);
   const ACTIVE_ALL_ITEMS = ACTIVE_CHECKLIST_SECTIONS.flatMap(s => s.items);
