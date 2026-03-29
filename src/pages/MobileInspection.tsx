@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import confetti from "canvas-confetti";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Save, CheckCircle, Gauge, Wrench, Car, Lock, DollarSign } from "lucide-react";
@@ -151,6 +152,7 @@ const MobileInspection = () => {
       if (result && result.adjustment !== undefined) {
         setLastAdjustment(result);
       }
+      confetti({ particleCount: 80, spread: 60, origin: { y: 0.95 }, colors: ["#10b981", "#3b82f6", "#f59e0b"] });
       toast({ title: "Inspection saved", description: "Data synced to the customer file." });
     }
   };
