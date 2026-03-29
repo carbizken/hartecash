@@ -151,6 +151,7 @@ const InspectionConfiguration = () => {
         setTireCreditPer32((data as any).tire_credit_per_32 ?? 25);
         setTireDeductPer32((data as any).tire_deduct_per_32 ?? 50);
         setTireAdjustmentMode((data as any).tire_adjustment_mode || 'whole');
+        setDefaultInspectionMode((data as any).default_inspection_mode === 'full' ? 'full' : 'standard');
       }
       setLoading(false);
     };
