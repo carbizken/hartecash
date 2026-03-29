@@ -85,7 +85,7 @@ serve(async (req) => {
       const vUvc = v.uvc as string;
       if (!vUvc) return [];
       try {
-        const colorUrl = `${BB_COLOR_BASE}/${encodeURIComponent(vUvc)}?category=Exterior%20Colors&country=U`;
+        const colorUrl = `${BB_COLOR_BASE}?uvc=${encodeURIComponent(vUvc)}&category=Exterior%20Colors&country=U`;
         console.log(`Fetching BB colors: ${colorUrl}`);
         const colorRes = await fetch(colorUrl, {
           headers: {
