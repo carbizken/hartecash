@@ -93,7 +93,7 @@ const PortalVehicleSummary = ({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="bg-card rounded-xl shadow-lg overflow-hidden"
+      className="bg-card rounded-2xl shadow-xl overflow-hidden border border-border/50"
     >
       <div className="bg-gradient-to-r from-primary/5 to-primary/10 px-5 py-3 border-b border-border/50">
         <div className="flex items-center justify-between">

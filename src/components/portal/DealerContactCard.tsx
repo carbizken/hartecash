@@ -11,9 +11,9 @@ const DealerContactCard = () => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.3 }}
-      className="bg-card rounded-xl p-5 shadow-lg"
+      className="bg-card rounded-2xl p-5 shadow-xl border border-border/50"
     >
-      <h3 className="font-bold text-card-foreground mb-3">Need Help?</h3>
+      <h3 className="font-display text-card-foreground mb-3">Need Help?</h3>
       <div className="space-y-2.5 text-sm">
         <p className="text-sm font-semibold text-card-foreground mb-1">{dealerName}</p>
         {config.phone && (

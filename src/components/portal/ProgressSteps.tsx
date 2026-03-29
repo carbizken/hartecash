@@ -23,9 +23,9 @@ const ProgressSteps = ({ currentStageIdx, isComplete, appointmentSet, scheduleLi
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.15 }}
-      className="bg-card rounded-xl p-5 shadow-lg"
+      className="bg-card rounded-2xl p-5 shadow-xl border border-border/50"
     >
-      <h3 className="font-bold text-card-foreground text-sm mb-4">Your Progress</h3>
+      <h3 className="font-display text-card-foreground text-base mb-4">Your Progress</h3>
       <div className="flex items-start justify-between gap-1">
         {STEPS.map((step, i) => {
           const done = isComplete || currentStageIdx > i;

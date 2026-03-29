@@ -524,68 +524,66 @@ export default function AppraisalTool() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-20 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-6 py-4 shadow-lg">
+      <div className="sticky top-0 z-20 bg-gradient-to-br from-primary via-[hsl(210,100%,28%)] to-[hsl(215,90%,22%)] text-primary-foreground px-6 py-4 shadow-xl">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate("/admin")} className="text-primary-foreground hover:bg-primary-foreground/20">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate("/admin")} className="text-primary-foreground hover:bg-primary-foreground/10 rounded-xl">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div>
-              <h1 className="text-xl font-bold tracking-wide">
-                Appraisal Tool — {sub.vehicle_year} {sub.vehicle_make} {sub.vehicle_model}
+            <div className="border-l border-primary-foreground/15 pl-4">
+              <h1 className="font-display text-xl tracking-wide">
+                {sub.vehicle_year} {sub.vehicle_make} {sub.vehicle_model}
               </h1>
-              <p className="text-primary-foreground/70 text-sm">
-                {sub.name} • {sub.vin || "No VIN"} • {sub.mileage ? `${Number(sub.mileage).toLocaleString()} mi` : "—"}
+              <p className="text-primary-foreground/60 text-sm mt-0.5">
+                {sub.name} · {sub.vin || "No VIN"} · {sub.mileage ? `${Number(sub.mileage).toLocaleString()} mi` : "—"}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button onClick={handleSave} disabled={saving} className="bg-primary-foreground/20 hover:bg-primary-foreground/30 text-primary-foreground">
-              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
-              Save ACV
-            </Button>
-          </div>
+          <Button onClick={handleSave} disabled={saving} className="bg-primary-foreground/15 hover:bg-primary-foreground/25 text-primary-foreground rounded-xl border border-primary-foreground/10 shadow-lg">
+            {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Save className="w-4 h-4 mr-1.5" />}
+            Save ACV
+          </Button>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto p-6">
         {/* ═══ HUD — Key Metrics Strip ═══ */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mb-5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 mb-5">
           {[
-            { label: "Customer Offer", value: `$${Math.floor(currentOffer).toLocaleString()}`, color: "text-card-foreground", bg: "bg-muted/50 border-border" },
-            { label: "New Offer", value: `$${Math.floor(finalValue).toLocaleString()}`, color: "text-primary", bg: "bg-primary/10 border-primary/30" },
-            { label: "Avg Market Value", value: retailAvg > 0 ? `$${Math.floor(retailAvg).toLocaleString()}` : "—", color: "text-card-foreground", bg: "bg-muted/50 border-border" },
-            { label: "Recon Cost", value: `$${Math.floor(activeSettings?.recon_cost || 0).toLocaleString()}`, color: "text-destructive", bg: "bg-destructive/5 border-destructive/20" },
-            { label: "Dealer Pack", value: `$${Math.floor(effectivePack).toLocaleString()}`, color: "text-destructive", bg: "bg-destructive/5 border-destructive/20" },
-            { label: "Projected Profit", value: `${projectedProfit >= 0 ? "+" : ""}$${Math.floor(Math.abs(projectedProfit)).toLocaleString()}`, color: projectedProfit >= 0 ? "text-emerald-600" : "text-destructive", bg: projectedProfit >= 0 ? "bg-emerald-500/10 border-emerald-500/30" : "bg-destructive/10 border-destructive/30" },
-            { label: "Margin %", value: `${profitMargin.toFixed(1)}%`, color: profitMargin >= 0 ? "text-emerald-600" : "text-destructive", bg: profitMargin >= 0 ? "bg-emerald-500/10 border-emerald-500/30" : "bg-destructive/10 border-destructive/30" },
+            { label: "Customer Offer", value: `$${Math.floor(currentOffer).toLocaleString()}`, color: "text-card-foreground", bg: "bg-card border-border/60 shadow-sm" },
+            { label: "New Offer", value: `$${Math.floor(finalValue).toLocaleString()}`, color: "text-primary", bg: "bg-primary/5 border-primary/25 shadow-sm shadow-primary/5" },
+            { label: "Avg Market Value", value: retailAvg > 0 ? `$${Math.floor(retailAvg).toLocaleString()}` : "—", color: "text-card-foreground", bg: "bg-card border-border/60 shadow-sm" },
+            { label: "Recon Cost", value: `$${Math.floor(activeSettings?.recon_cost || 0).toLocaleString()}`, color: "text-destructive", bg: "bg-card border-destructive/20 shadow-sm" },
+            { label: "Dealer Pack", value: `$${Math.floor(effectivePack).toLocaleString()}`, color: "text-destructive", bg: "bg-card border-destructive/20 shadow-sm" },
+            { label: "Projected Profit", value: `${projectedProfit >= 0 ? "+" : ""}$${Math.floor(Math.abs(projectedProfit)).toLocaleString()}`, color: projectedProfit >= 0 ? "text-emerald-600" : "text-destructive", bg: projectedProfit >= 0 ? "bg-emerald-500/5 border-emerald-500/25 shadow-sm shadow-emerald-500/5" : "bg-destructive/5 border-destructive/25 shadow-sm" },
+            { label: "Margin %", value: `${profitMargin.toFixed(1)}%`, color: profitMargin >= 0 ? "text-emerald-600" : "text-destructive", bg: profitMargin >= 0 ? "bg-emerald-500/5 border-emerald-500/25 shadow-sm shadow-emerald-500/5" : "bg-destructive/5 border-destructive/25 shadow-sm" },
           ].map(metric => (
-            <div key={metric.label} className={`rounded-xl border p-3 text-center ${metric.bg}`}>
-              <div className="text-[9px] uppercase tracking-wider font-bold text-muted-foreground">{metric.label}</div>
-              <div className={`text-lg font-bold ${metric.color}`}>{metric.value}</div>
+            <div key={metric.label} className={`rounded-xl border p-3 text-center transition-all hover:shadow-md ${metric.bg}`}>
+              <div className="text-[9px] uppercase tracking-[0.08em] font-bold text-muted-foreground mb-0.5">{metric.label}</div>
+              <div className={`text-lg font-black tracking-tight ${metric.color}`}>{metric.value}</div>
             </div>
           ))}
         </div>
 
         {/* Vehicle Summary Bar */}
-        <div className="bg-muted/40 rounded-xl border border-border p-4 mb-5">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="bg-card rounded-xl border border-border/60 p-4 mb-5 shadow-sm">
+          <div className="flex items-center gap-2.5 mb-2.5">
             <Car className="w-4 h-4 text-primary" />
-            <span className="font-bold text-sm text-card-foreground">
+            <span className="font-display text-sm text-card-foreground">
               {sub.vehicle_year} {(sub.vehicle_make || "").toUpperCase()} {(sub.vehicle_model || "").toUpperCase()} {liveBbVehicle?.series || ""}
             </span>
             {(liveBbVehicle?.class_name || sub.bb_class_name) && (
-              <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{liveBbVehicle?.class_name || sub.bb_class_name}</span>
+              <span className="text-[10px] font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">{liveBbVehicle?.class_name || sub.bb_class_name}</span>
             )}
             {bbLoading && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />}
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-7 gap-2 text-xs">
             <div><span className="text-muted-foreground">Style:</span> <span className="font-medium text-card-foreground">{liveBbVehicle?.style || "—"}</span></div>
-            <div><span className="text-muted-foreground">Drivetrain:</span> <span className="font-medium text-card-foreground font-bold">{liveBbVehicle?.drivetrain || sub.bb_drivetrain || "—"}</span></div>
+            <div><span className="text-muted-foreground">Drivetrain:</span> <span className="font-bold text-card-foreground">{liveBbVehicle?.drivetrain || sub.bb_drivetrain || "—"}</span></div>
             <div><span className="text-muted-foreground">Engine:</span> <span className="font-medium text-card-foreground">{liveBbVehicle?.engine || sub.bb_engine || "—"}</span></div>
             <div><span className="text-muted-foreground">Trans:</span> <span className="font-medium text-card-foreground">{liveBbVehicle?.transmission || sub.bb_transmission || "—"}</span></div>
-            <div><span className="text-muted-foreground">MSRP:</span> <span className="font-medium text-card-foreground font-bold">${Number(liveBbVehicle?.msrp || sub.bb_msrp || 0).toLocaleString()}</span></div>
-            <div><span className="text-muted-foreground">Fuel:</span> <span className="font-medium text-card-foreground font-bold">{liveBbVehicle?.fuel_type || sub.bb_fuel_type || "—"}</span></div>
+            <div><span className="text-muted-foreground">MSRP:</span> <span className="font-bold text-card-foreground">${Number(liveBbVehicle?.msrp || sub.bb_msrp || 0).toLocaleString()}</span></div>
+            <div><span className="text-muted-foreground">Fuel:</span> <span className="font-bold text-card-foreground">{liveBbVehicle?.fuel_type || sub.bb_fuel_type || "—"}</span></div>
             <div><span className="text-muted-foreground">Color:</span> <span className="font-medium text-card-foreground">{sub.exterior_color || "—"}</span></div>
           </div>
           {/* Equipment — toggle-able add/deducts with customer selections highlighted */}

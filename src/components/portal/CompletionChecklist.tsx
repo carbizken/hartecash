@@ -43,7 +43,7 @@ const CompletionChecklist = ({ photosUploaded, docsUploaded, appointmentSet, tok
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.15 }}
-      className={`rounded-xl shadow-lg overflow-hidden transition-colors ${allDone ? "bg-success/5 ring-2 ring-success/30" : "bg-card"}`}
+      className={`rounded-2xl shadow-xl overflow-hidden border transition-colors ${allDone ? "bg-success/5 border-success/30" : "bg-card border-border/50"}`}
     >
       {/* Gradient header */}
       <div className="bg-gradient-to-r from-primary/5 to-primary/10 px-5 py-3 border-b border-border/50">

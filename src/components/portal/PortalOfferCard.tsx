@@ -71,7 +71,7 @@ const PortalOfferCard = ({
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4, delay: 0.2 }}
-      className={`bg-card rounded-2xl shadow-xl overflow-hidden ${isAccepted ? "border-2 border-success/30" : ""}`}
+      className={`bg-card rounded-2xl shadow-xl overflow-hidden border ${isAccepted ? "border-success/30" : "border-border/50"}`}
     >
       {/* Tab Switcher */}
       <div className="p-4 pb-0">
