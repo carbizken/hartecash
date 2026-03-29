@@ -171,16 +171,14 @@ const TireDepthDisplay = ({ label, depth }: { label: string; depth: number | nul
 // ── Brake Pad Depth Visual ──
 const BrakePadDisplay = ({ label, depth }: { label: string; depth: number | null }) => {
   if (depth == null) return null;
-  const color = depth >= 8 ? "text-green-600 bg-green-500/10"
-    : depth >= 6 ? "text-green-500 bg-green-400/10"
+  const color = depth >= 6 ? "text-green-600 bg-green-500/10"
     : depth >= 4 ? "text-amber-600 bg-amber-500/10"
-    : depth >= 2 ? "text-orange-600 bg-orange-500/10"
     : "text-destructive bg-destructive/10";
-  const statusLabel = depth >= 8 ? "New" : depth >= 6 ? "Good" : depth >= 4 ? "Fair" : depth >= 2 ? "Low" : "Replace";
+  const statusLabel = depth >= 6 ? "Good" : depth >= 4 ? "Fair" : "Replace";
   return (
     <div className={`rounded-lg p-2 text-center ${color}`}>
       <div className="text-[10px] font-medium opacity-70">{label}</div>
-      <div className="text-lg font-bold">{depth}<span className="text-[10px]">mm</span></div>
+      <div className="text-lg font-bold">{depth}<span className="text-[10px]">/32"</span></div>
       <div className="text-[9px] font-semibold">{statusLabel}</div>
     </div>
   );
