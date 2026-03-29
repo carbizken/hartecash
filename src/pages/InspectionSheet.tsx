@@ -1009,7 +1009,7 @@ const InspectionSheet = () => {
               }`}
             >
               <ClipboardCheck className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
-              Standard Checklist
+              Standard Inspection
             </button>
             <button
               onClick={() => setInspectionMode("full")}
@@ -1020,11 +1020,11 @@ const InspectionSheet = () => {
               }`}
             >
               <Wrench className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
-              Full Checklist
+              Full Inspection
             </button>
           </div>
           <p className="text-[10px] text-muted-foreground">
-            {inspectionMode === "ucm" ? "Standard checklist for managers & sales staff" : "Full mechanic-aided deep inspection"}
+            {inspectionMode === "ucm" ? "Standard inspection for managers & sales staff" : "Full mechanic-aided deep inspection"}
           </p>
         </div>
 
