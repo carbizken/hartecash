@@ -1048,14 +1048,14 @@ export default function AppraisalTool() {
                       <div className="grid grid-cols-2 gap-2">
                         {hasTires && (
                           <div className={`rounded-lg p-2.5 border ${
-                            avgTireDepth >= 6 ? "bg-emerald-500/10 border-emerald-500/30" :
-                            avgTireDepth >= 4 ? "bg-amber-500/10 border-amber-500/30" :
+                            Number(avgTireDepth) >= 6 ? "bg-emerald-500/10 border-emerald-500/30" :
+                            Number(avgTireDepth) >= 4 ? "bg-amber-500/10 border-amber-500/30" :
                             "bg-destructive/10 border-destructive/30"
                           }`}>
                             <p className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">Tires</p>
                             <p className={`text-lg font-black ${
-                              avgTireDepth >= 6 ? "text-emerald-600 dark:text-emerald-400" :
-                              avgTireDepth >= 4 ? "text-amber-600 dark:text-amber-400" :
+                              Number(avgTireDepth) >= 6 ? "text-emerald-600 dark:text-emerald-400" :
+                              Number(avgTireDepth) >= 4 ? "text-amber-600 dark:text-amber-400" :
                               "text-destructive"
                             }`}>{avgTireDepth}/32"</p>
                             <p className="text-[9px] text-muted-foreground">avg depth</p>
