@@ -80,8 +80,40 @@ serve(async (req) => {
 
     const vehicleList = bbData.used_vehicles?.used_vehicle_list || [];
 
+    // Fetch exterior colors for each vehicle UVC in parallel
+    const colorFetches = vehicleList.map(async (v: Record<string, unknown>) => {
+      const vUvc = v.uvc as string;
+      if (!vUvc) return [];
+      try {
+        const colorUrl = `${BB_COLOR_BASE}/${encodeURIComponent(vUvc)}?category=Exterior%20Colors&country=U`;
+        const colorRes = await fetch(colorUrl, {
+          headers: {
+            "Authorization": `Basic ${credentials}`,
+            "Accept": "application/json",
+          },
+        });
+        if (!colorRes.ok) return [];
+        const colorData = await colorRes.json();
+        const categories = colorData.color_categories?.color_category_list || [];
+        const exteriorCat = categories.find((c: Record<string, unknown>) =>
+          (c.category_name as string || "").toLowerCase().includes("exterior")
+        );
+        if (!exteriorCat) return [];
+        const colorList = (exteriorCat.colors?.color_list || []) as Array<Record<string, unknown>>;
+        return colorList.map((c) => ({
+          code: c.color_code || "",
+          name: c.color_name || "",
+          rgb: c.rgb_value || "",
+        }));
+      } catch {
+        return [];
+      }
+    });
+
+    const allColors = await Promise.all(colorFetches);
+
     // Transform each vehicle into a comprehensive response
-    const vehicles = vehicleList.map((v: Record<string, unknown>) => ({
+    const vehicles = vehicleList.map((v: Record<string, unknown>, i: number) => ({
       uvc: v.uvc,
       vin: v.vin,
       year: v.model_year,
@@ -93,29 +125,32 @@ serve(async (req) => {
       msrp: v.msrp || 0,
       price_includes: v.price_includes || "",
 
-      // Vehicle specs — auto-populate instead of asking customer
+      // Vehicle specs
       drivetrain: v.drivetrain || "",
       transmission: v.transmission || "",
       engine: v.engine_description || "",
       fuel_type: v.fuel_type || "",
+
+      // Exterior colors from BB
+      exterior_colors: allColors[i] || [],
 
       // Mileage & regional adjustments
       mileage_adj: v.mileage_category || 0,
       regional_adj: v.regional_adjustment || 0,
       base_whole_avg: v.base_whole_avg || 0,
 
-      // Add/deducts for options/equipment selection
+      // Add/deducts
       add_deduct_list: (v.add_deduct_list as Array<Record<string, unknown>> || []).map((ad) => ({
         uoc: ad.uoc,
         name: ad.name,
-        auto: ad.auto, // Y=auto-selected, N=not, M=matched, D=default
+        auto: ad.auto,
         avg: ad.avg,
         clean: ad.clean,
         rough: ad.rough,
         xclean: ad.xclean,
       })),
 
-      // Wholesale values (what dealer pays — basis for our offer)
+      // Wholesale values
       wholesale: {
         xclean: v.adjusted_whole_xclean || v.final_whole_xclean || 0,
         clean: v.adjusted_whole_clean || v.final_whole_clean || 0,
