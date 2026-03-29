@@ -262,7 +262,7 @@ const AdminDashboard = () => {
           </div>
         </header>
 
-        <div className="flex-1 px-4 py-6 overflow-auto">
+        <div className="flex-1 px-3 md:px-4 py-4 md:py-6 overflow-auto">
           <div className="max-w-[1400px] mx-auto">
             {activeSection === "submissions" && (
               <SubmissionsTable
