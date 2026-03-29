@@ -536,7 +536,12 @@ const InspectionSheet = () => {
         setSubmission(subRes.data);
         setOverallGrade(subRes.data.overall_condition || "");
       }
-      if (dmgRes.data) setDamageReports(dmgRes.data as unknown as DamageReport[]);
+      if (dmgRes.data) {
+        const reports = dmgRes.data as unknown as DamageReport[];
+        setDamageReports(reports);
+        // Pre-populate inspection grades from AI damage findings
+        prefillGradesFromAI(reports);
+      }
       setLoading(false);
     };
 
