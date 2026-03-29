@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Save, Plus, Trash2, Flame, SlidersHorizontal, Target, Zap, AlertTriangle, DollarSign, Shield, Gauge, Calendar, ChevronDown, MapPin } from "lucide-react";
+import { Save, Plus, Trash2, Flame, SlidersHorizontal, Target, Zap, AlertTriangle, DollarSign, Shield, Gauge, Calendar, ChevronDown, MapPin, Loader2 } from "lucide-react";
 
 // ── Collapsible Section wrapper ──
 const Section = ({
@@ -122,6 +122,7 @@ interface OfferSettingsRow {
   mileage_tiers: MileageTier[];
   regional_adjustment_pct: number;
   retail_search_radius: number;
+  dealer_pack: number;
 }
 
 interface OfferRule {
@@ -260,6 +261,7 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
         mileage_tiers: Array.isArray(d.mileage_tiers) ? d.mileage_tiers : [],
         regional_adjustment_pct: d.regional_adjustment_pct ?? 0,
         retail_search_radius: d.retail_search_radius ?? 100,
+        dealer_pack: d.dealer_pack ?? 0,
       } as OfferSettingsRow);
       setSavedSettings({
         ...d,
@@ -272,6 +274,7 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
         mileage_tiers: Array.isArray(d.mileage_tiers) ? d.mileage_tiers : [],
         regional_adjustment_pct: d.regional_adjustment_pct ?? 0,
         retail_search_radius: d.retail_search_radius ?? 100,
+        dealer_pack: d.dealer_pack ?? 0,
       } as OfferSettingsRow);
     }
     if (rulesRes.data) {
@@ -296,6 +299,7 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
       mileage_tiers: settings.mileage_tiers as any,
       regional_adjustment_pct: settings.regional_adjustment_pct,
       retail_search_radius: settings.retail_search_radius ?? 100,
+      dealer_pack: settings.dealer_pack ?? 0,
       updated_at: new Date().toISOString(),
     } as any).eq("id", settings.id);
 
@@ -472,7 +476,63 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
         </Section>
       )}
 
+      {/* ── Dealership Defaults: Recon Cost & Dealer Pack ── */}
+      {settings && (
+        <Section
+          icon={<DollarSign className="w-5 h-5 text-primary" />}
+          title="Dealership Defaults"
+          defaultOpen={false}
+        >
+          <p className="text-xs text-muted-foreground mb-4">
+            Set the default reconditioning cost and used car pack applied to every appraisal. Appraisers can adjust recon per vehicle, but the pack is fixed.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label className="text-sm font-semibold">Default Recon Cost</Label>
+              <p className="text-[10px] text-muted-foreground mb-1.5">
+                Average reconditioning cost deducted from every offer. Appraisers can adjust this per vehicle in the appraisal tool.
+              </p>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                <Input
+                  type="number"
+                  min={0}
+                  step={50}
+                  value={settings.recon_cost}
+                  onChange={(e) => setSettings({ ...settings, recon_cost: Number(e.target.value) || 0 })}
+                  className="pl-7"
+                />
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm font-semibold">Used Car Pack</Label>
+              <p className="text-[10px] text-muted-foreground mb-1.5">
+                Flat dollar acquisition cost applied to every deal. This is only adjustable here — not in the appraisal tool.
+              </p>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                <Input
+                  type="number"
+                  min={0}
+                  step={50}
+                  value={settings.dealer_pack}
+                  onChange={(e) => setSettings({ ...settings, dealer_pack: Number(e.target.value) || 0 })}
+                  className="pl-7"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end mt-4">
+            <Button size="sm" onClick={handleSaveSettings} disabled={saving}>
+              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
+              Save Defaults
+            </Button>
+          </div>
+        </Section>
+      )}
+
       {/* All pricing adjustments now happen in the Workbench above. Only Rules remain below. */}
+
 
       {/* ── Section 5: Criteria-Based Rules ── */}
       <Section

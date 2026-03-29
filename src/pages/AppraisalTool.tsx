@@ -206,7 +206,7 @@ export default function AppraisalTool() {
   const [localSettings, setLocalSettings] = useState<OfferSettings | null>(null);
   const [acvOverride, setAcvOverride] = useState<number | null>(null);
   const [bbValueBasis, setBbValueBasis] = useState("tradein_avg");
-  const [dealerPackOverride, setDealerPackOverride] = useState<number | null>(null);
+  
 
   // Editable condition fields (pre-filled from customer, overridable by appraiser)
   const [condition, setCondition] = useState("good");
@@ -331,7 +331,7 @@ export default function AppraisalTool() {
 
   // Effective values
   const currentOffer = sub?.offered_price || sub?.estimated_offer_high || 0;
-  const effectivePack = dealerPackOverride ?? dealerPack;
+  const effectivePack = dealerPack;
   const retailAvg = Number(bbVehicle?.retail?.avg || sub?.bb_retail_avg || 0);
   const wholesaleAvg = Number(bbVehicle?.wholesale?.avg || sub?.bb_wholesale_avg || 0);
   const tradeinAvg = Number(bbVehicle?.tradein?.avg || sub?.bb_tradein_avg || 0);
@@ -377,7 +377,7 @@ export default function AppraisalTool() {
     // Dealer Pack
     if (effectivePack > 0) {
       running -= effectivePack;
-      blocks.push({ id: "dealer_pack", label: "Dealer Pack", value: -effectivePack, runningTotal: running, type: "subtract", editable: true, editKey: "dealer_pack", editType: "flat", currentEditValue: effectivePack });
+      blocks.push({ id: "dealer_pack", label: "Dealer Pack", value: -effectivePack, runningTotal: running, type: "subtract", editable: false, editKey: "dealer_pack", editType: "flat", currentEditValue: effectivePack });
     }
 
     // Global %
@@ -435,8 +435,6 @@ export default function AppraisalTool() {
       updateLocalSetting("condition_multipliers", { excellent: 1, good: 1, fair: 1, rough: 1, ...(activeSettings?.condition_multipliers || {}), [condition]: value });
     } else if (editKey === "recon_cost") {
       updateLocalSetting("recon_cost", value);
-    } else if (editKey === "dealer_pack") {
-      setDealerPackOverride(value);
     } else if (editKey === "global_adjustment_pct") {
       updateLocalSetting("global_adjustment_pct", value);
     } else if (editKey === "regional_adjustment_pct") {
