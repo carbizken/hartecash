@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 import confetti from "canvas-confetti";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Save, CheckCircle, Gauge, Wrench, Car, Lock, DollarSign, ClipboardCheck } from "lucide-react";
+import {
+  Save, CheckCircle, Gauge, Wrench, Car, Lock, DollarSign, ClipboardCheck,
+  Paintbrush, Armchair, Zap, Eye,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,6 +35,119 @@ const MobileField = ({ label, value, onChange, placeholder }: { label: string; v
   </div>
 );
 
+// ── Standard Inspection Checklists ──
+const STANDARD_SECTIONS = [
+  {
+    key: "test_drive",
+    label: "Test Drive",
+    icon: Car,
+    items: [
+      "Test drive completed",
+      "Transmission shifts correctly",
+      "No unusual engine noise",
+      "Brakes feel normal",
+      "Steering straight / no pull",
+      "Suspension smooth — no clunks",
+      "No warning lights on dash",
+      "A/C blows cold",
+      "Heat works",
+    ],
+  },
+  {
+    key: "exterior",
+    label: "Exterior",
+    icon: Paintbrush,
+    items: [
+      "Paint condition acceptable",
+      "No major dents or dings",
+      "Bumpers — no cracks",
+      "Windshield — no chips/cracks",
+      "All lights working",
+      "Wheels/rims — no curb rash",
+      "Mirrors intact",
+      "No visible rust",
+    ],
+  },
+  {
+    key: "interior",
+    label: "Interior",
+    icon: Armchair,
+    items: [
+      "Seats — no tears or stains",
+      "Dashboard — no cracks",
+      "Carpet/mats acceptable",
+      "Headliner intact",
+      "No odor (smoke, pets, mold)",
+      "Steering wheel condition OK",
+      "All seat belts work",
+    ],
+  },
+  {
+    key: "mechanical",
+    label: "Mechanical",
+    icon: Wrench,
+    items: [
+      "Engine starts/idles smoothly",
+      "No visible fluid leaks",
+      "Exhaust — no excessive smoke",
+      "Battery holds charge",
+      "Oil level/condition OK",
+    ],
+  },
+  {
+    key: "electrical",
+    label: "Electrical",
+    icon: Zap,
+    items: [
+      "Power windows work",
+      "Power locks work",
+      "Radio/infotainment works",
+      "Backup camera works",
+      "All interior lights work",
+      "Sunroof/moonroof operates",
+    ],
+  },
+];
+
+// ── Tappable Check Item ──
+const CheckItem = ({
+  label,
+  checked,
+  issue,
+  onToggle,
+  onIssueToggle,
+}: {
+  label: string;
+  checked: boolean;
+  issue: boolean;
+  onToggle: () => void;
+  onIssueToggle: () => void;
+}) => (
+  <div className="flex items-center gap-2 py-1.5 border-b border-border/50 last:border-0">
+    <button
+      onClick={onToggle}
+      className={`w-6 h-6 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+        checked
+          ? "bg-emerald-500 border-emerald-500 text-white"
+          : "border-muted-foreground/30 bg-background"
+      }`}
+    >
+      {checked && <CheckCircle className="w-4 h-4" />}
+    </button>
+    <span className={`text-sm flex-1 ${checked ? "text-foreground" : "text-muted-foreground"}`}>{label}</span>
+    <button
+      onClick={onIssueToggle}
+      className={`text-[10px] px-2 py-0.5 rounded-full border transition-all ${
+        issue
+          ? "bg-red-500/10 text-red-600 border-red-300 font-semibold"
+          : "bg-muted text-muted-foreground border-transparent"
+      }`}
+    >
+      {issue ? "Issue" : "Flag"}
+    </button>
+  </div>
+);
+
 const MobileInspection = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
@@ -50,7 +166,7 @@ const MobileInspection = () => {
   const [saving, setSaving] = useState(false);
   const [lastAdjustment, setLastAdjustment] = useState<{ adjustment: number; avg_depth: number } | null>(null);
 
-  // Tappable tire depths
+  // Tire depths
   const [tireLF, setTireLF] = useState<number | null>(null);
   const [tireRF, setTireRF] = useState<number | null>(null);
   const [tireLR, setTireLR] = useState<number | null>(null);
@@ -62,20 +178,25 @@ const MobileInspection = () => {
   const [brakeLR, setBrakeLR] = useState<number | null>(null);
   const [brakeRR, setBrakeRR] = useState<number | null>(null);
 
-  // Fields shared by both modes
+  // Shared fields
   const [overallGrade, setOverallGrade] = useState("");
   const [inspectorNotes, setInspectorNotes] = useState("");
-
-  // Standard mode quick checks
   const [acNotes, setAcNotes] = useState("");
 
-  // Full mode deep mechanical fields
+  // Full mode fields
   const [paintReading, setPaintReading] = useState("");
   const [oilLife, setOilLife] = useState("");
   const [batteryHealth, setBatteryHealth] = useState("");
   const [engineNotes, setEngineNotes] = useState("");
   const [transmissionNotes, setTransmissionNotes] = useState("");
   const [suspensionNotes, setSuspensionNotes] = useState("");
+
+  // Standard mode checklist state
+  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+  const [issueItems, setIssueItems] = useState<Record<string, boolean>>({});
+
+  const toggleChecked = (key: string) => setCheckedItems(prev => ({ ...prev, [key]: !prev[key] }));
+  const toggleIssue = (key: string) => setIssueItems(prev => ({ ...prev, [key]: !prev[key] }));
 
   // Verify PIN
   const handleVerifyPin = async () => {
@@ -99,7 +220,7 @@ const MobileInspection = () => {
     if (pinInput.length === 4 && !pinVerified) handleVerifyPin();
   }, [pinInput]);
 
-  // Load data after PIN verified
+  // Load data
   useEffect(() => {
     if (!id || !pinVerified) return;
     const fetchData = async () => {
@@ -127,25 +248,46 @@ const MobileInspection = () => {
 
   const handleSave = async () => {
     setSaving(true);
-    const notes = [
+
+    // Build notes
+    const parts: string[] = [
       `[${isFullMode ? "FULL" : "STANDARD"} INSPECTION ${new Date().toLocaleString()}]`,
-      tireLF !== null ? `Tires (tread /32): LF:${tireLF} RF:${tireRF} LR:${tireLR} RR:${tireRR}` : null,
-      `Brakes (/32): LF:${brakeLF ?? "—"} RF:${brakeRF ?? "—"} LR:${brakeLR ?? "—"} RR:${brakeRR ?? "—"}`,
-      acNotes && `A/C: ${acNotes}`,
-      // Full mode fields
-      isFullMode && paintReading && `Paint: ${paintReading}`,
-      isFullMode && oilLife && `Oil: ${oilLife}`,
-      isFullMode && batteryHealth && `Battery: ${batteryHealth}`,
-      isFullMode && engineNotes && `Engine: ${engineNotes}`,
-      isFullMode && transmissionNotes && `Trans: ${transmissionNotes}`,
-      isFullMode && suspensionNotes && `Suspension: ${suspensionNotes}`,
-      overallGrade && `Grade: ${overallGrade}`,
-      inspectorNotes && `Notes: ${inspectorNotes}`,
-    ].filter(Boolean).join("\n");
+    ];
+
+    if (tireLF !== null) {
+      parts.push(`Tires (tread /32): LF:${tireLF} RF:${tireRF} LR:${tireLR} RR:${tireRR}`);
+    }
+    parts.push(`Brakes (/32): LF:${brakeLF ?? "—"} RF:${brakeRF ?? "—"} LR:${brakeLR ?? "—"} RR:${brakeRR ?? "—"}`);
+
+    if (!isFullMode) {
+      // Standard checklist results
+      const passed: string[] = [];
+      const flagged: string[] = [];
+      STANDARD_SECTIONS.forEach(section => {
+        section.items.forEach(item => {
+          const key = `${section.key}::${item}`;
+          if (issueItems[key]) flagged.push(`⚠ ${item}`);
+          else if (checkedItems[key]) passed.push(`✓ ${item}`);
+        });
+      });
+      if (passed.length) parts.push(`PASSED:\n${passed.join("\n")}`);
+      if (flagged.length) parts.push(`ISSUES FOUND:\n${flagged.join("\n")}`);
+    } else {
+      if (paintReading) parts.push(`Paint: ${paintReading}`);
+      if (oilLife) parts.push(`Oil: ${oilLife}`);
+      if (batteryHealth) parts.push(`Battery: ${batteryHealth}`);
+      if (acNotes) parts.push(`A/C: ${acNotes}`);
+      if (engineNotes) parts.push(`Engine: ${engineNotes}`);
+      if (transmissionNotes) parts.push(`Trans: ${transmissionNotes}`);
+      if (suspensionNotes) parts.push(`Suspension: ${suspensionNotes}`);
+    }
+
+    if (overallGrade) parts.push(`Grade: ${overallGrade}`);
+    if (inspectorNotes) parts.push(`Notes: ${inspectorNotes}`);
 
     const { data, error } = await supabase.rpc("save_mobile_inspection", {
       _submission_id: id!,
-      _internal_notes: notes,
+      _internal_notes: parts.join("\n"),
       _overall_condition: overallGrade || null,
       _tire_lf: tireLF,
       _tire_rf: tireRF,
@@ -162,15 +304,13 @@ const MobileInspection = () => {
       toast({ title: "Error saving", description: error.message, variant: "destructive" });
     } else {
       const result = data as any;
-      if (result && result.adjustment !== undefined) {
-        setLastAdjustment(result);
-      }
+      if (result && result.adjustment !== undefined) setLastAdjustment(result);
       confetti({ particleCount: 80, spread: 60, origin: { y: 0.95 }, colors: ["#10b981", "#3b82f6", "#f59e0b"] });
       toast({ title: "Inspection saved", description: "Data synced to the customer file." });
     }
   };
 
-  // PIN entry screen
+  // ── PIN Screen ──
   if (!pinVerified) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
@@ -212,6 +352,11 @@ const MobileInspection = () => {
   );
 
   const vehicleTitle = `${submission.vehicle_year || ""} ${submission.vehicle_make || ""} ${submission.vehicle_model || ""}`.trim();
+
+  // Standard checklist stats
+  const totalCheckItems = STANDARD_SECTIONS.reduce((sum, s) => sum + s.items.length, 0);
+  const checkedCount = Object.values(checkedItems).filter(Boolean).length;
+  const issueCount = Object.values(issueItems).filter(Boolean).length;
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -261,7 +406,7 @@ const MobileInspection = () => {
           </Card>
         )}
 
-        {/* Tire Tread & Brake Pads */}
+        {/* Tire Tread & Brake Pads — Always shown */}
         <Card>
           <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-sm flex items-center gap-2">
@@ -273,24 +418,24 @@ const MobileInspection = () => {
             <BrakePadDepthWidget
               tireDepths={{ leftFront: tireLF, rightFront: tireRF, leftRear: tireLR, rightRear: tireRR }}
               brakeDepths={{ leftFront: brakeLF, rightFront: brakeRF, leftRear: brakeLR, rightRear: brakeRR }}
-              onTireChange={(id, depth) => {
-                if (id === "leftFront") setTireLF(depth);
-                else if (id === "rightFront") setTireRF(depth);
-                else if (id === "leftRear") setTireLR(depth);
-                else if (id === "rightRear") setTireRR(depth);
+              onTireChange={(pos, depth) => {
+                if (pos === "leftFront") setTireLF(depth);
+                else if (pos === "rightFront") setTireRF(depth);
+                else if (pos === "leftRear") setTireLR(depth);
+                else if (pos === "rightRear") setTireRR(depth);
               }}
-              onBrakeChange={(id, depth) => {
-                if (id === "leftFront") setBrakeLF(depth);
-                else if (id === "rightFront") setBrakeRF(depth);
-                else if (id === "leftRear") setBrakeLR(depth);
-                else if (id === "rightRear") setBrakeRR(depth);
+              onBrakeChange={(pos, depth) => {
+                if (pos === "leftFront") setBrakeLF(depth);
+                else if (pos === "rightFront") setBrakeRF(depth);
+                else if (pos === "leftRear") setBrakeLR(depth);
+                else if (pos === "rightRear") setBrakeRR(depth);
               }}
               compact
             />
           </CardContent>
         </Card>
 
-        {/* Tire Adjustment Result (after save) */}
+        {/* Tire Adjustment Result */}
         {lastAdjustment && lastAdjustment.adjustment !== 0 && (
           <Card className={lastAdjustment.adjustment > 0 ? "border-green-300 bg-green-50" : "border-red-300 bg-red-50"}>
             <CardContent className="py-3 px-4 flex items-center gap-3">
@@ -305,25 +450,77 @@ const MobileInspection = () => {
           </Card>
         )}
 
-        {/* Standard Mode: Quick Checks (abbreviated) */}
+        {/* ═══════ STANDARD MODE: Checklist Categories ═══════ */}
         {!isFullMode && (
-          <Card>
-            <CardHeader className="pb-2 pt-4 px-4">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <ClipboardCheck className="h-4 w-4 text-primary" /> Quick Checks
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 pb-4 space-y-3">
-              <MobileField label="A/C" value={acNotes} onChange={setAcNotes} placeholder="e.g. Blowing cold" />
-              <div>
-                <label className="text-xs font-semibold text-muted-foreground mb-1 block">Notes</label>
-                <Textarea value={inspectorNotes} onChange={e => setInspectorNotes(e.target.value)} placeholder="Paint issues, interior concerns, anything notable..." className="text-sm min-h-[80px]" />
+          <>
+            {/* Progress bar */}
+            <div className="flex items-center gap-3 px-1">
+              <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary rounded-full transition-all"
+                  style={{ width: `${totalCheckItems > 0 ? (checkedCount / totalCheckItems) * 100 : 0}%` }}
+                />
               </div>
-            </CardContent>
-          </Card>
+              <span className="text-xs text-muted-foreground font-medium">{checkedCount}/{totalCheckItems}</span>
+              {issueCount > 0 && (
+                <Badge variant="destructive" className="text-[10px]">{issueCount} issue{issueCount > 1 ? "s" : ""}</Badge>
+              )}
+            </div>
+
+            {STANDARD_SECTIONS.map(section => {
+              const Icon = section.icon;
+              const sectionChecked = section.items.filter(item => checkedItems[`${section.key}::${item}`]).length;
+              return (
+                <Card key={section.key}>
+                  <CardHeader className="pb-2 pt-4 px-4">
+                    <CardTitle className="text-sm flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <Icon className="h-4 w-4 text-primary" /> {section.label}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground font-normal">
+                        {sectionChecked}/{section.items.length}
+                      </span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="px-4 pb-3">
+                    {section.items.map(item => {
+                      const key = `${section.key}::${item}`;
+                      return (
+                        <CheckItem
+                          key={key}
+                          label={item}
+                          checked={!!checkedItems[key]}
+                          issue={!!issueItems[key]}
+                          onToggle={() => toggleChecked(key)}
+                          onIssueToggle={() => toggleIssue(key)}
+                        />
+                      );
+                    })}
+                  </CardContent>
+                </Card>
+              );
+            })}
+
+            {/* Notes */}
+            <Card>
+              <CardHeader className="pb-2 pt-4 px-4">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Eye className="h-4 w-4 text-primary" /> Additional Notes
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <Textarea
+                  value={inspectorNotes}
+                  onChange={e => setInspectorNotes(e.target.value)}
+                  placeholder="Anything else worth noting — paint work, aftermarket parts, odor, etc."
+                  className="text-sm min-h-[80px]"
+                />
+              </CardContent>
+            </Card>
+          </>
         )}
 
-        {/* Full Mode: Deep Mechanical Checks */}
+        {/* ═══════ FULL MODE: Deep Mechanical ═══════ */}
         {isFullMode && (
           <Card>
             <CardHeader className="pb-2 pt-4 px-4">
@@ -352,7 +549,7 @@ const MobileInspection = () => {
           </Card>
         )}
 
-        {/* Final Grade */}
+        {/* Final Grade — always shown */}
         <Card>
           <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-sm flex items-center gap-2">
