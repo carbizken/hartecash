@@ -1585,7 +1585,7 @@ const InspectionSheet = () => {
                 <select
                   value={inspectorGrade}
                   onChange={e => setInspectorGrade(e.target.value)}
-                  className={`w-full h-10 rounded-md border-2 bg-background px-3 text-sm font-bold capitalize transition-all ${
+                  className={`w-full h-10 rounded-md border-2 bg-background px-3 text-sm font-bold transition-all ${
                     inspectorGrade
                       ? "border-primary ring-2 ring-primary/20 text-primary"
                       : "border-input text-muted-foreground"
