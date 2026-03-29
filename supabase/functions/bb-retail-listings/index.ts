@@ -82,8 +82,12 @@ serve(async (req) => {
       });
     }
 
-    if (statsData.error_count > 0) {
-      const errorMsg = statsData.message_list?.map((m: { description: string }) => m.description).join(", ") || "Retail data not available";
+    // deno-lint-ignore no-explicit-any
+    const sd = statsData as any;
+    console.log("BB Retail Stats keys:", Object.keys(sd));
+
+    if (sd.error_count > 0) {
+      const errorMsg = sd.message_list?.map((m: { description: string }) => m.description).join(", ") || "Retail data not available";
       console.error("BB Retail Stats error:", errorMsg);
       return new Response(JSON.stringify({ error: errorMsg, statistics: null, listings: [] }), {
         status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
