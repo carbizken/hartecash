@@ -331,7 +331,7 @@ export default function AppraisalTool() {
 
   // Effective values
   const currentOffer = sub?.offered_price || sub?.estimated_offer_high || 0;
-  const effectivePack = dealerPackOverride ?? dealerPack;
+  const effectivePack = dealerPack;
   const retailAvg = Number(bbVehicle?.retail?.avg || sub?.bb_retail_avg || 0);
   const wholesaleAvg = Number(bbVehicle?.wholesale?.avg || sub?.bb_wholesale_avg || 0);
   const tradeinAvg = Number(bbVehicle?.tradein?.avg || sub?.bb_tradein_avg || 0);
