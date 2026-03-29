@@ -729,7 +729,7 @@ const InspectionSheet = () => {
     const { data, error } = await supabase.rpc("save_mobile_inspection", {
       _submission_id: id!,
       _internal_notes: sections,
-      _overall_condition: overallGrade || null,
+      _overall_condition: inspectorGrade || overallGrade || null,
       _tire_lf: tireDepth.lf,
       _tire_rf: tireDepth.rf,
       _tire_lr: tireDepth.lr,
@@ -738,6 +738,7 @@ const InspectionSheet = () => {
       _brake_rf: brakeDepth.rf,
       _brake_lr: brakeDepth.lr,
       _brake_rr: brakeDepth.rr,
+      _inspector_grade: inspectorGrade || null,
     } as any);
 
     setSaving(false);
