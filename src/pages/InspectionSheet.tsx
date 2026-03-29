@@ -492,6 +492,10 @@ const InspectionSheet = () => {
   const [tireDepth, setTireDepth] = useState<{ lf: number | null; rf: number | null; lr: number | null; rr: number | null }>({ lf: null, rf: null, lr: null, rr: null });
   const [brakeDepth, setBrakeDepth] = useState<{ lf: number | null; rf: number | null; lr: number | null; rr: number | null }>({ lf: null, rf: null, lr: null, rr: null });
 
+  // Depth policies
+  interface DepthPolicy { id: string; name: string; policy_type: string; oem_brands: string[]; all_brands: boolean; max_vehicle_age_years: number | null; max_mileage: number | null; min_tire_depth: number; min_brake_depth: number; is_active: boolean; }
+  const [depthPolicies, setDepthPolicies] = useState<DepthPolicy[]>([]);
+
   // Mechanical fields
   const [inspectorNotes, setInspectorNotes] = useState("");
   const [paintReading, setPaintReading] = useState("");
