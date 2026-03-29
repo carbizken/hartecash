@@ -26,7 +26,7 @@ function getStatus(depth: number) {
 }
 
 function toMm(depth: number, min = 1) {
-  return Math.max(min, Math.round((depth / 32) * 25.4));
+  return Math.max(min, Math.ceil((depth / 32) * 25.4));
 }
 
 /* ─── SVG visuals ─── */
