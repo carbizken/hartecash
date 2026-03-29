@@ -1611,7 +1611,7 @@ const InspectionSheet = () => {
                 {customerGrade && customerGrade !== inspectorGrade && (
                   <div className="ml-auto text-right">
                     <p className="text-[9px] text-muted-foreground">Customer said</p>
-                    <p className="text-xs font-medium capitalize text-muted-foreground line-through">{customerGrade}</p>
+                    <p className="text-xs font-medium text-muted-foreground">{formatGrade(customerGrade)}</p>
                   </div>
                 )}
               </div>
