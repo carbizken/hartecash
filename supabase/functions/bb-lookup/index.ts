@@ -86,26 +86,50 @@ serve(async (req) => {
       if (!vUvc) return [];
       try {
         const colorUrl = `${BB_COLOR_BASE}/${encodeURIComponent(vUvc)}?category=Exterior%20Colors&country=U`;
+        console.log(`Fetching BB colors: ${colorUrl}`);
         const colorRes = await fetch(colorUrl, {
           headers: {
             "Authorization": `Basic ${credentials}`,
             "Accept": "application/json",
           },
         });
-        if (!colorRes.ok) return [];
+        console.log(`BB colors response status: ${colorRes.status}`);
+        if (!colorRes.ok) {
+          const errBody = await colorRes.text();
+          console.log(`BB colors error body: ${errBody}`);
+          return [];
+        }
         const colorData = await colorRes.json();
-        const categories = colorData.color_categories?.color_category_list || [];
+        console.log(`BB colors raw keys: ${JSON.stringify(Object.keys(colorData))}`);
+        console.log(`BB colors sample: ${JSON.stringify(colorData).substring(0, 500)}`);
+        
+        // Try multiple possible response structures
+        const categories = colorData.color_categories?.color_category_list 
+          || colorData.used_vehicle_colors?.color_category_list
+          || [];
+        
+        if (categories.length === 0) {
+          console.log(`No color categories found in response`);
+          return [];
+        }
+        
         const exteriorCat = categories.find((c: Record<string, unknown>) =>
           (c.category_name as string || "").toLowerCase().includes("exterior")
         );
-        if (!exteriorCat) return [];
-        const colorList = (exteriorCat.colors?.color_list || []) as Array<Record<string, unknown>>;
+        if (!exteriorCat) {
+          console.log(`No exterior category found. Categories: ${categories.map((c: Record<string, unknown>) => c.category_name).join(', ')}`);
+          return [];
+        }
+        
+        const colorList = (exteriorCat.colors?.color_list || exteriorCat.color_list || []) as Array<Record<string, unknown>>;
+        console.log(`Found ${colorList.length} exterior colors`);
         return colorList.map((c) => ({
-          code: c.color_code || "",
-          name: c.color_name || "",
-          rgb: c.rgb_value || "",
+          code: c.color_code || c.code || "",
+          name: c.color_name || c.name || "",
+          rgb: c.rgb_value || c.rgb || "",
         }));
-      } catch {
+      } catch (e) {
+        console.error(`BB color fetch error for UVC ${vUvc}:`, (e as Error).message);
         return [];
       }
     });
