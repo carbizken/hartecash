@@ -58,6 +58,7 @@ const AdminSidebar = ({
   // ── Pipeline (daily ops) ──
   const pipelineItems = [
     { key: "submissions", label: "Submissions", icon: Inbox, badge: submissionCount > 0 ? String(submissionCount) : undefined },
+    { key: "appraisals", label: "Appraisals", icon: Car, badge: undefined },
     { key: "appointments", label: "Appointments", icon: CalendarDays, badge: appointmentCount > 0 ? String(appointmentCount) : undefined },
     { key: "executive", label: "Performance", icon: BarChart3 },
   ].filter((item) => isAllowed(item.key));
