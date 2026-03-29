@@ -79,6 +79,7 @@ export const useInspectionConfig = () => {
           require_photos: (data.require_photos as any) || {},
           require_notes: (data.require_notes as any) || {},
           custom_items: (data.custom_items as any) || [],
+          default_inspection_mode: ((data as any).default_inspection_mode === "full" ? "full" : "standard") as "standard" | "full",
         });
       }
       setLoading(false);
