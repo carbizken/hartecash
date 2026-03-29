@@ -997,6 +997,37 @@ const InspectionSheet = () => {
       </div>
 
       <div ref={printRef} className="max-w-5xl mx-auto p-4 md:p-6 print:p-4 print:max-w-none space-y-4">
+        {/* Inspection Mode Toggle */}
+        <div className="flex items-center justify-between flex-wrap gap-3 print:hidden">
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+            <button
+              onClick={() => setInspectionMode("full")}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                inspectionMode === "full"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Wrench className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
+              Full Inspection
+            </button>
+            <button
+              onClick={() => setInspectionMode("ucm")}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                inspectionMode === "ucm"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <ClipboardCheck className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
+              Manager Walk-Around
+            </button>
+          </div>
+          <p className="text-[10px] text-muted-foreground">
+            {inspectionMode === "full" ? "Full tech-level deep inspection" : "Abbreviated check for used car managers"}
+          </p>
+        </div>
+
         {/* Grade Legend + instruction */}
         <div className="flex items-center justify-between flex-wrap gap-2">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
