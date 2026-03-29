@@ -625,6 +625,33 @@ export default function AppraisalTool() {
                   <Badge variant="secondary" className="text-[8px] ml-auto">Inspection Data Applied</Badge>
                 )}
               </div>
+              {/* Final Grade Callout */}
+              <div className="mb-3 p-2.5 rounded-lg border-2 border-primary/30 bg-primary/5 flex items-center gap-3">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {sub.inspector_grade ? "Final Grade (Inspector Verified)" : "Customer Self-Assessment"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`text-xl font-black capitalize ${
+                      sub.inspector_grade
+                        ? "text-primary"
+                        : "text-card-foreground"
+                    }`}>
+                      {sub.inspector_grade || sub.overall_condition || "—"}
+                    </span>
+                    {sub.inspector_grade && sub.overall_condition && sub.inspector_grade !== sub.overall_condition && (
+                      <span className="text-[10px] text-muted-foreground">
+                        Customer said: <span className="line-through capitalize">{sub.overall_condition}</span>
+                      </span>
+                    )}
+                    {!sub.inspector_grade && sub.overall_condition && (
+                      <Badge variant="outline" className="text-[9px] border-amber-400/50 text-amber-600">Pending inspector verification</Badge>
+                    )}
+                  </div>
+                </div>
+              </div>
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                 <div>
                   <Label className="text-[10px] font-semibold">Condition</Label>

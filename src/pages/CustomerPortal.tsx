@@ -275,6 +275,7 @@ const CustomerPortal = () => {
     overallCondition: s.overall_condition,
     drivetrain: condition?.drivetrain || null,
     canEdit: canEditMileage,
+    inspectorGrade: s.inspector_grade,
     brakeDepths: (s.brake_lf != null || s.brake_rf != null || s.brake_lr != null || s.brake_rr != null)
       ? { lf: s.brake_lf, rf: s.brake_rf, lr: s.brake_lr, rr: s.brake_rr }
       : null,
