@@ -21,6 +21,7 @@ import {
 import ProfitSpreadGauge from "@/components/admin/ProfitSpreadGauge";
 import MarketContextPanel from "@/components/admin/MarketContextPanel";
 import RetailMarketPanel from "@/components/admin/RetailMarketPanel";
+import BrakePadDepthWidget from "@/components/inspection/BrakePadDepthWidget";
 import { calculateOffer, type OfferSettings, type OfferRule, type OfferEstimate } from "@/lib/offerCalculator";
 import type { FormData, BBVehicle, BBAddDeduct } from "@/components/sell-form/types";
 
@@ -952,13 +953,17 @@ export default function AppraisalTool() {
                   )}
                   {hasBrakes && brakeDepths && (
                     <div>
-                      <div className="text-[10px] font-semibold text-muted-foreground uppercase mb-1">Brake Pad Depth</div>
-                      <div className="grid grid-cols-4 gap-2">
-                        <BrakePadDisplay label="LF" depth={brakeDepths.lf} />
-                        <BrakePadDisplay label="RF" depth={brakeDepths.rf} />
-                        <BrakePadDisplay label="LR" depth={brakeDepths.lr} />
-                        <BrakePadDisplay label="RR" depth={brakeDepths.rr} />
-                      </div>
+                      <div className="text-[10px] font-semibold text-muted-foreground uppercase mb-2">Brake Pad Depth</div>
+                      <BrakePadDepthWidget
+                        depths={{
+                          leftFront: brakeDepths.lf,
+                          rightFront: brakeDepths.rf,
+                          leftRear: brakeDepths.lr,
+                          rightRear: brakeDepths.rr,
+                        }}
+                        readOnly
+                        compact
+                      />
                       {avgBrakeDepth != null && (
                         <div className="mt-1.5 px-1">
                           <span className="text-[10px] text-muted-foreground">Avg: {avgBrakeDepth.toFixed(1)}/32"</span>
