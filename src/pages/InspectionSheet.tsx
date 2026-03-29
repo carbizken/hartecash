@@ -1606,7 +1606,7 @@ const InspectionSheet = () => {
                 <Shield className="w-5 h-5 text-primary" />
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Verified Final Grade</p>
-                  <p className="text-lg font-black capitalize text-primary">{inspectorGrade}</p>
+                  <p className="text-lg font-black text-primary">{formatGrade(inspectorGrade)}</p>
                 </div>
                 {customerGrade && customerGrade !== inspectorGrade && (
                   <div className="ml-auto text-right">
