@@ -158,6 +158,11 @@ Return ONLY valid JSON, no markdown.`,
         .eq("token", submissionToken);
     } else if (titleVin === onFileVin) {
       vinMatch = "match";
+      // Persist VIN verified status
+      await supabase
+        .from("submissions")
+        .update({ vin_verified: true })
+        .eq("token", submissionToken);
     } else {
       vinMatch = "mismatch";
       // Log VIN mismatch in activity log

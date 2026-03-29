@@ -450,7 +450,18 @@ const SubmissionDetailSheet = ({
                 )}
                 <div className="grid grid-cols-2 gap-x-6 gap-y-2">
                   <DetailRow label="Year/Make/Model" value={`${sub.vehicle_year || ""} ${sub.vehicle_make || ""} ${sub.vehicle_model || ""}`.trim() || null} icon={<Car className="w-3.5 h-3.5" />} />
-                  <DetailRow label="VIN" value={sub.vin} icon={<Info className="w-3.5 h-3.5" />} />
+                  <DetailRow label="VIN" value={
+                    sub.vin ? (
+                      <span className="flex items-center gap-1.5">
+                        {sub.vin}
+                        {(sub as any).vin_verified && (
+                          <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-emerald-600 bg-emerald-500/10 rounded-full px-1.5 py-0.5" title="VIN verified via document OCR">
+                            <CheckCircle2 className="w-3 h-3" /> Verified
+                          </span>
+                        )}
+                      </span>
+                    ) : null
+                  } icon={<Info className="w-3.5 h-3.5" />} />
                   <DetailRow label="Plate" value={sub.plate} icon={<FileText className="w-3.5 h-3.5" />} />
                   <DetailRow label="Mileage" value={sub.mileage} icon={<Gauge className="w-3.5 h-3.5" />} />
                   <DetailRow label="Exterior Color" value={sub.exterior_color} icon={<Palette className="w-3.5 h-3.5" />} />
