@@ -264,8 +264,14 @@ export default function AppraisalTool() {
           if (!error && data?.vehicles?.length > 0) {
             const vehicle = data.vehicles[0] as BBVehicle;
             setLiveBbVehicle(vehicle);
-            const autoSelected = (vehicle.add_deduct_list || []).filter((ad: BBAddDeduct) => ad.auto !== "N").map((ad: BBAddDeduct) => ad.uoc);
-            setLiveSelectedAddDeducts(autoSelected);
+            // Initialize from customer selections if saved, else default to auto-detected
+            const customerSelections: string[] = (s as any).bb_selected_options || [];
+            if (customerSelections.length > 0) {
+              setLiveSelectedAddDeducts(customerSelections);
+            } else {
+              const autoSelected = (vehicle.add_deduct_list || []).filter((ad: BBAddDeduct) => ad.auto !== "N").map((ad: BBAddDeduct) => ad.uoc);
+              setLiveSelectedAddDeducts(autoSelected);
+            }
           }
         } catch (e) { console.error("BB lookup for appraisal:", e); }
         setBbLoading(false);

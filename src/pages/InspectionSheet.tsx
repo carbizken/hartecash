@@ -1236,6 +1236,92 @@ const InspectionSheet = () => {
           </Card>
         </div>
 
+        {/* Powertrain & Equipment Verification */}
+        {(() => {
+          const addDeducts: any[] = (() => {
+            try {
+              const raw = submission.bb_add_deducts;
+              if (Array.isArray(raw)) return raw;
+              if (typeof raw === "string") return JSON.parse(raw);
+              return [];
+            } catch { return []; }
+          })();
+          const customerSelected: string[] = submission.bb_selected_options || [];
+          const autoEquipment = addDeducts.filter((ad: any) => ad.auto !== "N");
+          const customerOptional = addDeducts.filter((ad: any) => ad.auto === "N" && customerSelected.includes(ad.uoc));
+          const hasPowertrain = submission.bb_drivetrain || submission.bb_transmission || submission.bb_engine || submission.bb_fuel_type;
+          const hasEquipment = autoEquipment.length > 0 || customerOptional.length > 0;
+
+          return (hasPowertrain || hasEquipment) ? (
+            <Card className="print:shadow-none print:border-foreground/30 border-l-4 border-l-primary bg-primary/5">
+              <CardHeader className="pb-2 pt-3">
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <Shield className="h-4 w-4 text-primary" />
+                  Equipment & Powertrain Verification
+                  <span className="ml-auto text-[10px] text-muted-foreground font-normal">Verify all items match the vehicle</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pb-3 space-y-3">
+                {/* Powertrain Specs */}
+                {hasPowertrain && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    {[
+                      { label: "Drivetrain", value: submission.bb_drivetrain },
+                      { label: "Transmission", value: submission.bb_transmission },
+                      { label: "Engine", value: submission.bb_engine },
+                      { label: "Fuel Type", value: submission.bb_fuel_type },
+                    ].filter(s => s.value).map(spec => (
+                      <div key={spec.label} className="flex items-center gap-2 px-3 py-2 rounded-lg border bg-card text-sm">
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0" />
+                        <div>
+                          <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold block">{spec.label}</span>
+                          <span className="font-semibold text-card-foreground text-xs">{spec.value}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Auto-Included Equipment */}
+                {autoEquipment.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">Factory Equipment (from VIN)</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {autoEquipment.map((ad: any) => (
+                        <Badge key={ad.uoc} variant="secondary" className="text-[10px] gap-1">
+                          <CheckCircle className="w-3 h-3 text-success" />
+                          {ad.name}
+                          {ad.avg !== 0 && <span className={`font-bold ${ad.avg > 0 ? "text-success" : "text-destructive"}`}>{ad.avg > 0 ? "+" : ""}${ad.avg.toLocaleString()}</span>}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Customer-Selected Optional Equipment — VERIFY THESE */}
+                {customerOptional.length > 0 && (
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-1.5">⚠ Customer Claims These Options — Verify Present</p>
+                    <div className="grid gap-1.5">
+                      {customerOptional.map((ad: any) => (
+                        <div key={ad.uoc} className="flex items-center gap-2 px-3 py-2 rounded-lg border-2 border-dashed border-amber-400/50 bg-amber-500/5 text-sm">
+                          <div className="w-5 h-5 border-2 border-amber-500 rounded flex-shrink-0" />
+                          <span className="font-medium text-card-foreground">{ad.name}</span>
+                          {ad.avg !== 0 && (
+                            <span className={`ml-auto text-xs font-bold ${ad.avg > 0 ? "text-success" : "text-destructive"}`}>
+                              {ad.avg > 0 ? "+" : ""}${ad.avg.toLocaleString()}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ) : null;
+        })()}
+
         {/* Customer-Reported Issues */}
         {(submission.exterior_damage?.length || submission.interior_damage?.length || submission.mechanical_issues?.length || submission.engine_issues?.length) && (
           <Card className="print:shadow-none print:border-foreground/30 border-l-4 border-l-amber-500 bg-amber-500/5">

@@ -392,6 +392,7 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
           bb_base_whole_avg: bbSelectedVehicle?.base_whole_avg || null,
           bb_retail_avg: bbSelectedVehicle?.retail?.avg || null,
           bb_add_deducts: bbSelectedVehicle?.add_deduct_list ? JSON.stringify(bbSelectedVehicle.add_deduct_list) : null,
+          bb_selected_options: selectedAddDeducts.length > 0 ? selectedAddDeducts : [],
         } as any);
 
       if (error) throw error;
