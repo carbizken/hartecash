@@ -206,7 +206,7 @@ export default function AppraisalTool() {
   const [localSettings, setLocalSettings] = useState<OfferSettings | null>(null);
   const [acvOverride, setAcvOverride] = useState<number | null>(null);
   const [bbValueBasis, setBbValueBasis] = useState("tradein_avg");
-  const [dealerPackOverride, setDealerPackOverride] = useState<number | null>(null);
+  
 
   // Editable condition fields (pre-filled from customer, overridable by appraiser)
   const [condition, setCondition] = useState("good");
