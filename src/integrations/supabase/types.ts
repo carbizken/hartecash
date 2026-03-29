@@ -1789,6 +1789,10 @@ export type Database = {
           acv_value: number
           appointment_set: boolean
           bb_tradein_avg: number
+          brake_lf: number
+          brake_lr: number
+          brake_rf: number
+          brake_rr: number
           created_at: string
           docs_uploaded: boolean
           email: string
@@ -1844,6 +1848,10 @@ export type Database = {
           }
         | {
             Args: {
+              _brake_lf?: number
+              _brake_lr?: number
+              _brake_rf?: number
+              _brake_rr?: number
               _internal_notes: string
               _overall_condition?: string
               _submission_id: string
