@@ -438,6 +438,10 @@ const InspectionSheet = () => {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [showMobileQR, setShowMobileQR] = useState(false);
+  const [inspectionMode, setInspectionMode] = useState<InspectionMode>("full");
+
+  // Get section defs based on inspection mode
+  const SECTION_DEFS = getSectionDefs(inspectionMode);
 
   // Build config-aware section definitions
   const sectionToggleMap: Record<string, boolean> = {
