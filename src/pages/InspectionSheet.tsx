@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   ArrowLeft, Printer, Camera, AlertTriangle, CheckCircle, Car, Gauge, Wrench,
   Save, Smartphone, Eye, Zap, Paintbrush, Armchair, Shield, ThermometerSun,
-  ChevronDown, ChevronRight, CheckCheck, Sparkles,
+  ChevronDown, ChevronRight, CheckCheck, Sparkles, ClipboardCheck,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
