@@ -56,7 +56,31 @@ serve(async (req) => {
     console.log("BB Retail Stats URL:", statsUrl);
 
     const statsRes = await fetch(statsUrl, { headers: authHeaders });
-    const statsData = await statsRes.json();
+    const statsText = await statsRes.text();
+    console.log("BB Retail Stats status:", statsRes.status, "body length:", statsText.length);
+
+    if (!statsRes.ok) {
+      console.error("BB Retail Stats HTTP error:", statsRes.status, statsText.substring(0, 500));
+      return new Response(JSON.stringify({ error: `Black Book returned ${statsRes.status}: ${statsText.substring(0, 200)}` }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    if (!statsText || statsText.trim().length === 0) {
+      return new Response(JSON.stringify({ error: "Black Book returned an empty response. This vehicle may not have retail listing data available.", statistics: null, listings: [] }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    let statsData: Record<string, unknown>;
+    try {
+      statsData = JSON.parse(statsText);
+    } catch {
+      console.error("BB Retail Stats JSON parse error, raw:", statsText.substring(0, 500));
+      return new Response(JSON.stringify({ error: "Invalid response from Black Book API", statistics: null, listings: [] }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
 
     if (statsData.error_count > 0) {
       const errorMsg = statsData.message_list?.map((m: { description: string }) => m.description).join(", ") || "Retail data not available";
