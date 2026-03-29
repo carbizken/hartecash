@@ -277,6 +277,9 @@ const CustomerPortal = () => {
     brakeDepths: (s.brake_lf != null || s.brake_rf != null || s.brake_lr != null || s.brake_rr != null)
       ? { lf: s.brake_lf, rf: s.brake_rf, lr: s.brake_lr, rr: s.brake_rr }
       : null,
+    tireDepths: (s.tire_lf != null || s.tire_rf != null || s.tire_lr != null || s.tire_rr != null)
+      ? { lf: s.tire_lf, rf: s.tire_rf, lr: s.tire_lr, rr: s.tire_rr }
+      : null,
     onFieldUpdate: canEditMileage
       ? (field: string, value: string) => {
           if (field === "mileage") handleMileageUpdate(value);
