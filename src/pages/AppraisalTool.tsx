@@ -566,24 +566,24 @@ export default function AppraisalTool() {
         </div>
 
         {/* Vehicle Summary Bar */}
-        <div className="bg-muted/40 rounded-xl border border-border p-4 mb-5">
-          <div className="flex items-center gap-2 mb-2">
+        <div className="bg-card rounded-xl border border-border/60 p-4 mb-5 shadow-sm">
+          <div className="flex items-center gap-2.5 mb-2.5">
             <Car className="w-4 h-4 text-primary" />
-            <span className="font-bold text-sm text-card-foreground">
+            <span className="font-display text-sm text-card-foreground">
               {sub.vehicle_year} {(sub.vehicle_make || "").toUpperCase()} {(sub.vehicle_model || "").toUpperCase()} {liveBbVehicle?.series || ""}
             </span>
             {(liveBbVehicle?.class_name || sub.bb_class_name) && (
-              <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">{liveBbVehicle?.class_name || sub.bb_class_name}</span>
+              <span className="text-[10px] font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">{liveBbVehicle?.class_name || sub.bb_class_name}</span>
             )}
             {bbLoading && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />}
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-7 gap-2 text-xs">
             <div><span className="text-muted-foreground">Style:</span> <span className="font-medium text-card-foreground">{liveBbVehicle?.style || "—"}</span></div>
-            <div><span className="text-muted-foreground">Drivetrain:</span> <span className="font-medium text-card-foreground font-bold">{liveBbVehicle?.drivetrain || sub.bb_drivetrain || "—"}</span></div>
+            <div><span className="text-muted-foreground">Drivetrain:</span> <span className="font-bold text-card-foreground">{liveBbVehicle?.drivetrain || sub.bb_drivetrain || "—"}</span></div>
             <div><span className="text-muted-foreground">Engine:</span> <span className="font-medium text-card-foreground">{liveBbVehicle?.engine || sub.bb_engine || "—"}</span></div>
             <div><span className="text-muted-foreground">Trans:</span> <span className="font-medium text-card-foreground">{liveBbVehicle?.transmission || sub.bb_transmission || "—"}</span></div>
-            <div><span className="text-muted-foreground">MSRP:</span> <span className="font-medium text-card-foreground font-bold">${Number(liveBbVehicle?.msrp || sub.bb_msrp || 0).toLocaleString()}</span></div>
-            <div><span className="text-muted-foreground">Fuel:</span> <span className="font-medium text-card-foreground font-bold">{liveBbVehicle?.fuel_type || sub.bb_fuel_type || "—"}</span></div>
+            <div><span className="text-muted-foreground">MSRP:</span> <span className="font-bold text-card-foreground">${Number(liveBbVehicle?.msrp || sub.bb_msrp || 0).toLocaleString()}</span></div>
+            <div><span className="text-muted-foreground">Fuel:</span> <span className="font-bold text-card-foreground">{liveBbVehicle?.fuel_type || sub.bb_fuel_type || "—"}</span></div>
             <div><span className="text-muted-foreground">Color:</span> <span className="font-medium text-card-foreground">{sub.exterior_color || "—"}</span></div>
           </div>
           {/* Equipment — toggle-able add/deducts with customer selections highlighted */}
