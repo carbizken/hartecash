@@ -377,7 +377,7 @@ export default function AppraisalTool() {
     // Dealer Pack
     if (effectivePack > 0) {
       running -= effectivePack;
-      blocks.push({ id: "dealer_pack", label: "Dealer Pack", value: -effectivePack, runningTotal: running, type: "subtract", editable: true, editKey: "dealer_pack", editType: "flat", currentEditValue: effectivePack });
+      blocks.push({ id: "dealer_pack", label: "Dealer Pack", value: -effectivePack, runningTotal: running, type: "subtract", editable: false, editKey: "dealer_pack", editType: "flat", currentEditValue: effectivePack });
     }
 
     // Global %
