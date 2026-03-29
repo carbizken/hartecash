@@ -720,7 +720,9 @@ const InspectionSheet = () => {
         batteryHealth && `Battery: ${batteryHealth}`,
       ].filter(Boolean) : []),
       ...ACTIVE_CHECKLIST_SECTIONS.map(s => gatherSection(s.label.toUpperCase(), s.items)),
-      overallGrade && `Grade: ${overallGrade}`,
+      overallGrade && `Customer Grade: ${customerGrade}`,
+      inspectorGrade && `Final Grade: ${inspectorGrade}`,
+      !inspectorGrade && overallGrade && `Grade: ${overallGrade}`,
       inspectorNotes && `Notes: ${inspectorNotes}`,
     ].filter(Boolean).join("\n\n");
 
