@@ -1238,6 +1238,7 @@ export type Database = {
           assign_buying_center: boolean
           assign_customer_picks: boolean
           assign_oem_brand_match: boolean
+          business_hours: Json | null
           buying_center_location_id: string | null
           comparison_features: Json
           competitor_columns: Json
@@ -1249,11 +1250,14 @@ export type Database = {
           email: string | null
           enable_animations: boolean
           enable_dl_ocr: boolean
+          facebook_url: string | null
           favicon_url: string | null
+          google_review_url: string | null
           hero_headline: string
           hero_layout: string
           hero_subtext: string
           id: string
+          instagram_url: string | null
           logo_url: string | null
           logo_white_url: string | null
           phone: string | null
@@ -1270,12 +1274,14 @@ export type Database = {
           stats_years_in_business: string | null
           success_color: string
           tagline: string
+          tiktok_url: string | null
           track_abandoned_leads: boolean
           trade_hero_headline: string
           trade_hero_subtext: string
           updated_at: string
           use_animated_calculating: boolean
           website_url: string | null
+          youtube_url: string | null
         }
         Insert: {
           about_hero_headline?: string
@@ -1289,6 +1295,7 @@ export type Database = {
           assign_buying_center?: boolean
           assign_customer_picks?: boolean
           assign_oem_brand_match?: boolean
+          business_hours?: Json | null
           buying_center_location_id?: string | null
           comparison_features?: Json
           competitor_columns?: Json
@@ -1300,11 +1307,14 @@ export type Database = {
           email?: string | null
           enable_animations?: boolean
           enable_dl_ocr?: boolean
+          facebook_url?: string | null
           favicon_url?: string | null
+          google_review_url?: string | null
           hero_headline?: string
           hero_layout?: string
           hero_subtext?: string
           id?: string
+          instagram_url?: string | null
           logo_url?: string | null
           logo_white_url?: string | null
           phone?: string | null
@@ -1321,12 +1331,14 @@ export type Database = {
           stats_years_in_business?: string | null
           success_color?: string
           tagline?: string
+          tiktok_url?: string | null
           track_abandoned_leads?: boolean
           trade_hero_headline?: string
           trade_hero_subtext?: string
           updated_at?: string
           use_animated_calculating?: boolean
           website_url?: string | null
+          youtube_url?: string | null
         }
         Update: {
           about_hero_headline?: string
@@ -1340,6 +1352,7 @@ export type Database = {
           assign_buying_center?: boolean
           assign_customer_picks?: boolean
           assign_oem_brand_match?: boolean
+          business_hours?: Json | null
           buying_center_location_id?: string | null
           comparison_features?: Json
           competitor_columns?: Json
@@ -1351,11 +1364,14 @@ export type Database = {
           email?: string | null
           enable_animations?: boolean
           enable_dl_ocr?: boolean
+          facebook_url?: string | null
           favicon_url?: string | null
+          google_review_url?: string | null
           hero_headline?: string
           hero_layout?: string
           hero_subtext?: string
           id?: string
+          instagram_url?: string | null
           logo_url?: string | null
           logo_white_url?: string | null
           phone?: string | null
@@ -1372,12 +1388,14 @@ export type Database = {
           stats_years_in_business?: string | null
           success_color?: string
           tagline?: string
+          tiktok_url?: string | null
           track_abandoned_leads?: boolean
           trade_hero_headline?: string
           trade_hero_subtext?: string
           updated_at?: string
           use_animated_calculating?: boolean
           website_url?: string | null
+          youtube_url?: string | null
         }
         Relationships: [
           {
