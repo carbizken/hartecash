@@ -586,6 +586,10 @@ const InspectionSheet = () => {
       toast({ title: "Error saving", description: error.message, variant: "destructive" });
     } else {
       setSaveSuccess(true);
+      const result = data as any;
+      if (result && result.adjustment !== undefined && result.adjustment !== 0) {
+        toast({ title: "Inspection saved", description: `Tire adjustment: ${result.adjustment >= 0 ? "+" : ""}$${Math.abs(result.adjustment).toLocaleString()}` });
+      }
       confetti({ particleCount: 80, spread: 60, origin: { y: 0.95 }, colors: ["#10b981", "#3b82f6", "#f59e0b"] });
       setTimeout(() => setSaveSuccess(false), 2500);
     }
