@@ -85,7 +85,7 @@ const SectionCard = ({
   </div>
 );
 
-const DetailRow = ({ label, value, icon }: { label: string; value: string | null | undefined; icon?: React.ReactNode }) => {
+const DetailRow = ({ label, value, icon }: { label: string; value: React.ReactNode | string | null | undefined; icon?: React.ReactNode }) => {
   if (!value) return null;
   return (
     <div className="flex items-center justify-between py-1.5 border-b border-border last:border-0">
