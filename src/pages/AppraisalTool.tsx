@@ -16,7 +16,7 @@ import {
   ArrowLeft, Car, DollarSign, TrendingUp, TrendingDown, Minus, Target,
   Gauge, Wrench, ChevronDown, Save, AlertTriangle, CheckCircle, XCircle,
   Pencil, ArrowDown, Loader2, ClipboardCheck, BarChart3, ArrowRight,
-  Calendar, Plus, Trash2,
+  Calendar, Plus, Trash2, Shield,
 } from "lucide-react";
 import ProfitSpreadGauge from "@/components/admin/ProfitSpreadGauge";
 import MarketContextPanel from "@/components/admin/MarketContextPanel";
