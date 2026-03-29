@@ -1455,6 +1455,7 @@ export type Database = {
           vehicle_model: string | null
           vehicle_year: string | null
           vin: string | null
+          vin_verified: boolean
           windshield_damage: string | null
           zip: string | null
         }
@@ -1542,6 +1543,7 @@ export type Database = {
           vehicle_model?: string | null
           vehicle_year?: string | null
           vin?: string | null
+          vin_verified?: boolean
           windshield_damage?: string | null
           zip?: string | null
         }
@@ -1629,6 +1631,7 @@ export type Database = {
           vehicle_model?: string | null
           vehicle_year?: string | null
           vin?: string | null
+          vin_verified?: boolean
           windshield_damage?: string | null
           zip?: string | null
         }
