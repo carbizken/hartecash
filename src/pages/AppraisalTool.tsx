@@ -204,6 +204,7 @@ export default function AppraisalTool() {
   const [dealerPack, setDealerPack] = useState(0);
   const [hidePackFromAppraisal, setHidePackFromAppraisal] = useState(false);
   const [expandedBlock, setExpandedBlock] = useState<string | null>(null);
+  const [depthPolicies, setDepthPolicies] = useState<{ id: string; name: string; policy_type: string; oem_brands: string[]; all_brands: boolean; max_vehicle_age_years: number | null; max_mileage: number | null; min_tire_depth: number; min_brake_depth: number }[]>([]);
 
   // Editable overrides (mirror Offer Builder controls)
   const [localSettings, setLocalSettings] = useState<OfferSettings | null>(null);
