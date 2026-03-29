@@ -66,6 +66,10 @@ interface PortalSubmission {
   appointment_set: boolean;
   zip: string | null;
   vin: string | null;
+  brake_lf: number | null;
+  brake_rf: number | null;
+  brake_lr: number | null;
+  brake_rr: number | null;
 }
 
 const STAGE_MAPPING: Record<string, string> = {
