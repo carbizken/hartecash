@@ -963,9 +963,10 @@ const InspectionSheet = () => {
       <style>${css}</style>
     </head><body>
       <div class="header">
-        <div>
-          <h1>${dealerName}</h1>
-          <div class="subtitle">${formTitle}</div>
+        ${logoUrl ? `<img class="logo" src="${logoUrl}" alt="${dealerName}" style="filter:brightness(0);" />` : `<span style="font-size:16px;font-weight:800;">${dealerName}</span>`}
+        <div class="center">
+          <h1>${formTitle}</h1>
+          <div class="subtitle">${vTitle || "Vehicle Inspection"}</div>
         </div>
         <div class="right">
           <div class="date">Date: _____ / _____ / _____</div>
