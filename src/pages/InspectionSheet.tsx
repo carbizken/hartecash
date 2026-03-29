@@ -1526,6 +1526,53 @@ const InspectionSheet = () => {
                               />
                             </div>
                           )}
+                          {/* Depth Policy Targets */}
+                          {applicablePolicies.length > 0 && (
+                            <div className="mt-3 space-y-1.5">
+                              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                                <Shield className="w-3 h-3 text-primary" />
+                                Certification Depth Requirements
+                              </p>
+                              {applicablePolicies.map(policy => {
+                                const POLICY_TYPE_LABELS: Record<string, string> = {
+                                  manufacturer_cpo: "Manufacturer CPO",
+                                  limited_cpo: "Limited CPO",
+                                  internal_cert: "Internal Cert",
+                                  custom: "Custom",
+                                  standard: "Standard",
+                                };
+                                const typeLabel = POLICY_TYPE_LABELS[policy.policy_type] || policy.policy_type;
+                                const tireVals = [tireDepth.lf, tireDepth.rf, tireDepth.lr, tireDepth.rr].filter(v => v != null) as number[];
+                                const brakeVals = [brakeDepth.lf, brakeDepth.rf, brakeDepth.lr, brakeDepth.rr].filter(v => v != null) as number[];
+                                const tireFail = tireVals.length > 0 && tireVals.some(v => v < policy.min_tire_depth);
+                                const brakeFail = brakeVals.length > 0 && brakeVals.some(v => v < policy.min_brake_depth);
+                                const tirePass = tireVals.length > 0 && !tireFail;
+                                const brakePass = brakeVals.length > 0 && !brakeFail;
+                                const hasFail = tireFail || brakeFail;
+
+                                return (
+                                  <div key={policy.id} className={`flex items-center gap-3 px-3 py-2 rounded-lg border text-xs ${hasFail ? "border-red-400/50 bg-red-500/5" : "border-border bg-muted/30"}`}>
+                                    <Badge variant="outline" className={`text-[9px] shrink-0 ${hasFail ? "border-red-400/50 text-red-600 dark:text-red-400" : "text-muted-foreground"}`}>
+                                      {typeLabel}
+                                    </Badge>
+                                    <span className="font-semibold text-card-foreground truncate">{policy.name}</span>
+                                    <div className="ml-auto flex items-center gap-3 shrink-0">
+                                      <span className={`font-mono font-bold ${tireFail ? "text-red-600 dark:text-red-400" : tirePass ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
+                                        Tires ≥ {policy.min_tire_depth}/32″
+                                        {tireFail && " ✗"}
+                                        {tirePass && " ✓"}
+                                      </span>
+                                      <span className={`font-mono font-bold ${brakeFail ? "text-red-600 dark:text-red-400" : brakePass ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>
+                                        Brakes ≥ {policy.min_brake_depth}/32″
+                                        {brakeFail && " ✗"}
+                                        {brakePass && " ✓"}
+                                      </span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
                         </CardContent>
                       </motion.div>
                     )}
