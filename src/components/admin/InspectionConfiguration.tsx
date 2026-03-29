@@ -272,6 +272,48 @@ const InspectionConfiguration = () => {
         </Button>
       </div>
 
+      {/* Default Inspection Mode */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-semibold flex items-center gap-2">
+            <ClipboardCheck className="w-4 h-4 text-primary" />
+            Default Inspection Mode
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Choose the default inspection type when opening a new inspection. High-line stores may prefer Full Inspection.
+          </p>
+        </CardHeader>
+        <CardContent className="pb-4">
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-1 w-fit">
+            <button
+              onClick={() => setDefaultInspectionMode("standard")}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                defaultInspectionMode === "standard"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Standard Inspection
+            </button>
+            <button
+              onClick={() => setDefaultInspectionMode("full")}
+              className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                defaultInspectionMode === "full"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Full Inspection
+            </button>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-2">
+            {defaultInspectionMode === "standard"
+              ? "Abbreviated checklist for managers & sales staff — covers key items without deep mechanical checks."
+              : "Full mechanic-aided deep inspection — all checklist items for thorough evaluation."}
+          </p>
+        </CardContent>
+      </Card>
+
       {/* Section Cards — ordered by drag order */}
       <div className="space-y-3">
         {sectionOrder.map((sectionKey, idx) => {
