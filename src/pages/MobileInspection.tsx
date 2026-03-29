@@ -10,8 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
-import TreadDepthPicker from "@/components/inspection/TreadDepthPicker";
-import BrakePadDepthWidget, { type BrakeDepths } from "@/components/inspection/BrakePadDepthWidget";
+import BrakePadDepthWidget from "@/components/inspection/BrakePadDepthWidget";
 
 interface DamageItem {
   type: string;
@@ -243,26 +242,42 @@ const MobileInspection = () => {
           </Card>
         )}
 
-        {/* Tire Tread Depth — Tappable */}
+        {/* Tire Tread & Brake Pads — Combined Widget */}
         <Card>
           <CardHeader className="pb-2 pt-4 px-4">
             <CardTitle className="text-sm flex items-center gap-2">
-              <Gauge className="h-4 w-4 text-primary" /> Tire Tread Depth (/32")
+              <Gauge className="h-4 w-4 text-primary" /> Tire Tread & Brake Pads
             </CardTitle>
-            <p className="text-[10px] text-muted-foreground mt-1">Tap the measured depth for each tire</p>
+            <p className="text-[10px] text-muted-foreground mt-1">Select the measured depth for each position</p>
           </CardHeader>
-          <CardContent className="px-4 pb-4 space-y-4">
-            <TreadDepthPicker label="Left Front" value={tireLF} onChange={setTireLF} />
-            <TreadDepthPicker label="Right Front" value={tireRF} onChange={setTireRF} />
-            <TreadDepthPicker label="Left Rear" value={tireLR} onChange={setTireLR} />
-            <TreadDepthPicker label="Right Rear" value={tireRR} onChange={setTireRR} />
-            
-            {/* Legend */}
-            <div className="flex justify-between text-[10px] pt-1 border-t">
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-green-500" /> 6–10 Credit $$$</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-400" /> 4–5 No Change</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500" /> 2–3 Deduct $</span>
-            </div>
+          <CardContent className="px-4 pb-4">
+            <BrakePadDepthWidget
+              tireDepths={{
+                leftFront: tireLF,
+                rightFront: tireRF,
+                leftRear: tireLR,
+                rightRear: tireRR,
+              }}
+              brakeDepths={{
+                leftFront: brakeLF,
+                rightFront: brakeRF,
+                leftRear: brakeLR,
+                rightRear: brakeRR,
+              }}
+              onTireChange={(id, depth) => {
+                if (id === "leftFront") setTireLF(depth);
+                else if (id === "rightFront") setTireRF(depth);
+                else if (id === "leftRear") setTireLR(depth);
+                else if (id === "rightRear") setTireRR(depth);
+              }}
+              onBrakeChange={(id, depth) => {
+                if (id === "leftFront") setBrakeLF(depth);
+                else if (id === "rightFront") setBrakeRF(depth);
+                else if (id === "leftRear") setBrakeLR(depth);
+                else if (id === "rightRear") setBrakeRR(depth);
+              }}
+              compact
+            />
           </CardContent>
         </Card>
 
@@ -280,33 +295,6 @@ const MobileInspection = () => {
             </CardContent>
           </Card>
         )}
-
-        {/* Brake Pad Thickness */}
-        <Card>
-          <CardHeader className="pb-2 pt-4 px-4">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Gauge className="h-4 w-4 text-primary" /> Brake Pad Depth (/32")
-            </CardTitle>
-            <p className="text-[10px] text-muted-foreground mt-1">Select the measured depth for each brake</p>
-          </CardHeader>
-          <CardContent className="px-4 pb-4">
-            <BrakePadDepthWidget
-              depths={{
-                leftFront: brakeLF,
-                rightFront: brakeRF,
-                leftRear: brakeLR,
-                rightRear: brakeRR,
-              }}
-              onChange={(id, depth) => {
-                if (id === "leftFront") setBrakeLF(depth);
-                else if (id === "rightFront") setBrakeRF(depth);
-                else if (id === "leftRear") setBrakeLR(depth);
-                else if (id === "rightRear") setBrakeRR(depth);
-              }}
-              compact
-            />
-          </CardContent>
-        </Card>
 
         {/* Mechanical Quick Checks */}
         <Card>
