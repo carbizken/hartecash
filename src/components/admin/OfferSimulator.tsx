@@ -17,6 +17,7 @@ import type { FormData, BBVehicle, BBAddDeduct } from "@/components/sell-form/ty
 import { supabase } from "@/integrations/supabase/client";
 import ProfitSpreadGauge from "./ProfitSpreadGauge";
 import MarketContextPanel from "./MarketContextPanel";
+import RetailMarketPanel from "./RetailMarketPanel";
 import { useToast } from "@/hooks/use-toast";
 
 interface Props {
