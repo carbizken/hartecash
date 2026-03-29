@@ -368,11 +368,10 @@ export default function AppraisalTool() {
       blocks.push({ id: "deductions", label: "Deductions", value: -offerResult.totalDeductions, runningTotal: running, type: "subtract", editable: false });
     }
 
-    // Recon
-    if (activeSettings.recon_cost > 0) {
-      running -= activeSettings.recon_cost;
-      blocks.push({ id: "recon", label: "Recon Cost", value: -activeSettings.recon_cost, runningTotal: running, type: "subtract", editable: true, editKey: "recon_cost", editType: "flat", currentEditValue: activeSettings.recon_cost });
-    }
+    // Recon (always show — appraiser can add per-car recon even if global default is $0)
+    const reconVal = activeSettings.recon_cost || 0;
+    running -= reconVal;
+    blocks.push({ id: "recon", label: "Recon Cost", value: -reconVal, runningTotal: running, type: reconVal > 0 ? "subtract" : "base", editable: true, editKey: "recon_cost", editType: "flat", currentEditValue: reconVal });
 
     // Dealer Pack
     if (effectivePack > 0) {
