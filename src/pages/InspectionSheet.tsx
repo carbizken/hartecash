@@ -669,7 +669,9 @@ const InspectionSheet = () => {
       ]);
       if (subRes.data) {
         setSubmission(subRes.data);
+        setCustomerGrade(subRes.data.overall_condition || "");
         setOverallGrade(subRes.data.overall_condition || "");
+        setInspectorGrade((subRes.data as any).inspector_grade || "");
         // Pre-populate tire/brake depths from saved mobile inspection data
         if (subRes.data.tire_lf != null) setTireDepth(prev => ({ ...prev, lf: subRes.data.tire_lf }));
         if (subRes.data.tire_rf != null) setTireDepth(prev => ({ ...prev, rf: subRes.data.tire_rf }));
