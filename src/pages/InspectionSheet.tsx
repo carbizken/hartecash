@@ -771,6 +771,9 @@ const InspectionSheet = () => {
       .grid-2 .item:nth-child(2n) { border-right: none; }
       .item { display: flex; align-items: flex-start; gap: 6px; padding: 5px 8px; }
       .cb { width: 13px; height: 13px; border: 1.5px solid #555; border-radius: 2px; flex-shrink: 0; margin-top: 1px; }
+      .pf-boxes { display: flex; gap: 6px; flex-shrink: 0; }
+      .pf-box { display: flex; align-items: center; gap: 2px; font-size: 8px; font-weight: 600; color: #666; }
+      .pf-box .cb-sm { width: 12px; height: 12px; border: 1.5px solid #555; border-radius: 2px; }
       .item-label { font-size: 10.5px; font-weight: 500; flex: 1; }
       .item-grade { display: flex; gap: 3px; flex-shrink: 0; }
       .item-grade .g { width: 14px; height: 14px; border: 1px solid #bbb; border-radius: 2px; text-align: center; font-size: 7px; line-height: 14px; font-weight: 600; color: #888; }
