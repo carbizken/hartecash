@@ -79,14 +79,17 @@ serve(async (req) => {
     }
 
     const vehicleList = bbData.used_vehicles?.used_vehicle_list || [];
+    if (vehicleList.length > 0) {
+      console.log("BB raw vehicle keys:", Object.keys(vehicleList[0]).join(", "));
+    }
 
-    // Fetch exterior colors for each vehicle UVC via GraphQL
-    const colorFetches = vehicleList.map(async (v: Record<string, unknown>) => {
+    // Fetch exterior colors for each vehicle UVC via GraphQL + parse specs from price_includes
+    const gqlFetches = vehicleList.map(async (v: Record<string, unknown>) => {
       const vUvc = v.uvc as string;
-      if (!vUvc) return [];
+      if (!vUvc) return { colors: [] };
       try {
         const gqlQuery = `{ colors(uvc:"${vUvc}" category:"Exterior Colors" country:UNITED_STATES) { colors { name color_list { name swatch_list } } } }`;
-        const colorRes = await fetch(BB_GRAPHQL, {
+        const gqlRes = await fetch(BB_GRAPHQL, {
           method: "POST",
           headers: {
             "Authorization": `Basic ${credentials}`,
@@ -95,33 +98,75 @@ serve(async (req) => {
           },
           body: JSON.stringify({ query: gqlQuery }),
         });
-        if (!colorRes.ok) {
-          console.error(`BB colors GraphQL returned ${colorRes.status}`);
-          return [];
+        if (!gqlRes.ok) {
+          console.error(`BB GraphQL returned ${gqlRes.status}`);
+          return { colors: [] };
         }
-        const colorData = await colorRes.json();
-        const categories = colorData?.data?.colors?.colors || [];
+        const gqlData = await gqlRes.json();
+        const categories = gqlData?.data?.colors?.colors || [];
         const exteriorCat = categories.find((c: Record<string, unknown>) =>
           ((c.name as string) || "").toLowerCase().includes("exterior")
         );
-        if (!exteriorCat) return [];
-        const colorList = (exteriorCat.color_list || []) as Array<{ name: string; swatch_list: string[] }>;
+        const colorList = exteriorCat
+          ? (exteriorCat.color_list || []) as Array<{ name: string; swatch_list: string[] }>
+          : [];
         console.log(`Found ${colorList.length} exterior colors for UVC ${vUvc}`);
-        return colorList.map((c) => ({
-          code: "",
-          name: c.name || "",
-          hex: c.swatch_list?.[0] || "",
-        }));
+        return {
+          colors: colorList.map((c) => ({
+            code: "",
+            name: c.name || "",
+            hex: c.swatch_list?.[0] || "",
+          })),
+        };
       } catch (e) {
-        console.error(`BB color fetch error for UVC ${vUvc}:`, (e as Error).message);
-        return [];
+        console.error(`BB GraphQL fetch error for UVC ${vUvc}:`, (e as Error).message);
+        return { colors: [] };
       }
     });
 
-    const allColors = await Promise.all(colorFetches);
+    const allGqlResults = await Promise.all(gqlFetches);
+
+    // Parse vehicle specs from style and price_includes fields
+    const parseSpecs = (style: string, priceIncludes: string) => {
+      const pi = (priceIncludes || "").toUpperCase();
+      const st = (style || "").toUpperCase();
+
+      // Drivetrain from style
+      let drivetrain = "";
+      if (st.includes("4WD") || st.includes("AWD")) drivetrain = "AWD/4WD";
+      else if (st.includes("2WD") || st.includes("FWD")) drivetrain = "FWD";
+      else if (st.includes("RWD")) drivetrain = "RWD";
+
+      // Transmission from price_includes
+      let transmission = "";
+      if (pi.includes("AT") || pi.includes("AUTO")) transmission = "Automatic";
+      else if (pi.includes("MT") || pi.includes("MANUAL")) transmission = "Manual";
+      else if (pi.includes("CVT")) transmission = "CVT";
+
+      // Engine from price_includes
+      let engine = "";
+      const cylMatch = pi.match(/(\d)CY/);
+      if (cylMatch) engine = `${cylMatch[1]}-Cylinder`;
+      if (pi.includes("TURBO") || pi.includes("TB")) engine += engine ? " Turbo" : "Turbo";
+      if (pi.includes("HYBRID") || pi.includes("HY")) engine = "Hybrid " + engine;
+      if (pi.includes("ELECTRIC") || pi.includes("EV")) engine = "Electric";
+
+      // Fuel type from price_includes
+      let fuel_type = "";
+      if (pi.includes("DIESEL") || pi.includes("DSL")) fuel_type = "Diesel";
+      else if (pi.includes("ELECTRIC") || pi.includes("EV")) fuel_type = "Electric";
+      else if (pi.includes("HYBRID") || pi.includes("HY")) fuel_type = "Hybrid";
+      else if (pi.includes("FLEX")) fuel_type = "Flex Fuel";
+      else if (engine) fuel_type = "Gasoline";
+
+      return { drivetrain, transmission, engine, fuel_type };
+    };
 
     // Transform each vehicle into a comprehensive response
-    const vehicles = vehicleList.map((v: Record<string, unknown>, i: number) => ({
+    const vehicles = vehicleList.map((v: Record<string, unknown>, i: number) => {
+      const gql = allGqlResults[i] || { colors: [] };
+      const parsedSpecs = parseSpecs((v.style as string) || "", (v.price_includes as string) || "");
+      return {
       uvc: v.uvc,
       vin: v.vin,
       year: v.model_year,
@@ -133,14 +178,14 @@ serve(async (req) => {
       msrp: v.msrp || 0,
       price_includes: v.price_includes || "",
 
-      // Vehicle specs
-      drivetrain: v.drivetrain || "",
-      transmission: v.transmission || "",
-      engine: v.engine_description || "",
-      fuel_type: v.fuel_type || "",
+      // Vehicle specs parsed from style/price_includes
+      drivetrain: parsedSpecs.drivetrain,
+      transmission: parsedSpecs.transmission,
+      engine: parsedSpecs.engine,
+      fuel_type: parsedSpecs.fuel_type,
 
       // Exterior colors from BB
-      exterior_colors: allColors[i] || [],
+      exterior_colors: gql.colors || [],
 
       // Mileage & regional adjustments
       mileage_adj: v.mileage_category || 0,
@@ -180,7 +225,7 @@ serve(async (req) => {
         avg: v.adjusted_retail_avg || v.final_retail_avg || 0,
         rough: v.adjusted_retail_rough || v.final_retail_rough || 0,
       },
-    }));
+    };});
 
     return new Response(JSON.stringify({ error: null, vehicles }), {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
