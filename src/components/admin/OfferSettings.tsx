@@ -295,6 +295,7 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
       age_tiers: settings.age_tiers as any,
       mileage_tiers: settings.mileage_tiers as any,
       regional_adjustment_pct: settings.regional_adjustment_pct,
+      retail_search_radius: settings.retail_search_radius ?? 100,
       updated_at: new Date().toISOString(),
     } as any).eq("id", settings.id);
 
