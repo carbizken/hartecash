@@ -845,6 +845,7 @@ export type Database = {
           deduction_amounts: Json
           deductions_config: Json
           global_adjustment_pct: number
+          hide_pack_from_appraisal: boolean
           id: string
           mileage_tiers: Json
           offer_ceiling: number | null
@@ -864,6 +865,7 @@ export type Database = {
           deduction_amounts?: Json
           deductions_config?: Json
           global_adjustment_pct?: number
+          hide_pack_from_appraisal?: boolean
           id?: string
           mileage_tiers?: Json
           offer_ceiling?: number | null
@@ -883,6 +885,7 @@ export type Database = {
           deduction_amounts?: Json
           deductions_config?: Json
           global_adjustment_pct?: number
+          hide_pack_from_appraisal?: boolean
           id?: string
           mileage_tiers?: Json
           offer_ceiling?: number | null

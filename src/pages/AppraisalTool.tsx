@@ -201,6 +201,7 @@ export default function AppraisalTool() {
   const [settings, setSettings] = useState<OfferSettings | null>(null);
   const [rules, setRules] = useState<OfferRule[]>([]);
   const [dealerPack, setDealerPack] = useState(0);
+  const [hidePackFromAppraisal, setHidePackFromAppraisal] = useState(false);
   const [expandedBlock, setExpandedBlock] = useState<string | null>(null);
 
   // Editable overrides (mirror Offer Builder controls)
@@ -248,6 +249,7 @@ export default function AppraisalTool() {
         setSettings(settingsData as any);
         setLocalSettings(settingsData as any);
         setDealerPack((settingsData as any).dealer_pack ?? 0);
+        setHidePackFromAppraisal((settingsData as any).hide_pack_from_appraisal ?? false);
         setBbValueBasis(settingsData.bb_value_basis || "tradein_avg");
       }
 
@@ -375,15 +377,22 @@ export default function AppraisalTool() {
       blocks.push({ id: "deductions", label: "Deductions", value: -offerResult.totalDeductions, runningTotal: running, type: "subtract", editable: false });
     }
 
-    // Recon (always show — appraiser can add per-car recon even if global default is $0)
+    // Recon (+ hidden pack if configured)
     const reconVal = activeSettings.recon_cost || 0;
-    running -= reconVal;
-    blocks.push({ id: "recon", label: "Recon Cost", value: -reconVal, runningTotal: running, type: reconVal > 0 ? "subtract" : "base", editable: true, editKey: "recon_cost", editType: "flat", currentEditValue: reconVal });
+    if (hidePackFromAppraisal) {
+      // Combine recon + pack into single "Reconditioning" line
+      const combinedRecon = reconVal + effectivePack;
+      running -= combinedRecon;
+      blocks.push({ id: "recon", label: "Reconditioning", value: -combinedRecon, runningTotal: running, type: combinedRecon > 0 ? "subtract" : "base", editable: true, editKey: "recon_cost", editType: "flat", currentEditValue: reconVal });
+    } else {
+      running -= reconVal;
+      blocks.push({ id: "recon", label: "Recon Cost", value: -reconVal, runningTotal: running, type: reconVal > 0 ? "subtract" : "base", editable: true, editKey: "recon_cost", editType: "flat", currentEditValue: reconVal });
 
-    // Dealer Pack
-    if (effectivePack > 0) {
-      running -= effectivePack;
-      blocks.push({ id: "dealer_pack", label: "Dealer Pack", value: -effectivePack, runningTotal: running, type: "subtract", editable: false, editKey: "dealer_pack", editType: "flat", currentEditValue: effectivePack });
+      // Dealer Pack (separate line)
+      if (effectivePack > 0) {
+        running -= effectivePack;
+        blocks.push({ id: "dealer_pack", label: "Dealer Pack", value: -effectivePack, runningTotal: running, type: "subtract", editable: false, editKey: "dealer_pack", editType: "flat", currentEditValue: effectivePack });
+      }
     }
 
     // Global %
@@ -428,7 +437,7 @@ export default function AppraisalTool() {
 
     blocks.push({ id: "final", label: "FINAL OFFER", value: running, runningTotal: running, type: "total", editable: false });
     return blocks;
-  }, [offerResult, activeSettings, bbVehicle, condition, sub, effectivePack, equipmentTotal]);
+  }, [offerResult, activeSettings, bbVehicle, condition, sub, effectivePack, equipmentTotal, hidePackFromAppraisal]);
 
   const maxVal = Math.max(...waterfallBlocks.map(s => Math.max(Math.abs(s.runningTotal), Math.abs(s.value), s.type === "base" ? s.value : 0)), 1);
 

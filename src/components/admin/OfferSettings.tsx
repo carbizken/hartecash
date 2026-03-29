@@ -123,6 +123,7 @@ interface OfferSettingsRow {
   regional_adjustment_pct: number;
   retail_search_radius: number;
   dealer_pack: number;
+  hide_pack_from_appraisal: boolean;
 }
 
 interface OfferRule {
@@ -262,6 +263,7 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
         regional_adjustment_pct: d.regional_adjustment_pct ?? 0,
         retail_search_radius: d.retail_search_radius ?? 100,
         dealer_pack: d.dealer_pack ?? 0,
+        hide_pack_from_appraisal: d.hide_pack_from_appraisal ?? false,
       } as OfferSettingsRow);
       setSavedSettings({
         ...d,
@@ -275,6 +277,7 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
         regional_adjustment_pct: d.regional_adjustment_pct ?? 0,
         retail_search_radius: d.retail_search_radius ?? 100,
         dealer_pack: d.dealer_pack ?? 0,
+        hide_pack_from_appraisal: d.hide_pack_from_appraisal ?? false,
       } as OfferSettingsRow);
     }
     if (rulesRes.data) {
@@ -300,6 +303,7 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
       regional_adjustment_pct: settings.regional_adjustment_pct,
       retail_search_radius: settings.retail_search_radius ?? 100,
       dealer_pack: settings.dealer_pack ?? 0,
+      hide_pack_from_appraisal: settings.hide_pack_from_appraisal ?? false,
       updated_at: new Date().toISOString(),
     } as any).eq("id", settings.id);
 
@@ -520,6 +524,18 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
                   className="pl-7"
                 />
               </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 mt-4 p-3 rounded-lg border border-border bg-muted/30">
+            <Switch
+              checked={settings.hide_pack_from_appraisal}
+              onCheckedChange={(checked) => setSettings({ ...settings, hide_pack_from_appraisal: checked })}
+            />
+            <div>
+              <Label className="text-sm font-semibold">Combine Pack into Reconditioning</Label>
+              <p className="text-[10px] text-muted-foreground">
+                When enabled, the appraisal tool will show a single "Reconditioning" line (recon + pack combined) instead of separate entries. This hides the dealer pack amount from staff.
+              </p>
             </div>
           </div>
           <div className="flex justify-end mt-4">
