@@ -61,8 +61,9 @@ const AdminSidebar = ({
   // ── Pipeline (daily ops) ──
   const pipelineItems = [
     { key: "submissions", label: "All Leads", icon: Inbox, badge: submissionCount > 0 ? String(submissionCount) : undefined },
-    { key: "appraisals", label: "Pending Approval", icon: Car, badge: undefined },
-    { key: "appointments", label: "Accepted / Appts", icon: CalendarDays, badge: appointmentCount > 0 ? String(appointmentCount) : undefined },
+    { key: "offer-pending", label: "Offer Pending", icon: Send, badge: undefined },
+    { key: "offer-accepted", label: "Offer Accepted", icon: UserCheck, badge: undefined },
+    { key: "accepted-appts", label: "Accepted / Appts", icon: CalendarDays, badge: appointmentCount > 0 ? String(appointmentCount) : undefined },
     { key: "executive", label: "Performance", icon: BarChart3 },
   ].filter((item) => isAllowed(item.key));
 
