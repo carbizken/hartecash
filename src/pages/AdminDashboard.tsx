@@ -286,8 +286,7 @@ const AdminDashboard = () => {
             {activeSection === "appraisals" && (
               <SubmissionsTable
                 submissions={submissions.filter(s =>
-                  (s.estimated_offer_high || s.offered_price) &&
-                  !["offer_accepted", "purchase_complete", "dead_lead", "check_request_submitted"].includes(s.progress_status)
+                  !["offer_accepted", "inspection_scheduled", "inspection_completed", "deal_finalized", "title_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status)
                 )}
                 loading={loading} search={search} onSearchChange={setSearch}
                 statusFilter={statusFilter} onStatusFilterChange={setStatusFilter}
@@ -296,8 +295,7 @@ const AdminDashboard = () => {
                 dateRangeFilter={dateRangeFilter} onDateRangeFilterChange={setDateRangeFilter}
                 showFilterPanel={showFilterPanel} onToggleFilterPanel={() => setShowFilterPanel(!showFilterPanel)}
                 page={0} total={submissions.filter(s =>
-                  (s.estimated_offer_high || s.offered_price) &&
-                  !["offer_accepted", "purchase_complete", "dead_lead", "check_request_submitted"].includes(s.progress_status)
+                  !["offer_accepted", "inspection_scheduled", "inspection_completed", "deal_finalized", "title_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status)
                 ).length} pageSize={PAGE_SIZE} onPageChange={() => {}}
                 dealerLocations={dealerLocations} canApprove={canApprove} canDelete={canDelete}
                 auditLabel={auditLabel} userName={userName}
