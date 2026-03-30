@@ -138,7 +138,7 @@ function Corner({
           {depth != null && status && (
             <div className="flex items-center gap-2">
               {isLeft && <Arrow side="left" color={status.color} />}
-              <Readout depth={depth} status={status} minMm={type === "tire" ? 2 : 1} />
+              <Readout depth={depth} status={status} />
               {!isLeft && <Arrow side="right" color={status.color} />}
             </div>
           )}
