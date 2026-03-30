@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, Star, Loader2, GripVertical } from "lucide-react";
+import { useTenant } from "@/contexts/TenantContext";
 
 interface Testimonial {
   id: string;
