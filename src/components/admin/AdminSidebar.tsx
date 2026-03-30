@@ -105,6 +105,7 @@ const AdminSidebar = ({
   // ── Tools (utilities — consolidated) ──
   const toolsItems = [
     { key: "reports", label: "Reports & Export", icon: Send },
+    ...(canManageAccess ? [{ key: "tenants", label: "Dealer Tenants", icon: Network }] : []),
     ...(canManageAccess ? [{ key: "image-inventory", label: "Vehicle Images", icon: Car }] : []),
     ...(canManageAccess ? [{ key: "system-settings", label: "System Settings", icon: Wrench }] : []),
     { key: "onboarding", label: "Dealer Setup Guide", icon: Rocket },

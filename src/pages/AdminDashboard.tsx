@@ -401,6 +401,8 @@ const AdminDashboard = () => {
               </div>
             )}
 
+            {activeSection === "tenants" && canManageAccess && <TenantManagement />}
+
             {activeSection === "onboarding" && <DealerOnboarding isAdmin={canManageAccess} onNavigate={setActiveSection} />}
             {activeSection === "reports" && <ReportsExport />}
           </div>
