@@ -70,6 +70,8 @@ interface CustomItem {
 }
 
 const InspectionConfiguration = () => {
+  const { tenant } = useTenant();
+  const dealershipId = tenant.dealership_id;
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
