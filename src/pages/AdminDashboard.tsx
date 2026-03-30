@@ -132,7 +132,7 @@ const AdminDashboard = () => {
   const fetchSubmissions = async () => {
     setLoading(true);
     const from = page * PAGE_SIZE;
-    const { data, error, count } = await supabase.from("submissions").select("*", { count: "exact" }).order("created_at", { ascending: false }).range(from, from + PAGE_SIZE - 1);
+    const { data, error, count } = await supabase.from("submissions").select("*", { count: "exact" }).eq("dealership_id", tenant.dealership_id).order("created_at", { ascending: false }).range(from, from + PAGE_SIZE - 1);
     if (!error && data) { setSubmissions(data as any); setTotal(count || 0); }
     setLoading(false);
   };
