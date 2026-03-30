@@ -286,8 +286,7 @@ const AdminDashboard = () => {
             {activeSection === "appraisals" && (
               <SubmissionsTable
                 submissions={submissions.filter(s =>
-                  (s.estimated_offer_high || s.offered_price) &&
-                  !["offer_accepted", "purchase_complete", "dead_lead", "check_request_submitted"].includes(s.progress_status)
+                  !["offer_accepted", "inspection_scheduled", "inspection_completed", "deal_finalized", "title_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status)
                 )}
                 loading={loading} search={search} onSearchChange={setSearch}
                 statusFilter={statusFilter} onStatusFilterChange={setStatusFilter}
@@ -296,8 +295,7 @@ const AdminDashboard = () => {
                 dateRangeFilter={dateRangeFilter} onDateRangeFilterChange={setDateRangeFilter}
                 showFilterPanel={showFilterPanel} onToggleFilterPanel={() => setShowFilterPanel(!showFilterPanel)}
                 page={0} total={submissions.filter(s =>
-                  (s.estimated_offer_high || s.offered_price) &&
-                  !["offer_accepted", "purchase_complete", "dead_lead", "check_request_submitted"].includes(s.progress_status)
+                  !["offer_accepted", "inspection_scheduled", "inspection_completed", "deal_finalized", "title_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status)
                 ).length} pageSize={PAGE_SIZE} onPageChange={() => {}}
                 dealerLocations={dealerLocations} canApprove={canApprove} canDelete={canDelete}
                 auditLabel={auditLabel} userName={userName}
@@ -306,16 +304,37 @@ const AdminDashboard = () => {
             )}
 
             {activeSection === "appointments" && (
-              <AppointmentManager
-                appointments={appointments} setAppointments={setAppointments}
-                submissions={submissions} dealerLocations={dealerLocations}
-                onViewSubmission={(appt) => {
-                  const sub = submissions.find(s => s.token === appt.submission_token);
-                  if (sub) handleView(sub);
-                  else toast({ title: "Not found" });
-                }}
-                fetchSubmissions={fetchSubmissions} fetchAppointments={fetchAppointments}
-              />
+              <div className="space-y-6">
+                <SubmissionsTable
+                  submissions={submissions.filter(s =>
+                    ["offer_accepted", "inspection_scheduled", "inspection_completed", "deal_finalized", "title_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status)
+                  )}
+                  loading={loading} search={search} onSearchChange={setSearch}
+                  statusFilter={statusFilter} onStatusFilterChange={setStatusFilter}
+                  sourceFilter={sourceFilter} onSourceFilterChange={setSourceFilter}
+                  storeFilter={storeFilter} onStoreFilterChange={setStoreFilter}
+                  dateRangeFilter={dateRangeFilter} onDateRangeFilterChange={setDateRangeFilter}
+                  showFilterPanel={showFilterPanel} onToggleFilterPanel={() => setShowFilterPanel(!showFilterPanel)}
+                  page={0} total={submissions.filter(s =>
+                    ["offer_accepted", "inspection_scheduled", "inspection_completed", "deal_finalized", "title_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status)
+                  ).length} pageSize={PAGE_SIZE} onPageChange={() => {}}
+                  dealerLocations={dealerLocations} canApprove={canApprove} canDelete={canDelete}
+                  auditLabel={auditLabel} userName={userName}
+                  onView={handleView} onDelete={handleDelete} onInlineStatusChange={handleInlineStatusChange}
+                />
+                <AppointmentManager
+                  appointments={appointments} setAppointments={setAppointments}
+                  submissions={submissions.filter(s =>
+                    ["offer_accepted", "inspection_scheduled", "inspection_completed", "deal_finalized", "title_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status)
+                  )} dealerLocations={dealerLocations}
+                  onViewSubmission={(appt) => {
+                    const sub = submissions.find(s => s.token === appt.submission_token);
+                    if (sub) handleView(sub);
+                    else toast({ title: "Not found" });
+                  }}
+                  fetchSubmissions={fetchSubmissions} fetchAppointments={fetchAppointments}
+                />
+              </div>
             )}
 
             {activeSection === "staff" && (
