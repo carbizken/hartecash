@@ -111,7 +111,8 @@ Deno.serve(async (req) => {
 
     const firstName = sanitize(customer_name?.split(" ")[0]) || "friend";
 
-    // Fetch dealership name
+    // Fetch dealership name using appointment's dealership_id
+    const appointmentDealershipId = typeof appointment.dealership_id === "string" ? appointment.dealership_id : "default";
     const adminClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
@@ -119,7 +120,7 @@ Deno.serve(async (req) => {
     const { data: siteConfig } = await adminClient
       .from("site_config")
       .select("dealership_name")
-      .eq("dealership_id", "default")
+      .eq("dealership_id", appointmentDealershipId)
       .maybeSingle();
     const dealerName = siteConfig?.dealership_name || "Our Dealership";
 

@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
 
     const { data: submission, error: subError } = await serviceClient
       .from("submissions")
-      .select("name, email, vehicle_year, vehicle_make, vehicle_model, review_requested")
+      .select("name, email, vehicle_year, vehicle_make, vehicle_model, review_requested, dealership_id")
       .eq("id", submissionId)
       .single();
 
@@ -86,11 +86,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get site config for the email message
+    // Get site config for the email message using the submission's dealership_id
     const { data: siteConfig } = await serviceClient
       .from("site_config")
       .select("dealership_name, review_request_subject, review_request_message, primary_color, accent_color")
-      .eq("dealership_id", "default")
+      .eq("dealership_id", submission.dealership_id || "default")
       .maybeSingle();
 
     const dealershipName = siteConfig?.dealership_name || "Our Dealership";
