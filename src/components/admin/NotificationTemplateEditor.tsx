@@ -74,7 +74,7 @@ export default function NotificationTemplateEditor({ open, onOpenChange, trigger
     const { data } = await supabase
       .from("notification_templates")
       .select("*")
-      .eq("dealership_id", "default")
+      .eq("dealership_id", dealershipId)
       .eq("trigger_key", triggerKey);
 
     const emailRow = data?.find((r: any) => r.channel === "email");
