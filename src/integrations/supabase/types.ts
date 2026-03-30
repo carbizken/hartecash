@@ -1720,6 +1720,39 @@ export type Database = {
           },
         ]
       }
+      tenants: {
+        Row: {
+          created_at: string
+          custom_domain: string | null
+          dealership_id: string
+          display_name: string
+          id: string
+          is_active: boolean
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          custom_domain?: string | null
+          dealership_id: string
+          display_name?: string
+          id?: string
+          is_active?: boolean
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          custom_domain?: string | null
+          dealership_id?: string
+          display_name?: string
+          id?: string
+          is_active?: boolean
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       testimonials: {
         Row: {
           author_name: string
@@ -1902,6 +1935,14 @@ export type Database = {
           vehicle_year: string
           vin: string
           zip: string
+        }[]
+      }
+      get_tenant_by_domain: {
+        Args: { _domain: string }
+        Returns: {
+          dealership_id: string
+          display_name: string
+          slug: string
         }[]
       }
       has_role: {

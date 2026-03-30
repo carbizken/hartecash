@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 
 export interface AboutMilestone {
   year: string;
@@ -110,29 +111,35 @@ const DEFAULTS: SiteConfig = {
   youtube_url: "",
 };
 
-let cachedConfig: SiteConfig | null = null;
+let cachedConfig: Record<string, SiteConfig> = {};
 
 export function useSiteConfig() {
-  const [config, setConfig] = useState<SiteConfig>(cachedConfig || DEFAULTS);
-  const [loading, setLoading] = useState(!cachedConfig);
+  const { tenant } = useTenant();
+  const dealershipId = tenant.dealership_id;
+  const [config, setConfig] = useState<SiteConfig>(cachedConfig[dealershipId] || DEFAULTS);
+  const [loading, setLoading] = useState(!cachedConfig[dealershipId]);
 
   useEffect(() => {
-    if (cachedConfig) return;
+    if (cachedConfig[dealershipId]) {
+      setConfig(cachedConfig[dealershipId]);
+      setLoading(false);
+      return;
+    }
     
     supabase
       .from("site_config")
       .select("*")
-      .eq("dealership_id", "default")
+      .eq("dealership_id", dealershipId)
       .maybeSingle()
       .then(({ data }) => {
         if (data) {
           const merged = { ...DEFAULTS, ...data } as unknown as SiteConfig;
-          cachedConfig = merged;
+          cachedConfig[dealershipId] = merged;
           setConfig(merged);
         }
         setLoading(false);
       });
-  }, []);
+  }, [dealershipId]);
 
   return { config, loading };
 }

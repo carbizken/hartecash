@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { HelmetProvider } from "react-helmet-async";
+import { TenantProvider } from "@/contexts/TenantContext";
 import { Toaster } from "@/components/ui/toaster";
 import ThemeProvider from "@/components/ThemeProvider";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -86,15 +87,17 @@ const AnimatedRoutes = () => {
 const App = () => (
   <HelmetProvider>
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AnimatedRoutes />
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
+    <TenantProvider>
+      <ThemeProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AnimatedRoutes />
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
+    </TenantProvider>
   </QueryClientProvider>
   </HelmetProvider>
 );
