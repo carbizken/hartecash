@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useInspectionConfig } from "@/hooks/useInspectionConfig";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import {
   ArrowLeft, Printer, Camera, AlertTriangle, CheckCircle, Car, Gauge, Wrench,
   Save, Smartphone, Eye, Zap, Paintbrush, Armchair, Shield, ThermometerSun,
@@ -429,6 +430,8 @@ const GradeLegend = () => (
 const InspectionSheet = () => {
   const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
+  const { tenant } = useTenant();
+  const dealershipId = tenant.dealership_id;
   const { config } = useSiteConfig();
   const { config: inspConfig, loading: inspConfigLoading } = useInspectionConfig();
   const printRef = useRef<HTMLDivElement>(null);
@@ -671,7 +674,7 @@ const InspectionSheet = () => {
       const [subRes, dmgRes, policiesRes] = await Promise.all([
         supabase.from("submissions").select("*").eq("id", id).maybeSingle(),
         supabase.from("damage_reports").select("*").eq("submission_id", id).order("created_at"),
-        supabase.from("depth_policies").select("*").eq("dealership_id", "default").eq("is_active", true).order("sort_order"),
+        supabase.from("depth_policies").select("*").eq("dealership_id", dealershipId).eq("is_active", true).order("sort_order"),
       ]);
       if (policiesRes.data) setDepthPolicies(policiesRes.data as DepthPolicy[]);
       if (subRes.data) {

@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import AvatarCropDialog from "./AvatarCropDialog";
 import StaffSectionEditor from "./StaffSectionEditor";
 import { ALL_SECTIONS } from "./PermissionManagement";
+import { useTenant } from "@/contexts/TenantContext";
 
 interface StaffMember {
   user_id: string;
@@ -85,9 +86,12 @@ const StaffManagement = () => {
     fetchPermGroups();
   }, []);
 
+  const { tenant } = useTenant();
+  const dealershipId = tenant.dealership_id;
+
   const fetchStaff = async () => {
     setLoading(true);
-    const { data, error } = await supabase.rpc("get_all_staff");
+    const { data, error } = await supabase.rpc("get_all_staff", { _dealership_id: dealershipId });
     if (error) {
       toast({ title: "Error", description: "Failed to load staff.", variant: "destructive" });
     } else {

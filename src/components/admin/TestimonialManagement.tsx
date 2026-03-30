@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, Star, Loader2, GripVertical } from "lucide-react";
+import { useTenant } from "@/contexts/TenantContext";
 
 interface Testimonial {
   id: string;
@@ -38,14 +39,17 @@ const TestimonialManagement = () => {
   const [editing, setEditing] = useState<Testimonial | null>(null);
   const [form, setForm] = useState<Omit<Testimonial, "id">>(EMPTY);
   const { toast } = useToast();
+  const { tenant } = useTenant();
+  const dealershipId = tenant.dealership_id;
 
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => { fetchAll(); }, [dealershipId]);
 
   const fetchAll = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("testimonials")
       .select("*")
+      .eq("dealership_id", dealershipId)
       .order("sort_order", { ascending: true });
     if (!error && data) setTestimonials(data as Testimonial[]);
     setLoading(false);

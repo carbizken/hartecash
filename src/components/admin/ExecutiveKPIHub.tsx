@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import {
   TrendingUp, TrendingDown, Users, DollarSign, Target, UserCheck, Building2, AlertTriangle
 } from "lucide-react";
@@ -66,6 +67,8 @@ interface ExecutiveKPIHubProps {
 }
 
 const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
+  const { tenant } = useTenant();
+  const dealershipId = tenant.dealership_id;
   const [subs, setSubs] = useState<Sub[]>([]);
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,7 +79,7 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
     Promise.all([
       supabase.from("submissions").select("id, created_at, progress_status, offered_price, acv_value, lead_source, store_location_id, status_updated_at, status_updated_by, appraised_by"),
       supabase.from("dealership_locations").select("id, name, city, state").eq("is_active", true).order("sort_order"),
-      supabase.from("site_config").select("track_abandoned_leads").eq("dealership_id", "default").maybeSingle(),
+      supabase.from("site_config").select("track_abandoned_leads").eq("dealership_id", dealershipId).maybeSingle(),
     ]).then(([{ data: subData }, { data: locData }, { data: cfgData }]) => {
       if (subData) setSubs(subData as any);
       if (locData) setLocations(locData);
