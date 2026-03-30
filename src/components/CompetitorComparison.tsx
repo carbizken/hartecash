@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { Check, X, Minus } from "lucide-react";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { motion, useInView } from "framer-motion";
 
 interface ComparisonFeature {
