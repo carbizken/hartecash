@@ -379,8 +379,9 @@ const MobileInspection = () => {
 
   // Standard checklist stats
   const totalCheckItems = STANDARD_SECTIONS.reduce((sum, s) => sum + s.items.length, 0);
-  const checkedCount = Object.values(checkedItems).filter(Boolean).length;
-  const issueCount = Object.values(issueItems).filter(Boolean).length;
+  const checkedCount = Object.values(checkStates).filter(v => !!v).length;
+  const issueCount = Object.values(checkStates).filter(v => v === "fail").length;
+  const cautionCount = Object.values(checkStates).filter(v => v === "caution").length;
 
   return (
     <div className="min-h-screen bg-background pb-24">
