@@ -321,7 +321,7 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
       let offerRulesData: OfferRule[] = [];
       try {
         const { resolveEffectiveSettings } = await import("@/lib/resolvePricingModel");
-        const resolved = await resolveEffectiveSettings("default");
+        const resolved = await resolveEffectiveSettings(tenant.dealership_id);
         offerSettingsData = resolved.settings;
         offerRulesData = resolved.rules;
       } catch { /* use defaults */ }
