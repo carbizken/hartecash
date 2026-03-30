@@ -82,6 +82,7 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
       exterior_color: formData.exteriorColor || null,
       overall_condition: formData.overallCondition || null,
       lead_source: leadSource,
+      dealership_id: tenant.dealership_id,
     };
 
     if (partialIdRef.current) {
