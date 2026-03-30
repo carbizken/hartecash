@@ -31,6 +31,8 @@ interface Location {
 }
 
 const LocationManagement = () => {
+  const { tenant } = useTenant();
+  const dealershipId = tenant.dealership_id;
   const { toast } = useToast();
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
