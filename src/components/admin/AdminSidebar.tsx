@@ -56,6 +56,7 @@ const AdminSidebar = ({
   const navigate = useNavigate();
 
   const isAllowed = (key: string) => allowedSections === null || allowedSections.includes(key);
+  const isPlatformAdmin = canManageAccess && dealershipId === "default";
 
   // ── Pipeline (daily ops) ──
   const pipelineItems = [
