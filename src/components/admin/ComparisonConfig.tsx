@@ -28,9 +28,12 @@ const ComparisonConfig = () => {
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const { toast } = useToast();
 
+  const { tenant } = useTenant();
+  const dealershipId = tenant.dealership_id;
+
   useEffect(() => {
     fetchConfig();
-  }, []);
+  }, [dealershipId]);
 
   const fetchConfig = async () => {
     setLoading(true);
