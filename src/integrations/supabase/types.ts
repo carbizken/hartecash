@@ -1812,16 +1812,19 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          dealership_id: string
           id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
+          dealership_id?: string
           id?: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
+          dealership_id?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
@@ -1963,6 +1966,7 @@ export type Database = {
           slug: string
         }[]
       }
+      get_user_dealership_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
