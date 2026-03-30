@@ -146,7 +146,7 @@ export default function NotificationSettings() {
     const { data } = await supabase
       .from("notification_settings")
       .select("*")
-      .eq("dealership_id", "default")
+      .eq("dealership_id", dealershipId)
       .maybeSingle();
     if (data) {
       const d = data as any;
