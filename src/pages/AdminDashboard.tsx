@@ -288,7 +288,7 @@ const AdminDashboard = () => {
                 submissions={submissions.filter(s => {
                   // Has an offer (manual or estimated) but NOT accepted
                   const hasOffer = (s.offered_price != null && s.offered_price > 0) || (s.estimated_offer_high != null && s.estimated_offer_high > 0);
-                  const isAccepted = ["offer_accepted", "inspection_scheduled", "inspection_completed", "deal_finalized", "title_ownership_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status);
+                  const isAccepted = ["offer_accepted", "inspection_scheduled", "inspection_completed", "appraisal_completed", "price_agreed", "deal_finalized", "title_ownership_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status);
                   return hasOffer && !isAccepted;
                 })}
                 loading={loading} search={search} onSearchChange={setSearch}
@@ -299,7 +299,7 @@ const AdminDashboard = () => {
                 showFilterPanel={showFilterPanel} onToggleFilterPanel={() => setShowFilterPanel(!showFilterPanel)}
                 page={0} total={submissions.filter(s => {
                   const hasOffer = (s.offered_price != null && s.offered_price > 0) || (s.estimated_offer_high != null && s.estimated_offer_high > 0);
-                  const isAccepted = ["offer_accepted", "inspection_scheduled", "inspection_completed", "deal_finalized", "title_ownership_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status);
+                  const isAccepted = ["offer_accepted", "inspection_scheduled", "inspection_completed", "appraisal_completed", "price_agreed", "deal_finalized", "title_ownership_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status);
                   return hasOffer && !isAccepted;
                 }).length} pageSize={PAGE_SIZE} onPageChange={() => {}}
                 dealerLocations={dealerLocations} canApprove={canApprove} canDelete={canDelete}
@@ -333,7 +333,7 @@ const AdminDashboard = () => {
                 <SubmissionsTable
                   submissions={submissions.filter(s =>
                     (["offer_accepted"].includes(s.progress_status) && s.appointment_set) ||
-                    ["inspection_scheduled", "inspection_completed", "deal_finalized", "title_ownership_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status)
+                    ["inspection_scheduled", "inspection_completed", "appraisal_completed", "price_agreed", "deal_finalized", "title_ownership_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status)
                   )}
                   loading={loading} search={search} onSearchChange={setSearch}
                   statusFilter={statusFilter} onStatusFilterChange={setStatusFilter}
@@ -343,7 +343,7 @@ const AdminDashboard = () => {
                   showFilterPanel={showFilterPanel} onToggleFilterPanel={() => setShowFilterPanel(!showFilterPanel)}
                   page={0} total={submissions.filter(s =>
                     (["offer_accepted"].includes(s.progress_status) && s.appointment_set) ||
-                    ["inspection_scheduled", "inspection_completed", "deal_finalized", "title_ownership_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status)
+                     ["inspection_scheduled", "inspection_completed", "appraisal_completed", "price_agreed", "deal_finalized", "title_ownership_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status)
                   ).length} pageSize={PAGE_SIZE} onPageChange={() => {}}
                   dealerLocations={dealerLocations} canApprove={canApprove} canDelete={canDelete}
                   auditLabel={auditLabel} userName={userName}
@@ -353,7 +353,7 @@ const AdminDashboard = () => {
                   appointments={appointments} setAppointments={setAppointments}
                   submissions={submissions.filter(s =>
                     (["offer_accepted"].includes(s.progress_status) && s.appointment_set) ||
-                    ["inspection_scheduled", "inspection_completed", "deal_finalized", "title_ownership_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status)
+                    ["inspection_scheduled", "inspection_completed", "appraisal_completed", "price_agreed", "deal_finalized", "title_ownership_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status)
                   )} dealerLocations={dealerLocations}
                   onViewSubmission={(appt) => {
                     const sub = submissions.find(s => s.token === appt.submission_token);
