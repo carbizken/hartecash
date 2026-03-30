@@ -101,16 +101,19 @@ export default function FormConfiguration() {
     offer: false,
   });
 
+  const { tenant } = useTenant();
+  const dealershipId = tenant.dealership_id;
+
   useEffect(() => {
     fetchConfig();
-  }, []);
+  }, [dealershipId]);
 
   const fetchConfig = async () => {
     setLoading(true);
     const { data } = await supabase
       .from("form_config" as any)
       .select("*")
-      .eq("dealership_id", "default")
+      .eq("dealership_id", dealershipId)
       .maybeSingle();
     if (data) {
       setConfig({ ...DEFAULTS, ...(data as any) });
