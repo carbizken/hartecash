@@ -121,6 +121,8 @@ interface DealerLocation {
 }
 
 const SiteConfiguration = () => {
+  const { tenant } = useTenant();
+  const dealershipId = tenant.dealership_id;
   const [config, setConfig] = useState<SiteConfig>(DEFAULT_CONFIG);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

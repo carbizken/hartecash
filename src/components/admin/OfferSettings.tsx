@@ -4,6 +4,7 @@ import PricingModelManager from "./PricingModelManager";
 import PricingAccessGate from "./PricingAccessGate";
 import PricingAccessRequests from "./PricingAccessRequests";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { useToast } from "@/hooks/use-toast";
 import type { OfferSettings as OfferSettingsType } from "@/lib/offerCalculator";
 import { Button } from "@/components/ui/button";
