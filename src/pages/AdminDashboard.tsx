@@ -299,7 +299,7 @@ const AdminDashboard = () => {
                 showFilterPanel={showFilterPanel} onToggleFilterPanel={() => setShowFilterPanel(!showFilterPanel)}
                 page={0} total={submissions.filter(s => {
                   const hasOffer = (s.offered_price != null && s.offered_price > 0) || (s.estimated_offer_high != null && s.estimated_offer_high > 0);
-                  const isAccepted = ["offer_accepted", "inspection_scheduled", "inspection_completed", "deal_finalized", "title_ownership_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status);
+                  const isAccepted = ["offer_accepted", "inspection_scheduled", "inspection_completed", "appraisal_completed", "price_agreed", "deal_finalized", "title_ownership_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status);
                   return hasOffer && !isAccepted;
                 }).length} pageSize={PAGE_SIZE} onPageChange={() => {}}
                 dealerLocations={dealerLocations} canApprove={canApprove} canDelete={canDelete}
