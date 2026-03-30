@@ -114,7 +114,7 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
     const { data } = await supabase
       .from("pricing_models" as any)
       .select("*")
-      .eq("dealership_id", "default")
+      .eq("dealership_id", dealershipId)
       .order("priority", { ascending: false });
     const parsed = ((data as any[]) || []).map((d: any) => ({
       ...d,
