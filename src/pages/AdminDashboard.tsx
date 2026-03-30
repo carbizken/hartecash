@@ -353,7 +353,7 @@ const AdminDashboard = () => {
                   appointments={appointments} setAppointments={setAppointments}
                   submissions={submissions.filter(s =>
                     (["offer_accepted"].includes(s.progress_status) && s.appointment_set) ||
-                    ["inspection_scheduled", "inspection_completed", "deal_finalized", "title_ownership_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status)
+                    ["inspection_scheduled", "inspection_completed", "appraisal_completed", "price_agreed", "deal_finalized", "title_ownership_verified", "check_request_submitted", "purchase_complete"].includes(s.progress_status)
                   )} dealerLocations={dealerLocations}
                   onViewSubmission={(appt) => {
                     const sub = submissions.find(s => s.token === appt.submission_token);
