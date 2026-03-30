@@ -93,6 +93,8 @@
 
     --success: 160 84% 39%;
     --success-foreground: 0 0% 100%;
+    --warning: 43 96% 52%;
+    --warning-foreground: 222 47% 8%;
 
     --cta-offer: 0 80% 50%;
     --cta-accept: 0 80% 50%;

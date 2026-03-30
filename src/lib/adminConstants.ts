@@ -157,6 +157,25 @@ export interface Submission {
   review_requested_at?: string | null;
 }
 
+export type SubmissionPipelineState = Pick<Submission, "progress_status" | "appointment_set" | "offered_price" | "estimated_offer_high">;
+
+export const submissionHasOffer = (sub: Pick<Submission, "offered_price" | "estimated_offer_high">) =>
+  (sub.offered_price != null && sub.offered_price > 0) || (sub.estimated_offer_high != null && sub.estimated_offer_high > 0);
+
+export const isAcceptedWithAppointment = (sub: SubmissionPipelineState) =>
+  (submissionHasOffer(sub) && Boolean(sub.appointment_set)) ||
+  ACCEPTED_WITH_APPOINTMENT_STATUSES.includes(sub.progress_status as any);
+
+export const isAcceptedWithoutAppointment = (sub: SubmissionPipelineState) =>
+  submissionHasOffer(sub) &&
+  !isAcceptedWithAppointment(sub) &&
+  ACCEPTED_NO_APPOINTMENT_STATUSES.includes(sub.progress_status as any);
+
+export const isOfferPendingSubmission = (sub: SubmissionPipelineState) =>
+  submissionHasOffer(sub) &&
+  !isAcceptedWithoutAppointment(sub) &&
+  !isAcceptedWithAppointment(sub);
+
 export interface DealerLocation {
   id: string;
   name: string;
