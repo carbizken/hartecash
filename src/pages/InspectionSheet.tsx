@@ -1156,7 +1156,7 @@ const InspectionSheet = () => {
 
   // Overall completion
   const totalChecked = ACTIVE_ALL_ITEMS.filter(i => !!allGrades[i]).length;
-  const totalIssues = ACTIVE_ALL_ITEMS.filter(i => allGrades[i] === "poor" || allGrades[i] === "damaged").length;
+  const totalIssues = ACTIVE_ALL_ITEMS.filter(i => allGrades[i] === "caution" || allGrades[i] === "fail").length;
   const progressPct = ACTIVE_ALL_ITEMS.length > 0 ? (totalChecked / ACTIVE_ALL_ITEMS.length) * 100 : 0;
 
   return (
