@@ -46,10 +46,7 @@ const BDC_OPTIONS = [
 ];
 
 const PLAN_TIERS = [
-  { value: "starter", label: "Starter", cost: 299 },
-  { value: "standard", label: "Standard", cost: 599 },
-  { value: "premium", label: "Premium", cost: 999 },
-  { value: "enterprise", label: "Enterprise", cost: 0 },
+  { value: "standard", label: "Standard", cost: 1995 },
 ];
 
 const STATUS_CONFIG: Record<string, { label: string; icon: React.ElementType; color: string }> = {
