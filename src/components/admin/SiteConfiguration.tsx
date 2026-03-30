@@ -165,13 +165,13 @@ const SiteConfiguration = () => {
   const handleSave = async () => {
     setSaving(true);
     const { id, ...rest } = config;
-    const payload = { ...rest, dealership_id: "default", updated_at: new Date().toISOString() };
+    const payload = { ...rest, dealership_id: dealershipId, updated_at: new Date().toISOString() };
 
     // Try update first, if no rows affected then insert
     const { data: existing } = await supabase
       .from("site_config")
       .select("id")
-      .eq("dealership_id", "default")
+      .eq("dealership_id", dealershipId)
       .maybeSingle();
 
     let error;

@@ -124,7 +124,7 @@ const InspectionConfiguration = () => {
       const { data } = await supabase
         .from("inspection_config")
         .select("*")
-        .eq("dealership_id", "default")
+        .eq("dealership_id", dealershipId)
         .maybeSingle();
 
       if (data) {

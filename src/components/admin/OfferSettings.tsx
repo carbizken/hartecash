@@ -358,7 +358,7 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
     }
     setSavingRule(true);
     const payload = {
-      dealership_id: "default",
+      dealership_id: dealershipId,
       name: editingRule.name,
       rule_type: editingRule.rule_type,
       criteria: editingRule.criteria || {},

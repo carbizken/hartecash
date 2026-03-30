@@ -291,7 +291,7 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
   };
 
   const handleSetDefault = async (id: string) => {
-    await supabase.from("pricing_models" as any).update({ is_default: false } as any).eq("dealership_id", "default");
+    await supabase.from("pricing_models" as any).update({ is_default: false } as any).eq("dealership_id", dealershipId);
     await supabase.from("pricing_models" as any).update({ is_default: true, is_active: true } as any).eq("id", id);
     toast({ title: "Default set" });
     fetchModels();
