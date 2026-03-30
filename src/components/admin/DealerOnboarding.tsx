@@ -63,7 +63,7 @@ const DEFAULT_ACCOUNT: Omit<DealerAccount, "id"> = {
   start_date: null,
   billing_date: null,
   plan_tier: "standard",
-  plan_cost: 599,
+  plan_cost: 1995,
   special_instructions: "",
   onboarding_status: "pending",
   onboarded_by: null,
