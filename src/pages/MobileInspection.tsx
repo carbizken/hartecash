@@ -197,12 +197,26 @@ const MobileInspection = () => {
   const [transmissionNotes, setTransmissionNotes] = useState("");
   const [suspensionNotes, setSuspensionNotes] = useState("");
 
-  // Standard mode checklist state
-  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
-  const [issueItems, setIssueItems] = useState<Record<string, boolean>>({});
+  // Standard mode checklist state — 3-state cycling
+  const [checkStates, setCheckStates] = useState<Record<string, CheckState>>({});
 
-  const toggleChecked = (key: string) => setCheckedItems(prev => ({ ...prev, [key]: !prev[key] }));
-  const toggleIssue = (key: string) => setIssueItems(prev => ({ ...prev, [key]: !prev[key] }));
+  const cycleCheck = (key: string) => setCheckStates(prev => {
+    const cur = prev[key] || "";
+    const idx = CHECK_CYCLE.indexOf(cur);
+    const next = CHECK_CYCLE[(idx + 1) % CHECK_CYCLE.length];
+    return { ...prev, [key]: next };
+  });
+
+  const markSectionAllPass = (sectionKey: string, items: string[]) => {
+    setCheckStates(prev => {
+      const allPass = items.every(item => prev[`${sectionKey}::${item}`] === "pass");
+      const updated = { ...prev };
+      items.forEach(item => {
+        updated[`${sectionKey}::${item}`] = allPass ? "" : "pass";
+      });
+      return updated;
+    });
+  };
 
   // Verify PIN
   const handleVerifyPin = async () => {
