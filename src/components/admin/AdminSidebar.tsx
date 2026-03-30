@@ -61,8 +61,9 @@ const AdminSidebar = ({
   // ── Pipeline (daily ops) ──
   const pipelineItems = [
     { key: "submissions", label: "All Leads", icon: Inbox, badge: submissionCount > 0 ? String(submissionCount) : undefined },
-    { key: "appraisals", label: "Pending Approval", icon: Car, badge: undefined },
-    { key: "appointments", label: "Accepted / Appts", icon: CalendarDays, badge: appointmentCount > 0 ? String(appointmentCount) : undefined },
+    { key: "offer-pending", label: "Offer Pending", icon: Send, badge: undefined },
+    { key: "offer-accepted", label: "Offer Accepted", icon: UserCheck, badge: undefined },
+    { key: "accepted-appts", label: "Accepted / Appts", icon: CalendarDays, badge: appointmentCount > 0 ? String(appointmentCount) : undefined },
     { key: "executive", label: "Performance", icon: BarChart3 },
   ].filter((item) => isAllowed(item.key));
 
@@ -115,7 +116,7 @@ const AdminSidebar = ({
   ].filter((item) => isAllowed(item.key));
 
   // Collect locked sections for "Request Access" display
-  const allSectionKeys = ["submissions", "appraisals", "appointments", "executive", "staff", "offer-settings", "form-config", "inspection-config", "depth-policies", "notifications", "site-config", "locations", "testimonials", "compliance", "image-inventory", "reports", "system-settings"];
+  const allSectionKeys = ["submissions", "offer-pending", "offer-accepted", "accepted-appts", "executive", "staff", "offer-settings", "form-config", "inspection-config", "depth-policies", "notifications", "site-config", "locations", "testimonials", "compliance", "image-inventory", "reports", "system-settings"];
   const lockedSections = showRequestAccess && allowedSections !== null
     ? allSectionKeys.filter((k) => !allowedSections.includes(k))
     : [];
