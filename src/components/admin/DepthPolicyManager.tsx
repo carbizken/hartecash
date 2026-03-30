@@ -47,14 +47,17 @@ const DepthPolicyManager = () => {
   const [saving, setSaving] = useState<string | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => { fetchPolicies(); }, []);
+  const { tenant } = useTenant();
+  const dealershipId = tenant.dealership_id;
+
+  useEffect(() => { fetchPolicies(); }, [dealershipId]);
 
   const fetchPolicies = async () => {
     setLoading(true);
     const { data } = await supabase
       .from("depth_policies")
       .select("*")
-      .eq("dealership_id", "default")
+      .eq("dealership_id", dealershipId)
       .order("sort_order");
     if (data) setPolicies(data as DepthPolicy[]);
     setLoading(false);
@@ -62,7 +65,7 @@ const DepthPolicyManager = () => {
 
   const addPolicy = async () => {
     const newPolicy = {
-      dealership_id: "default",
+      dealership_id: dealershipId,
       name: "New Policy",
       policy_type: "standard",
       oem_brands: [] as string[],

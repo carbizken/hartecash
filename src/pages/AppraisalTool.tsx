@@ -246,7 +246,7 @@ export default function AppraisalTool() {
       setExteriorItems((s.exterior_damage || []).filter(d => d !== "none").length);
       setMechItems((s.mechanical_issues || []).filter(d => d !== "none").length);
 
-      const { data: settingsData } = await supabase.from("offer_settings").select("*").eq("dealership_id", "default").maybeSingle();
+      const { data: settingsData } = await supabase.from("offer_settings").select("*").eq("dealership_id", dealershipId).maybeSingle();
       if (settingsData) {
         setSettings(settingsData as any);
         setLocalSettings(settingsData as any);
@@ -255,11 +255,11 @@ export default function AppraisalTool() {
         setBbValueBasis(settingsData.bb_value_basis || "tradein_avg");
       }
 
-      const { data: rulesData } = await supabase.from("offer_rules").select("*").eq("dealership_id", "default").eq("is_active", true);
+      const { data: rulesData } = await supabase.from("offer_rules").select("*").eq("dealership_id", dealershipId).eq("is_active", true);
       if (rulesData) setRules(rulesData as any);
 
       // Load depth policies
-      const { data: policiesData } = await supabase.from("depth_policies").select("*").eq("dealership_id", "default").eq("is_active", true).order("sort_order");
+      const { data: policiesData } = await supabase.from("depth_policies").select("*").eq("dealership_id", dealershipId).eq("is_active", true).order("sort_order");
       if (policiesData) setDepthPolicies(policiesData as any);
 
       // Do a live BB lookup to get full tier data

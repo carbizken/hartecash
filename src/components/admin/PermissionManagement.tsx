@@ -131,7 +131,7 @@ const PermissionManagement = () => {
   };
 
   const fetchStaffSections = async () => {
-    const { data: allStaff } = await supabase.rpc("get_all_staff");
+    const { data: allStaff } = await supabase.rpc("get_all_staff", { _dealership_id: dealershipId });
     if (!allStaff) return;
 
     const staffWithSections: StaffMember[] = [];
