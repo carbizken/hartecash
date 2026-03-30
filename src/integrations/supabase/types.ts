@@ -1505,6 +1505,7 @@ export type Database = {
           id: string
           inspection_data: Json | null
           inspection_pin: string | null
+          inspector_grade: string | null
           interior_damage: string[] | null
           internal_notes: string | null
           is_hot_lead: boolean
@@ -1595,6 +1596,7 @@ export type Database = {
           id?: string
           inspection_data?: Json | null
           inspection_pin?: string | null
+          inspector_grade?: string | null
           interior_damage?: string[] | null
           internal_notes?: string | null
           is_hot_lead?: boolean
@@ -1685,6 +1687,7 @@ export type Database = {
           id?: string
           inspection_data?: Json | null
           inspection_pin?: string | null
+          inspector_grade?: string | null
           interior_damage?: string[] | null
           internal_notes?: string | null
           is_hot_lead?: boolean
