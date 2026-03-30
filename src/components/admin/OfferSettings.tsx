@@ -4,6 +4,7 @@ import PricingModelManager from "./PricingModelManager";
 import PricingAccessGate from "./PricingAccessGate";
 import PricingAccessRequests from "./PricingAccessRequests";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { useToast } from "@/hooks/use-toast";
 import type { OfferSettings as OfferSettingsType } from "@/lib/offerCalculator";
 import { Button } from "@/components/ui/button";
@@ -223,6 +224,8 @@ interface OfferSettingsProps {
 }
 
 const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
+  const { tenant } = useTenant();
+  const dealershipId = tenant.dealership_id;
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -246,8 +249,8 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
   const fetchAll = async () => {
     setLoading(true);
     const [settingsRes, rulesRes] = await Promise.all([
-      supabase.from("offer_settings" as any).select("*").eq("dealership_id", "default").maybeSingle(),
-      supabase.from("offer_rules" as any).select("*").eq("dealership_id", "default").order("priority", { ascending: false }),
+      supabase.from("offer_settings" as any).select("*").eq("dealership_id", dealershipId).maybeSingle(),
+      supabase.from("offer_rules" as any).select("*").eq("dealership_id", dealershipId).order("priority", { ascending: false }),
     ]);
     if (settingsRes.data) {
       const d = settingsRes.data as any;
@@ -357,7 +360,7 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
     }
     setSavingRule(true);
     const payload = {
-      dealership_id: "default",
+      dealership_id: dealershipId,
       name: editingRule.name,
       rule_type: editingRule.rule_type,
       criteria: editingRule.criteria || {},

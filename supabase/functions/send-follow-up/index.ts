@@ -177,7 +177,7 @@ Deno.serve(async (req) => {
     // Fetch submission
     const { data: sub, error: subErr } = await supabase
       .from("submissions")
-      .select("id, name, email, phone, token, vehicle_year, vehicle_make, vehicle_model, offered_price, estimated_offer_low, estimated_offer_high, photos_uploaded, docs_uploaded, created_at, progress_status")
+      .select("id, name, email, phone, token, vehicle_year, vehicle_make, vehicle_model, offered_price, estimated_offer_low, estimated_offer_high, photos_uploaded, docs_uploaded, created_at, progress_status, dealership_id")
       .eq("id", submission_id)
       .single();
 
@@ -224,11 +224,12 @@ Deno.serve(async (req) => {
     const twilioToken = Deno.env.get("TWILIO_AUTH_TOKEN");
     const twilioPhone = Deno.env.get("TWILIO_PHONE_NUMBER");
 
-    // Fetch dealership name from site_config
+    // Fetch dealership name from site_config using submission's dealership_id
+    const subDealershipId = (sub as any).dealership_id || "default";
     const { data: siteConfig } = await supabase
       .from("site_config")
       .select("dealership_name")
-      .eq("dealership_id", "default")
+      .eq("dealership_id", subDealershipId)
       .maybeSingle();
     const dealerName = siteConfig?.dealership_name || "Our Dealership";
 

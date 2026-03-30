@@ -146,20 +146,33 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch site config
+    // Fetch submission data if provided (needed to derive dealership_id)
+    let sub: any = null;
+    let dealershipId = "default";
+    if (submission_id) {
+      const { data } = await supabase
+        .from("submissions")
+        .select("*")
+        .eq("id", submission_id)
+        .single();
+      sub = data;
+      if (sub?.dealership_id) dealershipId = sub.dealership_id;
+    }
+
+    // Fetch site config scoped to tenant
     const { data: siteConfig } = await supabase
       .from("site_config")
       .select("dealership_name, price_guarantee_days")
-      .eq("dealership_id", "default")
+      .eq("dealership_id", dealershipId)
       .maybeSingle();
     const dealerName = siteConfig?.dealership_name || "Our Dealership";
     const guaranteeDays = String(siteConfig?.price_guarantee_days || 8);
 
-    // Fetch notification settings
+    // Fetch notification settings scoped to tenant
     const { data: notifSettings } = await supabase
       .from("notification_settings")
       .select("*")
-      .eq("dealership_id", "default")
+      .eq("dealership_id", dealershipId)
       .maybeSingle();
 
     // Check if this trigger is enabled
@@ -180,17 +193,6 @@ Deno.serve(async (req) => {
     const channels: string[] = body.channels ||
       (notifSettings as any)?.[fullChannelKey] ||
       ["email"];
-
-    // Fetch submission data if provided
-    let sub: any = null;
-    if (submission_id) {
-      const { data } = await supabase
-        .from("submissions")
-        .select("*")
-        .eq("id", submission_id)
-        .single();
-      sub = data;
-    }
 
     // Build template variables
     const vehicle = sub ? [sub.vehicle_year, sub.vehicle_make, sub.vehicle_model].filter(Boolean).join(" ") : "";
@@ -221,7 +223,7 @@ Deno.serve(async (req) => {
       .from("notification_templates")
       .select("*")
       .eq("trigger_key", trigger_key)
-      .eq("dealership_id", "default");
+      .eq("dealership_id", dealershipId);
 
     const customEmail = customTemplates?.find((t: any) => t.channel === "email");
     const customSms = customTemplates?.find((t: any) => t.channel === "sms");

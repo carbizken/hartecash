@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -90,6 +91,8 @@ interface Props {
 }
 
 const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, onModelNameChange }: Props) => {
+  const { tenant } = useTenant();
+  const dealershipId = tenant.dealership_id;
   const { toast } = useToast();
   const [models, setModels] = useState<PricingModel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -111,7 +114,7 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
     const { data } = await supabase
       .from("pricing_models" as any)
       .select("*")
-      .eq("dealership_id", "default")
+      .eq("dealership_id", dealershipId)
       .order("priority", { ascending: false });
     const parsed = ((data as any[]) || []).map((d: any) => ({
       ...d,
@@ -200,7 +203,7 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
   };
 
   const handleCreateNew = () => {
-    setEditModel({ ...DEFAULT_MODEL_SETTINGS, dealership_id: "default", name: "New Model", description: "", is_default: false, is_active: false, schedule_start: null, schedule_end: null, priority: 0, created_by: null } as any);
+    setEditModel({ ...DEFAULT_MODEL_SETTINGS, dealership_id: dealershipId, name: "New Model", description: "", is_default: false, is_active: false, schedule_start: null, schedule_end: null, priority: 0, created_by: null } as any);
     setSelectedModelId(null);
   };
 
@@ -211,7 +214,7 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
     }
     setSaving(true);
     const payload = {
-      dealership_id: "default",
+      dealership_id: dealershipId,
       name: editModel.name,
       description: editModel.description || "",
       is_default: editModel.is_default || false,
@@ -255,7 +258,7 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
     if (!saveAsName.trim() || !editModel) return;
     setSaving(true);
     const payload = {
-      dealership_id: "default",
+      dealership_id: dealershipId,
       name: saveAsName,
       description: saveAsDesc,
       is_default: false,
@@ -288,7 +291,7 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
   };
 
   const handleSetDefault = async (id: string) => {
-    await supabase.from("pricing_models" as any).update({ is_default: false } as any).eq("dealership_id", "default");
+    await supabase.from("pricing_models" as any).update({ is_default: false } as any).eq("dealership_id", dealershipId);
     await supabase.from("pricing_models" as any).update({ is_default: true, is_active: true } as any).eq("id", id);
     toast({ title: "Default set" });
     fetchModels();

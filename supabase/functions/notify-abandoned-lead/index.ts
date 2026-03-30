@@ -23,35 +23,8 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Check if abandoned lead tracking is enabled
-    const { data: siteConfig } = await supabase
-      .from("site_config")
-      .select("track_abandoned_leads")
-      .eq("dealership_id", "default")
-      .maybeSingle();
-
-    if (!siteConfig?.track_abandoned_leads) {
-      return new Response(
-        JSON.stringify({ skipped: true, reason: "Abandoned lead tracking is disabled" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Check if notification trigger is enabled
-    const { data: notifSettings } = await supabase
-      .from("notification_settings")
-      .select("notify_abandoned_lead")
-      .eq("dealership_id", "default")
-      .maybeSingle();
-
-    if (notifSettings && !(notifSettings as any).notify_abandoned_lead) {
-      return new Response(
-        JSON.stringify({ skipped: true, reason: "Abandoned lead notification disabled" }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Find partial submissions from the last 30 minutes
+    // Find partial submissions from the last 30 minutes across all tenants
+    // Each submission's dealership_id will be used by send-notification to scope config
     // (wider window to catch any missed, deduplication via notification_log)
     const cutoff = new Date(Date.now() - 30 * 60 * 1000).toISOString();
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -69,6 +70,8 @@ interface CustomItem {
 }
 
 const InspectionConfiguration = () => {
+  const { tenant } = useTenant();
+  const dealershipId = tenant.dealership_id;
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -121,7 +124,7 @@ const InspectionConfiguration = () => {
       const { data } = await supabase
         .from("inspection_config")
         .select("*")
-        .eq("dealership_id", "default")
+        .eq("dealership_id", dealershipId)
         .maybeSingle();
 
       if (data) {

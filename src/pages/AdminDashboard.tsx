@@ -125,7 +125,7 @@ const AdminDashboard = () => {
       const { count } = await supabase.from("pricing_model_access_requests" as any).select("id", { count: "exact", head: true }).eq("status", "pending");
       setPricingAccessRequestCount(count || 0);
     }
-    const { data: configData } = await supabase.from("site_config").select("show_request_access").eq("dealership_id", "default").maybeSingle();
+    const { data: configData } = await supabase.from("site_config").select("show_request_access").eq("dealership_id", tenant.dealership_id).maybeSingle();
     setShowRequestAccessToggle((configData as any)?.show_request_access ?? true);
   };
 

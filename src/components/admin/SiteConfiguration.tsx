@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -121,6 +122,8 @@ interface DealerLocation {
 }
 
 const SiteConfiguration = () => {
+  const { tenant } = useTenant();
+  const dealershipId = tenant.dealership_id;
   const [config, setConfig] = useState<SiteConfig>(DEFAULT_CONFIG);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -131,16 +134,16 @@ const SiteConfiguration = () => {
 
   useEffect(() => {
     fetchConfig();
-    supabase.from("dealership_locations").select("id, name, city, state").eq("is_active", true).order("sort_order")
+    supabase.from("dealership_locations").select("id, name, city, state").eq("dealership_id", dealershipId).eq("is_active", true).order("sort_order")
       .then(({ data }) => { if (data) setDealerLocations(data); });
-  }, []);
+  }, [dealershipId]);
 
   const fetchConfig = async () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("site_config")
       .select("*")
-      .eq("dealership_id", "default")
+      .eq("dealership_id", dealershipId)
       .maybeSingle();
 
     if (data && !error) {
@@ -162,13 +165,13 @@ const SiteConfiguration = () => {
   const handleSave = async () => {
     setSaving(true);
     const { id, ...rest } = config;
-    const payload = { ...rest, dealership_id: "default", updated_at: new Date().toISOString() };
+    const payload = { ...rest, dealership_id: dealershipId, updated_at: new Date().toISOString() };
 
     // Try update first, if no rows affected then insert
     const { data: existing } = await supabase
       .from("site_config")
       .select("id")
-      .eq("dealership_id", "default")
+      .eq("dealership_id", dealershipId)
       .maybeSingle();
 
     let error;
