@@ -284,9 +284,12 @@ const SubmissionsTable = ({
                           const isAcceptedAppt = isAcceptedWithAppointment(sub);
                           const isAcceptedNoAppt = isAcceptedWithoutAppointment(sub);
                           const isPending = isOfferPendingSubmission(sub);
+                          const isUpdated = isOfferUpdatedByStaff(sub);
 
                           const bubbleClass = isAcceptedAppt
                             ? "bg-primary/15 text-primary border-primary/30"
+                            : isAcceptedNoAppt && isUpdated
+                            ? "bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/30"
                             : isAcceptedNoAppt
                             ? "bg-success/15 text-success border-success/30"
                             : isPending
