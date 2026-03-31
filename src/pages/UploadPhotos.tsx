@@ -88,8 +88,29 @@ const UploadPhotos = () => {
     };
     checkExisting();
   }, [token, submission, enabledShots]);
+  // Listen for postMessage from GhostCar iframe
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (!e.data?.type) return;
+      if (e.data.type === "ghostcar_photo") {
+        const shotId = e.data.shotId as string;
+        setCategoryUploads(prev => ({ ...prev, [shotId]: { uploaded: true } }));
+      }
+      if (e.data.type === "ghostcar_complete") {
+        const captured = e.data.captured as Record<string, boolean>;
+        const updates: CategoryUploads = {};
+        for (const shotId of Object.keys(captured)) {
+          updates[shotId] = { uploaded: true };
+        }
+        setCategoryUploads(prev => ({ ...prev, ...updates }));
+        setCameraCategory(null);
+      }
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, []);
 
-  const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
 
   const handleCategoryClick = (categoryId: string) => {
     if (isMobile) {
