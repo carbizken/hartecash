@@ -94,6 +94,19 @@ const PhotoConfiguration = () => {
         sort_order: d.sort_order,
       })));
     }
+
+    // Fetch overlay color settings from site_config
+    const { data: siteData } = await supabase
+      .from("site_config")
+      .select("id, photo_overlay_color, photo_allow_color_change")
+      .eq("dealership_id", dealershipId)
+      .maybeSingle();
+    if (siteData) {
+      setSiteConfigId(siteData.id);
+      setOverlayColor(siteData.photo_overlay_color || "#00FF88");
+      setAllowColorChange(siteData.photo_allow_color_change ?? true);
+    }
+
     setLoading(false);
   }, [dealershipId]);
 
