@@ -29,7 +29,7 @@ const GhostCarSilhouette = ({ archetype, shotId, color, width: W, height: H }: G
       const cabEnd = W * sh.roofEnd;
       const cabStart = W * sh.roofStart;
       return (
-        <svg width={W} height={H} className="absolute inset-0">
+        <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" className="absolute inset-0">
           {/* Bed */}
           <rect x={W * 0.08} y={bodyBot - H * 0.15} width={cabStart - W * 0.08} height={H * 0.15}
             fill="none" stroke={color} strokeWidth={sw} opacity={0.6} rx={4} />
