@@ -78,7 +78,7 @@ const GhostCarSilhouette = ({ archetype, shotId, color, width: W, height: H }: G
     const bT = H * 0.25;
     const bH = H * 0.50;
     return (
-      <svg width={W} height={H} className="absolute inset-0">
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" className="absolute inset-0">
         <rect x={bL} y={bT} width={bW} height={bH} rx={12}
           fill="none" stroke={color} strokeWidth={sw} opacity={0.6} />
         {archetype !== "van" && !sh.hasBed && (
