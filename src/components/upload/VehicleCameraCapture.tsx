@@ -11,6 +11,8 @@ interface VehicleCameraCaptureProps {
   categoryLabel: string;
   categoryDesc: string;
   vehicleArchetype?: VehicleArchetype;
+  defaultOverlayColor?: string;
+  allowColorChange?: boolean;
   onCapture: (file: File, preview: string) => void;
   onClose: () => void;
 }
