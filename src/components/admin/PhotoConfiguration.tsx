@@ -155,52 +155,105 @@ const PhotoConfiguration = () => {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
             <Camera className="w-5 h-5 text-primary" />
-            Photo Requirements
+            GhostCar Settings
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Configure which photos customers must take. GhostCar overlays adapt to the vehicle body style automatically.
+            Configure overlay colors, customer permissions, and which photo shots are enabled.
           </p>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="gap-2">
-          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-          Save
-        </Button>
+        <Badge variant="secondary">Dealer admin</Badge>
       </div>
 
-      <div className="flex gap-3 items-center text-sm">
-        <Badge variant="secondary">{enabledCount} shots enabled</Badge>
-        <Badge variant="outline" className="border-success/40 text-success">{requiredCount} required</Badge>
-        <Badge variant="outline">{enabledCount - requiredCount} optional</Badge>
-      </div>
-
-      {/* Overlay Color Settings */}
+      {/* Default Overlay Color */}
       <Card>
-        <CardContent className="py-4 px-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Palette className="w-4 h-4 text-primary" />
-            <span className="text-sm font-semibold text-foreground">Overlay Color</span>
+        <CardContent className="pt-5 pb-5 px-5 space-y-4">
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Default overlay color</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Sets the default guide line color customers see when they open the camera. {allowColorChange ? "They can still change it on their screen." : "Customers cannot change it."}
+            </p>
           </div>
-          <div className="flex items-center gap-6 flex-wrap">
-            <div className="flex items-center gap-3">
-              <Label className="text-sm text-muted-foreground">Default color:</Label>
-              <div className="flex gap-2">
-                {OVERLAY_COLOR_OPTIONS.map(opt => (
-                  <button key={opt.value} onClick={() => setOverlayColor(opt.value)}
-                    className={`w-7 h-7 rounded-full border-2 transition-all flex items-center justify-center ${overlayColor === opt.value ? "border-primary ring-2 ring-primary/30 scale-110" : "border-border"}`}
+          <div className="flex gap-3">
+            {OVERLAY_COLOR_OPTIONS.map(opt => {
+              const isSelected = overlayColor === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => setOverlayColor(opt.value)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 transition-all text-sm font-medium ${
+                    isSelected
+                      ? "border-primary bg-primary/5"
+                      : "border-border bg-card hover:border-muted-foreground/30"
+                  }`}
+                >
+                  <span
+                    className={`w-3.5 h-3.5 rounded-full shrink-0 ${opt.value === "#FFFFFF" ? "border border-border" : ""}`}
                     style={{ background: opt.value }}
-                    title={opt.label}
                   />
-                ))}
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Label className="text-sm text-muted-foreground">Customer can change color:</Label>
-              <Switch checked={allowColorChange} onCheckedChange={setAllowColorChange} />
-            </div>
+                  {opt.label}
+                  {isSelected && (
+                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0">default</Badge>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Allow customer to change color */}
+      <Card>
+        <CardContent className="pt-5 pb-5 px-5 space-y-3">
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Allow customer to change color</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              If on, customers see the color picker dots in the viewfinder and can switch on their own.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Switch checked={allowColorChange} onCheckedChange={setAllowColorChange} />
+            <Label className="text-sm text-muted-foreground">
+              {allowColorChange ? "On — customers can change it" : "Off — locked to default color"}
+            </Label>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Enabled photo shots */}
+      <Card>
+        <CardContent className="pt-5 pb-5 px-5 space-y-4">
+          <div>
+            <h3 className="text-sm font-semibold text-foreground">Enabled photo shots</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Toggle which shots are required for this rooftop. Unchecked shots are hidden from the customer flow.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {rows.map((row, idx) => (
+              <label
+                key={row.id}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg border cursor-pointer transition-all ${
+                  row.is_enabled
+                    ? "border-primary/30 bg-primary/5"
+                    : "border-border bg-card hover:bg-muted/50"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={row.is_enabled}
+                  onChange={(e) => updateRow(idx, { is_enabled: e.target.checked, is_required: e.target.checked ? row.is_required : false })}
+                  className="w-4 h-4 rounded border-border text-primary focus:ring-primary/30 accent-primary"
+                />
+                <span className={`text-sm ${row.is_enabled ? "text-foreground font-medium" : "text-muted-foreground"}`}>
+                  {row.label}
+                </span>
+              </label>
+            ))}
           </div>
         </CardContent>
       </Card>
@@ -230,7 +283,6 @@ const PhotoConfiguration = () => {
                 width={480}
                 height={270}
               />
-              {/* Corner brackets */}
               {[[0, 0], [1, 0], [0, 1], [1, 1]].map(([r, b], i) => (
                 <div key={i} className="absolute w-5 h-5" style={{
                   [r ? "right" : "left"]: 8,
@@ -247,45 +299,36 @@ const PhotoConfiguration = () => {
         </Card>
       )}
 
-      {/* Shot rows */}
-      <div className="space-y-2">
-        {rows.map((row, idx) => (
-          <Card key={row.id} className={`transition-all ${!row.is_enabled ? "opacity-50" : ""}`}>
-            <CardContent className="py-3 px-4">
-              <div className="flex items-center gap-3">
-                <GripVertical className="w-4 h-4 text-muted-foreground/40 shrink-0" />
-
-                {/* Enable toggle */}
-                <Switch
-                  checked={row.is_enabled}
-                  onCheckedChange={(v) => updateRow(idx, { is_enabled: v, is_required: v ? row.is_required : false })}
-                />
-
-                {/* Shot info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+      {/* Shot detail rows (for label/description editing & required toggle) */}
+      <Card>
+        <CardContent className="pt-5 pb-3 px-5">
+          <h3 className="text-sm font-semibold text-foreground mb-3">Shot details &amp; requirements</h3>
+          <div className="space-y-1.5">
+            {rows.filter(r => r.is_enabled).map((row, _i) => {
+              const idx = rows.findIndex(r => r.id === row.id);
+              return (
+                <div key={row.id} className="flex items-center gap-3 py-2 px-3 rounded-lg border border-border bg-card">
+                  <GripVertical className="w-4 h-4 text-muted-foreground/40 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={row.label}
+                        onChange={(e) => updateRow(idx, { label: e.target.value })}
+                        className="h-7 text-sm font-semibold w-44"
+                      />
+                      {row.is_required ? (
+                        <Badge className="bg-success/10 text-success border-success/30 text-[10px]">Required</Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-[10px]">Optional</Badge>
+                      )}
+                    </div>
                     <Input
-                      value={row.label}
-                      onChange={(e) => updateRow(idx, { label: e.target.value })}
-                      className="h-7 text-sm font-semibold w-48"
+                      value={row.description}
+                      onChange={(e) => updateRow(idx, { description: e.target.value })}
+                      className="h-6 text-xs text-muted-foreground border-none p-0 mt-0.5"
+                      placeholder="Instruction for customer..."
                     />
-                    {row.is_enabled && row.is_required && (
-                      <Badge className="bg-success/10 text-success border-success/30 text-[10px]">Required</Badge>
-                    )}
-                    {row.is_enabled && !row.is_required && (
-                      <Badge variant="outline" className="text-[10px]">Optional</Badge>
-                    )}
                   </div>
-                  <Input
-                    value={row.description}
-                    onChange={(e) => updateRow(idx, { description: e.target.value })}
-                    className="h-6 text-xs text-muted-foreground border-none p-0 mt-0.5"
-                    placeholder="Instruction for customer..."
-                  />
-                </div>
-
-                {/* Required toggle */}
-                {row.is_enabled && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span>Required</span>
                     <Switch
@@ -293,20 +336,27 @@ const PhotoConfiguration = () => {
                       onCheckedChange={(v) => updateRow(idx, { is_required: v })}
                     />
                   </div>
-                )}
+                  <button
+                    onClick={() => setPreviewShot(previewShot === row.shot_id ? null : row.shot_id)}
+                    className={`p-1.5 rounded transition-colors ${previewShot === row.shot_id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                    title="Preview overlay"
+                  >
+                    {previewShot === row.shot_id ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
 
-                {/* Preview button */}
-                <button
-                  onClick={() => setPreviewShot(previewShot === row.shot_id ? null : row.shot_id)}
-                  className={`p-1.5 rounded transition-colors ${previewShot === row.shot_id ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"}`}
-                  title="Preview overlay"
-                >
-                  {previewShot === row.shot_id ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Footer actions */}
+      <div className="flex justify-end gap-3 pt-2">
+        <Button variant="outline" onClick={() => fetchConfig()}>Cancel</Button>
+        <Button onClick={handleSave} disabled={saving} className="gap-2">
+          {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+          Save settings
+        </Button>
       </div>
     </div>
   );
