@@ -9,7 +9,6 @@ import UploadSkeleton from "@/components/UploadSkeleton";
 import MobileQRBanner from "@/components/upload/MobileQRBanner";
 import PhotoGuide from "@/components/upload/PhotoGuide";
 import VehicleCameraCapture from "@/components/upload/VehicleCameraCapture";
-import GhostCar from "@/components/upload/GhostCar";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePhotoConfig, type PhotoShot } from "@/hooks/usePhotoConfig";
@@ -89,8 +88,30 @@ const UploadPhotos = () => {
     };
     checkExisting();
   }, [token, submission, enabledShots]);
+  // Listen for postMessage from GhostCar iframe
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (!e.data?.type) return;
+      if (e.data.type === "ghostcar_photo") {
+        const shotId = e.data.shotId as string;
+        setCategoryUploads(prev => ({ ...prev, [shotId]: { uploaded: true } }));
+      }
+      if (e.data.type === "ghostcar_complete") {
+        const captured = e.data.captured as Record<string, boolean>;
+        const updates: CategoryUploads = {};
+        for (const shotId of Object.keys(captured)) {
+          updates[shotId] = { uploaded: true };
+        }
+        setCategoryUploads(prev => ({ ...prev, ...updates }));
+        setCameraCategory(null);
+      }
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, []);
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
+
 
   const handleCategoryClick = (categoryId: string) => {
     if (isMobile) {
@@ -415,30 +436,20 @@ const UploadPhotos = () => {
         </p>
       </div>
 
-      {/* Guided camera capture overlay — GitHub GhostCar component */}
+      {/* Guided camera capture overlay — iframe-based GhostCar */}
       {cameraCategory && (
         <div className="fixed inset-0 z-50 bg-black">
-          <div className="relative h-full overflow-auto">
-            <button
-              onClick={() => setCameraCategory(null)}
-              className="absolute top-3 right-3 z-[60] text-white bg-black/60 rounded-full p-1.5"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <GhostCar
-              vehicleType={vehicleArchetype}
-              enabledShots={enabledShots.map(s => s.shot_id)}
-              onComplete={(captured: Record<string, boolean>) => {
-                // Mark all captured shots as done and close
-                const updates: CategoryUploads = {};
-                for (const shotId of Object.keys(captured)) {
-                  updates[shotId] = { uploaded: true };
-                }
-                setCategoryUploads(prev => ({ ...prev, ...updates }));
-                setCameraCategory(null);
-              }}
-            />
-          </div>
+          <button
+            onClick={() => setCameraCategory(null)}
+            className="absolute top-3 right-3 z-[60] text-white bg-black/60 rounded-full p-1.5"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <iframe
+            src={`/ghostcar.html?vehicle=${encodeURIComponent(vehicleArchetype)}`}
+            className="w-full h-full border-none"
+            allow="camera"
+          />
         </div>
       )}
     </div>
