@@ -110,6 +110,7 @@ const UploadPhotos = () => {
     return () => window.removeEventListener("message", handler);
   }, []);
 
+  const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 
   const handleCategoryClick = (categoryId: string) => {
