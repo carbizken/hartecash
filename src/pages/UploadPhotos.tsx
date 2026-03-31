@@ -9,6 +9,7 @@ import UploadSkeleton from "@/components/UploadSkeleton";
 import MobileQRBanner from "@/components/upload/MobileQRBanner";
 import PhotoGuide from "@/components/upload/PhotoGuide";
 import VehicleCameraCapture from "@/components/upload/VehicleCameraCapture";
+import GhostCar from "@/components/upload/GhostCar";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePhotoConfig, type PhotoShot } from "@/hooks/usePhotoConfig";
