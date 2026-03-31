@@ -108,7 +108,7 @@ const GhostCarSilhouette = ({ archetype, shotId, color, width: W, height: H }: G
   // Windshield
   if (shotId === "windshield") {
     return (
-      <svg width={W} height={H} className="absolute inset-0">
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="100%" className="absolute inset-0">
         <path d={`M${W * 0.12},${H * 0.75} L${W * 0.25},${H * 0.18} L${W * 0.75},${H * 0.18} L${W * 0.88},${H * 0.75} Z`}
           fill="none" stroke={color} strokeWidth={sw} opacity={0.5} />
         <text x={W / 2} y={H * 0.52} textAnchor="middle" fill={color} fontSize={12} fontWeight={600} opacity={0.6}>
