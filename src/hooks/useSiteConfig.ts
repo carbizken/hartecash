@@ -60,6 +60,7 @@ export interface SiteConfig {
   youtube_url: string;
   photo_overlay_color: string;
   photo_allow_color_change: boolean;
+  vehicle_image_angle: string;
 }
 
 const DEFAULTS: SiteConfig = {
