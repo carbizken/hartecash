@@ -304,8 +304,8 @@ const ServiceLanding = () => {
   return (
     <div className="min-h-screen bg-[hsl(222,47%,5%)] text-[hsl(210,40%,98%)]">
       <SEO
-        title="Service Customer Trade-In Value | Harte Auto Group"
-        description="Already here for service? Find out what your car is worth in 60 seconds. Get a guaranteed cash offer or trade-in value from Harte Auto Group."
+        title={`Service Customer Trade-In Value | ${siteConfig.dealership_name}`}
+        description={`Already here for service? Find out what your car is worth in 60 seconds. Get a guaranteed cash offer or trade-in value from ${siteConfig.dealership_name}.`}
         path="/service"
         noindex
       />
