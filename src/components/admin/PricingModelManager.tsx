@@ -183,6 +183,7 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
           global_adjustment_pct: incoming.global_adjustment_pct,
           regional_adjustment_pct: incoming.regional_adjustment_pct,
           condition_multipliers: incoming.condition_multipliers as any,
+          condition_basis_map: incoming.condition_basis_map as any,
           deductions_config: incoming.deductions_config as any,
           deduction_amounts: incoming.deduction_amounts as any,
           recon_cost: incoming.recon_cost,
