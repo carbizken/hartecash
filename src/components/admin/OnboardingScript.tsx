@@ -413,8 +413,8 @@ export default function OnboardingScript({ targetDealershipId }: OnboardingScrip
 
         {SECTIONS.map((section) => (
           <div key={section.title} className="border rounded-lg overflow-hidden print:break-inside-avoid">
-            <div className="bg-muted/50 px-4 py-2.5 border-b">
-              <h3 className="text-sm font-bold flex items-center gap-2">
+            <div className="bg-primary/10 px-4 py-2.5 border-b border-primary/20">
+              <h3 className="text-sm font-bold flex items-center gap-2 text-primary">
                 <span>{section.icon}</span>
                 {section.title}
               </h3>
