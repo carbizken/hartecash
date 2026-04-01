@@ -221,13 +221,6 @@ const VehicleImageInventory = () => {
 
   const [openMakes, setOpenMakes] = useState<Set<string>>(new Set());
 
-  // Auto-open all groups when data loads or search changes
-  useEffect(() => {
-    if (grouped.length > 0) {
-      setOpenMakes(new Set(grouped.map(([make]) => make)));
-    }
-  }, [grouped, search]);
-
   const toggleMake = (make: string) => {
     setOpenMakes((prev) => {
       const next = new Set(prev);
