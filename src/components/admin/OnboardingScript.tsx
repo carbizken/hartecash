@@ -276,6 +276,7 @@ export default function OnboardingScript({ targetDealershipId }: OnboardingScrip
 
   const handleSave = async () => {
     setSaving(true);
+    const activeDealershipId = targetDealershipId || "default";
     const { error } = await supabase
       .from("dealer_accounts")
       .update({
@@ -284,7 +285,7 @@ export default function OnboardingScript({ targetDealershipId }: OnboardingScrip
         onboarding_signature_staff: staffSig,
         onboarding_signed_at: dealerSig || staffSig ? new Date().toISOString() : null,
       } as any)
-      .eq("dealership_id", "default");
+      .eq("dealership_id", activeDealershipId);
 
     if (error) {
       toast.error("Failed to save — " + error.message);
