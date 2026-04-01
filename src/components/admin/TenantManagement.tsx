@@ -239,6 +239,11 @@ const TenantManagement = ({ onSetupDealer }: TenantManagementProps) => {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
+                      {onSetupDealer && (
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-primary" onClick={() => onSetupDealer(t.dealership_id)} title="Setup">
+                          <Rocket className="w-3.5 h-3.5" />
+                        </Button>
+                      )}
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(t)}>
                         <Pencil className="w-3.5 h-3.5" />
                       </Button>
