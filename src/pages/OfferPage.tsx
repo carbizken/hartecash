@@ -725,7 +725,32 @@ const OfferPage = () => {
   return (
     <div className="print-native min-h-screen bg-background print:bg-white">
       {/* ─── PRINT-ONLY: Custom one-page layout ─── */}
-      {PrintLayout}
+      <OfferPrintLayout
+        config={config}
+        logoFallback={harteLogoFallback}
+        submission={s}
+        condition={condition}
+        vehicleStr={vehicleStr}
+        createdDate={createdDate}
+        isEstimate={isEstimate}
+        isExpired={isExpired}
+        daysRemaining={daysRemaining}
+        expiresDate={expiresDate}
+        activeTab={activeTab}
+        cashOffer={cashOffer}
+        estimateLow={estimateLow}
+        tradeInValue={tradeInValue}
+        tradeInValueLow={tradeInValueLow}
+        taxRate={taxRate}
+        taxSavings={taxSavings}
+        taxPercent={taxPercent}
+        stateName={stateName}
+        conditionItems={conditionItems}
+        appointment={appointment}
+        portalUrl={portalUrl}
+        getLocationLabel={getLocationLabel}
+        getLocationAddress={getLocationAddress}
+      />
 
       {/* Header */}
       <div className="print:hidden bg-gradient-to-r from-primary via-[hsl(210,100%,30%)] to-primary text-primary-foreground px-6 py-1">
