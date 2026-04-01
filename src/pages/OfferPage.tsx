@@ -821,13 +821,13 @@ const OfferPage = () => {
 
       {/* ─── MOBILE: Single-column layout ─── */}
       <div className="lg:hidden print:hidden">
-        {/* Floating Sticky Value Box */}
-        <div className="sticky top-0 z-30 bg-card/95 backdrop-blur-md border-b border-border shadow-lg print:static print:shadow-none">
-          <div className="max-w-lg mx-auto px-6 py-4 space-y-3">
-            {TabSwitcher}
+        {/* Floating Sticky Value Box — collapses on scroll */}
+        <div className="sticky top-0 z-30 bg-card/95 backdrop-blur-md border-b border-border shadow-lg print:static print:shadow-none transition-all duration-300">
+          <div className="max-w-lg mx-auto px-6 py-3 space-y-2">
+            {!stickyCompact && TabSwitcher}
             {OfferDisplay}
-            {TradeInBounce}
-            {GuaranteeBadge}
+            {!stickyCompact && TradeInBounce}
+            {!stickyCompact && GuaranteeBadge}
             {AcceptButton}
           </div>
         </div>
