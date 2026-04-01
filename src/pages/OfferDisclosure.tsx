@@ -213,7 +213,7 @@ const sections: Section[] = [
     title: "Eligibility & Required Documentation",
     render: () => (
       <>
-        <p>To complete your vehicle sale with HarteCash, please bring the following at the time of your appointment:</p>
+        <p>To complete your vehicle sale, please bring the following at the time of your appointment:</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
           {[
             "Valid vehicle title or lien payoff letter; all titled owners must be present",
