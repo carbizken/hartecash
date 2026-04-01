@@ -253,11 +253,11 @@ const sections: Section[] = [
       <>
         <div className="flex flex-col gap-3 mb-4">
           {[
-            { step: "01", title: "Schedule Your Appointment", body: "Select a convenient time at your nearest Harte Auto Group location, subject to availability. You will receive a confirmation with everything you need to bring." },
-            { step: "02", title: "Vehicle Inspection", body: "A Harte Auto Group representative will conduct a thorough physical inspection of your vehicle. Inspection time varies based on vehicle condition and documentation. All factors from Section 04 are evaluated at this time." },
+            { step: "01", title: "Schedule Your Appointment", body: "Select a convenient time at your nearest location, subject to availability. You will receive a confirmation with everything you need to bring." },
+            { step: "02", title: "Vehicle Inspection", body: "A representative will conduct a thorough physical inspection of your vehicle. Inspection time varies based on vehicle condition and documentation. All factors from Section 04 are evaluated at this time." },
             { step: "03", title: "Final Offer Presentation", body: "Following the inspection, we will present your Final Purchase Offer in writing. This may be higher or lower than your online estimate based on inspection findings. You are under no obligation to accept." },
             { step: "04", title: "Paperwork & Title Transfer", body: "If you accept the Final Offer, we handle all required documentation including the bill of sale, odometer disclosure statement, and title transfer paperwork. All titled owners must be present with valid ID." },
-            { step: "05", title: "Payment", body: "Payment is typically issued the same business day you accept the Final Offer, via check or electronic transfer, subject to successful title verification, clearance of all required documentation, and confirmation of any outstanding lien payoff. HarteCash reserves the right to delay payment if title or lien status cannot be immediately verified." },
+            { step: "05", title: "Payment", body: "Payment is typically issued the same business day you accept the Final Offer, via check or electronic transfer, subject to successful title verification, clearance of all required documentation, and confirmation of any outstanding lien payoff. We reserve the right to delay payment if title or lien status cannot be immediately verified." },
           ].map((s) => (
             <div key={s.step} className="flex gap-4 items-start bg-muted border border-border rounded-lg p-4">
               <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-0.5">
