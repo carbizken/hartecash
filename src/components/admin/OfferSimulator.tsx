@@ -585,7 +585,7 @@ const OfferSimulator = ({ settings, savedSettings, rules, inlineControls = true,
                     <Select value={liveCondition} onValueChange={setLiveCondition}>
                       <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        {CONDITIONS.map(c => <SelectItem key={c} value={c} className="capitalize text-xs">{c}</SelectItem>)}
+                        {CONDITIONS.map(c => <SelectItem key={c} value={c} className="text-xs">{CONDITION_LABELS[c]}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
