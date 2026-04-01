@@ -51,7 +51,7 @@ const Sitemap = () => {
           <Link to="/" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <img src={harteLogo} alt="Harte Auto Group" className="h-20 w-auto" />
+          {logoSrc && <img src={logoSrc} alt={config.dealership_name} className="h-20 w-auto" />}
           <h1 className="font-bold text-lg">Sitemap</h1>
         </div>
       </div>
