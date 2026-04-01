@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import autocurbLogo from "@/assets/autocurb-logo.png";
 import autocurbLogoWhite from "@/assets/autocurb-logo-white.png";
+import autocurbLogoMain from "@/assets/autocurb-logo-main.png";
 import screenshotLanding from "@/assets/pitch/screenshot-landing.png";
 import screenshotPortal from "@/assets/pitch/screenshot-portal.jpg";
 import screenshotDashboard from "@/assets/pitch/screenshot-dashboard.jpg";
@@ -108,7 +109,7 @@ export default function PlatformLanding() {
       {/* ── Sticky Nav ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[hsl(220,25%,6%)]/80 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <img src={autocurbLogoWhite} alt="AutoCurb" className="h-8 object-contain" />
+          <img src={autocurbLogoMain} alt="AutoCurb.io" className="h-10 object-contain" />
           <div className="hidden md:flex items-center gap-8 text-sm text-white/60">
             <a href="#platform" className="hover:text-white transition">Platform</a>
             <a href="#screenshots" className="hover:text-white transition">Product</a>
