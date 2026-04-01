@@ -45,7 +45,8 @@ async function resolveTenant(): Promise<TenantInfo> {
     hostname === "localhost" ||
     hostname === "127.0.0.1" ||
     hostname.includes("lovable.app") ||
-    hostname.includes("lovable.dev")
+    hostname.includes("lovable.dev") ||
+    hostname.includes("lovableproject.com")
   ) {
     cachedTenant = DEFAULT_TENANT;
     return DEFAULT_TENANT;
