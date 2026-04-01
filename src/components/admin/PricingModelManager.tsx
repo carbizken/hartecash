@@ -59,7 +59,13 @@ const DEFAULT_MODEL_SETTINGS = {
   bb_value_basis: "tradein_avg",
   global_adjustment_pct: 0,
   regional_adjustment_pct: 0,
-  condition_multipliers: { excellent: 1.05, good: 1.0, fair: 0.90, rough: 0.78 },
+  condition_multipliers: { excellent: 1.0, very_good: 1.0, good: 1.0, fair: 1.0 },
+  condition_basis_map: {
+    excellent: "retail_xclean",
+    very_good: "tradein_clean",
+    good: "tradein_avg",
+    fair: "wholesale_rough",
+  },
   deductions_config: {
     accidents: true, exterior_damage: true, interior_damage: true,
     windshield_damage: true, engine_issues: true, mechanical_issues: true,
