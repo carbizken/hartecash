@@ -171,29 +171,57 @@ export default function PlatformLanding() {
         </motion.div>
       </Section>
 
-      {/* ═══ 2 — MARKET OPPORTUNITY ═══ */}
+      {/* ═══ 2 — THE PROBLEM ═══ */}
       <Section dark>
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }}>
-          <GlowBadge label="The Opportunity" />
-          <motion.h2 variants={fadeUp} custom={0} className="text-4xl md:text-6xl font-black mb-6 leading-tight">
-            <span className="text-blue-400">40 Million</span> Used Cars<br />Change Hands Every Year
+          <GlowBadge label="The Problem" />
+          <motion.h2 variants={fadeUp} custom={0} className="text-4xl md:text-6xl font-black mb-8 leading-tight">
+            Acquiring Used Inventory<br />Is <span className="text-red-400">Broken</span>
           </motion.h2>
-          <motion.p variants={fadeUp} custom={1} className="text-lg text-white/50 max-w-2xl mb-16">
-            CarMax and Carvana proved consumers will sell online. But they have zero relationship with your customer. You have trust, service history, and local presence — you just need the platform.
+          <motion.p variants={fadeUp} custom={1} className="text-lg text-white/50 max-w-3xl mb-14 leading-relaxed">
+            Every dealer knows the pain. Auction lanes are drying up, transport costs are climbing, and the vehicles you win often arrive with surprises your recon budget didn't plan for. Meanwhile, consumers are selling 40 million used cars a year — mostly to each other, to Carvana, or to CarMax. Your customers. Your market. Someone else's platform.
           </motion.p>
-          <motion.div variants={fadeUp} custom={2} className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+
+          {/* Pain points */}
+          <motion.div variants={fadeUp} custom={2} className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-16">
             {[
-              { value: 40, suffix: "M", label: "Used vehicles sold annually", cite: "Cox Automotive 2024" },
-              { value: 73, suffix: "%", label: "Prefer more steps online", cite: "CarGurus 2025" },
-              { value: 2000, prefix: "$", label: "Saved per unit vs. auction", cite: "Avg auction + transport fees" },
-              { value: 1528, prefix: "$", label: "Current avg used PVR", cite: "Haig Report Q3 2025" },
-            ].map((m, i) => (
-              <div key={i} className="rounded-2xl p-8 text-center bg-white/5 border border-white/10 backdrop-blur-sm">
-                <AnimatedNumber value={m.value} prefix={m.prefix} suffix={m.suffix} className="text-5xl md:text-6xl font-black text-blue-400" />
-                <p className="text-sm mt-3 text-white/60">{m.label}</p>
-                <p className="text-[10px] mt-2 text-white/30">📎 {m.cite}</p>
-              </div>
+              { emoji: "🔨", title: "Auction Dependency", desc: "You're competing against 200 other buyers for the same unit. Fees, transport, and arbitration eat your margin before you even start recon." },
+              { emoji: "🚛", title: "Transport & Timing", desc: "Win a car at 10 AM, see it in 10 days. $300–800 in transport costs, plus lot rot while it waits for detail and photos." },
+              { emoji: "🔧", title: "Recon Surprises", desc: "Auction condition reports miss half the damage. You budget $800 in recon and spend $2,200. PVR disappears on the lift." },
+              { emoji: "📉", title: "Shrinking Supply", desc: "Lease returns are down. New-car incentives push trades to franchise stores. Independent and used-car-heavy dealers fight over scraps." },
+            ].map((pain, i) => (
+              <motion.div key={i} variants={scaleIn} custom={i + 3} className="bg-red-500/5 border border-red-500/15 rounded-2xl p-6">
+                <span className="text-3xl mb-3 block">{pain.emoji}</span>
+                <h3 className="font-bold text-white text-base mb-2">{pain.title}</h3>
+                <p className="text-sm text-white/45 leading-relaxed">{pain.desc}</p>
+              </motion.div>
             ))}
+          </motion.div>
+
+          {/* The shift */}
+          <motion.div variants={fadeUp} custom={5} className="rounded-3xl bg-gradient-to-r from-blue-600/10 to-indigo-600/10 border border-blue-500/20 p-8 md:p-12">
+            <div className="grid md:grid-cols-2 gap-10 items-center">
+              <div>
+                <h3 className="text-2xl md:text-3xl font-black text-white mb-4">The market already shifted.</h3>
+                <p className="text-white/50 leading-relaxed mb-6">
+                  CarMax and Carvana proved consumers <em>will</em> sell their car online. But they don't have your local trust, your service history, or your relationship. You have every advantage — you just don't have the platform. <strong className="text-white/80">Until now.</strong>
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { value: 40, suffix: "M", label: "Used cars sold annually", cite: "Cox Automotive 2024" },
+                  { value: 73, suffix: "%", label: "Want more steps online", cite: "CarGurus 2025" },
+                  { value: 2000, prefix: "$", label: "Saved per unit vs. auction", cite: "Avg fees + transport" },
+                  { value: 1528, prefix: "$", label: "Current avg used PVR", cite: "Haig Report Q3 2025" },
+                ].map((m, i) => (
+                  <div key={i} className="rounded-xl p-5 text-center bg-white/5 border border-white/10">
+                    <AnimatedNumber value={m.value} prefix={m.prefix} suffix={m.suffix} className="text-3xl md:text-4xl font-black text-blue-400" />
+                    <p className="text-xs mt-2 text-white/50">{m.label}</p>
+                    <p className="text-[9px] mt-1 text-white/25">📎 {m.cite}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </motion.div>
         </motion.div>
       </Section>
@@ -319,7 +347,54 @@ export default function PlatformLanding() {
         </motion.div>
       </Section>
 
-      {/* ═══ 4 — END-TO-END FLOW ═══ */}
+      {/* ═══ 3B — BRAND YOUR EXPERIENCE ═══ */}
+      <Section dark>
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }}>
+          <GlowBadge label="Your Brand, Not Ours" />
+          <motion.h2 variants={fadeUp} custom={0} className="text-4xl md:text-6xl font-black mb-6 leading-tight">
+            It's <span className="text-blue-400">Your</span> Platform.<br />We Just Power It.
+          </motion.h2>
+          <motion.p variants={fadeUp} custom={1} className="text-lg text-white/50 max-w-3xl mb-14 leading-relaxed">
+            Unlike third-party lead providers that plaster their logo everywhere and train your customers to go somewhere else next time, AutoCurb is invisible. Your customers never know we exist. Every touchpoint — from the first landing page to the final check request — looks, feels, and <em>is</em> yours.
+          </motion.p>
+
+          <motion.div variants={fadeUp} custom={2} className="grid md:grid-cols-3 gap-6 mb-14">
+            {[
+              { icon: Globe, title: "Your Domain", desc: "sellmycar.yourdealership.com — a URL your customers trust. No 'powered by' watermarks, no third-party branding anywhere." },
+              { icon: Award, title: "Your Colors & Logo", desc: "Primary color, accent color, logo, favicon — every pixel matches your dealership identity. Dark mode, light mode, your call." },
+              { icon: Smartphone, title: "Your SMS & Email", desc: "Offer notifications, follow-up sequences, appointment confirmations — all sent from your name, your number, your templates." },
+            ].map((item, i) => (
+              <motion.div key={i} variants={scaleIn} custom={i + 3} className="bg-white/5 border border-white/10 rounded-2xl p-8 hover:bg-white/[0.07] transition">
+                <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mb-5">
+                  <item.icon className="w-6 h-6 text-blue-400" />
+                </div>
+                <h3 className="font-bold text-lg text-white mb-3">{item.title}</h3>
+                <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          <motion.div variants={fadeUp} custom={5} className="grid md:grid-cols-2 gap-6">
+            {[
+              { icon: Lock, title: "Customer Data Stays Yours", desc: "Every lead, every phone number, every email address — stored in your database. We don't resell leads, we don't market to your customers, we don't build a competing dataset." },
+              { icon: Users, title: "Customers Build Loyalty to You", desc: "When a consumer sells their car through your branded platform and has a great experience, they come back to YOU next time — not to a marketplace that sells them to five other dealers." },
+              { icon: Shield, title: "No Lead Sharing, Ever", desc: "Your off-street leads aren't shared with competing dealers. Your service drive captures aren't cross-sold. Your data is yours. Period." },
+              { icon: Target, title: "Multi-Location, One Brand", desc: "Five rooftops? Ten? Each location gets its own pipeline, assignment rules, and staff — but all under your single brand umbrella with one unified dashboard." },
+            ].map((item, i) => (
+              <motion.div key={i} variants={scaleIn} custom={i + 6} className="flex gap-5 bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/[0.07] transition">
+                <div className="w-11 h-11 rounded-xl bg-blue-500/20 flex items-center justify-center shrink-0">
+                  <item.icon className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-white mb-1">{item.title}</h3>
+                  <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.div>
+      </Section>
+
       <Section dark id="platform">
         <div className="absolute top-1/3 right-0 w-[500px] h-[500px] rounded-full bg-blue-600/8 blur-[140px] pointer-events-none" />
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative">
