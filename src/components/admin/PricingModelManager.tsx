@@ -28,6 +28,7 @@ interface PricingModel {
   global_adjustment_pct: number;
   regional_adjustment_pct: number;
   condition_multipliers: Record<string, number>;
+  condition_basis_map: Record<string, string>;
   deductions_config: Record<string, boolean>;
   deduction_amounts: Record<string, number>;
   recon_cost: number;
@@ -58,7 +59,13 @@ const DEFAULT_MODEL_SETTINGS = {
   bb_value_basis: "tradein_avg",
   global_adjustment_pct: 0,
   regional_adjustment_pct: 0,
-  condition_multipliers: { excellent: 1.05, good: 1.0, fair: 0.90, rough: 0.78 },
+  condition_multipliers: { excellent: 1.0, very_good: 1.0, good: 1.0, fair: 1.0 },
+  condition_basis_map: {
+    excellent: "retail_xclean",
+    very_good: "tradein_clean",
+    good: "tradein_avg",
+    fair: "wholesale_rough",
+  },
   deductions_config: {
     accidents: true, exterior_damage: true, interior_damage: true,
     windshield_damage: true, engine_issues: true, mechanical_issues: true,
@@ -142,6 +149,8 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
       deductions_config: editModel.deductions_config as any || DEFAULT_MODEL_SETTINGS.deductions_config,
       deduction_amounts: editModel.deduction_amounts as any || DEFAULT_MODEL_SETTINGS.deduction_amounts,
       condition_multipliers: editModel.condition_multipliers as any || DEFAULT_MODEL_SETTINGS.condition_multipliers,
+      condition_basis_map: editModel.condition_basis_map as any || DEFAULT_MODEL_SETTINGS.condition_basis_map,
+      condition_equipment_map: (editModel as any).condition_equipment_map || { excellent: true, very_good: true, good: true, fair: true },
       recon_cost: editModel.recon_cost || 0,
       offer_floor: editModel.offer_floor || 500,
       offer_ceiling: editModel.offer_ceiling ?? null,
@@ -175,6 +184,8 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
           global_adjustment_pct: incoming.global_adjustment_pct,
           regional_adjustment_pct: incoming.regional_adjustment_pct,
           condition_multipliers: incoming.condition_multipliers as any,
+          condition_basis_map: incoming.condition_basis_map as any,
+          condition_equipment_map: (incoming as any).condition_equipment_map,
           deductions_config: incoming.deductions_config as any,
           deduction_amounts: incoming.deduction_amounts as any,
           recon_cost: incoming.recon_cost,
@@ -226,6 +237,8 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
       global_adjustment_pct: editModel.global_adjustment_pct || 0,
       regional_adjustment_pct: editModel.regional_adjustment_pct || 0,
       condition_multipliers: editModel.condition_multipliers as any,
+      condition_basis_map: editModel.condition_basis_map as any,
+      condition_equipment_map: (editModel as any).condition_equipment_map || { excellent: true, very_good: true, good: true, fair: true },
       deductions_config: editModel.deductions_config as any,
       deduction_amounts: editModel.deduction_amounts as any,
       recon_cost: editModel.recon_cost || 0,
@@ -268,6 +281,8 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
       global_adjustment_pct: editModel.global_adjustment_pct || 0,
       regional_adjustment_pct: editModel.regional_adjustment_pct || 0,
       condition_multipliers: editModel.condition_multipliers as any,
+      condition_basis_map: editModel.condition_basis_map as any,
+      condition_equipment_map: (editModel as any).condition_equipment_map || { excellent: true, very_good: true, good: true, fair: true },
       deductions_config: editModel.deductions_config as any,
       deduction_amounts: editModel.deduction_amounts as any,
       recon_cost: editModel.recon_cost || 0,

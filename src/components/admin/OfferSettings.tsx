@@ -103,9 +103,23 @@ interface MileageTier {
 
 interface ConditionMultipliers {
   excellent: number;
+  very_good: number;
   good: number;
   fair: number;
-  rough: number;
+}
+
+interface ConditionBasisMap {
+  excellent: string;
+  very_good: string;
+  good: string;
+  fair: string;
+}
+
+interface ConditionEquipmentMap {
+  excellent: boolean;
+  very_good: boolean;
+  good: boolean;
+  fair: boolean;
 }
 
 interface OfferSettingsRow {
@@ -116,6 +130,8 @@ interface OfferSettingsRow {
   deductions_config: DeductionsConfig;
   deduction_amounts: DeductionAmounts;
   condition_multipliers: ConditionMultipliers;
+  condition_basis_map: ConditionBasisMap;
+  condition_equipment_map: ConditionEquipmentMap;
   recon_cost: number;
   offer_floor: number;
   offer_ceiling: number | null;
@@ -204,7 +220,7 @@ const DEFAULT_DEDUCTION_AMOUNTS: DeductionAmounts = {
 };
 
 const DEFAULT_CONDITION_MULTIPLIERS: ConditionMultipliers = {
-  excellent: 1.05, good: 1.0, fair: 0.90, rough: 0.78,
+  excellent: 1.0, very_good: 1.0, good: 1.0, fair: 1.0,
 };
 
 const emptyRule: Omit<OfferRule, "id" | "dealership_id"> = {
@@ -258,7 +274,8 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
         ...d,
         deduction_amounts: d.deduction_amounts || DEFAULT_DEDUCTION_AMOUNTS,
         condition_multipliers: d.condition_multipliers || DEFAULT_CONDITION_MULTIPLIERS,
-        recon_cost: d.recon_cost ?? 0,
+        condition_basis_map: d.condition_basis_map || { excellent: "retail_xclean", very_good: "tradein_clean", good: "tradein_avg", fair: "wholesale_rough" },
+        condition_equipment_map: d.condition_equipment_map || { excellent: true, very_good: true, good: true, fair: true },
         offer_floor: d.offer_floor ?? 500,
         offer_ceiling: d.offer_ceiling ?? null,
         age_tiers: Array.isArray(d.age_tiers) ? d.age_tiers : [],
@@ -272,7 +289,8 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
         ...d,
         deduction_amounts: d.deduction_amounts || DEFAULT_DEDUCTION_AMOUNTS,
         condition_multipliers: d.condition_multipliers || DEFAULT_CONDITION_MULTIPLIERS,
-        recon_cost: d.recon_cost ?? 0,
+        condition_basis_map: d.condition_basis_map || { excellent: "retail_xclean", very_good: "tradein_clean", good: "tradein_avg", fair: "wholesale_rough" },
+        condition_equipment_map: d.condition_equipment_map || { excellent: true, very_good: true, good: true, fair: true },
         offer_floor: d.offer_floor ?? 500,
         offer_ceiling: d.offer_ceiling ?? null,
         age_tiers: Array.isArray(d.age_tiers) ? d.age_tiers : [],
@@ -298,6 +316,7 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
       deductions_config: settings.deductions_config as any,
       deduction_amounts: settings.deduction_amounts as any,
       condition_multipliers: settings.condition_multipliers as any,
+      condition_basis_map: settings.condition_basis_map as any,
       recon_cost: settings.recon_cost,
       offer_floor: settings.offer_floor,
       offer_ceiling: settings.offer_ceiling,

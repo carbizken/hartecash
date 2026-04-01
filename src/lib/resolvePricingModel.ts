@@ -78,6 +78,18 @@ function modelToSettings(model: any): OfferSettings {
     deductions_config: model.deductions_config || {},
     deduction_amounts: model.deduction_amounts || {},
     condition_multipliers: model.condition_multipliers || {},
+    condition_basis_map: model.condition_basis_map || {
+      excellent: "retail_xclean",
+      very_good: "tradein_clean",
+      good: "tradein_avg",
+      fair: "wholesale_rough",
+    },
+    condition_equipment_map: model.condition_equipment_map || {
+      excellent: true,
+      very_good: true,
+      good: true,
+      fair: true,
+    },
     recon_cost: model.recon_cost || 0,
     offer_floor: model.offer_floor || 500,
     offer_ceiling: model.offer_ceiling ?? null,

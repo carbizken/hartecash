@@ -44,9 +44,23 @@ export interface DeductionAmounts {
 
 export interface ConditionMultipliers {
   excellent: number;
+  very_good: number;
   good: number;
   fair: number;
-  rough: number;
+}
+
+export interface ConditionBasisMap {
+  excellent: string;
+  very_good: string;
+  good: string;
+  fair: string;
+}
+
+export interface ConditionEquipmentMap {
+  excellent: boolean;
+  very_good: boolean;
+  good: boolean;
+  fair: boolean;
 }
 
 export interface AgeTier {
@@ -67,6 +81,8 @@ export interface OfferSettings {
   deductions_config: DeductionsConfig;
   deduction_amounts: DeductionAmounts;
   condition_multipliers: ConditionMultipliers;
+  condition_basis_map: ConditionBasisMap;
+  condition_equipment_map: ConditionEquipmentMap;
   recon_cost: number;
   offer_floor: number;
   offer_ceiling: number | null;
@@ -112,10 +128,17 @@ const DEFAULT_DEDUCTION_AMOUNTS: DeductionAmounts = {
 };
 
 const DEFAULT_CONDITION_MULTIPLIERS: ConditionMultipliers = {
-  excellent: 1.05,
+  excellent: 1.0,
+  very_good: 1.0,
   good: 1.0,
-  fair: 0.90,
-  rough: 0.78,
+  fair: 1.0,
+};
+
+const DEFAULT_CONDITION_BASIS_MAP: ConditionBasisMap = {
+  excellent: "retail_xclean",
+  very_good: "tradein_clean",
+  good: "tradein_avg",
+  fair: "wholesale_rough",
 };
 
 const DEFAULT_DEDUCTIONS: DeductionsConfig = {
@@ -132,12 +155,21 @@ const DEFAULT_DEDUCTIONS: DeductionsConfig = {
   missing_keys: true,
 };
 
+const DEFAULT_CONDITION_EQUIPMENT_MAP: ConditionEquipmentMap = {
+  excellent: true,
+  very_good: true,
+  good: true,
+  fair: true,
+};
+
 const DEFAULT_SETTINGS: OfferSettings = {
   bb_value_basis: "tradein_avg",
   global_adjustment_pct: 0,
   deductions_config: DEFAULT_DEDUCTIONS,
   deduction_amounts: DEFAULT_DEDUCTION_AMOUNTS,
   condition_multipliers: DEFAULT_CONDITION_MULTIPLIERS,
+  condition_basis_map: DEFAULT_CONDITION_BASIS_MAP,
+  condition_equipment_map: DEFAULT_CONDITION_EQUIPMENT_MAP,
   recon_cost: 0,
   offer_floor: 500,
   offer_ceiling: null,
@@ -201,18 +233,26 @@ export function calculateOffer(
   const amt = cfg.deduction_amounts || DEFAULT_DEDUCTION_AMOUNTS;
   const condMults = cfg.condition_multipliers || DEFAULT_CONDITION_MULTIPLIERS;
 
-  // 1. Get base value from configured BB source
-  const baseValue = getBBValue(bbVehicle, cfg.bb_value_basis);
+  const condBasisMap = cfg.condition_basis_map || DEFAULT_CONDITION_BASIS_MAP;
+
+  // 1. Get base value from condition-mapped BB source (or fallback to single basis)
+  const conditionKey = formData.overallCondition as keyof ConditionBasisMap;
+  const effectiveBasis = condBasisMap[conditionKey] || cfg.bb_value_basis;
+  const baseValue = getBBValue(bbVehicle, effectiveBasis);
   if (baseValue <= 0) return null;
 
   // 2. Condition multiplier (now configurable)
   const condMult = condMults[formData.overallCondition as keyof ConditionMultipliers] ?? 1.0;
   let adjusted = baseValue * condMult;
 
-  // 3. Apply selected add/deduct adjustments from BB equipment list
-  for (const ad of bbVehicle.add_deduct_list) {
-    if (selectedAddDeducts.includes(ad.uoc)) {
-      adjusted += ad.avg || 0;
+  // 3. Apply selected add/deduct adjustments from BB equipment list (if enabled for this condition)
+  const condEquipMap = cfg.condition_equipment_map || DEFAULT_CONDITION_EQUIPMENT_MAP;
+  const includeEquipment = condEquipMap[formData.overallCondition as keyof ConditionEquipmentMap] ?? true;
+  if (includeEquipment) {
+    for (const ad of bbVehicle.add_deduct_list) {
+      if (selectedAddDeducts.includes(ad.uoc)) {
+        adjusted += ad.avg || 0;
+      }
     }
   }
 

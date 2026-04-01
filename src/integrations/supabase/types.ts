@@ -922,6 +922,8 @@ export type Database = {
         Row: {
           age_tiers: Json
           bb_value_basis: string
+          condition_basis_map: Json
+          condition_equipment_map: Json
           condition_multipliers: Json
           created_at: string
           dealer_pack: number
@@ -942,6 +944,8 @@ export type Database = {
         Insert: {
           age_tiers?: Json
           bb_value_basis?: string
+          condition_basis_map?: Json
+          condition_equipment_map?: Json
           condition_multipliers?: Json
           created_at?: string
           dealer_pack?: number
@@ -962,6 +966,8 @@ export type Database = {
         Update: {
           age_tiers?: Json
           bb_value_basis?: string
+          condition_basis_map?: Json
+          condition_equipment_map?: Json
           condition_multipliers?: Json
           created_at?: string
           dealer_pack?: number
@@ -1196,6 +1202,8 @@ export type Database = {
         Row: {
           age_tiers: Json
           bb_value_basis: string
+          condition_basis_map: Json
+          condition_equipment_map: Json
           condition_multipliers: Json
           created_at: string
           created_by: string | null
@@ -1221,6 +1229,8 @@ export type Database = {
         Insert: {
           age_tiers?: Json
           bb_value_basis?: string
+          condition_basis_map?: Json
+          condition_equipment_map?: Json
           condition_multipliers?: Json
           created_at?: string
           created_by?: string | null
@@ -1246,6 +1256,8 @@ export type Database = {
         Update: {
           age_tiers?: Json
           bb_value_basis?: string
+          condition_basis_map?: Json
+          condition_equipment_map?: Json
           condition_multipliers?: Json
           created_at?: string
           created_by?: string | null

@@ -24,10 +24,10 @@ export interface SubmissionCondition {
 }
 
 const DEFAULT_CONDITION_MULTIPLIERS: ConditionMultipliers = {
-  excellent: 1.05,
+  excellent: 1.0,
+  very_good: 1.0,
   good: 1.0,
-  fair: 0.90,
-  rough: 0.78,
+  fair: 1.0,
 };
 
 const DEFAULT_DEDUCTION_AMOUNTS = {
@@ -67,6 +67,7 @@ export function recalculateFromSubmission(
     },
     deduction_amounts: DEFAULT_DEDUCTION_AMOUNTS,
     condition_multipliers: DEFAULT_CONDITION_MULTIPLIERS,
+    condition_equipment_map: { excellent: true, very_good: true, good: true, fair: true },
     recon_cost: 0,
     offer_floor: 500,
     offer_ceiling: null,
