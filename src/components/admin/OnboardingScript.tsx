@@ -217,7 +217,11 @@ const SECTIONS: Section[] = [
 
 type Answers = Record<string, string>;
 
-export default function OnboardingScript() {
+interface OnboardingScriptProps {
+  targetDealershipId?: string | null;
+}
+
+export default function OnboardingScript({ targetDealershipId }: OnboardingScriptProps) {
   const printRef = useRef<HTMLDivElement>(null);
   const { config } = useSiteConfig();
   const [answers, setAnswers] = useState<Answers>({});
