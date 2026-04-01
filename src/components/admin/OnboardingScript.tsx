@@ -259,7 +259,7 @@ export default function OnboardingScript({ targetDealershipId }: OnboardingScrip
       setLoading(false);
     };
     load();
-  }, []);
+  }, [targetDealershipId]);
 
   const updateAnswer = useCallback((id: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [id]: value }));
