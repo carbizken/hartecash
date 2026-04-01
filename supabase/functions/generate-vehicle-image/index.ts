@@ -33,7 +33,8 @@ serve(async (req) => {
     }
 
     const colorSlug = (color || "white").toLowerCase().replace(/[^a-z0-9]/g, "_");
-    const cacheKey = `${year}-${make}-${model}${style ? `-${style}` : ""}-${colorSlug}`.toLowerCase().replace(/[^a-z0-9_-]/g, "_");
+    const angleSlug = angle === "side" ? "side" : "3q";
+    const cacheKey = `${year}-${make}-${model}${style ? `-${style}` : ""}-${colorSlug}-${angleSlug}`.toLowerCase().replace(/[^a-z0-9_-]/g, "_");
     const storagePath = `vehicle-images/${cacheKey}.png`;
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
