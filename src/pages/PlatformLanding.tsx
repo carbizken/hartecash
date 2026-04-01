@@ -198,30 +198,123 @@ export default function PlatformLanding() {
         </motion.div>
       </Section>
 
-      {/* ═══ 3 — THREE CHANNELS ═══ */}
+      {/* ═══ 3 — THREE CHANNELS (Pitch-style) ═══ */}
       <Section>
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }}>
           <LightBadge label="Three Acquisition Channels" />
-          <motion.h2 variants={fadeUp} custom={0} className="text-4xl md:text-6xl font-black mb-6 leading-tight">
+          <motion.h2 variants={fadeUp} custom={0} className="text-4xl md:text-6xl font-black mb-4 leading-tight">
             Capture Inventory<br />From <span className="text-blue-600">Every Direction</span>
           </motion.h2>
-          <motion.p variants={fadeUp} custom={1} className="text-lg text-gray-500 max-w-3xl mb-14">
+          <motion.p variants={fadeUp} custom={1} className="text-lg text-gray-500 max-w-3xl mb-16">
             One platform, three ways to acquire — all feeding the same pipeline, managed from one dashboard.
           </motion.p>
-          <motion.div variants={fadeUp} custom={2} className="grid md:grid-cols-3 gap-8">
-            {[
-              { icon: Car, title: "Off-Street", desc: "Consumers sell their car to you from home — no trade required. Your branded landing page with instant offers.", color: "bg-blue-600/10 text-blue-600" },
-              { icon: Layers, title: "Service Drive", desc: "Capture vehicles from customers already in your service lane. The highest-quality inventory you'll find.", color: "bg-emerald-600/10 text-emerald-600" },
-              { icon: Users, title: "In-Store Trade", desc: "Shoppers submit their trade info before they arrive or after they leave. Pre-appraised before they walk in.", color: "bg-amber-600/10 text-amber-600" },
-            ].map((ch, i) => (
-              <motion.div key={i} variants={scaleIn} custom={i + 3} className="bg-white border border-gray-200 rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 ${ch.color}`}>
-                  <ch.icon className="w-7 h-7" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{ch.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{ch.desc}</p>
-              </motion.div>
-            ))}
+
+          {/* Channel 1 — Off-Street */}
+          <motion.div variants={fadeUp} custom={2} className="grid md:grid-cols-2 gap-10 items-center mb-20">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-600/10 text-blue-600 text-xs font-bold tracking-widest uppercase mb-4">
+                <Globe className="w-3.5 h-3.5" /> Channel 1
+              </div>
+              <h3 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">Off-Street Acquisitions</h3>
+              <p className="text-gray-500 leading-relaxed mb-6">
+                Consumers sell their car to you from home — no trade required. Your fully branded landing page generates instant cash offers, collects vehicle details, and feeds leads directly into your pipeline. Digital-first customers who never planned to visit a dealership.
+              </p>
+              <ul className="space-y-3">
+                {["Branded landing page with your logo, colors & domain", "Instant offer powered by Black Book + your pricing rules", "Guided mobile photo & document upload", "Automated SMS/email follow-up sequences", "Zero auction fees — acquire direct from consumer"].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-gray-600">
+                    <CheckCircle2 className="w-4 h-4 text-blue-600 mt-0.5 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-3xl p-8 border border-blue-200/50">
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { value: "2 min", label: "Avg. time to offer" },
+                  { value: "38%", label: "Conversion rate" },
+                  { value: "$0", label: "Auction fees" },
+                  { value: "24/7", label: "Lead capture" },
+                ].map((stat, i) => (
+                  <div key={i} className="bg-white rounded-2xl p-5 text-center shadow-sm">
+                    <div className="text-2xl font-black text-blue-600">{stat.value}</div>
+                    <div className="text-xs text-gray-500 mt-1">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Channel 2 — Service Drive */}
+          <motion.div variants={fadeUp} custom={3} className="grid md:grid-cols-2 gap-10 items-center mb-20">
+            <div className="md:order-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-600/10 text-emerald-600 text-xs font-bold tracking-widest uppercase mb-4">
+                <Layers className="w-3.5 h-3.5" /> Channel 2
+              </div>
+              <h3 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">Service Drive Capture</h3>
+              <p className="text-gray-500 leading-relaxed mb-6">
+                Your highest-quality inventory source. Customers already in your service lane get a personalized offer for their vehicle. Known service history, verified mileage, existing trust — these are the units your used car manager dreams about.
+              </p>
+              <ul className="space-y-3">
+                {["Service advisor sends branded link via SMS during visit", "VIN or plate auto-decodes — no manual entry", "Factory options auto-detected from Black Book data", "Offer displayed before customer leaves the lane", "10DLC compliant messaging built in"].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-gray-600">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 mt-0.5 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="md:order-1 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-3xl p-8 border border-emerald-200/50">
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { value: "85%", label: "Known service history" },
+                  { value: "3x", label: "Higher close rate" },
+                  { value: "$800+", label: "Lower recon cost" },
+                  { value: "1 click", label: "Advisor sends offer" },
+                ].map((stat, i) => (
+                  <div key={i} className="bg-white rounded-2xl p-5 text-center shadow-sm">
+                    <div className="text-2xl font-black text-emerald-600">{stat.value}</div>
+                    <div className="text-xs text-gray-500 mt-1">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Channel 3 — In-Store Trade */}
+          <motion.div variants={fadeUp} custom={4} className="grid md:grid-cols-2 gap-10 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-600/10 text-amber-600 text-xs font-bold tracking-widest uppercase mb-4">
+                <Users className="w-3.5 h-3.5" /> Channel 3
+              </div>
+              <h3 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">In-Store Trade-Ins</h3>
+              <p className="text-gray-500 leading-relaxed mb-6">
+                Shoppers submit their trade info before they arrive — or after they leave without buying. Pre-appraised before they walk in, re-engaged if they walk out. Every ups customer becomes a potential inventory source.
+              </p>
+              <ul className="space-y-3">
+                {["Customer fills trade details on their own phone in the showroom", "Pre-arrival submissions speed up the desk process", "Walk-aways get automatic follow-up with updated offers", "Salesperson attribution tracks who sourced the unit", "Feeds the same pipeline as off-street and service drive"].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-gray-600">
+                    <CheckCircle2 className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="bg-gradient-to-br from-amber-50 to-amber-100 rounded-3xl p-8 border border-amber-200/50">
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { value: "100%", label: "Pre-appraised arrivals" },
+                  { value: "45%", label: "Walk-away re-engagement" },
+                  { value: "12 min", label: "Saved at the desk" },
+                  { value: "1 link", label: "Text-to-trade" },
+                ].map((stat, i) => (
+                  <div key={i} className="bg-white rounded-2xl p-5 text-center shadow-sm">
+                    <div className="text-2xl font-black text-amber-600">{stat.value}</div>
+                    <div className="text-xs text-gray-500 mt-1">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </motion.div>
         </motion.div>
       </Section>
