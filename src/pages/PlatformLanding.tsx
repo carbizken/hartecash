@@ -3,6 +3,7 @@ import { motion, useInView } from "framer-motion";
 import autocurbLogo from "@/assets/autocurb-logo.png";
 import autocurbLogoWhite from "@/assets/autocurb-logo-white.png";
 import autocurbLogoMain from "@/assets/autocurb-logo-main.png";
+import autocurbLogoDark from "@/assets/autocurb-logo-dark.png";
 import screenshotLanding from "@/assets/pitch/screenshot-landing.png";
 import screenshotPortal from "@/assets/pitch/screenshot-portal.jpg";
 import screenshotDashboard from "@/assets/pitch/screenshot-dashboard.jpg";
@@ -127,7 +128,8 @@ export default function PlatformLanding() {
         <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-blue-600/10 blur-[150px] pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-indigo-600/10 blur-[120px] pointer-events-none" />
         <motion.div initial="hidden" animate="visible" className="text-center relative pt-16">
-          <motion.div variants={fadeUp} custom={0.5}>
+          <motion.img variants={fadeUp} custom={0.3} src={autocurbLogoDark} alt="AutoCurb.io" className="mx-auto w-[320px] md:w-[480px] lg:w-[560px] mb-10" />
+          <motion.div variants={fadeUp} custom={0.6}>
             <GlowBadge label="Dealer Inventory Acquisition Platform" />
           </motion.div>
           <motion.h1 variants={fadeUp} custom={1} className="text-5xl md:text-7xl lg:text-8xl font-black leading-[0.95] tracking-tight mb-8">
