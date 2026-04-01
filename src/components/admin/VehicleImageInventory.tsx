@@ -223,8 +223,10 @@ const VehicleImageInventory = () => {
 
   // Auto-open all groups when data loads or search changes
   useEffect(() => {
-    setOpenMakes(new Set(grouped.map(([make]) => make)));
-  }, [grouped.length, search]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (grouped.length > 0) {
+      setOpenMakes(new Set(grouped.map(([make]) => make)));
+    }
+  }, [grouped, search]);
 
   const toggleMake = (make: string) => {
     setOpenMakes((prev) => {
