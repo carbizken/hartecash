@@ -150,6 +150,7 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
       deduction_amounts: editModel.deduction_amounts as any || DEFAULT_MODEL_SETTINGS.deduction_amounts,
       condition_multipliers: editModel.condition_multipliers as any || DEFAULT_MODEL_SETTINGS.condition_multipliers,
       condition_basis_map: editModel.condition_basis_map as any || DEFAULT_MODEL_SETTINGS.condition_basis_map,
+      condition_equipment_map: (editModel as any).condition_equipment_map || { excellent: true, very_good: true, good: true, fair: true },
       recon_cost: editModel.recon_cost || 0,
       offer_floor: editModel.offer_floor || 500,
       offer_ceiling: editModel.offer_ceiling ?? null,
