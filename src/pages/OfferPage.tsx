@@ -673,61 +673,8 @@ const OfferPage = () => {
     </motion.div>
   );
 
-  /* ─── Verified Vehicle Specs (from Black Book) ─── */
-  const bbSpecs = condition ? [
-    { label: "Vehicle Class", value: condition.bb_class_name, verified: !!condition.bb_class_name },
-    { label: "Drivetrain", value: condition.bb_drivetrain, verified: !!condition.bb_drivetrain },
-    { label: "Transmission", value: condition.bb_transmission, verified: !!condition.bb_transmission },
-    { label: "Engine", value: condition.bb_engine, verified: !!condition.bb_engine },
-    { label: "Fuel Type", value: condition.bb_fuel_type, verified: !!condition.bb_fuel_type },
-    { label: "Original MSRP", value: condition.bb_msrp ? `$${condition.bb_msrp.toLocaleString()}` : null, verified: !!condition.bb_msrp },
-    { label: "Mileage Adj.", value: condition.bb_mileage_adj != null && condition.bb_mileage_adj !== 0 ? `${condition.bb_mileage_adj >= 0 ? "+" : ""}$${condition.bb_mileage_adj.toLocaleString()}` : null, verified: true },
-    { label: "Regional Adj.", value: condition.bb_regional_adj != null && condition.bb_regional_adj !== 0 ? `${condition.bb_regional_adj >= 0 ? "+" : ""}$${condition.bb_regional_adj.toLocaleString()}` : null, verified: true },
-  ].filter(s => s.value) : [];
 
-  const VerifiedSpecsBlock = bbSpecs.length > 0 ? (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.4 }}
-      className="bg-card rounded-xl shadow-lg overflow-hidden"
-    >
-      <div className="bg-gradient-to-r from-primary/5 via-primary/8 to-primary/5 px-5 py-3.5 border-b border-border/50">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-            <ShieldCheck className="w-4.5 h-4.5 text-primary" />
-          </div>
-          <div>
-            <h3 className="font-bold text-card-foreground">Verified Vehicle Data</h3>
-            <p className="text-[11px] text-muted-foreground">Cross-referenced with industry databases</p>
-          </div>
-        </div>
-      </div>
-      <div className="p-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {bbSpecs.map((spec) => (
-            <div
-              key={spec.label}
-              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm border transition-colors ${
-                spec.verified
-                  ? "bg-success/5 border-success/15 hover:bg-success/8"
-                  : "bg-destructive/5 border-destructive/15"
-              }`}
-            >
-              {spec.verified ? (
-                <CheckCircle className="w-4 h-4 text-success shrink-0" />
-              ) : (
-                <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
-              )}
-              <span className="font-medium text-card-foreground">{spec.label}:</span>
-              <span className="text-muted-foreground truncate">{spec.value}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-    </motion.div>
-  ) : null;
+
 
   /* ─── Condition / "What's Behind Your Offer" block (with inline edit) ─── */
   interface ConditionItem {
