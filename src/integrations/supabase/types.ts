@@ -2049,6 +2049,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_platform_admin: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       lookup_submission_by_contact: {
         Args: { _email: string; _phone: string }
