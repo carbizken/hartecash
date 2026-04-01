@@ -24,7 +24,7 @@ serve(async (req) => {
   const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
   try {
-    const { year, make, model, style, color, uvc } = await req.json();
+    const { year, make, model, style, color, uvc, angle } = await req.json();
 
     if (!year || !make || !model) {
       return new Response(JSON.stringify({ error: "year, make, and model are required" }), {
@@ -33,7 +33,8 @@ serve(async (req) => {
     }
 
     const colorSlug = (color || "white").toLowerCase().replace(/[^a-z0-9]/g, "_");
-    const cacheKey = `${year}-${make}-${model}${style ? `-${style}` : ""}-${colorSlug}`.toLowerCase().replace(/[^a-z0-9_-]/g, "_");
+    const angleSlug = angle === "side" ? "side" : "3q";
+    const cacheKey = `${year}-${make}-${model}${style ? `-${style}` : ""}-${colorSlug}-${angleSlug}`.toLowerCase().replace(/[^a-z0-9_-]/g, "_");
     const storagePath = `vehicle-images/${cacheKey}.png`;
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
@@ -107,7 +108,13 @@ serve(async (req) => {
       console.log(`Generating AI image for ${cacheKey}...`);
       const vehicleDesc = `${year} ${make} ${model}${style ? ` ${style}` : ""}`;
       const colorDesc = color && color.toLowerCase() !== "other" ? color : "white";
-      const prompt = `A photorealistic three-quarter front angle view of a ${vehicleDesc} in ${colorDesc} color, isolated on a perfectly clean transparent white background with no ground shadow. Professional automotive studio photography, dramatic studio lighting with soft reflections, ultra sharp details, no text or watermarks. The car should be angled slightly toward the viewer showing the front and driver side. The car body color must be clearly ${colorDesc}. High-end dealership hero image style, the vehicle should look premium and aspirational.`;
+      const angleDesc = angle === "side"
+        ? "a photorealistic direct side profile view"
+        : "a photorealistic three-quarter front angle view";
+      const angleInstruction = angle === "side"
+        ? "The car should be viewed from directly the side, showing the full length of the vehicle in a clean profile shot."
+        : "The car should be angled slightly toward the viewer showing the front and driver side.";
+      const prompt = `${angleDesc} of a ${vehicleDesc} in ${colorDesc} color, isolated on a perfectly clean transparent white background with no ground shadow. Professional automotive studio photography, dramatic studio lighting with soft reflections, ultra sharp details, no text or watermarks. ${angleInstruction} The car body color must be clearly ${colorDesc}. High-end dealership hero image style, the vehicle should look premium and aspirational.`;
 
       const models = [
         "google/gemini-3.1-flash-image-preview",

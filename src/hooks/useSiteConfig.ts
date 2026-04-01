@@ -60,6 +60,7 @@ export interface SiteConfig {
   youtube_url: string;
   photo_overlay_color: string;
   photo_allow_color_change: boolean;
+  vehicle_image_angle: string;
 }
 
 const DEFAULTS: SiteConfig = {
@@ -113,6 +114,7 @@ const DEFAULTS: SiteConfig = {
   youtube_url: "",
   photo_overlay_color: "#00FF88",
   photo_allow_color_change: true,
+  vehicle_image_angle: "three_quarter",
 };
 
 let cachedConfig: Record<string, SiteConfig> = {};

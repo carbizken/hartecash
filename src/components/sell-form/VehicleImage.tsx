@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Camera } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 
 interface Props {
   year?: string;
@@ -12,6 +13,7 @@ interface Props {
   compact?: boolean;
   uvc?: string;
   hideColorLabel?: boolean;
+  imageAngle?: string;
 }
 
 // Preload an image and resolve when ready
@@ -23,7 +25,9 @@ const preloadImage = (url: string): Promise<string> =>
     img.src = url;
   });
 
-const VehicleImage = ({ year, make, model, style, selectedColor, compact = false, uvc, hideColorLabel = false }: Props) => {
+const VehicleImage = ({ year, make, model, style, selectedColor, compact = false, uvc, hideColorLabel = false, imageAngle: imageAngleProp }: Props) => {
+  const { config } = useSiteConfig();
+  const imageAngle = imageAngleProp || config.vehicle_image_angle || "three_quarter";
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -33,8 +37,9 @@ const VehicleImage = ({ year, make, model, style, selectedColor, compact = false
 
   const buildCacheKey = useCallback((color: string) => {
     const colorKey = (color || "white").toLowerCase().replace(/\s+/g, "_");
-    return `vehicle-img-${year}-${make}-${model}-${colorKey}`.toLowerCase().replace(/\s+/g, "_");
-  }, [year, make, model]);
+    const angleKey = imageAngle === "side" ? "side" : "3q";
+    return `vehicle-img-${year}-${make}-${model}-${colorKey}-${angleKey}`.toLowerCase().replace(/\s+/g, "_");
+  }, [year, make, model, imageAngle]);
 
   const fetchImage = useCallback(async (color: string, isPrefetch = false) => {
     if (!year || !make || !model) return;
@@ -62,7 +67,7 @@ const VehicleImage = ({ year, make, model, style, selectedColor, compact = false
 
     try {
       const { data, error: fnErr } = await supabase.functions.invoke("generate-vehicle-image", {
-        body: { year, make, model, style, color: color || "white", uvc },
+        body: { year, make, model, style, color: color || "white", uvc, angle: imageAngle },
       });
 
       if (currentColorRef.current !== color && !isPrefetch) return;

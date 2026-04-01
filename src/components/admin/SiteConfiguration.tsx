@@ -50,6 +50,7 @@ interface SiteConfig {
   assign_oem_brand_match: boolean;
   assign_buying_center: boolean;
   buying_center_location_id: string | null;
+  vehicle_image_angle: string;
 }
 
 const DEFAULT_CONFIG: SiteConfig = {
@@ -87,6 +88,7 @@ const DEFAULT_CONFIG: SiteConfig = {
   assign_oem_brand_match: false,
   assign_buying_center: false,
   buying_center_location_id: null,
+  vehicle_image_angle: "three_quarter",
 };
 
 interface SectionProps {
@@ -623,6 +625,42 @@ const SiteConfiguration = () => {
                   });
                 }}
               />
+            </div>
+          </div>
+
+          {/* Vehicle Image Angle */}
+          <div className="p-3 rounded-lg bg-muted/30 border border-border">
+            <Label className="text-sm font-semibold">Vehicle Image Angle</Label>
+            <p className="text-xs text-muted-foreground mt-0.5 mb-3">
+              Choose the camera angle for AI-generated vehicle images shown to customers and staff.
+            </p>
+            <div className="flex gap-3">
+              {[
+                { value: "three_quarter", label: "3/4 Front Angle", desc: "Classic showroom hero shot" },
+                { value: "side", label: "Side Profile", desc: "Clean side-on view" },
+              ].map(opt => {
+                const isSelected = config.vehicle_image_angle === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => {
+                      setConfig(prev => {
+                        const next = { ...prev, vehicle_image_angle: opt.value };
+                        setHasChanges(JSON.stringify(next) !== JSON.stringify(savedConfig));
+                        return next;
+                      });
+                    }}
+                    className={`flex-1 px-4 py-3 rounded-lg border-2 transition-all text-left ${
+                      isSelected
+                        ? "border-primary bg-primary/5"
+                        : "border-border bg-card hover:border-muted-foreground/30"
+                    }`}
+                  >
+                    <span className={`text-sm font-medium ${isSelected ? "text-foreground" : "text-muted-foreground"}`}>{opt.label}</span>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{opt.desc}</p>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
