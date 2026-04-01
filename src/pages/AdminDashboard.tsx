@@ -434,7 +434,7 @@ const AdminDashboard = () => {
               </div>
             )}
 
-            {activeSection === "tenants" && canManageAccess && <TenantManagement onSetupDealer={(dealerId) => { setOnboardingDealershipId(dealerId); setActiveSection("onboarding"); }} />}
+            {activeSection === "tenants" && canManageAccess && <TenantManagement onSetupDealer={(dealerId) => { setOnboardingDealershipId(dealerId); supabase.from("tenants").select("display_name").eq("dealership_id", dealerId).maybeSingle().then(({ data }) => setOnboardingDealerName((data as any)?.display_name || dealerId)); setActiveSection("onboarding"); }} />}
 
             {activeSection === "onboarding" && <DealerOnboarding isAdmin={canManageAccess} onNavigate={setActiveSection} targetDealershipId={onboardingDealershipId} onDealershipChange={setOnboardingDealershipId} />}
             {activeSection === "onboarding-script" && <OnboardingScript targetDealershipId={onboardingDealershipId} />}
