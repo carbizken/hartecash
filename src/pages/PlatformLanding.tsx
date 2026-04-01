@@ -171,29 +171,57 @@ export default function PlatformLanding() {
         </motion.div>
       </Section>
 
-      {/* ═══ 2 — MARKET OPPORTUNITY ═══ */}
+      {/* ═══ 2 — THE PROBLEM ═══ */}
       <Section dark>
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }}>
-          <GlowBadge label="The Opportunity" />
-          <motion.h2 variants={fadeUp} custom={0} className="text-4xl md:text-6xl font-black mb-6 leading-tight">
-            <span className="text-blue-400">40 Million</span> Used Cars<br />Change Hands Every Year
+          <GlowBadge label="The Problem" />
+          <motion.h2 variants={fadeUp} custom={0} className="text-4xl md:text-6xl font-black mb-8 leading-tight">
+            Acquiring Used Inventory<br />Is <span className="text-red-400">Broken</span>
           </motion.h2>
-          <motion.p variants={fadeUp} custom={1} className="text-lg text-white/50 max-w-2xl mb-16">
-            CarMax and Carvana proved consumers will sell online. But they have zero relationship with your customer. You have trust, service history, and local presence — you just need the platform.
+          <motion.p variants={fadeUp} custom={1} className="text-lg text-white/50 max-w-3xl mb-14 leading-relaxed">
+            Every dealer knows the pain. Auction lanes are drying up, transport costs are climbing, and the vehicles you win often arrive with surprises your recon budget didn't plan for. Meanwhile, consumers are selling 40 million used cars a year — mostly to each other, to Carvana, or to CarMax. Your customers. Your market. Someone else's platform.
           </motion.p>
-          <motion.div variants={fadeUp} custom={2} className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+
+          {/* Pain points */}
+          <motion.div variants={fadeUp} custom={2} className="grid md:grid-cols-2 lg:grid-cols-4 gap-5 mb-16">
             {[
-              { value: 40, suffix: "M", label: "Used vehicles sold annually", cite: "Cox Automotive 2024" },
-              { value: 73, suffix: "%", label: "Prefer more steps online", cite: "CarGurus 2025" },
-              { value: 2000, prefix: "$", label: "Saved per unit vs. auction", cite: "Avg auction + transport fees" },
-              { value: 1528, prefix: "$", label: "Current avg used PVR", cite: "Haig Report Q3 2025" },
-            ].map((m, i) => (
-              <div key={i} className="rounded-2xl p-8 text-center bg-white/5 border border-white/10 backdrop-blur-sm">
-                <AnimatedNumber value={m.value} prefix={m.prefix} suffix={m.suffix} className="text-5xl md:text-6xl font-black text-blue-400" />
-                <p className="text-sm mt-3 text-white/60">{m.label}</p>
-                <p className="text-[10px] mt-2 text-white/30">📎 {m.cite}</p>
-              </div>
+              { emoji: "🔨", title: "Auction Dependency", desc: "You're competing against 200 other buyers for the same unit. Fees, transport, and arbitration eat your margin before you even start recon." },
+              { emoji: "🚛", title: "Transport & Timing", desc: "Win a car at 10 AM, see it in 10 days. $300–800 in transport costs, plus lot rot while it waits for detail and photos." },
+              { emoji: "🔧", title: "Recon Surprises", desc: "Auction condition reports miss half the damage. You budget $800 in recon and spend $2,200. PVR disappears on the lift." },
+              { emoji: "📉", title: "Shrinking Supply", desc: "Lease returns are down. New-car incentives push trades to franchise stores. Independent and used-car-heavy dealers fight over scraps." },
+            ].map((pain, i) => (
+              <motion.div key={i} variants={scaleIn} custom={i + 3} className="bg-red-500/5 border border-red-500/15 rounded-2xl p-6">
+                <span className="text-3xl mb-3 block">{pain.emoji}</span>
+                <h3 className="font-bold text-white text-base mb-2">{pain.title}</h3>
+                <p className="text-sm text-white/45 leading-relaxed">{pain.desc}</p>
+              </motion.div>
             ))}
+          </motion.div>
+
+          {/* The shift */}
+          <motion.div variants={fadeUp} custom={5} className="rounded-3xl bg-gradient-to-r from-blue-600/10 to-indigo-600/10 border border-blue-500/20 p-8 md:p-12">
+            <div className="grid md:grid-cols-2 gap-10 items-center">
+              <div>
+                <h3 className="text-2xl md:text-3xl font-black text-white mb-4">The market already shifted.</h3>
+                <p className="text-white/50 leading-relaxed mb-6">
+                  CarMax and Carvana proved consumers <em>will</em> sell their car online. But they don't have your local trust, your service history, or your relationship. You have every advantage — you just don't have the platform. <strong className="text-white/80">Until now.</strong>
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { value: 40, suffix: "M", label: "Used cars sold annually", cite: "Cox Automotive 2024" },
+                  { value: 73, suffix: "%", label: "Want more steps online", cite: "CarGurus 2025" },
+                  { value: 2000, prefix: "$", label: "Saved per unit vs. auction", cite: "Avg fees + transport" },
+                  { value: 1528, prefix: "$", label: "Current avg used PVR", cite: "Haig Report Q3 2025" },
+                ].map((m, i) => (
+                  <div key={i} className="rounded-xl p-5 text-center bg-white/5 border border-white/10">
+                    <AnimatedNumber value={m.value} prefix={m.prefix} suffix={m.suffix} className="text-3xl md:text-4xl font-black text-blue-400" />
+                    <p className="text-xs mt-2 text-white/50">{m.label}</p>
+                    <p className="text-[9px] mt-1 text-white/25">📎 {m.cite}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </motion.div>
         </motion.div>
       </Section>
