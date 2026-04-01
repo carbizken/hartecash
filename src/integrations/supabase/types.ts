@@ -263,6 +263,9 @@ export type Database = {
           dealership_id: string
           id: string
           onboarded_by: string | null
+          onboarding_signature_dealer: string | null
+          onboarding_signature_staff: string | null
+          onboarding_signed_at: string | null
           onboarding_status: string
           plan_cost: number
           plan_tier: string
@@ -278,6 +281,9 @@ export type Database = {
           dealership_id?: string
           id?: string
           onboarded_by?: string | null
+          onboarding_signature_dealer?: string | null
+          onboarding_signature_staff?: string | null
+          onboarding_signed_at?: string | null
           onboarding_status?: string
           plan_cost?: number
           plan_tier?: string
@@ -293,6 +299,9 @@ export type Database = {
           dealership_id?: string
           id?: string
           onboarded_by?: string | null
+          onboarding_signature_dealer?: string | null
+          onboarding_signature_staff?: string | null
+          onboarding_signed_at?: string | null
           onboarding_status?: string
           plan_cost?: number
           plan_tier?: string
