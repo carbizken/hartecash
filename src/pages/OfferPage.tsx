@@ -1,11 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, DollarSign, ArrowDown, TrendingUp, ShieldCheck, Info, Printer, CheckCircle, AlertTriangle, Search, ArrowRight, QrCode, Sparkles, ExternalLink, Car, Gauge, Palette, Wrench, Key, Wind, Cigarette, CircleDot, Settings2, Pencil, CalendarCheck, MapPin, Clock } from "lucide-react";
-import { QRCodeSVG } from "qrcode.react";
+import { ArrowLeft, DollarSign, ArrowDown, TrendingUp, ShieldCheck, Info, Printer, CheckCircle, ArrowRight, Car, Gauge, Palette, Settings2, Pencil } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import InspectionDisclosure from "@/components/portal/InspectionDisclosure";
 import harteLogoFallback from "@/assets/harte-logo-white.png";
 import PortalSkeleton from "@/components/PortalSkeleton";
