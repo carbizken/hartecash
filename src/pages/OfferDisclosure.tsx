@@ -353,7 +353,7 @@ const OfferDisclosure = () => {
       <main className="flex-1 max-w-3xl mx-auto px-5 py-10 md:py-14 w-full">
         {/* Intro callout */}
         <div className="bg-card border border-border border-l-4 border-l-primary rounded-xl p-5 mb-7 text-sm leading-relaxed text-muted-foreground">
-          The HarteCash vehicle purchase and trade-in tool provides customers with an <strong className="text-foreground font-semibold">Estimated Purchase Offer</strong> based on information submitted through HarteCash.com. This disclosure explains how your Offer is calculated, your obligations as a seller, our <strong className="text-foreground font-semibold">Fair Value Credit</strong> policy, the full transaction process, and which vehicles are ineligible. Please read this carefully before submitting.
+          Our vehicle purchase and trade-in tool provides customers with an <strong className="text-foreground font-semibold">Estimated Purchase Offer</strong> based on information submitted through our website. This disclosure explains how your Offer is calculated, your obligations as a seller, our <strong className="text-foreground font-semibold">Fair Value Credit</strong> policy, the full transaction process, and which vehicles are ineligible. Please read this carefully before submitting.
         </div>
 
         {/* Accordion */}
