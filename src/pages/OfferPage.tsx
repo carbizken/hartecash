@@ -81,86 +81,11 @@ interface ConditionDetails {
   bb_retail_avg: number | null;
 }
 
-/* ─── Edit option lists ─── */
 const CONDITION_OPTIONS = [
   { value: "excellent", label: "Excellent" },
   { value: "good", label: "Good" },
   { value: "fair", label: "Fair" },
   { value: "rough", label: "Rough" },
-];
-
-const YES_NO = [
-  { value: "yes", label: "Yes" },
-  { value: "no", label: "No" },
-];
-
-const ACCIDENT_OPTIONS = [
-  { value: "0", label: "None" },
-  { value: "1", label: "1 Accident" },
-  { value: "2", label: "2 Accidents" },
-  { value: "3+", label: "3+ Accidents" },
-];
-
-const WINDSHIELD_OPTIONS = [
-  { value: "none", label: "None" },
-  { value: "chipped", label: "Chipped" },
-  { value: "cracked", label: "Cracked" },
-  { value: "chipped_and_cracked", label: "Chipped & Cracked" },
-];
-
-const KEY_OPTIONS = [
-  { value: "2+", label: "2+ Keys" },
-  { value: "1", label: "1 Key" },
-  { value: "0", label: "No Keys" },
-];
-
-const TIRE_OPTIONS = [
-  { value: "None", label: "None" },
-  { value: "1", label: "1 Tire" },
-  { value: "2", label: "2 Tires" },
-  { value: "3", label: "3 Tires" },
-  { value: "4", label: "4 Tires" },
-];
-
-const EXTERIOR_DAMAGE_OPTIONS = [
-  { value: "none", label: "None" },
-  { value: "dents", label: "Dents" },
-  { value: "scratches", label: "Scratches" },
-  { value: "rust", label: "Rust" },
-  { value: "paint_damage", label: "Paint Damage" },
-  { value: "body_panel", label: "Body Panel" },
-];
-
-const INTERIOR_DAMAGE_OPTIONS = [
-  { value: "none", label: "None" },
-  { value: "stains", label: "Stains" },
-  { value: "tears", label: "Tears" },
-  { value: "burns", label: "Burns" },
-  { value: "odor", label: "Odor" },
-];
-
-const MECHANICAL_OPTIONS = [
-  { value: "none", label: "None" },
-  { value: "transmission", label: "Transmission" },
-  { value: "brakes", label: "Brakes" },
-  { value: "suspension", label: "Suspension" },
-  { value: "exhaust", label: "Exhaust" },
-];
-
-const ENGINE_OPTIONS = [
-  { value: "none", label: "None" },
-  { value: "check_engine", label: "Check Engine Light" },
-  { value: "oil_leak", label: "Oil Leak" },
-  { value: "overheating", label: "Overheating" },
-  { value: "noise", label: "Unusual Noise" },
-];
-
-const TECH_OPTIONS = [
-  { value: "none", label: "None" },
-  { value: "radio", label: "Radio/Speakers" },
-  { value: "ac", label: "A/C or Heat" },
-  { value: "navigation", label: "Navigation" },
-  { value: "cameras", label: "Cameras" },
 ];
 
 const OfferPage = () => {
