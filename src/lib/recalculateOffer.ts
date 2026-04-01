@@ -24,10 +24,10 @@ export interface SubmissionCondition {
 }
 
 const DEFAULT_CONDITION_MULTIPLIERS: ConditionMultipliers = {
-  excellent: 1.05,
+  excellent: 1.0,
+  very_good: 1.0,
   good: 1.0,
-  fair: 0.90,
-  rough: 0.78,
+  fair: 1.0,
 };
 
 const DEFAULT_DEDUCTION_AMOUNTS = {

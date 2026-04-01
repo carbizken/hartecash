@@ -217,8 +217,12 @@ export function calculateOffer(
   const amt = cfg.deduction_amounts || DEFAULT_DEDUCTION_AMOUNTS;
   const condMults = cfg.condition_multipliers || DEFAULT_CONDITION_MULTIPLIERS;
 
-  // 1. Get base value from configured BB source
-  const baseValue = getBBValue(bbVehicle, cfg.bb_value_basis);
+  const condBasisMap = cfg.condition_basis_map || DEFAULT_CONDITION_BASIS_MAP;
+
+  // 1. Get base value from condition-mapped BB source (or fallback to single basis)
+  const conditionKey = formData.overallCondition as keyof ConditionBasisMap;
+  const effectiveBasis = condBasisMap[conditionKey] || cfg.bb_value_basis;
+  const baseValue = getBBValue(bbVehicle, effectiveBasis);
   if (baseValue <= 0) return null;
 
   // 2. Condition multiplier (now configurable)
