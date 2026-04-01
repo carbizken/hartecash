@@ -245,10 +245,14 @@ export function calculateOffer(
   const condMult = condMults[formData.overallCondition as keyof ConditionMultipliers] ?? 1.0;
   let adjusted = baseValue * condMult;
 
-  // 3. Apply selected add/deduct adjustments from BB equipment list
-  for (const ad of bbVehicle.add_deduct_list) {
-    if (selectedAddDeducts.includes(ad.uoc)) {
-      adjusted += ad.avg || 0;
+  // 3. Apply selected add/deduct adjustments from BB equipment list (if enabled for this condition)
+  const condEquipMap = cfg.condition_equipment_map || DEFAULT_CONDITION_EQUIPMENT_MAP;
+  const includeEquipment = condEquipMap[formData.overallCondition as keyof ConditionEquipmentMap] ?? true;
+  if (includeEquipment) {
+    for (const ad of bbVehicle.add_deduct_list) {
+      if (selectedAddDeducts.includes(ad.uoc)) {
+        adjusted += ad.avg || 0;
+      }
     }
   }
 
