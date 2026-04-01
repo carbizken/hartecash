@@ -627,7 +627,6 @@ const SiteConfiguration = () => {
               />
             </div>
           </div>
-        </div>
 
           {/* Vehicle Image Angle */}
           <div className="p-3 rounded-lg bg-muted/30 border border-border">
