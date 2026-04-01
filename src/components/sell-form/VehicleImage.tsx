@@ -63,7 +63,7 @@ const VehicleImage = ({ year, make, model, style, selectedColor, compact = false
 
     try {
       const { data, error: fnErr } = await supabase.functions.invoke("generate-vehicle-image", {
-        body: { year, make, model, style, color: color || "white", uvc },
+        body: { year, make, model, style, color: color || "white", uvc, angle: imageAngle },
       });
 
       if (currentColorRef.current !== color && !isPrefetch) return;
