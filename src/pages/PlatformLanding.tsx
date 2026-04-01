@@ -254,7 +254,54 @@ export default function PlatformLanding() {
         </motion.div>
       </Section>
 
-      {/* ═══ 4 — END-TO-END FLOW ═══ */}
+      {/* ═══ 3B — BRAND YOUR EXPERIENCE ═══ */}
+      <Section dark>
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }}>
+          <GlowBadge label="Your Brand, Not Ours" />
+          <motion.h2 variants={fadeUp} custom={0} className="text-4xl md:text-6xl font-black mb-6 leading-tight">
+            It's <span className="text-blue-400">Your</span> Platform.<br />We Just Power It.
+          </motion.h2>
+          <motion.p variants={fadeUp} custom={1} className="text-lg text-white/50 max-w-3xl mb-14 leading-relaxed">
+            Unlike third-party lead providers that plaster their logo everywhere and train your customers to go somewhere else next time, AutoCurb is invisible. Your customers never know we exist. Every touchpoint — from the first landing page to the final check request — looks, feels, and <em>is</em> yours.
+          </motion.p>
+
+          <motion.div variants={fadeUp} custom={2} className="grid md:grid-cols-3 gap-6 mb-14">
+            {[
+              { icon: Globe, title: "Your Domain", desc: "sellmycar.yourdealership.com — a URL your customers trust. No 'powered by' watermarks, no third-party branding anywhere." },
+              { icon: Award, title: "Your Colors & Logo", desc: "Primary color, accent color, logo, favicon — every pixel matches your dealership identity. Dark mode, light mode, your call." },
+              { icon: Smartphone, title: "Your SMS & Email", desc: "Offer notifications, follow-up sequences, appointment confirmations — all sent from your name, your number, your templates." },
+            ].map((item, i) => (
+              <motion.div key={i} variants={scaleIn} custom={i + 3} className="bg-white/5 border border-white/10 rounded-2xl p-8 hover:bg-white/[0.07] transition">
+                <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mb-5">
+                  <item.icon className="w-6 h-6 text-blue-400" />
+                </div>
+                <h3 className="font-bold text-lg text-white mb-3">{item.title}</h3>
+                <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          <motion.div variants={fadeUp} custom={5} className="grid md:grid-cols-2 gap-6">
+            {[
+              { icon: Lock, title: "Customer Data Stays Yours", desc: "Every lead, every phone number, every email address — stored in your database. We don't resell leads, we don't market to your customers, we don't build a competing dataset." },
+              { icon: Users, title: "Customers Build Loyalty to You", desc: "When a consumer sells their car through your branded platform and has a great experience, they come back to YOU next time — not to a marketplace that sells them to five other dealers." },
+              { icon: Shield, title: "No Lead Sharing, Ever", desc: "Your off-street leads aren't shared with competing dealers. Your service drive captures aren't cross-sold. Your data is yours. Period." },
+              { icon: Target, title: "Multi-Location, One Brand", desc: "Five rooftops? Ten? Each location gets its own pipeline, assignment rules, and staff — but all under your single brand umbrella with one unified dashboard." },
+            ].map((item, i) => (
+              <motion.div key={i} variants={scaleIn} custom={i + 6} className="flex gap-5 bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/[0.07] transition">
+                <div className="w-11 h-11 rounded-xl bg-blue-500/20 flex items-center justify-center shrink-0">
+                  <item.icon className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-white mb-1">{item.title}</h3>
+                  <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.div>
+      </Section>
+
       <Section dark id="platform">
         <div className="absolute top-1/3 right-0 w-[500px] h-[500px] rounded-full bg-blue-600/8 blur-[140px] pointer-events-none" />
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} className="relative">
