@@ -227,8 +227,8 @@ const OfferPrintLayout = ({
 
       {/* Appointment Details (if scheduled) */}
       {appointment && (
-        <div className="border-2 border-primary/30 bg-primary/5 rounded-lg p-4 mb-4">
-          <div className="flex items-center gap-2 mb-2 pb-1.5 border-b border-primary/20">
+        <div className="border-2 border-primary/30 bg-primary/5 rounded-lg p-3 mb-3">
+          <div className="flex items-center gap-2 mb-1.5 pb-1 border-b border-primary/20">
             <CalendarCheck className="w-4 h-4 text-primary" />
             <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-primary">Scheduled Inspection</p>
           </div>
