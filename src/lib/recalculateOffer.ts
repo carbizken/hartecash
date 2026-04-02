@@ -159,6 +159,12 @@ export function recalculateFromSubmission(
     high = Math.round(high * (1 + cfg.global_adjustment_pct / 100));
   }
 
+  // 4b. Regional adjustment
+  const regionalPct = cfg.regional_adjustment_pct || 0;
+  if (regionalPct !== 0) {
+    high = Math.round(high * (1 + regionalPct / 100));
+  }
+
   // 5. Age tiers
   const ageTiers = cfg.age_tiers || [];
   if (ageTiers.length > 0 && condition.vehicle_year) {
