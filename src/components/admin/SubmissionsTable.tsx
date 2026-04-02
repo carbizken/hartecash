@@ -69,16 +69,29 @@ const SubmissionsTable = ({
   onDelete,
   onInlineStatusChange,
 }: SubmissionsTableProps) => {
-  const getDaysSinceUpdate = (sub: Submission) => {
+  const getHoursSinceUpdate = (sub: Submission) => {
     const refDate = sub.status_updated_at || sub.created_at;
-    return Math.floor((Date.now() - new Date(refDate).getTime()) / (1000 * 60 * 60 * 24));
+    return (Date.now() - new Date(refDate).getTime()) / (1000 * 60 * 60);
   };
 
-  const getAgingColor = (days: number, status: string) => {
-    if (["purchase_complete", "dead_lead"].includes(status)) return "text-muted-foreground";
-    if (days <= 2) return "text-success";
-    if (days <= 5) return "text-yellow-600";
-    return "text-destructive";
+  const getSlaLevel = (hours: number, status: string): { color: string; borderClass: string; label: string; bgClass: string } => {
+    if (["purchase_complete", "dead_lead"].includes(status))
+      return { color: "text-muted-foreground", borderClass: "border-l-border", label: "", bgClass: "" };
+    if (hours < 2)
+      return { color: "text-success", borderClass: "border-l-success", label: "", bgClass: "" };
+    if (hours < 12)
+      return { color: "text-emerald-500", borderClass: "border-l-emerald-500", label: "", bgClass: "" };
+    if (hours < 24)
+      return { color: "text-amber-500", borderClass: "border-l-amber-500", label: "Aging", bgClass: "bg-amber-500/5" };
+    if (hours < 48)
+      return { color: "text-orange-500", borderClass: "border-l-orange-500", label: "Overdue", bgClass: "bg-orange-500/5" };
+    return { color: "text-destructive", borderClass: "border-l-destructive", label: "Critical", bgClass: "bg-destructive/5" };
+  };
+
+  const formatAge = (hours: number) => {
+    if (hours < 1) return `${Math.round(hours * 60)}m`;
+    if (hours < 24) return `${Math.round(hours)}h`;
+    return `${Math.floor(hours / 24)}d`;
   };
 
   const filtered = submissions.filter((s) => {
