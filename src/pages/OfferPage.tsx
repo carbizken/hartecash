@@ -176,8 +176,45 @@ const OfferPage = () => {
     if (field === "mileage") newSubmission.mileage = value as string;
     if (field === "exterior_color") newSubmission.exterior_color = value as string;
 
+    // If mileage changed and we have a VIN, re-fetch BB data with new mileage
+    let freshBBValues: SubmissionBBValues | null = null;
+    if (field === "mileage" && submission.vin && !submission.offered_price) {
+      try {
+        const { data: bbData } = await supabase.functions.invoke("bb-lookup", {
+          body: {
+            lookup_type: "vin",
+            vin: submission.vin,
+            mileage: parseInt((value as string).replace(/[^0-9]/g, "")) || 0,
+          },
+        });
+        if (bbData?.vehicles?.[0]) {
+          const v = bbData.vehicles[0];
+          freshBBValues = {
+            bb_tradein_avg: v.tradein?.avg ?? null,
+            bb_wholesale_avg: v.wholesale?.avg ?? null,
+            bb_retail_avg: v.retail?.avg ?? null,
+          };
+          // Update condition + submission with fresh BB data
+          newCondition.bb_tradein_avg = v.tradein?.avg ?? null;
+          newCondition.bb_wholesale_avg = v.wholesale?.avg ?? null;
+          newCondition.bb_retail_avg = v.retail?.avg ?? null;
+          newCondition.bb_mileage_adj = v.mileage_adj ?? null;
+          newCondition.bb_base_whole_avg = v.base_whole_avg ?? null;
+          setCondition({ ...newCondition });
+
+          newSubmission.bb_tradein_avg = v.tradein?.avg ?? null;
+          newSubmission.bb_wholesale_avg = v.wholesale?.avg ?? null;
+          newSubmission.bb_retail_avg = v.retail?.avg ?? null;
+          newSubmission.bb_mileage_adj = v.mileage_adj ?? null;
+          newSubmission.bb_base_whole_avg = v.base_whole_avg ?? null;
+        }
+      } catch (e) {
+        console.warn("BB re-lookup failed, using cached values:", e);
+      }
+    }
+
     // Recalculate offer if we have bb data and no manual offered_price
-    if (submission.bb_tradein_avg && !submission.offered_price) {
+    if ((submission.bb_tradein_avg || freshBBValues) && !submission.offered_price) {
       const subCond: SubmissionCondition = {
         overall_condition: field === "overall_condition" ? (value as string) : newSubmission.overall_condition,
         mileage: field === "mileage" ? (value as string) : newSubmission.mileage,
@@ -197,7 +234,7 @@ const OfferPage = () => {
         drivable: field === "drivable" ? (value as string) : newCondition.drivable,
       };
 
-      const bbVals = {
+      const bbVals = freshBBValues || {
         bb_tradein_avg: newCondition.bb_tradein_avg ?? submission.bb_tradein_avg,
         bb_wholesale_avg: newCondition.bb_wholesale_avg ?? submission.bb_wholesale_avg,
         bb_retail_avg: newCondition.bb_retail_avg ?? submission.bb_retail_avg,
@@ -222,14 +259,19 @@ const OfferPage = () => {
     setSaving(true);
     try {
       const updateData: Record<string, any> = { [field]: value };
-      if (field === "overall_condition" || field === "mileage" || field === "exterior_color") {
-        updateData[field] = value;
-      }
       // Also save recalculated offer
       if (newSubmission.estimated_offer_low !== submission.estimated_offer_low ||
           newSubmission.estimated_offer_high !== submission.estimated_offer_high) {
         updateData.estimated_offer_low = newSubmission.estimated_offer_low;
         updateData.estimated_offer_high = newSubmission.estimated_offer_high;
+      }
+      // Save fresh BB values if mileage changed
+      if (freshBBValues) {
+        updateData.bb_tradein_avg = freshBBValues.bb_tradein_avg;
+        updateData.bb_wholesale_avg = freshBBValues.bb_wholesale_avg;
+        updateData.bb_retail_avg = freshBBValues.bb_retail_avg;
+        if (newSubmission.bb_mileage_adj !== undefined) updateData.bb_mileage_adj = newSubmission.bb_mileage_adj;
+        if (newSubmission.bb_base_whole_avg !== undefined) updateData.bb_base_whole_avg = newSubmission.bb_base_whole_avg;
       }
 
       await supabase
@@ -239,7 +281,9 @@ const OfferPage = () => {
 
       toast({
         title: "Updated",
-        description: "Your answer has been updated and your offer recalculated.",
+        description: field === "mileage" && freshBBValues
+          ? "Mileage updated — offer recalculated with fresh market data."
+          : "Your answer has been updated and your offer recalculated.",
       });
     } catch {
       toast({ title: "Update failed", description: "Please try again.", variant: "destructive" });
