@@ -120,9 +120,9 @@ const OfferPrintLayout = ({
           )}
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           <div>
-            <p className="text-lg font-bold text-foreground">{vehicleStr}</p>
+            <p className="text-base font-bold text-foreground">{vehicleStr}</p>
             {s.vin && (
               <p className="text-[10px] font-mono text-muted-foreground">VIN: {s.vin.toUpperCase()}</p>
             )}
