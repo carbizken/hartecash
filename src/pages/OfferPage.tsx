@@ -620,7 +620,7 @@ const OfferPage = () => {
   );
 
   /* Trade-in explanation */
-  const TradeInExplanation = taxRate > 0 && (
+  const TradeInExplanation = (
     <div ref={explanationRef} className="scroll-mt-40">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
