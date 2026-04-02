@@ -143,7 +143,7 @@ const PricingAccessGate = ({ userId, userRole, children }: PricingAccessGateProp
       </CardHeader>
       <CardContent className="text-center space-y-4">
         <p className="text-sm text-muted-foreground max-w-md mx-auto">
-          Pricing model configuration is a sensitive area. As a GSM, you can request temporary 24-hour access 
+          Offer logic configuration is a sensitive area. As a GSM, you can request temporary 24-hour access 
           that must be approved by an Admin or GM.
         </p>
 
