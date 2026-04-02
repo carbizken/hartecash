@@ -199,6 +199,10 @@ export interface OfferSettings {
   mileage_tiers: MileageTier[];
   regional_adjustment_pct: number;
   low_mileage_bonus: LowMileageBonus;
+  high_mileage_penalty?: HighMileagePenalty;
+  color_desirability?: ColorDesirability;
+  seasonal_adjustment?: SeasonalAdjustment;
+  deduction_modes?: DeductionModes;
 }
 
 export interface OfferRule {
