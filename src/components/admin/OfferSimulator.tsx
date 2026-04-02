@@ -12,7 +12,7 @@ import {
   SlidersHorizontal, Gauge, Zap, AlertTriangle, DollarSign, ChevronDown, Calendar, Plus, Trash2,
   Layers, ArrowDown, GripVertical, Pencil, X, Check,
 } from "lucide-react";
-import { calculateOffer, type OfferSettings, type OfferRule, type OfferEstimate } from "@/lib/offerCalculator";
+import { calculateOffer, type OfferSettings, type OfferRule, type OfferEstimate, calcHighMileagePenaltyPct, calcColorAdjustmentPct, DEFAULT_HIGH_MILEAGE_PENALTY, DEFAULT_COLOR_DESIRABILITY, DEFAULT_SEASONAL_ADJUSTMENT, DEFAULT_DEDUCTION_MODES } from "@/lib/offerCalculator";
 import type { FormData, BBVehicle, BBAddDeduct } from "@/components/sell-form/types";
 import { supabase } from "@/integrations/supabase/client";
 import ProfitSpreadGauge from "./ProfitSpreadGauge";
