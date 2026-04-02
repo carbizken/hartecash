@@ -98,5 +98,9 @@ function modelToSettings(model: any): OfferSettings {
     mileage_tiers: model.mileage_tiers || [],
     regional_adjustment_pct: model.regional_adjustment_pct || 0,
     low_mileage_bonus: model.low_mileage_bonus || DEFAULT_LOW_MILEAGE_BONUS,
+    high_mileage_penalty: model.high_mileage_penalty || DEFAULT_HIGH_MILEAGE_PENALTY,
+    color_desirability: model.color_desirability || DEFAULT_COLOR_DESIRABILITY,
+    seasonal_adjustment: model.seasonal_adjustment || DEFAULT_SEASONAL_ADJUSTMENT,
+    deduction_modes: model.deduction_modes || DEFAULT_DEDUCTION_MODES,
   };
 }
