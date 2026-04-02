@@ -185,10 +185,10 @@ export default function ProfitSpreadGauge({
           );
         })}
 
-        {/* YOUR OFFER — prominent diamond marker */}
+        {/* YOUR OFFER — blue triangle marker only */}
         <div
           className="absolute z-20"
-          style={{ left: `${offerPos}%`, top: '18px' }}
+          style={{ left: `${offerPos}%`, top: '20px' }}
         >
           <div className="relative">
             {/* Glow pulse */}
@@ -197,11 +197,6 @@ export default function ProfitSpreadGauge({
             <div
               className="absolute -left-[7px] -top-[7px] w-[14px] h-[14px] bg-primary rotate-45 rounded-[2px] shadow-lg shadow-primary/40 border-2 border-background"
             />
-            {/* Label below */}
-            <div className="absolute -left-10 top-4 w-20 text-center">
-              <div className="text-[10px] font-extrabold text-primary leading-none">YOUR OFFER</div>
-              <div className="text-[11px] font-bold text-primary">${offerHigh.toLocaleString()}</div>
-            </div>
           </div>
         </div>
       </div>
