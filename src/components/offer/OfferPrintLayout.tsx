@@ -89,19 +89,19 @@ const OfferPrintLayout = ({
   return (
     <div className="hidden print:block print-offer-layout">
       {/* Premium Header */}
-      <div className="flex items-center justify-between pb-4 mb-5 border-b-[3px] border-primary">
-        <div className="flex items-center gap-4">
-          <img src={config.logo_url || config.logo_white_url || logoFallback} alt={config.dealership_name || "Dealership"} className="h-11 w-auto brightness-0" />
-          <div className="border-l-2 border-border pl-4">
-            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Vehicle Purchase Program</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">
+      <div className="flex items-center justify-between pb-2 mb-3 border-b-[3px] border-primary">
+        <div className="flex items-center gap-3">
+          <img src={config.logo_url || config.logo_white_url || logoFallback} alt={config.dealership_name || "Dealership"} className="h-9 w-auto brightness-0" />
+          <div className="border-l-2 border-border pl-3">
+            <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Vehicle Purchase Program</p>
+            <p className="text-[9px] text-muted-foreground">
               {createdDate?.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
             </p>
           </div>
         </div>
         <div className="text-right">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Prepared for</p>
-          <p className="text-base font-bold text-foreground">{s.name || "Customer"}</p>
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">Prepared for</p>
+          <p className="text-sm font-bold text-foreground">{s.name || "Customer"}</p>
         </div>
       </div>
 
