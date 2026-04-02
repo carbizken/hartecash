@@ -99,7 +99,7 @@ const AdminCommandPalette = ({ onNavigate, onViewSubmission, submissions, allowe
               >
                 <Search className="mr-2 h-4 w-4 text-muted-foreground" />
                 <span className="truncate">
-                  {sub.name || "Unknown"} — {sub.year} {sub.make} {sub.model}
+                  {sub.name || "Unknown"} — {sub.vehicle_year} {sub.vehicle_make} {sub.vehicle_model}
                 </span>
               </CommandItem>
             ))}
