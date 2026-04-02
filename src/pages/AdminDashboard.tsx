@@ -32,6 +32,9 @@ import RequestAccessDialog from "@/components/admin/RequestAccessDialog";
 import SubmissionsTable from "@/components/admin/SubmissionsTable";
 import SubmissionDetailSheet from "@/components/admin/SubmissionDetailSheet";
 import AppointmentManager from "@/components/admin/AppointmentManager";
+import TodayActionSummary from "@/components/admin/TodayActionSummary";
+import AdminCommandPalette from "@/components/admin/AdminCommandPalette";
+import AdminBreadcrumbNav from "@/components/admin/AdminBreadcrumb";
 
 import { useStaffPermissions } from "@/hooks/useStaffPermissions";
 import { useTenant, TenantOverrideProvider } from "@/contexts/TenantContext";
