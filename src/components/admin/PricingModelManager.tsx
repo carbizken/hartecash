@@ -350,7 +350,7 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
     if (editModel) setEditModel({ ...editModel, name });
   };
 
-  if (loading) return <div className="text-sm text-muted-foreground py-4">Loading pricing models…</div>;
+  if (loading) return <div className="text-sm text-muted-foreground py-4">Loading offer logic…</div>;
 
   const selectedModel = models.find(m => m.id === selectedModelId);
   const activeModels = models.filter(m => m.is_active);
