@@ -1569,6 +1569,7 @@ export type Database = {
           bb_selected_options: string[] | null
           bb_tradein_avg: number | null
           bb_transmission: string | null
+          bb_value_tiers: Json | null
           bb_wholesale_avg: number | null
           brake_lf: number | null
           brake_lr: number | null
@@ -1660,6 +1661,7 @@ export type Database = {
           bb_selected_options?: string[] | null
           bb_tradein_avg?: number | null
           bb_transmission?: string | null
+          bb_value_tiers?: Json | null
           bb_wholesale_avg?: number | null
           brake_lf?: number | null
           brake_lr?: number | null
@@ -1751,6 +1753,7 @@ export type Database = {
           bb_selected_options?: string[] | null
           bb_tradein_avg?: number | null
           bb_transmission?: string | null
+          bb_value_tiers?: Json | null
           bb_wholesale_avg?: number | null
           brake_lf?: number | null
           brake_lr?: number | null
