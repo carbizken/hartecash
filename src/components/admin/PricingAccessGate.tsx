@@ -139,7 +139,7 @@ const PricingAccessGate = ({ userId, userRole, children }: PricingAccessGateProp
         <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-3">
           <Shield className="w-8 h-8 text-primary" />
         </div>
-        <CardTitle className="text-lg">Pricing Model Access Required</CardTitle>
+        <CardTitle className="text-lg">Offer Logic Access Required</CardTitle>
       </CardHeader>
       <CardContent className="text-center space-y-4">
         <p className="text-sm text-muted-foreground max-w-md mx-auto">
