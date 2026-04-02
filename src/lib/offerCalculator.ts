@@ -84,6 +84,30 @@ export interface LowMileageBonus {
   min_miles_per_year: number;
 }
 
+export interface HighMileagePenalty {
+  enabled: boolean;
+  avg_miles_per_year: number;
+  penalty_pct_per_step: number;
+  step_size_pct: number;
+  max_penalty_pct: number;
+  max_miles_per_year: number;
+}
+
+export interface ColorDesirability {
+  enabled: boolean;
+  adjustments: Record<string, number>; // color name → pct adjustment
+}
+
+export interface SeasonalAdjustment {
+  enabled: boolean;
+  adjustment_pct: number;
+}
+
+export interface DeductionModes {
+  accidents: "flat" | "pct";
+  not_drivable: "flat" | "pct";
+}
+
 export const DEFAULT_LOW_MILEAGE_BONUS: LowMileageBonus = {
   enabled: false,
   avg_miles_per_year: 12000,
@@ -91,6 +115,30 @@ export const DEFAULT_LOW_MILEAGE_BONUS: LowMileageBonus = {
   step_size_pct: 20,
   max_bonus_pct: 8,
   min_miles_per_year: 4000,
+};
+
+export const DEFAULT_HIGH_MILEAGE_PENALTY: HighMileagePenalty = {
+  enabled: false,
+  avg_miles_per_year: 12000,
+  penalty_pct_per_step: 2,
+  step_size_pct: 20,
+  max_penalty_pct: 10,
+  max_miles_per_year: 25000,
+};
+
+export const DEFAULT_COLOR_DESIRABILITY: ColorDesirability = {
+  enabled: false,
+  adjustments: { white: 2, black: 2, silver: 1, gray: 1, red: 0, blue: 0, green: -1, yellow: -3, orange: -2, purple: -2, brown: -2, gold: -1, beige: -2 },
+};
+
+export const DEFAULT_SEASONAL_ADJUSTMENT: SeasonalAdjustment = {
+  enabled: false,
+  adjustment_pct: 0,
+};
+
+export const DEFAULT_DEDUCTION_MODES: DeductionModes = {
+  accidents: "flat",
+  not_drivable: "flat",
 };
 
 /** Calculate low-mileage bonus percentage */
@@ -106,6 +154,34 @@ export function calcLowMileageBonusPct(
   const pctBelow = ((bonus.avg_miles_per_year - milesPerYear) / bonus.avg_miles_per_year) * 100;
   const steps = Math.floor(pctBelow / bonus.step_size_pct);
   return Math.min(steps * bonus.bonus_pct_per_step, bonus.max_bonus_pct);
+}
+
+/** Calculate high-mileage penalty percentage */
+export function calcHighMileagePenaltyPct(
+  vehicleYear: string | undefined,
+  mileage: number,
+  penalty: HighMileagePenalty
+): number {
+  if (!penalty.enabled || !vehicleYear) return 0;
+  const age = Math.max(new Date().getFullYear() - Number(vehicleYear), 1);
+  const milesPerYear = mileage / age;
+  if (milesPerYear <= penalty.avg_miles_per_year || milesPerYear > penalty.max_miles_per_year) return 0;
+  const pctAbove = ((milesPerYear - penalty.avg_miles_per_year) / penalty.avg_miles_per_year) * 100;
+  const steps = Math.floor(pctAbove / penalty.step_size_pct);
+  return Math.min(steps * penalty.penalty_pct_per_step, penalty.max_penalty_pct);
+}
+
+/** Calculate color desirability adjustment percentage */
+export function calcColorAdjustmentPct(
+  exteriorColor: string | undefined,
+  config: ColorDesirability
+): number {
+  if (!config.enabled || !exteriorColor) return 0;
+  const colorLower = exteriorColor.toLowerCase().trim();
+  for (const [color, pct] of Object.entries(config.adjustments)) {
+    if (colorLower.includes(color.toLowerCase())) return pct;
+  }
+  return 0;
 }
 
 export interface OfferSettings {
