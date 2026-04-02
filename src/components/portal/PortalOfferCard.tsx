@@ -52,8 +52,11 @@ const PortalOfferCard = ({
   const isAccepted = isAcceptedOverride || !!offeredPrice;
   const cashOffer = offeredPrice || estimatedOfferHigh || 0;
 
-  const { state, rate: taxRate } = getTaxRateFromZip(zip || "");
-  const stateName = state ? STATE_NAMES[state] || state : null;
+  const zipResult = getTaxRateFromZip(zip || "");
+  // Default to Connecticut 6.35% if no state can be determined
+  const state = zipResult.state || "CT";
+  const taxRate = zipResult.state ? zipResult.rate : 0.0635;
+  const stateName = STATE_NAMES[state] || state;
   const taxPercent = (taxRate * 100).toFixed(2);
   const taxSavings = cashOffer * taxRate;
   const tradeInValue = calcTradeInValue(cashOffer, taxRate);
@@ -131,7 +134,7 @@ const PortalOfferCard = ({
                   Subject to in-person inspection
                 </p>
               )}
-              {!isAccepted && taxRate > 0 && (
+              {!isAccepted && (
                 <button
                   onClick={() => setActiveTab("trade")}
                   className="mt-2 mx-auto flex items-center gap-1.5 text-xs font-medium text-success hover:text-success/80 transition-colors"

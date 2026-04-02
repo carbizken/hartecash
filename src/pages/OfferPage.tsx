@@ -305,8 +305,11 @@ const OfferPage = () => {
     </div>
   );
 
-  const { state, rate: taxRate } = getTaxRateFromZip(s.zip || "");
-  const stateName = state ? STATE_NAMES[state] || state : null;
+  const zipResult = getTaxRateFromZip(s.zip || "");
+  // Default to Connecticut 6.35% if no state can be determined
+  const state = zipResult.state || "CT";
+  const taxRate = zipResult.state ? zipResult.rate : 0.0635;
+  const stateName = STATE_NAMES[state] || state;
   const taxPercent = (taxRate * 100).toFixed(2);
   const taxSavings = cashOffer * taxRate;
   const tradeInValue = calcTradeInValue(cashOffer, taxRate);
@@ -473,7 +476,7 @@ const OfferPage = () => {
     </AnimatePresence>
   );
 
-  const TradeInBounce = activeTab === "sell" && taxRate > 0 && (
+  const TradeInBounce = activeTab === "sell" && (
     <motion.button
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -617,7 +620,7 @@ const OfferPage = () => {
   );
 
   /* Trade-in explanation */
-  const TradeInExplanation = taxRate > 0 && (
+  const TradeInExplanation = (
     <div ref={explanationRef} className="scroll-mt-40">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
@@ -670,8 +673,7 @@ const OfferPage = () => {
         <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/30 rounded-lg p-3">
           <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5 text-primary" />
           <p>
-            The tax credit is based on {stateName ? `${stateName}'s` : "your state's"} {taxPercent}% sales tax rate, 
-            determined by your zip code ({s.zip}). The formula is: 
+            The tax credit is based on {stateName}'s {taxPercent}% sales tax rate{zipResult.state ? `, determined by your zip code (${s.zip})` : ""}. The formula is:
             <span className="font-mono text-card-foreground"> ${cashOffer.toLocaleString()} × {(1 + taxRate).toFixed(4)} = ${tradeInValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}</span>. 
             Actual tax credit may vary and is subject to qualifications.
           </p>
@@ -681,20 +683,7 @@ const OfferPage = () => {
     </div>
   );
 
-  const NoTaxBlock = (!s.zip || taxRate === 0) && (
-    <div className="bg-card rounded-xl p-5 shadow-lg">
-      <div className="flex items-center gap-2 mb-3">
-        <Info className="w-5 h-5 text-muted-foreground" />
-        <h3 className="font-bold text-card-foreground text-sm">Trade-In Savings</h3>
-      </div>
-      <p className="text-sm text-muted-foreground">
-        {!s.zip 
-          ? "We don't have your zip code on file. Contact us to learn about sales tax savings when you trade in your vehicle."
-          : `Your state (${stateName || state}) does not have a vehicle sales tax, so the trade-in value equals your cash offer.`
-        }
-      </p>
-    </div>
-  );
+  const NoTaxBlock = null;
 
 
 
