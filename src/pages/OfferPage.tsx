@@ -239,6 +239,7 @@ const OfferPage = () => {
         bb_tradein_avg: newCondition.bb_tradein_avg ?? submission.bb_tradein_avg,
         bb_wholesale_avg: newCondition.bb_wholesale_avg ?? submission.bb_wholesale_avg,
         bb_retail_avg: newCondition.bb_retail_avg ?? submission.bb_retail_avg,
+        bb_value_tiers: newCondition.bb_value_tiers ?? (condition as any)?.bb_value_tiers ?? null,
       };
       const newEstimate = recalculateFromSubmission(
         bbVals.bb_tradein_avg || 0,
