@@ -48,13 +48,32 @@ const DEFAULT_DEDUCTION_AMOUNTS = {
   missing_keys_0: 400,
 };
 
+/** Optional BB values stored on submission for condition_basis_map resolution */
+export interface SubmissionBBValues {
+  bb_tradein_avg?: number | null;
+  bb_wholesale_avg?: number | null;
+  bb_retail_avg?: number | null;
+}
+
+/** Resolve base value from stored BB data using condition_basis_map */
+function resolveBaseValue(bbValues: SubmissionBBValues, basis: string): number {
+  // Map basis keys to the available stored values
+  // We only have avg-tier values stored; use the closest match
+  if (basis.startsWith("wholesale")) return bbValues.bb_wholesale_avg || 0;
+  if (basis.startsWith("retail")) return bbValues.bb_retail_avg || 0;
+  // Default to trade-in for any tradein_* basis
+  return bbValues.bb_tradein_avg || 0;
+}
+
 export function recalculateFromSubmission(
   bbTradeinAvg: number,
   condition: SubmissionCondition,
   settings?: OfferSettings | null,
-  rules?: OfferRule[] | null
+  rules?: OfferRule[] | null,
+  bbValues?: SubmissionBBValues
 ): OfferEstimate | null {
-  if (bbTradeinAvg <= 0) return null;
+  const allBB: SubmissionBBValues = bbValues || { bb_tradein_avg: bbTradeinAvg };
+  if ((allBB.bb_tradein_avg || 0) <= 0 && (allBB.bb_wholesale_avg || 0) <= 0 && (allBB.bb_retail_avg || 0) <= 0) return null;
 
   const cfg = settings || {
     bb_value_basis: "tradein_avg",
@@ -67,21 +86,29 @@ export function recalculateFromSubmission(
     },
     deduction_amounts: DEFAULT_DEDUCTION_AMOUNTS,
     condition_multipliers: DEFAULT_CONDITION_MULTIPLIERS,
+    condition_basis_map: { excellent: "retail_xclean", very_good: "tradein_clean", good: "tradein_avg", fair: "wholesale_rough" } as ConditionBasisMap,
     condition_equipment_map: { excellent: true, very_good: true, good: true, fair: true },
     recon_cost: 0,
     offer_floor: 500,
     offer_ceiling: null,
     age_tiers: [],
     mileage_tiers: [],
+    regional_adjustment_pct: 0,
   };
 
   const ded = cfg.deductions_config;
   const amt = cfg.deduction_amounts || DEFAULT_DEDUCTION_AMOUNTS;
   const condMults = cfg.condition_multipliers || DEFAULT_CONDITION_MULTIPLIERS;
 
-  // 1. Base value × condition multiplier
-  const condMult = condMults[(condition.overall_condition || "good") as keyof ConditionMultipliers] ?? 1.0;
-  let adjusted = bbTradeinAvg * condMult;
+  // 1. Resolve base value via condition_basis_map (matches primary calculator logic)
+  const condKey = (condition.overall_condition || "good") as keyof ConditionBasisMap;
+  const condBasisMap = cfg.condition_basis_map || { excellent: "retail_xclean", very_good: "tradein_clean", good: "tradein_avg", fair: "wholesale_rough" };
+  const effectiveBasis = condBasisMap[condKey] || cfg.bb_value_basis;
+  const baseValue = resolveBaseValue(allBB, effectiveBasis);
+  if (baseValue <= 0) return null;
+
+  const condMult = condMults[condKey] ?? 1.0;
+  let adjusted = baseValue * condMult;
 
   // 2. Deductions (normalize form labels for matching)
   let deductions = 0;
