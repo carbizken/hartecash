@@ -503,160 +503,151 @@ const OfferSimulator = ({ settings, savedSettings, rules, inlineControls = true,
             </div>
           </div>
 
+          {/* ══ CONDITION TIER BUBBLES — click to configure ══ */}
+          <div className="bg-gradient-to-r from-primary/5 to-transparent rounded-lg border border-primary/20 p-3">
+            <div className="flex items-center gap-1.5 mb-3">
+              <DollarSign className="w-3.5 h-3.5 text-primary" />
+              <span className="text-[11px] font-bold text-card-foreground uppercase tracking-wider">① Select Condition Tier to Configure</span>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {CONDITIONS.map(cond => {
+                const basisMap = localSettings.condition_basis_map || {};
+                const selectedBasis = (basisMap as Record<string, string>)[cond] || "tradein_avg";
+                const mult = localSettings.condition_multipliers?.[cond] ?? 1.0;
+                const isActive = cond === liveCondition;
+                const selectedValue = liveBbVehicle ? (() => {
+                  const [cat, tier] = selectedBasis.split("_");
+                  const tierKey = tier === "xclean" ? "xclean" : tier;
+                  const data = liveBbVehicle[cat as "wholesale" | "tradein" | "retail"] as Record<string, number> | undefined;
+                  return data?.[tierKey] || 0;
+                })() : 0;
+                const bubbleFormData = { ...liveFormData, overallCondition: cond };
+                const bubbleResult = liveBbVehicle ? calculateOffer(liveBbVehicle, bubbleFormData, liveSelectedAddDeducts, activeSettings, rules) : null;
+
+                return (
+                  <button
+                    key={cond}
+                    onClick={() => setLiveCondition(cond)}
+                    className={`rounded-xl border-2 p-3 text-center transition-all ${
+                      isActive
+                        ? "border-primary bg-primary/10 ring-2 ring-primary/30 shadow-md scale-[1.02]"
+                        : "border-border bg-card hover:border-primary/40 hover:shadow-sm"
+                    }`}
+                  >
+                    <div className={`text-xs font-bold uppercase tracking-wider mb-1 ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+                      {CONDITION_LABELS[cond]}
+                    </div>
+                    {bubbleResult ? (
+                      <div className={`text-lg font-bold ${isActive ? "text-primary" : "text-card-foreground"}`}>
+                        ${bubbleResult.high.toLocaleString()}
+                      </div>
+                    ) : (
+                      <div className="text-lg font-bold text-muted-foreground">—</div>
+                    )}
+                    <div className="text-[9px] text-muted-foreground mt-0.5">
+                      Base: ${selectedValue.toLocaleString()} × {mult.toFixed(2)}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* ══ TWO-COLUMN LAYOUT ══ */}
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-4">
 
-            {/* ── LEFT: Interactive Waterfall Builder ── */}
+            {/* ── LEFT: Active Tier Config + Waterfall ── */}
             <div className="space-y-4">
-              {/* STEP 1: Per-Condition Tier Configuration */}
-              <div className="bg-gradient-to-r from-primary/5 to-transparent rounded-lg border border-primary/20 p-3">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <DollarSign className="w-3.5 h-3.5 text-primary" />
-                  <span className="text-[11px] font-bold text-card-foreground uppercase tracking-wider">① Configure Each Condition Tier</span>
-                </div>
-                <p className="text-[10px] text-muted-foreground mb-3">
-                  For each customer condition grade: select the base Black Book value, toggle equipment inclusion, and set the value multiplier.
-                </p>
+              {/* Active Tier Configuration */}
+              {(() => {
+                const cond = liveCondition;
+                const basisMap = localSettings.condition_basis_map || {};
+                const selectedBasis = (basisMap as Record<string, string>)[cond] || "tradein_avg";
+                const condEquipMap = (localSettings as any).condition_equipment_map || { excellent: true, very_good: true, good: true, fair: true };
+                const equipEnabled = condEquipMap[cond] ?? true;
+                const mult = localSettings.condition_multipliers?.[cond] ?? 1.0;
 
-                {/* Per-condition tier cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {CONDITIONS.map(cond => {
-                    const basisMap = localSettings.condition_basis_map || {};
-                    const selectedBasis = (basisMap as Record<string, string>)[cond] || "tradein_avg";
-                    const condEquipMap = (localSettings as any).condition_equipment_map || { excellent: true, very_good: true, good: true, fair: true };
-                    const equipEnabled = condEquipMap[cond] ?? true;
-                    const mult = localSettings.condition_multipliers?.[cond] ?? 1.0;
-                    const isActive = cond === liveCondition;
+                return (
+                  <div className="rounded-lg border-2 border-primary/30 bg-primary/5 p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <SlidersHorizontal className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-bold text-card-foreground">
+                          Configuring: <span className="text-primary">{CONDITION_LABELS[cond]}</span>
+                        </span>
+                      </div>
+                      <span className="text-[9px] bg-primary/20 text-primary px-2 py-0.5 rounded-full font-semibold uppercase">Active Tier</span>
+                    </div>
 
-                    // Get the dollar value for the selected basis
-                    const selectedValue = liveBbVehicle ? (() => {
-                      const [cat, tier] = selectedBasis.split("_");
-                      const tierKey = tier === "xclean" ? "xclean" : tier;
-                      const data = liveBbVehicle[cat as "wholesale" | "tradein" | "retail"] as Record<string, number> | undefined;
-                      return data?.[tierKey] || 0;
-                    })() : 0;
-
-                    return (
-                      <div
-                        key={cond}
-                        className={`rounded-lg border p-3 space-y-2.5 transition-all ${
-                          isActive
-                            ? "border-primary bg-primary/5 ring-1 ring-primary/20 shadow-sm"
-                            : "border-border bg-card hover:border-primary/30"
-                        }`}
-                      >
-                        {/* Tier Header */}
-                        <div className="flex items-center justify-between">
-                          <button
-                            onClick={() => setLiveCondition(cond)}
-                            className={`text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded transition-colors ${
-                              isActive ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-card-foreground"
-                            }`}
-                          >
-                            {CONDITION_LABELS[cond]}
-                          </button>
-                          {isActive && <span className="text-[8px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full font-semibold">ACTIVE</span>}
-                          {selectedValue > 0 && (
-                            <span className="text-xs font-bold text-card-foreground">${selectedValue.toLocaleString()}</span>
-                          )}
-                        </div>
-
-                        {/* Base Value Source Dropdown */}
-                        <div>
-                          <Label className="text-[10px] font-semibold text-muted-foreground">Base Value Source</Label>
-                          <Select
-                            value={selectedBasis}
-                            onValueChange={(val) => updateLocalSetting("condition_basis_map", {
-                              excellent: "retail_xclean",
-                              very_good: "tradein_clean",
-                              good: "tradein_avg",
-                              fair: "wholesale_rough",
-                              ...(localSettings.condition_basis_map || {}),
-                              [cond]: val,
-                            } as any)}
-                          >
-                            <SelectTrigger className="h-7 text-xs">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {BB_VALUE_OPTIONS.map(opt => {
-                                // Show dollar value next to each option if vehicle loaded
-                                let dollarStr = "";
-                                if (liveBbVehicle) {
-                                  const [cat, tier] = opt.value.split("_");
-                                  const tierKey = tier === "xclean" ? "xclean" : tier;
-                                  const data = liveBbVehicle[cat as "wholesale" | "tradein" | "retail"] as Record<string, number> | undefined;
-                                  const val = data?.[tierKey] || 0;
-                                  if (val > 0) dollarStr = ` — $${val.toLocaleString()}`;
-                                }
-                                return (
-                                  <SelectItem key={opt.value} value={opt.value} className="text-xs">
-                                    {opt.label}{dollarStr}
-                                  </SelectItem>
-                                );
-                              })}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {/* Equipment Toggle */}
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <Label className="text-[10px] font-semibold text-muted-foreground">Include Equipment</Label>
-                            <p className="text-[8px] text-muted-foreground">Add verified factory options to value</p>
-                          </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <Label className="text-[10px] font-semibold text-muted-foreground">Base Value Source</Label>
+                        <Select
+                          value={selectedBasis}
+                          onValueChange={(val) => updateLocalSetting("condition_basis_map", {
+                            excellent: "retail_xclean", very_good: "tradein_clean", good: "tradein_avg", fair: "wholesale_rough",
+                            ...(localSettings.condition_basis_map || {}),
+                            [cond]: val,
+                          } as any)}
+                        >
+                          <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {BB_VALUE_OPTIONS.map(opt => {
+                              let dollarStr = "";
+                              if (liveBbVehicle) {
+                                const [cat, tier] = opt.value.split("_");
+                                const tierKey = tier === "xclean" ? "xclean" : tier;
+                                const data = liveBbVehicle[cat as "wholesale" | "tradein" | "retail"] as Record<string, number> | undefined;
+                                const val = data?.[tierKey] || 0;
+                                if (val > 0) dollarStr = ` — $${val.toLocaleString()}`;
+                              }
+                              return <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}{dollarStr}</SelectItem>;
+                            })}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex flex-col justify-between">
+                        <Label className="text-[10px] font-semibold text-muted-foreground">Include Equipment</Label>
+                        <div className="flex items-center gap-2 mt-1">
                           <Switch
                             checked={equipEnabled}
                             onCheckedChange={(checked) => {
                               const newMap = { ...(localSettings as any).condition_equipment_map || { excellent: true, very_good: true, good: true, fair: true }, [cond]: checked };
                               updateLocalSetting("condition_equipment_map" as any, newMap);
                             }}
-                            className="scale-75"
                           />
-                        </div>
-
-                        {/* Multiplier Slider */}
-                        <div>
-                          <div className="flex items-center justify-between mb-0.5">
-                            <Label className="text-[10px] font-semibold text-muted-foreground">Value Multiplier</Label>
-                            <span className="text-[10px] font-bold text-card-foreground">{mult.toFixed(2)}×</span>
-                          </div>
-                          <Slider
-                            value={[mult * 100]}
-                            min={70} max={110} step={1}
-                            onValueChange={([v]) => updateLocalSetting("condition_multipliers", {
-                              ...localSettings.condition_multipliers,
-                              [cond]: Math.round(v) / 100,
-                            })}
-                          />
-                          <div className="flex justify-between text-[8px] text-muted-foreground mt-0.5">
-                            <span>0.70×</span>
-                            <span>1.00×</span>
-                            <span>1.10×</span>
-                          </div>
+                          <span className="text-[10px] text-muted-foreground">{equipEnabled ? "Yes" : "No"}</span>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <Label className="text-[10px] font-semibold text-muted-foreground">Value Multiplier</Label>
+                          <span className="text-xs font-bold text-primary">{mult.toFixed(2)}×</span>
+                        </div>
+                        <Slider
+                          value={[mult * 100]}
+                          min={70} max={110} step={1}
+                          onValueChange={([v]) => updateLocalSetting("condition_multipliers", {
+                            ...localSettings.condition_multipliers,
+                            [cond]: Math.round(v) / 100,
+                          })}
+                        />
+                        <div className="flex justify-between text-[8px] text-muted-foreground mt-0.5">
+                          <span>0.70×</span><span>1.00×</span><span>1.10×</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
 
-              {/* STEP 2: Vehicle Condition */}
+              {/* Vehicle Condition Inputs */}
               <div className="rounded-lg border border-border p-3">
                 <div className="flex items-center gap-1.5 mb-2">
                   <Car className="w-3.5 h-3.5 text-primary" />
                   <span className="text-[11px] font-bold text-card-foreground uppercase tracking-wider">② Vehicle Condition</span>
                 </div>
-                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
-                  <div>
-                    <Label className="text-[10px] font-semibold">Condition</Label>
-                    <Select value={liveCondition} onValueChange={setLiveCondition}>
-                      <SelectTrigger className="h-7 text-xs"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        {CONDITIONS.map(c => <SelectItem key={c} value={c} className="text-xs">{CONDITION_LABELS[c]}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
                   <div>
                     <Label className="text-[10px] font-semibold">Accidents</Label>
                     <Select value={liveAccidents} onValueChange={setLiveAccidents}>
@@ -735,12 +726,17 @@ const OfferSimulator = ({ settings, savedSettings, rules, inlineControls = true,
                 </Collapsible>
               )}
 
-              {/* STEP 3: Interactive Waterfall Builder */}
+              {/* Interactive Waterfall — Always visible, updates per tier */}
               {liveResult && (
-                <div className="rounded-lg border border-border p-3 bg-gradient-to-b from-muted/20 to-transparent">
+                <div className="rounded-lg border-2 border-primary/20 p-3 bg-gradient-to-b from-muted/20 to-transparent">
                   <div className="flex items-center gap-1.5 mb-3">
                     <ArrowDown className="w-3.5 h-3.5 text-primary" />
-                    <span className="text-[11px] font-bold text-card-foreground uppercase tracking-wider">③ Price Waterfall — Click any bar to adjust</span>
+                    <span className="text-[11px] font-bold text-card-foreground uppercase tracking-wider">
+                      Price Waterfall — {CONDITION_LABELS[liveCondition]}
+                    </span>
+                    <span className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-semibold ml-auto">
+                      Click bars to adjust
+                    </span>
                   </div>
                   <div className="space-y-0.5">
                     {waterfallBlocks.map(block => (
@@ -757,12 +753,9 @@ const OfferSimulator = ({ settings, savedSettings, rules, inlineControls = true,
                 </div>
               )}
 
-              {/* Detailed Controls — Collapsible panels for fine-tuning */}
+              {/* Detailed Controls */}
               {inlineControls && liveResult && (
                 <div className="space-y-2">
-                  {/* Condition Multipliers are now inline in the per-tier cards above */}
-
-                  {/* Age Tiers */}
                   <Collapsible>
                     <CollapsibleTrigger asChild>
                       <button className="flex items-center justify-between w-full px-3 py-2 text-left hover:bg-muted/30 transition-colors rounded-lg border border-border">
@@ -795,7 +788,6 @@ const OfferSimulator = ({ settings, savedSettings, rules, inlineControls = true,
                     </CollapsibleContent>
                   </Collapsible>
 
-                  {/* Mileage Tiers */}
                   <Collapsible>
                     <CollapsibleTrigger asChild>
                       <button className="flex items-center justify-between w-full px-3 py-2 text-left hover:bg-muted/30 transition-colors rounded-lg border border-border">
@@ -827,7 +819,6 @@ const OfferSimulator = ({ settings, savedSettings, rules, inlineControls = true,
                     </CollapsibleContent>
                   </Collapsible>
 
-                  {/* Deductions Detail */}
                   <Collapsible>
                     <CollapsibleTrigger asChild>
                       <button className="flex items-center justify-between w-full px-3 py-2 text-left hover:bg-muted/30 transition-colors rounded-lg border border-border">
