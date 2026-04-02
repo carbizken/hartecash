@@ -42,6 +42,7 @@ interface ConditionData {
   drivable: string | null;
   bb_wholesale_avg: number | null;
   bb_retail_avg: number | null;
+  bb_value_tiers: Record<string, Record<string, number>> | null;
 }
 
 interface PortalSubmission {
@@ -127,7 +128,7 @@ const CustomerPortal = () => {
       const [condRes, pricingRes] = await Promise.all([
         supabase
           .from("submissions")
-          .select("drivetrain, accidents, drivable, exterior_damage, interior_damage, mechanical_issues, engine_issues, tech_issues, smoked_in, tires_replaced, num_keys, windshield_damage, bb_wholesale_avg, bb_retail_avg")
+          .select("drivetrain, accidents, drivable, exterior_damage, interior_damage, mechanical_issues, engine_issues, tech_issues, smoked_in, tires_replaced, num_keys, windshield_damage, bb_wholesale_avg, bb_retail_avg, bb_value_tiers")
           .eq("token", token)
           .maybeSingle(),
         resolveEffectiveSettings("default"),
@@ -171,7 +172,7 @@ const CustomerPortal = () => {
         subCond,
         offerSettings,
         offerRules,
-        { bb_tradein_avg: submission.bb_tradein_avg, bb_wholesale_avg: condition?.bb_wholesale_avg, bb_retail_avg: condition?.bb_retail_avg }
+        { bb_tradein_avg: submission.bb_tradein_avg, bb_wholesale_avg: condition?.bb_wholesale_avg, bb_retail_avg: condition?.bb_retail_avg, bb_value_tiers: condition?.bb_value_tiers }
       );
 
       if (newEstimate) {
