@@ -133,7 +133,7 @@ const OfferPage = () => {
       const [condRes, pricingRes, apptRes, locRes] = await Promise.all([
         supabase
           .from("submissions")
-          .select("accidents, drivable, exterior_damage, interior_damage, mechanical_issues, engine_issues, tech_issues, smoked_in, tires_replaced, num_keys, windshield_damage, modifications, drivetrain, bb_msrp, bb_class_name, bb_drivetrain, bb_transmission, bb_fuel_type, bb_engine, bb_mileage_adj, bb_regional_adj, bb_base_whole_avg, bb_retail_avg")
+          .select("accidents, drivable, exterior_damage, interior_damage, mechanical_issues, engine_issues, tech_issues, smoked_in, tires_replaced, num_keys, windshield_damage, modifications, drivetrain, bb_msrp, bb_class_name, bb_drivetrain, bb_transmission, bb_fuel_type, bb_engine, bb_mileage_adj, bb_regional_adj, bb_base_whole_avg, bb_retail_avg, bb_wholesale_avg, bb_tradein_avg")
           .eq("token", token)
           .maybeSingle(),
         resolveEffectiveSettings("default"),
