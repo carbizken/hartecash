@@ -194,6 +194,11 @@ const OfferPage = () => {
             bb_tradein_avg: v.tradein?.avg ?? null,
             bb_wholesale_avg: v.wholesale?.avg ?? null,
             bb_retail_avg: v.retail?.avg ?? null,
+            bb_value_tiers: {
+              wholesale: v.wholesale,
+              tradein: v.tradein,
+              retail: v.retail,
+            },
           };
           // Update condition + submission with fresh BB data
           newCondition.bb_tradein_avg = v.tradein?.avg ?? null;
@@ -201,6 +206,7 @@ const OfferPage = () => {
           newCondition.bb_retail_avg = v.retail?.avg ?? null;
           newCondition.bb_mileage_adj = v.mileage_adj ?? null;
           newCondition.bb_base_whole_avg = v.base_whole_avg ?? null;
+          (newCondition as any).bb_value_tiers = freshBBValues.bb_value_tiers;
           setCondition({ ...newCondition });
 
           newSubmission.bb_tradein_avg = v.tradein?.avg ?? null;
