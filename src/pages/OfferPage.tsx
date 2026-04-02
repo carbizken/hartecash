@@ -650,7 +650,7 @@ const OfferPage = () => {
                     className="text-sm font-medium capitalize"
                   />
                 ) : (
-                  <p className="text-sm font-medium capitalize">{s.overall_condition}</p>
+                  <p className="text-sm font-medium capitalize">{CONDITION_OPTIONS.find(o => o.value === s.overall_condition)?.label || s.overall_condition?.replace(/_/g, " ")}</p>
                 )}
               </div>
             </div>
