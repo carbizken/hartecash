@@ -52,6 +52,7 @@ interface OfferSubmission {
   bb_regional_adj: number | null;
   bb_base_whole_avg: number | null;
   bb_retail_avg: number | null;
+  bb_wholesale_avg: number | null;
 }
 
 interface ConditionDetails {
@@ -79,6 +80,8 @@ interface ConditionDetails {
   bb_regional_adj: number | null;
   bb_base_whole_avg: number | null;
   bb_retail_avg: number | null;
+  bb_wholesale_avg: number | null;
+  bb_tradein_avg: number | null;
 }
 
 const CONDITION_OPTIONS = [
@@ -132,7 +135,7 @@ const OfferPage = () => {
       const [condRes, pricingRes, apptRes, locRes] = await Promise.all([
         supabase
           .from("submissions")
-          .select("accidents, drivable, exterior_damage, interior_damage, mechanical_issues, engine_issues, tech_issues, smoked_in, tires_replaced, num_keys, windshield_damage, modifications, drivetrain, bb_msrp, bb_class_name, bb_drivetrain, bb_transmission, bb_fuel_type, bb_engine, bb_mileage_adj, bb_regional_adj, bb_base_whole_avg, bb_retail_avg")
+          .select("accidents, drivable, exterior_damage, interior_damage, mechanical_issues, engine_issues, tech_issues, smoked_in, tires_replaced, num_keys, windshield_damage, modifications, drivetrain, bb_msrp, bb_class_name, bb_drivetrain, bb_transmission, bb_fuel_type, bb_engine, bb_mileage_adj, bb_regional_adj, bb_base_whole_avg, bb_retail_avg, bb_wholesale_avg, bb_tradein_avg")
           .eq("token", token)
           .maybeSingle(),
         resolveEffectiveSettings("default"),
@@ -192,11 +195,17 @@ const OfferPage = () => {
         drivable: field === "drivable" ? (value as string) : newCondition.drivable,
       };
 
+      const bbVals = {
+        bb_tradein_avg: newCondition.bb_tradein_avg ?? submission.bb_tradein_avg,
+        bb_wholesale_avg: newCondition.bb_wholesale_avg ?? submission.bb_wholesale_avg,
+        bb_retail_avg: newCondition.bb_retail_avg ?? submission.bb_retail_avg,
+      };
       const newEstimate = recalculateFromSubmission(
-        submission.bb_tradein_avg,
+        bbVals.bb_tradein_avg || 0,
         subCond,
         offerSettings,
-        offerRules
+        offerRules,
+        bbVals
       );
 
       if (newEstimate) {

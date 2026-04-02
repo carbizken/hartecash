@@ -1,8 +1,8 @@
 /**
  * Recalculate offer from submission data without needing full BBVehicle.
- * Uses bb_tradein_avg as the base value and applies condition/deduction logic.
+ * Uses condition_basis_map to resolve the correct BB base value per condition tier.
  */
-import type { OfferSettings, OfferRule, ConditionMultipliers, OfferEstimate } from "./offerCalculator";
+import type { OfferSettings, OfferRule, ConditionMultipliers, ConditionBasisMap, OfferEstimate } from "./offerCalculator";
 
 export interface SubmissionCondition {
   overall_condition: string | null;
@@ -48,13 +48,32 @@ const DEFAULT_DEDUCTION_AMOUNTS = {
   missing_keys_0: 400,
 };
 
+/** Optional BB values stored on submission for condition_basis_map resolution */
+export interface SubmissionBBValues {
+  bb_tradein_avg?: number | null;
+  bb_wholesale_avg?: number | null;
+  bb_retail_avg?: number | null;
+}
+
+/** Resolve base value from stored BB data using condition_basis_map */
+function resolveBaseValue(bbValues: SubmissionBBValues, basis: string): number {
+  // Map basis keys to the available stored values
+  // We only have avg-tier values stored; use the closest match
+  if (basis.startsWith("wholesale")) return bbValues.bb_wholesale_avg || 0;
+  if (basis.startsWith("retail")) return bbValues.bb_retail_avg || 0;
+  // Default to trade-in for any tradein_* basis
+  return bbValues.bb_tradein_avg || 0;
+}
+
 export function recalculateFromSubmission(
   bbTradeinAvg: number,
   condition: SubmissionCondition,
   settings?: OfferSettings | null,
-  rules?: OfferRule[] | null
+  rules?: OfferRule[] | null,
+  bbValues?: SubmissionBBValues
 ): OfferEstimate | null {
-  if (bbTradeinAvg <= 0) return null;
+  const allBB: SubmissionBBValues = bbValues || { bb_tradein_avg: bbTradeinAvg };
+  if ((allBB.bb_tradein_avg || 0) <= 0 && (allBB.bb_wholesale_avg || 0) <= 0 && (allBB.bb_retail_avg || 0) <= 0) return null;
 
   const cfg = settings || {
     bb_value_basis: "tradein_avg",
@@ -67,29 +86,38 @@ export function recalculateFromSubmission(
     },
     deduction_amounts: DEFAULT_DEDUCTION_AMOUNTS,
     condition_multipliers: DEFAULT_CONDITION_MULTIPLIERS,
+    condition_basis_map: { excellent: "retail_xclean", very_good: "tradein_clean", good: "tradein_avg", fair: "wholesale_rough" } as ConditionBasisMap,
     condition_equipment_map: { excellent: true, very_good: true, good: true, fair: true },
     recon_cost: 0,
     offer_floor: 500,
     offer_ceiling: null,
     age_tiers: [],
     mileage_tiers: [],
+    regional_adjustment_pct: 0,
   };
 
   const ded = cfg.deductions_config;
   const amt = cfg.deduction_amounts || DEFAULT_DEDUCTION_AMOUNTS;
   const condMults = cfg.condition_multipliers || DEFAULT_CONDITION_MULTIPLIERS;
 
-  // 1. Base value × condition multiplier
-  const condMult = condMults[(condition.overall_condition || "good") as keyof ConditionMultipliers] ?? 1.0;
-  let adjusted = bbTradeinAvg * condMult;
+  // 1. Resolve base value via condition_basis_map (matches primary calculator logic)
+  const condKey = (condition.overall_condition || "good") as keyof ConditionBasisMap;
+  const condBasisMap = cfg.condition_basis_map || { excellent: "retail_xclean", very_good: "tradein_clean", good: "tradein_avg", fair: "wholesale_rough" };
+  const effectiveBasis = condBasisMap[condKey] || cfg.bb_value_basis;
+  const baseValue = resolveBaseValue(allBB, effectiveBasis);
+  if (baseValue <= 0) return null;
 
-  // 2. Deductions
+  const condMult = condMults[condKey] ?? 1.0;
+  let adjusted = baseValue * condMult;
+
+  // 2. Deductions (normalize form labels for matching)
   let deductions = 0;
 
+  const accidentsLower = (condition.accidents || "").toLowerCase();
   if (ded.accidents) {
-    if (condition.accidents === "1") deductions += amt.accidents_1;
-    else if (condition.accidents === "2") deductions += amt.accidents_2;
-    else if (condition.accidents === "3+") deductions += amt.accidents_3plus;
+    if (accidentsLower === "1" || accidentsLower === "1 accident") deductions += amt.accidents_1;
+    else if (accidentsLower === "2" || accidentsLower === "2 accidents" || accidentsLower === "2+ accidents") deductions += amt.accidents_2;
+    else if (accidentsLower === "3+" || accidentsLower === "3+ accidents") deductions += amt.accidents_3plus;
   }
   if (ded.exterior_damage) {
     deductions += (condition.exterior_damage || []).filter(d => d !== "none").length * amt.exterior_damage_per_item;
@@ -97,9 +125,10 @@ export function recalculateFromSubmission(
   if (ded.interior_damage) {
     deductions += (condition.interior_damage || []).filter(d => d !== "none").length * amt.interior_damage_per_item;
   }
+  const windshieldLower = (condition.windshield_damage || "").toLowerCase();
   if (ded.windshield_damage) {
-    if (condition.windshield_damage === "cracked") deductions += amt.windshield_cracked;
-    else if (condition.windshield_damage === "chipped") deductions += amt.windshield_chipped;
+    if (windshieldLower === "cracked" || windshieldLower.includes("major crack")) deductions += amt.windshield_cracked;
+    else if (windshieldLower === "chipped" || windshieldLower.includes("minor chip")) deductions += amt.windshield_chipped;
   }
   if (ded.engine_issues) {
     deductions += (condition.engine_issues || []).filter(d => d !== "none").length * amt.engine_issue_per_item;
@@ -110,9 +139,12 @@ export function recalculateFromSubmission(
   if (ded.tech_issues) {
     deductions += (condition.tech_issues || []).filter(d => d !== "none").length * amt.tech_issue_per_item;
   }
-  if (ded.not_drivable && condition.drivable === "no") deductions += amt.not_drivable;
-  if (ded.smoked_in && condition.smoked_in === "yes") deductions += amt.smoked_in;
-  if (ded.tires_not_replaced && (!condition.tires_replaced || condition.tires_replaced.toLowerCase() === "no" || condition.tires_replaced.toLowerCase() === "none" || condition.tires_replaced === "0")) deductions += amt.tires_not_replaced;
+  const drivableLower = (condition.drivable || "").toLowerCase();
+  if (ded.not_drivable && (drivableLower === "no" || drivableLower === "not drivable")) deductions += amt.not_drivable;
+  const smokedLower = (condition.smoked_in || "").toLowerCase();
+  if (ded.smoked_in && (smokedLower === "yes" || smokedLower === "smoked in")) deductions += amt.smoked_in;
+  const tiresLower = (condition.tires_replaced || "").toLowerCase();
+  if (ded.tires_not_replaced && (!condition.tires_replaced || tiresLower === "no" || tiresLower === "none" || tiresLower === "0")) deductions += amt.tires_not_replaced;
   if (ded.missing_keys) {
     if (condition.num_keys === "1") deductions += amt.missing_keys_1;
     else if (condition.num_keys === "0") deductions += amt.missing_keys_0;
@@ -125,6 +157,12 @@ export function recalculateFromSubmission(
   // 4. Global adjustment
   if (cfg.global_adjustment_pct !== 0) {
     high = Math.round(high * (1 + cfg.global_adjustment_pct / 100));
+  }
+
+  // 4b. Regional adjustment
+  const regionalPct = cfg.regional_adjustment_pct || 0;
+  if (regionalPct !== 0) {
+    high = Math.round(high * (1 + regionalPct / 100));
   }
 
   // 5. Age tiers
@@ -190,5 +228,5 @@ export function recalculateFromSubmission(
 
   const low = Math.max(Math.round(high * 0.90), floor);
 
-  return { low, high, baseValue: Math.round(bbTradeinAvg), totalDeductions: Math.round(deductions), reconCost: Math.round(reconCost), matchedRuleIds, isHotLead };
+  return { low, high, baseValue: Math.round(baseValue), totalDeductions: Math.round(deductions), reconCost: Math.round(reconCost), matchedRuleIds, isHotLead };
 }
