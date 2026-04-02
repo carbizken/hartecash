@@ -3,6 +3,7 @@
  * Uses condition_basis_map to resolve the correct BB base value per condition tier.
  */
 import type { OfferSettings, OfferRule, ConditionMultipliers, ConditionBasisMap, OfferEstimate } from "./offerCalculator";
+import { DEFAULT_LOW_MILEAGE_BONUS, calcLowMileageBonusPct } from "./offerCalculator";
 
 export interface SubmissionCondition {
   overall_condition: string | null;
@@ -94,6 +95,7 @@ export function recalculateFromSubmission(
     age_tiers: [],
     mileage_tiers: [],
     regional_adjustment_pct: 0,
+    low_mileage_bonus: DEFAULT_LOW_MILEAGE_BONUS,
   };
 
   const ded = cfg.deductions_config;
@@ -187,6 +189,13 @@ export function recalculateFromSubmission(
         break;
       }
     }
+  }
+
+  // 6b. Low-mileage bonus
+  const lmb = cfg.low_mileage_bonus || DEFAULT_LOW_MILEAGE_BONUS;
+  const lmBonusPct = calcLowMileageBonusPct(condition.vehicle_year || undefined, mileage, lmb);
+  if (lmBonusPct > 0) {
+    high = Math.round(high * (1 + lmBonusPct / 100));
   }
 
   // 7. Rules

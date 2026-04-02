@@ -141,6 +141,7 @@ interface OfferSettingsRow {
   retail_search_radius: number;
   dealer_pack: number;
   hide_pack_from_appraisal: boolean;
+  low_mileage_bonus: { enabled: boolean; avg_miles_per_year: number; bonus_pct_per_step: number; step_size_pct: number; max_bonus_pct: number; min_miles_per_year: number };
 }
 
 interface OfferRule {
@@ -284,6 +285,7 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
         retail_search_radius: d.retail_search_radius ?? 100,
         dealer_pack: d.dealer_pack ?? 0,
         hide_pack_from_appraisal: d.hide_pack_from_appraisal ?? false,
+        low_mileage_bonus: d.low_mileage_bonus || { enabled: false, avg_miles_per_year: 12000, bonus_pct_per_step: 2, step_size_pct: 20, max_bonus_pct: 8, min_miles_per_year: 4000 },
       } as OfferSettingsRow);
       setSavedSettings({
         ...d,
@@ -299,6 +301,7 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
         retail_search_radius: d.retail_search_radius ?? 100,
         dealer_pack: d.dealer_pack ?? 0,
         hide_pack_from_appraisal: d.hide_pack_from_appraisal ?? false,
+        low_mileage_bonus: d.low_mileage_bonus || { enabled: false, avg_miles_per_year: 12000, bonus_pct_per_step: 2, step_size_pct: 20, max_bonus_pct: 8, min_miles_per_year: 4000 },
       } as OfferSettingsRow);
     }
     if (rulesRes.data) {
