@@ -151,13 +151,10 @@ const PortalOfferCard = ({
             >
               <div className="text-center mb-4">
                 <p className="text-xs text-muted-foreground mb-1">
-                  {isAccepted ? "Accepted Trade-In Total Value" : "Estimated Trade-In Total Value"}
+                  {isAccepted ? "Accepted Trade-In Total Value" : "Your Trade-In Total Value"}
                 </p>
-                <p className={`text-3xl md:text-4xl font-extrabold tracking-tight ${isAccepted ? "text-success" : "text-success"}`}>
-                  {isAccepted
-                    ? `$${tradeInValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                    : `$${tradeInValue.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
-                  }
+                <p className="text-3xl md:text-4xl font-extrabold tracking-tight text-success">
+                  ${tradeInValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1 flex items-center justify-center gap-1">
                   <TrendingUp className="w-3 h-3" />
@@ -170,10 +167,7 @@ const PortalOfferCard = ({
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Cash offer</span>
                   <span className="font-semibold">
-                    {isAccepted
-                      ? `$${cashOffer.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
-                      : `$${cashOffer.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
-                    }
+                    ${cashOffer.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -189,10 +183,7 @@ const PortalOfferCard = ({
                 <div className="border-t border-border pt-2 flex justify-between items-center">
                   <span className="font-bold text-card-foreground">Total trade-in value</span>
                   <span className="font-extrabold text-success">
-                    {isAccepted
-                      ? `$${tradeInValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
-                      : `$${tradeInValue.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
-                    }
+                    ${tradeInValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>
