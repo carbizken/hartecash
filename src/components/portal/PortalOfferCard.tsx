@@ -161,7 +161,7 @@ const PortalOfferCard = ({
                 <p className={`text-3xl md:text-4xl font-extrabold tracking-tight ${isAccepted ? "text-success" : "text-success"}`}>
                   {isAccepted
                     ? `$${tradeInValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                    : `$${tradeInValueLow.toLocaleString("en-US", { maximumFractionDigits: 0 })} – $${tradeInValue.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
+                    : `$${tradeInValue.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
                   }
                 </p>
                 <p className="text-xs text-muted-foreground mt-1 flex items-center justify-center gap-1">
