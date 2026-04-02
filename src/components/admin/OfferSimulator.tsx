@@ -901,6 +901,7 @@ const OfferSimulator = ({ settings, savedSettings, rules, inlineControls = true,
                     </CollapsibleContent>
                   </Collapsible>
 
+                  <Collapsible>
                     <CollapsibleTrigger asChild>
                       <button className="flex items-center justify-between w-full px-3 py-2 text-left hover:bg-muted/30 transition-colors rounded-lg border border-border">
                         <div className="flex items-center gap-1.5">
