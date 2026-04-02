@@ -121,17 +121,14 @@ const PortalOfferCard = ({
               className="text-center"
             >
               <p className="text-xs text-muted-foreground mb-1">
-                {isAccepted ? "Accepted Cash Offer" : "Estimated Cash Offer"}
+                {isAccepted ? "Accepted Cash Offer" : "Your Cash Offer"}
               </p>
               <p className={`text-3xl md:text-4xl font-extrabold tracking-tight ${isAccepted ? "text-success" : "text-accent"}`}>
-                {isAccepted
-                  ? `$${cashOffer.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                  : `$${cashOffer.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
-                }
+                ${cashOffer.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
               {!isAccepted && (
                 <p className="text-xs text-muted-foreground mt-1">
-                  Preliminary estimate • Final offer after review
+                  Subject to in-person inspection
                 </p>
               )}
               {!isAccepted && taxRate > 0 && (
@@ -140,7 +137,7 @@ const PortalOfferCard = ({
                   className="mt-2 mx-auto flex items-center gap-1.5 text-xs font-medium text-success hover:text-success/80 transition-colors"
                 >
                   <TrendingUp className="w-3.5 h-3.5" />
-                  Worth ${tradeInValue.toLocaleString("en-US", { maximumFractionDigits: 0 })} as a trade-in
+                  Worth ${tradeInValue.toLocaleString("en-US", { minimumFractionDigits: 2 })} as a trade-in
                 </button>
               )}
             </motion.div>
