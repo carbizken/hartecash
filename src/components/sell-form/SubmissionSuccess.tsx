@@ -41,7 +41,7 @@ const SubmissionSuccess = ({ uploadUrl, vehicleInfo, nextStep, offerEstimate }: 
         <div className="flex items-center justify-center gap-2 mb-1">
           <DollarSign className="w-5 h-5 text-success" />
           <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-            Your Estimated Offer
+            Your Cash Offer
           </span>
         </div>
         <div className="text-center">
@@ -50,8 +50,8 @@ const SubmissionSuccess = ({ uploadUrl, vehicleInfo, nextStep, offerEstimate }: 
           </span>
         </div>
         <p className="text-xs text-muted-foreground text-center mt-3 leading-relaxed">
-          This is a preliminary estimate based on market data and the condition you reported.
-          Your final guaranteed offer will be confirmed after a quick review.
+          This offer is based on the condition you reported and current market data.
+          Subject to in-person inspection.
         </p>
       </motion.div>
     );

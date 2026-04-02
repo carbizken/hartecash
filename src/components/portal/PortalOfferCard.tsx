@@ -51,15 +51,13 @@ const PortalOfferCard = ({
 
   const isAccepted = isAcceptedOverride || !!offeredPrice;
   const cashOffer = offeredPrice || estimatedOfferHigh || 0;
-  const estimateLow = estimatedOfferLow || 0;
-  const isEstimate = !isAccepted && !!estimatedOfferHigh;
 
   const { state, rate: taxRate } = getTaxRateFromZip(zip || "");
   const stateName = state ? STATE_NAMES[state] || state : null;
   const taxPercent = (taxRate * 100).toFixed(2);
   const taxSavings = cashOffer * taxRate;
   const tradeInValue = calcTradeInValue(cashOffer, taxRate);
-  const tradeInValueLow = isEstimate ? calcTradeInValue(estimateLow, taxRate) : tradeInValue;
+  const tradeInValueLow = tradeInValue;
 
   const expiresDate = createdAt
     ? new Date(new Date(createdAt).getTime() + guaranteeDays * 86_400_000)
@@ -123,17 +121,14 @@ const PortalOfferCard = ({
               className="text-center"
             >
               <p className="text-xs text-muted-foreground mb-1">
-                {isAccepted ? "Accepted Cash Offer" : "Estimated Cash Offer"}
+                {isAccepted ? "Accepted Cash Offer" : "Your Cash Offer"}
               </p>
               <p className={`text-3xl md:text-4xl font-extrabold tracking-tight ${isAccepted ? "text-success" : "text-accent"}`}>
-                {isAccepted
-                  ? `$${cashOffer.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                  : `$${cashOffer.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
-                }
+                ${cashOffer.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
               {!isAccepted && (
                 <p className="text-xs text-muted-foreground mt-1">
-                  Preliminary estimate • Final offer after review
+                  Subject to in-person inspection
                 </p>
               )}
               {!isAccepted && taxRate > 0 && (
@@ -142,7 +137,7 @@ const PortalOfferCard = ({
                   className="mt-2 mx-auto flex items-center gap-1.5 text-xs font-medium text-success hover:text-success/80 transition-colors"
                 >
                   <TrendingUp className="w-3.5 h-3.5" />
-                  Worth ${tradeInValue.toLocaleString("en-US", { maximumFractionDigits: 0 })} as a trade-in
+                  Worth ${tradeInValue.toLocaleString("en-US", { minimumFractionDigits: 2 })} as a trade-in
                 </button>
               )}
             </motion.div>
@@ -156,13 +151,10 @@ const PortalOfferCard = ({
             >
               <div className="text-center mb-4">
                 <p className="text-xs text-muted-foreground mb-1">
-                  {isAccepted ? "Accepted Trade-In Total Value" : "Estimated Trade-In Total Value"}
+                  {isAccepted ? "Accepted Trade-In Total Value" : "Your Trade-In Total Value"}
                 </p>
-                <p className={`text-3xl md:text-4xl font-extrabold tracking-tight ${isAccepted ? "text-success" : "text-success"}`}>
-                  {isAccepted
-                    ? `$${tradeInValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                    : `$${tradeInValue.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
-                  }
+                <p className="text-3xl md:text-4xl font-extrabold tracking-tight text-success">
+                  ${tradeInValue.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1 flex items-center justify-center gap-1">
                   <TrendingUp className="w-3 h-3" />
@@ -175,10 +167,7 @@ const PortalOfferCard = ({
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Cash offer</span>
                   <span className="font-semibold">
-                    {isAccepted
-                      ? `$${cashOffer.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
-                      : `$${cashOffer.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
-                    }
+                    ${cashOffer.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
@@ -194,10 +183,7 @@ const PortalOfferCard = ({
                 <div className="border-t border-border pt-2 flex justify-between items-center">
                   <span className="font-bold text-card-foreground">Total trade-in value</span>
                   <span className="font-extrabold text-success">
-                    {isAccepted
-                      ? `$${tradeInValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
-                      : `$${tradeInValue.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
-                    }
+                    ${tradeInValue.toLocaleString("en-US", { minimumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>
