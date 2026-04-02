@@ -476,7 +476,7 @@ const OfferPage = () => {
     </AnimatePresence>
   );
 
-  const TradeInBounce = activeTab === "sell" && taxRate > 0 && (
+  const TradeInBounce = activeTab === "sell" && (
     <motion.button
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}

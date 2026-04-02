@@ -134,7 +134,7 @@ const PortalOfferCard = ({
                   Subject to in-person inspection
                 </p>
               )}
-              {!isAccepted && taxRate > 0 && (
+              {!isAccepted && (
                 <button
                   onClick={() => setActiveTab("trade")}
                   className="mt-2 mx-auto flex items-center gap-1.5 text-xs font-medium text-success hover:text-success/80 transition-colors"
