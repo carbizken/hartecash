@@ -139,6 +139,9 @@ export interface Submission {
   acv_value: number | null;
   appraised_by: string | null;
   check_request_done: boolean;
+  appraisal_finalized: boolean;
+  appraisal_finalized_at: string | null;
+  appraisal_finalized_by: string | null;
   internal_notes: string | null;
   status_updated_by: string | null;
   status_updated_at: string | null;

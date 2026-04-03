@@ -17,7 +17,7 @@ import {
   ArrowLeft, Car, DollarSign, TrendingUp, TrendingDown, Minus, Target,
   Gauge, Wrench, ChevronDown, Save, AlertTriangle, CheckCircle, XCircle,
   Pencil, ArrowDown, Loader2, ClipboardCheck, BarChart3, ArrowRight,
-  Calendar, Plus, Trash2, Shield, SlidersHorizontal, CheckSquare, Zap,
+  Calendar, Plus, Trash2, Shield, SlidersHorizontal, CheckSquare, Zap, Lock, Unlock,
 } from "lucide-react";
 import ProfitSpreadGauge from "@/components/admin/ProfitSpreadGauge";
 import MarketContextPanel from "@/components/admin/MarketContextPanel";
@@ -57,6 +57,9 @@ interface Submission {
   appraised_by: string | null; zip: string | null;
   inspector_grade: string | null;
   bb_selected_options: string[] | null;
+  appraisal_finalized: boolean;
+  appraisal_finalized_at: string | null;
+  appraisal_finalized_by: string | null;
 }
 
 const CONDITIONS = ["excellent", "very_good", "good", "fair"] as const;
@@ -558,9 +561,13 @@ export default function AppraisalTool() {
     setLiveSelectedAddDeducts(prev => prev.includes(uoc) ? prev.filter(u => u !== uoc) : [...prev, uoc]);
   };
 
-  // Save Final Appraised Value
+   // Save Final Appraised Value
   const handleSave = async () => {
     if (!sub) return;
+    if (sub.appraisal_finalized) {
+      toast({ title: "Locked", description: "Appraisal is finalized. Unlock to make changes.", variant: "destructive" });
+      return;
+    }
     const saveVal = acvOverride != null && acvOverride > 0 ? acvOverride : finalValue;
     setSaving(true);
     const { error } = await supabase.from("submissions").update({ acv_value: saveVal }).eq("id", sub.id);
@@ -569,12 +576,49 @@ export default function AppraisalTool() {
     } else {
       setSub(prev => prev ? { ...prev, acv_value: saveVal } : prev);
       setAcvOverride(saveVal);
-      toast({ title: "Saved", description: `Final appraised value set to $${saveVal.toLocaleString()}` });
+      toast({ title: "Saved", description: `Appraisal value set to $${saveVal.toLocaleString()}` });
     }
     setSaving(false);
   };
 
-  // Parse inspection data
+  // Finalize / lock the appraisal
+  const handleFinalize = async () => {
+    if (!sub) return;
+    const saveVal = acvOverride != null && acvOverride > 0 ? acvOverride : finalValue;
+    setSaving(true);
+    const { error } = await supabase.from("submissions").update({
+      acv_value: saveVal,
+      appraisal_finalized: true,
+      appraisal_finalized_at: new Date().toISOString(),
+      appraisal_finalized_by: sub.appraised_by || "Staff",
+    } as any).eq("id", sub.id);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      setSub(prev => prev ? { ...prev, acv_value: saveVal, appraisal_finalized: true, appraisal_finalized_at: new Date().toISOString(), appraisal_finalized_by: sub.appraised_by || "Staff" } : prev);
+      setAcvOverride(saveVal);
+      toast({ title: "Appraisal Finalized", description: `Locked at $${saveVal.toLocaleString()}. Check request can now be generated.` });
+    }
+    setSaving(false);
+  };
+
+  // Unlock appraisal
+  const handleUnlockAppraisal = async () => {
+    if (!sub) return;
+    setSaving(true);
+    const { error } = await supabase.from("submissions").update({
+      appraisal_finalized: false,
+      appraisal_finalized_at: null,
+      appraisal_finalized_by: null,
+    } as any).eq("id", sub.id);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      setSub(prev => prev ? { ...prev, appraisal_finalized: false, appraisal_finalized_at: null, appraisal_finalized_by: null } : prev);
+      toast({ title: "Unlocked", description: "Appraisal unlocked for editing." });
+    }
+    setSaving(false);
+  };
   const inspectionData = useMemo(() => {
     if (!sub?.internal_notes) return null;
     if (!sub.internal_notes.includes("[INSPECTION")) return null;
@@ -1397,28 +1441,57 @@ export default function AppraisalTool() {
               </Collapsible>
             )}
 
-            {/* Manual ACV Override */}
-            <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
-              <div className="flex items-center gap-1.5 mb-3">
-                <DollarSign className="w-4 h-4 text-primary" />
-                <span className="text-[11px] font-bold text-card-foreground uppercase tracking-wider">Final Appraised Value</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="relative flex-1">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg font-bold text-muted-foreground">$</span>
-                  <Input
-                    type="text" inputMode="numeric"
-                    value={acvOverride != null ? acvOverride.toLocaleString("en-US") : ""}
-                    onChange={e => { const raw = e.target.value.replace(/[^0-9]/g, ""); setAcvOverride(raw ? Number(raw) : null); }}
-                    placeholder="Enter final appraised value" className="h-10 text-lg font-bold pl-8"
-                  />
+            {/* Final Appraised Value + Finalize */}
+            <div className={`rounded-xl border-2 p-4 ${sub.appraisal_finalized ? "border-emerald-500/50 bg-emerald-500/5" : "border-primary/30 bg-primary/5"}`}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-1.5">
+                  <DollarSign className="w-4 h-4 text-primary" />
+                  <span className="text-[11px] font-bold text-card-foreground uppercase tracking-wider">Final Appraised Value</span>
                 </div>
-                <Button onClick={handleSave} disabled={saving} size="lg">
-                  {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
-                  Save
-                </Button>
+                {sub.appraisal_finalized && (
+                  <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/30 text-[10px]">
+                    <Lock className="w-3 h-3 mr-1" /> Finalized
+                  </Badge>
+                )}
               </div>
-              {sub.appraised_by && <p className="text-[10px] text-muted-foreground mt-1">Last appraised by: {sub.appraised_by}</p>}
+              
+              {sub.appraisal_finalized ? (
+                <div>
+                  <div className="text-2xl font-black text-primary mb-2">${finalValue.toLocaleString()}</div>
+                  {sub.appraisal_finalized_by && (
+                    <p className="text-[10px] text-muted-foreground">
+                      Finalized by {sub.appraisal_finalized_by} on {sub.appraisal_finalized_at ? new Date(sub.appraisal_finalized_at).toLocaleDateString() : "—"}
+                    </p>
+                  )}
+                  <Button onClick={handleUnlockAppraisal} disabled={saving} variant="outline" size="sm" className="mt-3">
+                    <Unlock className="w-3.5 h-3.5 mr-1" /> Unlock Appraisal
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="relative flex-1">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg font-bold text-muted-foreground">$</span>
+                      <Input
+                        type="text" inputMode="numeric"
+                        value={acvOverride != null ? acvOverride.toLocaleString("en-US") : ""}
+                        onChange={e => { const raw = e.target.value.replace(/[^0-9]/g, ""); setAcvOverride(raw ? Number(raw) : null); }}
+                        placeholder="Enter final appraised value" className="h-10 text-lg font-bold pl-8"
+                      />
+                    </div>
+                    <Button onClick={handleSave} disabled={saving} size="lg">
+                      {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
+                      Save
+                    </Button>
+                  </div>
+                  <Button onClick={handleFinalize} disabled={saving || (acvOverride == null && finalValue <= 0)} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+                    {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Lock className="w-4 h-4 mr-1.5" />}
+                    Finalize Appraisal
+                  </Button>
+                  <p className="text-[10px] text-muted-foreground mt-2">Finalizing locks the appraisal and enables check request generation.</p>
+                </>
+              )}
+              {!sub.appraisal_finalized && sub.appraised_by && <p className="text-[10px] text-muted-foreground mt-1">Last appraised by: {sub.appraised_by}</p>}
             </div>
           </div>
 
