@@ -489,9 +489,9 @@ export function calculateOffer(
     else if (formData.numKeys === "0") deductions += amt.missing_keys_0;
   }
 
-  // ── STEP 6: Subtract deductions and recon cost ──
+  // ── STEP 6: Subtract customer deductions (recon/pack are internal cost refs, NOT subtracted from offer) ──
   const reconCost = cfg.recon_cost || 0;
-  let high = Math.round(adjusted - deductions - reconCost);
+  let high = Math.round(adjusted - deductions);
 
   // ── STEP 7: Apply matching rules ──
   const vehicleYear = bbVehicle.year;

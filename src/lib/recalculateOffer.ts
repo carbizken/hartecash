@@ -254,9 +254,9 @@ export function recalculateFromSubmission(
     else if (condition.num_keys === "0") deductions += amt.missing_keys_0;
   }
 
-  // ── STEP 5: Subtract deductions + recon ──
+  // ── STEP 5: Subtract customer deductions (recon/pack are internal cost refs, NOT subtracted from offer) ──
   const reconCost = cfg.recon_cost || 0;
-  let high = Math.round(adjusted - deductions - reconCost);
+  let high = Math.round(adjusted - deductions);
 
   // ── STEP 6: Rules ──
   const activeRules = (rules || []).filter(r => r.is_active);
