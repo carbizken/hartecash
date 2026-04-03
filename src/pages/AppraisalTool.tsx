@@ -740,7 +740,7 @@ export default function AppraisalTool() {
               { label: "Appraisal Value", value: `$${Math.floor(finalValue).toLocaleString()}`, color: "text-primary", bg: "bg-primary/5 border-primary/25 shadow-sm shadow-primary/5", sub: sub?.appraisal_finalized ? `Finalized ${sub.appraisal_finalized_at ? new Date(sub.appraisal_finalized_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : ""}` : lastSavedAt ? `Updated ${lastSavedAt.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}` : null },
             ];
             if (hidePackFromAppraisal) {
-              metrics.push({ label: "Reconditioning", value: `$${Math.floor(reconCost + effectivePack).toLocaleString()}`, color: "text-destructive", bg: "bg-card border-border/60 shadow-sm", sub: null });
+              metrics.push({ label: "Recon Cost", value: `$${Math.floor(reconCost + effectivePack).toLocaleString()}`, color: "text-destructive", bg: "bg-card border-border/60 shadow-sm", sub: null });
             } else {
               metrics.push({ label: "Recon Cost", value: `$${Math.floor(reconCost).toLocaleString()}`, color: "text-destructive", bg: "bg-card border-border/60 shadow-sm", sub: null });
               metrics.push({ label: "Dealer Pack", value: `$${Math.floor(effectivePack).toLocaleString()}`, color: "text-destructive", bg: "bg-card border-border/60 shadow-sm", sub: null });
