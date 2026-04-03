@@ -619,13 +619,6 @@ const SubmissionDetailSheet = ({
                   </Button>
                 </div>
               )}
-              {sub.progress_status === "inspection_completed" && !canSetPrice && sub.acv_value && (
-                <div className="mt-3">
-                  <label className="text-xs font-medium text-muted-foreground mb-1 block">In-House ACV</label>
-                  <p className="text-card-foreground font-medium">${Number(sub.acv_value).toLocaleString()}</p>
-                  {sub.appraised_by && <p className="text-xs text-muted-foreground">Appraised by: {sub.appraised_by}</p>}
-                </div>
-              )}
             </SectionCard>
 
             {/* Offered Price */}
