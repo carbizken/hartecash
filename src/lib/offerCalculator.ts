@@ -347,20 +347,20 @@ export function calculateOffer(
   const ded = cfg.deductions_config || DEFAULT_DEDUCTIONS;
   const amt = cfg.deduction_amounts || DEFAULT_DEDUCTION_AMOUNTS;
   const condMults = cfg.condition_multipliers || DEFAULT_CONDITION_MULTIPLIERS;
-
   const condBasisMap = cfg.condition_basis_map || DEFAULT_CONDITION_BASIS_MAP;
+  const modes = cfg.deduction_modes || DEFAULT_DEDUCTION_MODES;
 
-  // 1. Get base value from condition-mapped BB source (or fallback to single basis)
+  // ── STEP 1: Base value from condition-mapped BB tier ──
   const conditionKey = formData.overallCondition as keyof ConditionBasisMap;
   const effectiveBasis = condBasisMap[conditionKey] || cfg.bb_value_basis;
   const baseValue = getBBValue(bbVehicle, effectiveBasis);
   if (baseValue <= 0) return null;
 
-  // 2. Condition multiplier (now configurable)
+  // ── STEP 2: Condition multiplier ──
   const condMult = condMults[formData.overallCondition as keyof ConditionMultipliers] ?? 1.0;
   let adjusted = baseValue * condMult;
 
-  // 3. Apply selected add/deduct adjustments from BB equipment list (if enabled for this condition)
+  // ── STEP 3: Equipment add/deducts (if enabled for this condition) ──
   const condEquipMap = cfg.condition_equipment_map || DEFAULT_CONDITION_EQUIPMENT_MAP;
   const includeEquipment = condEquipMap[formData.overallCondition as keyof ConditionEquipmentMap] ?? true;
   if (includeEquipment) {
@@ -371,15 +371,77 @@ export function calculateOffer(
     }
   }
 
-  // 4. Condition-based deductions (configurable amounts + deduction modes)
-  let deductions = 0;
-  const modes = cfg.deduction_modes || DEFAULT_DEDUCTION_MODES;
+  // ── STEP 4: Dealer modifiers (applied to adjusted base BEFORE deductions) ──
 
-  // Normalize form values for comparison
+  // 4a. Global adjustment %
+  if (cfg.global_adjustment_pct !== 0) {
+    adjusted = Math.round(adjusted * (1 + cfg.global_adjustment_pct / 100));
+  }
+
+  // 4b. Regional adjustment %
+  const regionalPct = cfg.regional_adjustment_pct || 0;
+  if (regionalPct !== 0) {
+    adjusted = Math.round(adjusted * (1 + regionalPct / 100));
+  }
+
+  // 4c. Seasonal adjustment %
+  const seasonal = cfg.seasonal_adjustment || DEFAULT_SEASONAL_ADJUSTMENT;
+  if (seasonal.enabled && seasonal.adjustment_pct !== 0) {
+    adjusted = Math.round(adjusted * (1 + seasonal.adjustment_pct / 100));
+  }
+
+  // 4d. Color desirability adjustment %
+  const colorConfig = cfg.color_desirability || DEFAULT_COLOR_DESIRABILITY;
+  const colorPct = calcColorAdjustmentPct(formData.exteriorColor, colorConfig);
+  if (colorPct !== 0) {
+    adjusted = Math.round(adjusted * (1 + colorPct / 100));
+  }
+
+  // 4e. Age-based tier adjustments
+  const ageTiers = cfg.age_tiers || [];
+  if (ageTiers.length > 0 && bbVehicle.year) {
+    const currentYear = new Date().getFullYear();
+    const vehicleAge = currentYear - Number(bbVehicle.year);
+    for (const tier of ageTiers) {
+      if (vehicleAge >= tier.min_years && vehicleAge <= tier.max_years) {
+        adjusted = Math.round(adjusted * (1 + tier.adjustment_pct / 100));
+        break;
+      }
+    }
+  }
+
+  // 4f. Mileage-based tier adjustments (flat dollar)
+  const mileage = parseInt(formData.mileage.replace(/[^0-9]/g, "")) || 0;
+  const mileageTiers = cfg.mileage_tiers || [];
+  if (mileageTiers.length > 0) {
+    for (const tier of mileageTiers) {
+      if (mileage >= tier.min_miles && mileage <= tier.max_miles) {
+        adjusted = Math.round(adjusted + tier.adjustment_flat);
+        break;
+      }
+    }
+  }
+
+  // 4g. Low-mileage bonus
+  const lmb = cfg.low_mileage_bonus || DEFAULT_LOW_MILEAGE_BONUS;
+  const lmBonusPct = calcLowMileageBonusPct(bbVehicle.year, mileage, lmb);
+  if (lmBonusPct > 0) {
+    adjusted = Math.round(adjusted * (1 + lmBonusPct / 100));
+  }
+
+  // 4h. High-mileage penalty
+  const hmp = cfg.high_mileage_penalty || DEFAULT_HIGH_MILEAGE_PENALTY;
+  const hmPenaltyPct = calcHighMileagePenaltyPct(bbVehicle.year, mileage, hmp);
+  if (hmPenaltyPct > 0) {
+    adjusted = Math.round(adjusted * (1 - hmPenaltyPct / 100));
+  }
+
+  // ── STEP 5: Customer condition deductions ──
+  let deductions = 0;
+
   const accidentsLower = (formData.accidents || "").toLowerCase();
   if (ded.accidents) {
     if (modes.accidents === "pct") {
-      // Percentage of base value
       if (accidentsLower === "1" || accidentsLower === "1 accident") deductions += Math.round(baseValue * (amt.accidents_1 / 100));
       else if (accidentsLower === "2" || accidentsLower === "2 accidents" || accidentsLower === "2+ accidents") deductions += Math.round(baseValue * (amt.accidents_2 / 100));
       else if (accidentsLower === "3+" || accidentsLower === "3+ accidents") deductions += Math.round(baseValue * (amt.accidents_3plus / 100));
@@ -399,6 +461,7 @@ export function calculateOffer(
   if (ded.windshield_damage) {
     if (windshieldLower === "cracked" || windshieldLower.includes("major crack")) deductions += amt.windshield_cracked;
     else if (windshieldLower === "chipped" || windshieldLower.includes("minor chip")) deductions += amt.windshield_chipped;
+    else if (windshieldLower === "chipped_and_cracked" || windshieldLower.includes("chipped & cracked")) deductions += amt.windshield_cracked + amt.windshield_chipped;
   }
   if (ded.engine_issues) {
     deductions += formData.engineIssues.filter((d) => d !== "none").length * amt.engine_issue_per_item;
@@ -426,74 +489,11 @@ export function calculateOffer(
     else if (formData.numKeys === "0") deductions += amt.missing_keys_0;
   }
 
-  // 5. Subtract deductions and recon cost
+  // ── STEP 6: Subtract deductions and recon cost ──
   const reconCost = cfg.recon_cost || 0;
   let high = Math.round(adjusted - deductions - reconCost);
 
-  // 6. Apply global adjustment %
-  if (cfg.global_adjustment_pct !== 0) {
-    high = Math.round(high * (1 + cfg.global_adjustment_pct / 100));
-  }
-
-  // 6b. Apply regional adjustment %
-  const regionalPct = cfg.regional_adjustment_pct || 0;
-  if (regionalPct !== 0) {
-    high = Math.round(high * (1 + regionalPct / 100));
-  }
-
-  // 6c. Apply seasonal adjustment %
-  const seasonal = cfg.seasonal_adjustment || DEFAULT_SEASONAL_ADJUSTMENT;
-  if (seasonal.enabled && seasonal.adjustment_pct !== 0) {
-    high = Math.round(high * (1 + seasonal.adjustment_pct / 100));
-  }
-
-  // 6d. Apply color desirability adjustment %
-  const colorConfig = cfg.color_desirability || DEFAULT_COLOR_DESIRABILITY;
-  const colorPct = calcColorAdjustmentPct(formData.exteriorColor, colorConfig);
-  if (colorPct !== 0) {
-    high = Math.round(high * (1 + colorPct / 100));
-  }
-
-  // 7. Apply age-based tier adjustments
-  const ageTiers = cfg.age_tiers || [];
-  if (ageTiers.length > 0 && bbVehicle.year) {
-    const currentYear = new Date().getFullYear();
-    const vehicleAge = currentYear - Number(bbVehicle.year);
-    for (const tier of ageTiers) {
-      if (vehicleAge >= tier.min_years && vehicleAge <= tier.max_years) {
-        high = Math.round(high * (1 + tier.adjustment_pct / 100));
-        break;
-      }
-    }
-  }
-
-  // 7b. Apply mileage-based tier adjustments (flat dollar)
-  const mileage = parseInt(formData.mileage.replace(/[^0-9]/g, "")) || 0;
-  const mileageTiers = cfg.mileage_tiers || [];
-  if (mileageTiers.length > 0) {
-    for (const tier of mileageTiers) {
-      if (mileage >= tier.min_miles && mileage <= tier.max_miles) {
-        high = Math.round(high + tier.adjustment_flat);
-        break;
-      }
-    }
-  }
-
-  // 7c. Apply low-mileage bonus
-  const lmb = cfg.low_mileage_bonus || DEFAULT_LOW_MILEAGE_BONUS;
-  const lmBonusPct = calcLowMileageBonusPct(bbVehicle.year, mileage, lmb);
-  if (lmBonusPct > 0) {
-    high = Math.round(high * (1 + lmBonusPct / 100));
-  }
-
-  // 7d. Apply high-mileage penalty
-  const hmp = cfg.high_mileage_penalty || DEFAULT_HIGH_MILEAGE_PENALTY;
-  const hmPenaltyPct = calcHighMileagePenaltyPct(bbVehicle.year, mileage, hmp);
-  if (hmPenaltyPct > 0) {
-    high = Math.round(high * (1 - hmPenaltyPct / 100));
-  }
-
-  // 8. Apply matching rules
+  // ── STEP 7: Apply matching rules ──
   const vehicleYear = bbVehicle.year;
   const vehicleMake = bbVehicle.make;
   const vehicleModel = bbVehicle.model;
@@ -519,7 +519,7 @@ export function calculateOffer(
     }
   }
 
-  // 9. Apply floor & ceiling
+  // ── STEP 8: Floor & ceiling ──
   const floor = cfg.offer_floor || 500;
   high = Math.max(high, floor);
   if (cfg.offer_ceiling && cfg.offer_ceiling > 0) {
