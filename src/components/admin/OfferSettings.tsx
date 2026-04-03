@@ -185,6 +185,7 @@ const DEDUCTION_LABELS: Record<string, { label: string; amountKey: string | stri
   exterior_damage: { label: "Exterior Damage", amountKey: "exterior_damage_per_item" },
   interior_damage: { label: "Interior Damage", amountKey: "interior_damage_per_item" },
   windshield_damage: { label: "Windshield Damage", amountKey: ["windshield_cracked", "windshield_chipped"] },
+  moonroof_broken: { label: "Moonroof Not Working", amountKey: "moonroof_broken" },
   engine_issues: { label: "Engine Issues", amountKey: "engine_issue_per_item" },
   mechanical_issues: { label: "Mechanical Issues", amountKey: "mechanical_issue_per_item" },
   tech_issues: { label: "Technology Issues", amountKey: "tech_issue_per_item" },
