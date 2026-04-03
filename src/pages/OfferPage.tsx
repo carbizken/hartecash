@@ -118,6 +118,7 @@ const LOCKED_OFFER_STATUSES = new Set([
 
 const OfferPage = () => {
   const { token } = useParams<{ token: string }>();
+  const navigate = useNavigate();
   const [submission, setSubmission] = useState<OfferSubmission | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -131,6 +132,12 @@ const OfferPage = () => {
   const [appointment, setAppointment] = useState<{ preferred_date: string; preferred_time: string; store_location: string | null } | null>(null);
   const [dealerLocations, setDealerLocations] = useState<{ id: string; name: string; city: string; state: string; address: string | null }[]>([]);
   
+  // Contact info gate for offer-first flow
+  const [showContactGate, setShowContactGate] = useState(false);
+  const [contactForm, setContactForm] = useState({ name: "", email: "", phone: "", zip: "" });
+  const [contactSaving, setContactSaving] = useState(false);
+  const [contactErrors, setContactErrors] = useState<Record<string, string>>({});
+
   const { config } = useSiteConfig();
   const { toast } = useToast();
 
