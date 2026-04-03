@@ -1147,7 +1147,7 @@ export default function AppraisalTool() {
                 {/* Accidents */}
                 {isOn("accidents") && (
                   <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-muted/30">
-                    <span className="text-[10px] font-semibold text-muted-foreground w-32 shrink-0">Accidents</span>
+                    <span className="text-[10px] font-semibold text-muted-foreground w-24 sm:w-32 shrink-0">Accidents</span>
                     <Select value={accidents} onValueChange={setAccidents}>
                       <SelectTrigger className="h-6 text-[10px] w-36"><SelectValue /></SelectTrigger>
                       <SelectContent>
