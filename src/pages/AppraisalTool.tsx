@@ -783,7 +783,7 @@ export default function AppraisalTool() {
                 {metric.label === "__RETAIL__" ? (RETAIL_TIER_LABELS[retailProfitBasis] || "Retail Avg") : metric.label}
               </div>
               <div className={`text-lg font-black tracking-tight ${metric.color}`}>{metric.value}</div>
-              {metric.sub && <div className={`mt-0.5 ${metric.label === "Appraisal Value" && sub?.appraisal_finalized ? "text-[10px] font-bold text-emerald-600" : "text-[8px] text-muted-foreground"}`}>{metric.sub}</div>}
+              {metric.sub && <div className={`mt-0.5 ${metric.label === "Appraisal Value" && sub?.appraisal_finalized ? "text-[10px] font-bold text-emerald-600" : "text-[10px] font-bold text-muted-foreground"}`}>{metric.sub}</div>}
             </div>
           ))}
         </div>
