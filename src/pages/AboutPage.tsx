@@ -110,7 +110,7 @@ const AboutPage = () => {
               <p className="text-xs md:text-sm text-muted-foreground mt-1">Average Rating</p>
             </div>
             <div>
-              <p className="text-2xl md:text-3xl font-extrabold text-primary">
+              <p className="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary">
                 <AnimatedCounter target={parseInt((config.stats_reviews_count || "2400").replace(/\D/g, "")) || 2400} suffix="+" />
               </p>
               <p className="text-xs md:text-sm text-muted-foreground mt-1">Verified Reviews</p>

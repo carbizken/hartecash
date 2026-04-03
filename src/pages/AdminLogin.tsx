@@ -162,7 +162,36 @@ const AdminLogin = () => {
           </Button>
         </form>
 
-        <div className="mt-4 text-center">
+        {!isSignup && (
+          <div className="mt-3 text-center">
+            <button
+              type="button"
+              onClick={async () => {
+                if (!email) {
+                  setError("Enter your email above, then click Forgot Password.");
+                  return;
+                }
+                setLoading(true);
+                setError("");
+                const { error: resetErr } = await supabase.auth.resetPasswordForEmail(email, {
+                  redirectTo: window.location.origin + "/admin",
+                });
+                setLoading(false);
+                if (resetErr) {
+                  setError("Unable to send reset email. Please try again.");
+                } else {
+                  setError("");
+                  alert("Password reset email sent! Check your inbox.");
+                }
+              }}
+              className="text-sm text-muted-foreground hover:text-primary hover:underline transition-colors"
+            >
+              Forgot Password?
+            </button>
+          </div>
+        )}
+
+        <div className="mt-3 text-center">
           <p className="text-sm text-muted-foreground">
             {isSignup ? "Already have an account?" : "Need an account?"}{" "}
             <button

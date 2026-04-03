@@ -28,7 +28,7 @@ const CTABanner = () => {
         </div>
         <div>
           <button
-            onClick={scrollToTop}
+            onClick={scrollToForm}
             className="inline-block px-12 py-4 bg-card text-accent rounded-lg text-[17px] font-bold shadow-xl hover:-translate-y-0.5 transition-all"
           >
             Get My Free Offer

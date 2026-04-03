@@ -293,11 +293,9 @@ const ScheduleVisit = () => {
       />
       <div className="bg-primary text-primary-foreground px-6 py-4">
         <div className="max-w-lg mx-auto flex items-center gap-3">
-          {submissionToken && (
-            <Link to={`/my-submission/${submissionToken}`} className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-          )}
+          <Link to={submissionToken ? `/my-submission/${submissionToken}` : "/"} className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
           <img src={config.logo_white_url || harteLogo} alt={config.dealership_name} className="h-[70px] w-auto" />
           <h1 className="font-bold text-lg">Schedule a Visit</h1>
         </div>

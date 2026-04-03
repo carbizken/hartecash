@@ -52,6 +52,7 @@ const Index = () => {
         
       </main>
       <SiteFooter />
+      <BackToTop />
     </div>
   );
 };

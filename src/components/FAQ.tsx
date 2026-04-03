@@ -36,7 +36,7 @@ const FAQ = () => {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section className="py-16 px-5 bg-background">
+    <section id="faq" className="py-16 px-5 bg-background">
       <h2 className="font-display text-2xl md:text-[28px] lg:text-[34px] font-extrabold text-center mb-12 text-foreground tracking-[0.04em]">
         Frequently Asked Questions
       </h2>

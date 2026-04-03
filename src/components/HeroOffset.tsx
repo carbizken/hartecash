@@ -99,8 +99,10 @@ const HeroOffset = ({ side, leadSource, headlineOverride, subtextOverride }: Her
       </div>
 
       {/* Form card – immediately visible */}
-      <div className="px-4 pb-4">
-        <SellCarForm variant="split" leadSource={leadSource} />
+      <div id="sell-car-form" className="px-4 pb-4">
+        <div className="shadow-md rounded-2xl">
+          <SellCarForm variant="split" leadSource={leadSource} />
+        </div>
       </div>
 
       {/* Benefits below the form */}
