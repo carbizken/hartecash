@@ -92,25 +92,25 @@ const AboutPage = () => {
 
         {/* ── Stats Bar ── */}
         <section className="bg-card border-b border-border py-8 px-5" aria-label="Key statistics">
-          <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 text-center">
             <div>
-              <p className="text-2xl md:text-3xl font-extrabold text-primary">
+              <p className="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary">
                 <AnimatedCounter target={parseInt((config.stats_years_in_business || "74").replace(/\D/g, "")) || 74} suffix="+" />
               </p>
               <p className="text-xs md:text-sm text-muted-foreground mt-1">Years in Business</p>
             </div>
             <div>
-              <p className="text-2xl md:text-3xl font-extrabold text-primary">
+              <p className="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary">
                 <AnimatedCounter target={parseInt((config.stats_cars_purchased || "14721").replace(/\D/g, "")) || 14721} suffix="+" />
               </p>
               <p className="text-xs md:text-sm text-muted-foreground mt-1">Vehicles Purchased</p>
             </div>
             <div>
-              <p className="text-2xl md:text-3xl font-extrabold text-primary">{config.stats_rating || "4.9"}</p>
+              <p className="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary">{config.stats_rating || "4.9"}</p>
               <p className="text-xs md:text-sm text-muted-foreground mt-1">Average Rating</p>
             </div>
             <div>
-              <p className="text-2xl md:text-3xl font-extrabold text-primary">
+              <p className="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary">
                 <AnimatedCounter target={parseInt((config.stats_reviews_count || "2400").replace(/\D/g, "")) || 2400} suffix="+" />
               </p>
               <p className="text-xs md:text-sm text-muted-foreground mt-1">Verified Reviews</p>

@@ -74,6 +74,7 @@ const HeroOffset = ({ side, leadSource, headlineOverride, subtextOverride }: Her
 
   const desktopFormContent = (
     <motion.div
+      id="sell-car-form"
       className="hidden lg:block lg:w-[460px] lg:flex-shrink-0"
       initial={{ opacity: 0, x: side === "right" ? 40 : -40 }}
       animate={{ opacity: 1, x: 0 }}
@@ -99,8 +100,10 @@ const HeroOffset = ({ side, leadSource, headlineOverride, subtextOverride }: Her
       </div>
 
       {/* Form card – immediately visible */}
-      <div className="px-4 pb-4">
-        <SellCarForm variant="split" leadSource={leadSource} />
+      <div id="sell-car-form" className="px-4 pb-4">
+        <div className="shadow-md rounded-2xl">
+          <SellCarForm variant="split" leadSource={leadSource} />
+        </div>
       </div>
 
       {/* Benefits below the form */}

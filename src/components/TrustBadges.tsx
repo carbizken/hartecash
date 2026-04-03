@@ -19,7 +19,7 @@ const TrustBadges = () => {
   ];
 
   return (
-    <section className="py-10 px-5 bg-primary">
+    <section id="trust" className="py-10 px-5 bg-primary">
       <div className="max-w-[600px] lg:max-w-4xl mx-auto grid grid-cols-3 gap-4 text-center">
         {stats.map((s, i) => (
           <div key={i} className="text-primary-foreground">

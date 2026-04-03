@@ -57,14 +57,23 @@ const SiteFooter = () => {
             <div className="mt-4 pt-3 border-t border-white/10">
               <h5 className="text-xs font-bold uppercase tracking-wider opacity-50 mb-2">Our Locations</h5>
               <div className="text-xs opacity-50 leading-relaxed space-y-1">
-                {locations.map((loc) => (
-                  <div key={loc.id}>
-                    <p>{loc.name} — {loc.city}, {loc.state}</p>
-                    {loc.show_in_footer && loc.address && (
-                      <p className="opacity-70 ml-2">{loc.address}</p>
-                    )}
-                  </div>
-                ))}
+                 {locations.map((loc) => (
+                   <div key={loc.id}>
+                     {loc.show_in_footer && loc.address ? (
+                       <a
+                         href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${loc.name} ${loc.address} ${loc.city} ${loc.state}`)}`}
+                         target="_blank"
+                         rel="noopener noreferrer"
+                         className="hover:opacity-90 transition-opacity"
+                       >
+                         <p>{loc.name} — {loc.city}, {loc.state}</p>
+                         <p className="opacity-70 ml-2 underline underline-offset-2">{loc.address} ↗</p>
+                       </a>
+                     ) : (
+                       <p>{loc.name} — {loc.city}, {loc.state}</p>
+                     )}
+                   </div>
+                 ))}
               </div>
             </div>
           )}
@@ -77,7 +86,7 @@ const SiteFooter = () => {
             <Link to="/privacy" className="text-sm opacity-60 hover:opacity-90 transition-opacity">Privacy Policy</Link>
             <Link to="/terms" className="text-sm opacity-60 hover:opacity-90 transition-opacity">Terms of Service</Link>
             <Link to="/disclosure" className="text-sm opacity-60 hover:opacity-90 transition-opacity">Offer Disclosure</Link>
-            <Link to="/admin/login" className="text-xs opacity-40 hover:opacity-70 transition-opacity mt-2">Admin</Link>
+            <Link to="/admin/login" className="text-[10px] opacity-20 hover:opacity-50 transition-opacity mt-3" aria-label="Staff portal">•</Link>
             <Link to="/sitemap" className="text-xs opacity-40 hover:opacity-70 transition-opacity">.</Link>
           </div>
           {(config.facebook_url || config.instagram_url || config.youtube_url || config.tiktok_url) && (

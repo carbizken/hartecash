@@ -34,7 +34,7 @@ const ValueProps = () => {
   ];
 
   return (
-    <section className="py-16 px-5 bg-background">
+    <section id="value-props" className="py-16 px-5 bg-background">
       <h2 className="font-display text-2xl md:text-[28px] lg:text-[34px] font-extrabold text-center mb-12 text-foreground tracking-[0.04em]">
         Why Sell to {shortName}?
       </h2>

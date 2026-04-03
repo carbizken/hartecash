@@ -4,8 +4,13 @@ import { useSiteConfig } from "@/hooks/useSiteConfig";
 const CTABanner = () => {
   const { config } = useSiteConfig();
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const scrollToForm = () => {
+    const form = document.getElementById("sell-car-form");
+    if (form) {
+      form.scrollIntoView({ behavior: "smooth", block: "center" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   return (
@@ -23,7 +28,7 @@ const CTABanner = () => {
         </div>
         <div>
           <button
-            onClick={scrollToTop}
+            onClick={scrollToForm}
             className="inline-block px-12 py-4 bg-card text-accent rounded-lg text-[17px] font-bold shadow-xl hover:-translate-y-0.5 transition-all"
           >
             Get My Free Offer
