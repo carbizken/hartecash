@@ -20,6 +20,24 @@ import StepCondition from "./sell-form/StepCondition";
 import StepHistory from "./sell-form/StepHistory";
 import StepFinalize from "./sell-form/StepFinalize";
 import { motion, AnimatePresence } from "framer-motion";
+import LiveOfferPreview from "./sell-form/LiveOfferPreview";
+
+const stepTimeEstimates: Record<string, string> = {
+  "Vehicle Info": "30 sec",
+  "Select Your Vehicle": "15 sec",
+  "Vehicle Build": "30 sec",
+  "Condition": "1 min",
+  "History": "30 sec",
+  "Finalize": "45 sec",
+};
+
+const stepCtaLabels: Record<string, string> = {
+  "Vehicle Info": "Look Up My Vehicle",
+  "Select Your Vehicle": "That's My Car",
+  "Vehicle Build": "Next: Condition →",
+  "Condition": "Almost Done →",
+  "History": "Next →",
+};
 
 const stepVariants = {
   enter: (dir: number) => ({ x: dir > 0 ? 80 : -80, opacity: 0 }),
@@ -488,7 +506,12 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
           />
         );
       case "Condition":
-        return <StepCondition formData={formData} updateArray={updateArray} update={update} formConfig={formConfig} bbVehicle={bbSelectedVehicle} vehicleInfo={vehicleInfo} />;
+        return (
+          <>
+            <LiveOfferPreview formData={formData} bbVehicle={bbSelectedVehicle} />
+            <StepCondition formData={formData} updateArray={updateArray} update={update} formConfig={formConfig} bbVehicle={bbSelectedVehicle} vehicleInfo={vehicleInfo} />
+          </>
+        );
       case "History":
         return <StepHistory formData={formData} update={update} formConfig={formConfig} bbVehicle={bbSelectedVehicle} vehicleInfo={vehicleInfo} />;
       case "Finalize":
@@ -527,6 +550,7 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
         </div>
         <p className="text-center text-sm text-muted-foreground font-medium">
           Step {step + 1} of {totalSteps}: <strong className="text-card-foreground font-bold">{currentStepName}</strong>
+          <span className="text-xs opacity-70 ml-1.5">· ~{stepTimeEstimates[currentStepName] || "30 sec"}</span>
         </p>
       </div>
 
@@ -580,7 +604,7 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
                   Looking up vehicle…
                 </span>
               ) : (
-                "Continue"
+                stepCtaLabels[currentStepName] || "Continue"
               )}
             </Button>
           ) : (
