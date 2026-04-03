@@ -6,7 +6,6 @@ interface Props {
   wholesaleAvg: number;
   tradeinAvg: number;
   retailAvg: number;
-  retailClean: number;
   msrp: number;
   retailListings?: { avgPrice?: number; medianPrice?: number; count?: number } | null;
 }
@@ -16,7 +15,6 @@ export default function ProfitSpreadGauge({
   wholesaleAvg,
   tradeinAvg,
   retailAvg,
-  retailClean,
   msrp,
   retailListings,
 }: Props) {
@@ -28,7 +26,6 @@ export default function ProfitSpreadGauge({
 
     // Build all value points for the gauge
     const allValues = [wholesaleAvg, tradeinAvg, retailAvg, offerHigh];
-    if (retailClean > 0) allValues.push(retailClean);
     if (msrp > 0) allValues.push(msrp);
     if (retailListings?.avgPrice) allValues.push(retailListings.avgPrice);
 
@@ -85,7 +82,7 @@ export default function ProfitSpreadGauge({
       zoneBorder,
       zoneText,
     };
-  }, [offerHigh, wholesaleAvg, tradeinAvg, retailAvg, retailClean, msrp, retailListings]);
+  }, [offerHigh, wholesaleAvg, tradeinAvg, retailAvg, msrp, retailListings]);
 
   if (!data) return null;
 
@@ -94,7 +91,6 @@ export default function ProfitSpreadGauge({
   const wholesalePos = pctPos(wholesaleAvg);
   const tradeinPos = pctPos(tradeinAvg);
   const retailPos = pctPos(retailAvg);
-  const retailCleanPos = retailClean > 0 ? pctPos(retailClean) : null;
   const liveMarketPos = retailListings?.avgPrice ? pctPos(retailListings.avgPrice) : null;
   const msrpPos = msrp > 0 ? pctPos(msrp) : null;
 
@@ -106,9 +102,6 @@ export default function ProfitSpreadGauge({
     { label: "Trade-In Avg", shortLabel: "TRD", pos: tradeinPos, value: tradeinAvg, color: "text-primary", dotColor: "bg-primary" },
     { label: "Retail Avg", shortLabel: "RTL", pos: retailPos, value: retailAvg, color: "text-green-500", dotColor: "bg-green-500" },
   ];
-  if (retailCleanPos !== null) {
-    markers.push({ label: "Retail Clean", shortLabel: "R-CLN", pos: retailCleanPos, value: retailClean, color: "text-emerald-500", dotColor: "bg-emerald-500" });
-  }
   if (liveMarketPos !== null && retailListings?.avgPrice) {
     markers.push({ label: "Live Market", shortLabel: "MKT", pos: liveMarketPos, value: retailListings.avgPrice, color: "text-violet-500", dotColor: "bg-violet-500", isPrimary: true });
   }

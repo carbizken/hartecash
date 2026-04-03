@@ -1471,7 +1471,6 @@ const OfferSimulator = ({ settings, savedSettings, rules, inlineControls = true,
                       wholesaleAvg={Number(liveBbVehicle.wholesale?.avg || 0)}
                       tradeinAvg={Number(liveBbVehicle.tradein?.avg || 0)}
                       retailAvg={Number(liveBbVehicle.retail?.avg || 0)}
-                      retailClean={Number(liveBbVehicle.retail?.clean || 0)}
                       msrp={Number(liveBbVehicle.msrp || 0)}
                     />
                   </div>
