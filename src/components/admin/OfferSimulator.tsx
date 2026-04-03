@@ -260,6 +260,16 @@ const OfferSimulator = ({ settings, savedSettings, rules, inlineControls = true,
   const [liveVin, setLiveVin] = useState("");
   const [liveMileage, setLiveMileage] = useState("50000");
   const [liveZip, setLiveZip] = useState("");
+
+  // Default ZIP to dealership's first location zip
+  useEffect(() => {
+    if (liveZip) return;
+    supabase.from("dealership_locations").select("zip_codes").eq("is_active", true).order("sort_order").limit(1)
+      .then(({ data }) => {
+        const zips = data?.[0]?.zip_codes;
+        if (Array.isArray(zips) && zips.length > 0) setLiveZip(zips[0]);
+      });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [liveCondition, setLiveCondition] = useState<string>("good");
   const [liveAccidents, setLiveAccidents] = useState("0");
   const [liveDrivable, setLiveDrivable] = useState("yes");
