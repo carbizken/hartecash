@@ -766,10 +766,10 @@ export default function AppraisalTool() {
               metrics.push({ label: "Dealer Pack", value: `$${Math.floor(effectivePack).toLocaleString()}`, color: "text-destructive", bg: "bg-card border-border/60 shadow-sm", sub: null });
             }
             metrics.push(
-              { label: "Inventory Cost", value: `$${Math.floor(inventoryCost).toLocaleString()}`, color: "text-amber-600", bg: "bg-amber-500/5 border-amber-500/25 shadow-sm", sub: null },
-              { label: "Retail Avg", value: retailAvg > 0 ? `$${Math.floor(retailAvg).toLocaleString()}` : "—", color: "text-card-foreground", bg: "bg-card border-border/60 shadow-sm", sub: null },
-              { label: "Projected Profit", value: `${projectedProfit >= 0 ? "+" : ""}$${Math.floor(Math.abs(projectedProfit)).toLocaleString()}`, color: projectedProfit >= 0 ? "text-emerald-600" : "text-destructive", bg: projectedProfit >= 0 ? "bg-emerald-500/5 border-emerald-500/25 shadow-sm" : "bg-destructive/5 border-destructive/25 shadow-sm", sub: null },
-              { label: "Margin %", value: `${profitMargin.toFixed(1)}%`, color: profitMargin >= 0 ? "text-emerald-600" : "text-destructive", bg: profitMargin >= 0 ? "bg-emerald-500/5 border-emerald-500/25 shadow-sm" : "bg-destructive/5 border-destructive/25 shadow-sm", sub: null },
+              { label: "Inventory Cost", value: `$${Math.floor(inventoryCost).toLocaleString()}`, color: "text-amber-600", bg: "bg-amber-500/5 border-amber-500/25 shadow-sm", sub: null, clickable: false },
+              { label: RETAIL_TIER_LABELS[retailProfitBasis] || "Retail Avg", value: retailAvg > 0 ? `$${Math.floor(retailAvg).toLocaleString()}` : "—", color: "text-card-foreground", bg: "bg-card border-border/60 shadow-sm cursor-pointer hover:border-primary/50", sub: "Click to change tier", clickable: true, onClick: cycleRetailBasis },
+              { label: "Projected Profit", value: `${projectedProfit >= 0 ? "+" : ""}$${Math.floor(Math.abs(projectedProfit)).toLocaleString()}`, color: projectedProfit >= 0 ? "text-emerald-600" : "text-destructive", bg: projectedProfit >= 0 ? "bg-emerald-500/5 border-emerald-500/25 shadow-sm" : "bg-destructive/5 border-destructive/25 shadow-sm", sub: null, clickable: false },
+              { label: "Margin %", value: `${profitMargin.toFixed(1)}%`, color: profitMargin >= 0 ? "text-emerald-600" : "text-destructive", bg: profitMargin >= 0 ? "bg-emerald-500/5 border-emerald-500/25 shadow-sm" : "bg-destructive/5 border-destructive/25 shadow-sm", sub: null, clickable: false },
             );
             return metrics;
           })().map(metric => (
