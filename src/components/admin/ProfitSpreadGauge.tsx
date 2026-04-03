@@ -82,7 +82,7 @@ export default function ProfitSpreadGauge({
       zoneBorder,
       zoneText,
     };
-  }, [offerHigh, wholesaleAvg, tradeinAvg, retailAvg, retailClean, msrp, retailListings]);
+  }, [offerHigh, wholesaleAvg, tradeinAvg, retailAvg, msrp, retailListings]);
 
   if (!data) return null;
 
