@@ -349,15 +349,16 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
       crypto.getRandomValues(tokenBytes);
       const generatedToken = Array.from(tokenBytes).map(b => b.toString(16).padStart(2, '0')).join('');
 
-      // Fetch active pricing model (checks pricing_models first, falls back to offer_settings)
-      let offerSettingsData: OfferSettings | null = null;
-      let offerRulesData: OfferRule[] = [];
-      try {
-        const { resolveEffectiveSettings } = await import("@/lib/resolvePricingModel");
-        const resolved = await resolveEffectiveSettings(tenant.dealership_id);
-        offerSettingsData = resolved.settings;
-        offerRulesData = resolved.rules;
-      } catch { /* use defaults */ }
+      // Use pre-fetched offer settings, or re-fetch if not available
+      let offerSettingsData: OfferSettings | null = offerSettingsEarly;
+      let offerRulesData: OfferRule[] = offerRulesEarly;
+      if (!offerSettingsData) {
+        try {
+          const resolved = await resolveEffectiveSettings(tenant.dealership_id);
+          offerSettingsData = resolved.settings;
+          offerRulesData = resolved.rules;
+        } catch { /* use defaults */ }
+      }
 
       // Calculate offer estimate
       const estimate = calculateOffer(bbSelectedVehicle, formData, selectedAddDeducts, offerSettingsData, offerRulesData);
