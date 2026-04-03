@@ -289,24 +289,32 @@ const OfferSimulator = ({ settings, savedSettings, rules, inlineControls = true,
   }
 
   // Live form data
+  // Map simulator values to match exact customer form values for offerCalculator
+  const mappedWindshield = liveWindshield === "minor_chips" ? "Minor chips or pitting" : liveWindshield === "major_cracks" ? "Major cracks or chips" : "No windshield damage";
+  const mappedDrivable = liveDrivable === "no" ? "Not drivable" : "Drivable";
+  const mappedAccidents = liveAccidents === "0" ? "No accidents" : liveAccidents === "1" ? "1 accident" : "2+ accidents";
+  const mappedSmokedIn = liveSmokedIn === "yes" ? "Yes" : "No";
+  const mappedTires = liveTiresReplaced;
+  const mappedKeys = liveNumKeys === "2+" ? "2+" : liveNumKeys;
+
   const liveFormData: FormData = useMemo(() => ({
     plate: "", state: "", vin: liveVin, mileage: liveMileage,
     bbUvc: "", bbSelectedAddDeducts: liveSelectedAddDeducts,
     exteriorColor: "", drivetrain: "", modifications: liveModifications === "none" ? "" : liveModifications,
     overallCondition: liveCondition,
     exteriorDamage: Array.from({ length: liveExteriorItems }, (_, i) => `item_${i}`),
-    windshieldDamage: liveWindshield, moonroof: liveMoonroof,
+    windshieldDamage: mappedWindshield, moonroof: liveMoonroof,
     interiorDamage: Array.from({ length: liveInteriorItems }, (_, i) => `item_${i}`),
     techIssues: Array.from({ length: liveTechItems }, (_, i) => `item_${i}`),
     engineIssues: Array.from({ length: liveEngineItems }, (_, i) => `item_${i}`),
     mechanicalIssues: Array.from({ length: liveMechanicalItems }, (_, i) => `item_${i}`),
-    drivable: liveDrivable, accidents: liveAccidents, smokedIn: liveSmokedIn,
-    tiresReplaced: liveTiresReplaced === "4" ? "yes" : liveTiresReplaced === "0" ? "no" : liveTiresReplaced,
-    numKeys: liveNumKeys === "2+" ? "2" : liveNumKeys,
+    drivable: mappedDrivable, accidents: mappedAccidents, smokedIn: mappedSmokedIn,
+    tiresReplaced: mappedTires,
+    numKeys: mappedKeys,
     name: "", phone: "", email: "", zip: "",
     loanStatus: "", loanCompany: "", loanBalance: "", loanPayment: "",
     nextStep: "", preferredLocationId: "", salespersonName: "",
-  }), [liveVin, liveMileage, liveCondition, liveAccidents, liveDrivable, liveSmokedIn, liveExteriorItems, liveInteriorItems, liveMechanicalItems, liveEngineItems, liveTechItems, liveWindshield, liveMoonroof, liveTiresReplaced, liveNumKeys, liveModifications, liveSelectedAddDeducts]);
+  }), [liveVin, liveMileage, liveCondition, liveExteriorItems, liveInteriorItems, liveMechanicalItems, liveEngineItems, liveTechItems, liveWindshield, liveMoonroof, liveTiresReplaced, liveNumKeys, liveModifications, liveSelectedAddDeducts, mappedWindshield, mappedDrivable, mappedAccidents, mappedSmokedIn, mappedTires, mappedKeys]);
 
   const liveResult = useMemo(
     () => liveBbVehicle ? calculateOffer(liveBbVehicle, liveFormData, liveSelectedAddDeducts, activeSettings, rules) : null,
