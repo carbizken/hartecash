@@ -292,18 +292,21 @@ const OfferSimulator = ({ settings, savedSettings, rules, inlineControls = true,
   const liveFormData: FormData = useMemo(() => ({
     plate: "", state: "", vin: liveVin, mileage: liveMileage,
     bbUvc: "", bbSelectedAddDeducts: liveSelectedAddDeducts,
-    exteriorColor: "", drivetrain: "", modifications: "",
+    exteriorColor: "", drivetrain: "", modifications: liveModifications === "none" ? "" : liveModifications,
     overallCondition: liveCondition,
     exteriorDamage: Array.from({ length: liveExteriorItems }, (_, i) => `item_${i}`),
-    windshieldDamage: "", moonroof: "",
-    interiorDamage: [], techIssues: [], engineIssues: [],
+    windshieldDamage: liveWindshield, moonroof: liveMoonroof,
+    interiorDamage: Array.from({ length: liveInteriorItems }, (_, i) => `item_${i}`),
+    techIssues: Array.from({ length: liveTechItems }, (_, i) => `item_${i}`),
+    engineIssues: Array.from({ length: liveEngineItems }, (_, i) => `item_${i}`),
     mechanicalIssues: Array.from({ length: liveMechanicalItems }, (_, i) => `item_${i}`),
     drivable: liveDrivable, accidents: liveAccidents, smokedIn: liveSmokedIn,
-    tiresReplaced: "yes", numKeys: "2",
+    tiresReplaced: liveTiresReplaced === "4" ? "yes" : liveTiresReplaced === "0" ? "no" : liveTiresReplaced,
+    numKeys: liveNumKeys === "2+" ? "2" : liveNumKeys,
     name: "", phone: "", email: "", zip: "",
     loanStatus: "", loanCompany: "", loanBalance: "", loanPayment: "",
     nextStep: "", preferredLocationId: "", salespersonName: "",
-  }), [liveVin, liveMileage, liveCondition, liveAccidents, liveDrivable, liveSmokedIn, liveExteriorItems, liveMechanicalItems, liveSelectedAddDeducts]);
+  }), [liveVin, liveMileage, liveCondition, liveAccidents, liveDrivable, liveSmokedIn, liveExteriorItems, liveInteriorItems, liveMechanicalItems, liveEngineItems, liveTechItems, liveWindshield, liveMoonroof, liveTiresReplaced, liveNumKeys, liveModifications, liveSelectedAddDeducts]);
 
   const liveResult = useMemo(
     () => liveBbVehicle ? calculateOffer(liveBbVehicle, liveFormData, liveSelectedAddDeducts, activeSettings, rules) : null,
