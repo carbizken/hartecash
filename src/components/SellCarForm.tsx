@@ -19,7 +19,24 @@ import StepSelectTrim from "./sell-form/StepSelectTrim";
 import StepCondition from "./sell-form/StepCondition";
 import StepHistory from "./sell-form/StepHistory";
 import StepFinalize from "./sell-form/StepFinalize";
-import { motion, AnimatePresence } from "framer-motion";
+import LiveOfferPreview from "./sell-form/LiveOfferPreview";
+
+const stepTimeEstimates: Record<string, string> = {
+  "Vehicle Info": "30 sec",
+  "Select Your Vehicle": "15 sec",
+  "Vehicle Build": "30 sec",
+  "Condition": "1 min",
+  "History": "30 sec",
+  "Finalize": "45 sec",
+};
+
+const stepCtaLabels: Record<string, string> = {
+  "Vehicle Info": "Look Up My Vehicle",
+  "Select Your Vehicle": "That's My Car",
+  "Vehicle Build": "Next: Condition →",
+  "Condition": "Almost Done →",
+  "History": "Next →",
+};
 
 const stepVariants = {
   enter: (dir: number) => ({ x: dir > 0 ? 80 : -80, opacity: 0 }),
