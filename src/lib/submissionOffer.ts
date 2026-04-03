@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { BBAddDeduct, BBVehicle, FormData } from "@/components/sell-form/types";
 
-type JsonLike<T> = T | string | null | undefined;
+type JsonLike<T> = T | string | null | undefined | unknown;
 
 interface StoredBBValueTiers {
   wholesale?: Partial<BBVehicle["wholesale"]>;
