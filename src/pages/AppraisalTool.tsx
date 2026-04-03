@@ -691,7 +691,7 @@ export default function AppraisalTool() {
           </div>
           <Button onClick={handleSave} disabled={saving} className="bg-primary-foreground/15 hover:bg-primary-foreground/25 text-primary-foreground rounded-xl border border-primary-foreground/10 shadow-lg">
             {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Save className="w-4 h-4 mr-1.5" />}
-            Save ACV
+            Save Appraisal
           </Button>
         </div>
       </div>
