@@ -680,10 +680,12 @@ const SubmissionDetailSheet = ({
 
             <SectionCard icon={ClipboardCheck} title="Check Request">
               <div className="flex items-center gap-3 mb-3">
-                <Checkbox id="check-request-done" checked={sub.check_request_done} disabled={!isPriceAgreedOrBeyond} onCheckedChange={(checked) => updateField({ check_request_done: !!checked })} />
+                <Checkbox id="check-request-done" checked={sub.check_request_done} disabled={!isPriceAgreedOrBeyond || !(sub as any).appraisal_finalized} onCheckedChange={(checked) => updateField({ check_request_done: !!checked })} />
                 <label htmlFor="check-request-done" className={`text-sm font-medium ${isPriceAgreedOrBeyond ? "text-card-foreground" : "text-muted-foreground"}`}>Check Request Done</label>
               </div>
-              {isPriceAgreedOrBeyond ? (
+              {!(sub as any).appraisal_finalized ? (
+                <p className="text-xs text-amber-600 font-medium">⚠️ Appraisal must be finalized before generating a check request.</p>
+              ) : isPriceAgreedOrBeyond ? (
                 <div className="space-y-2">
                   <div className="flex flex-wrap gap-2">
                     <Button variant="outline" size="sm" onClick={handleGenerateCheckRequest}><Printer className="w-4 h-4 mr-1" /> Generate Check Request</Button>
