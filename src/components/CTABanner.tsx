@@ -4,8 +4,13 @@ import { useSiteConfig } from "@/hooks/useSiteConfig";
 const CTABanner = () => {
   const { config } = useSiteConfig();
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const scrollToForm = () => {
+    const form = document.getElementById("sell-car-form");
+    if (form) {
+      form.scrollIntoView({ behavior: "smooth", block: "center" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   return (
