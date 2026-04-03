@@ -715,17 +715,18 @@ const OfferSimulator = ({ settings, savedSettings, rules, inlineControls = true,
                 const getAmt = (key: string) => (da as any)[key] || 0;
                 const isOn = (key: string) => (dc as any)[key] !== false;
 
-                // Calculate live deduction for each row
-                const accidentDeduct = liveAccidents === "1" ? getAmt("accidents_1") : liveAccidents === "2" ? getAmt("accidents_2") : liveAccidents === "3+" ? getAmt("accidents_3plus") : 0;
+                // Calculate live deduction for each row — matching exact customer form values
+                const accidentDeduct = mappedAccidents === "1 accident" ? getAmt("accidents_1") : mappedAccidents === "2+ accidents" ? getAmt("accidents_2") : 0;
                 const extDeduct = liveExteriorItems * getAmt("exterior_damage_per_item");
                 const intDeduct = liveInteriorItems * getAmt("interior_damage_per_item");
-                const windDeduct = liveWindshield === "cracked" ? getAmt("windshield_cracked") : liveWindshield === "chipped" ? getAmt("windshield_chipped") : liveWindshield === "chipped_and_cracked" ? getAmt("windshield_cracked") + getAmt("windshield_chipped") : 0;
+                const windDeduct = liveWindshield === "major_cracks" ? getAmt("windshield_cracked") : liveWindshield === "minor_chips" ? getAmt("windshield_chipped") : 0;
+                const moonroofDeduct = liveMoonroof === "Doesn't work" ? getAmt("moonroof_broken") : 0;
                 const engDeduct = liveEngineItems * getAmt("engine_issue_per_item");
                 const mechDeduct = liveMechanicalItems * getAmt("mechanical_issue_per_item");
                 const techDeduct = liveTechItems * getAmt("tech_issue_per_item");
                 const drivDeduct = liveDrivable === "no" ? getAmt("not_drivable") : 0;
                 const smokeDeduct = liveSmokedIn === "yes" ? getAmt("smoked_in") : 0;
-                const tiresDeduct = (liveTiresReplaced === "2" || liveTiresReplaced === "3") ? getAmt("tires_not_replaced") : liveTiresReplaced === "0" || liveTiresReplaced === "1" ? getAmt("tires_not_replaced") : 0;
+                const tiresDeduct = (liveTiresReplaced === "None" || liveTiresReplaced === "1") ? getAmt("tires_not_replaced") : 0;
                 const keyDeduct = liveNumKeys === "1" ? getAmt("missing_keys_1") : liveNumKeys === "0" ? getAmt("missing_keys_0") : 0;
 
                 const DeductBadge = ({ amount }: { amount: number }) => amount > 0 ? (
