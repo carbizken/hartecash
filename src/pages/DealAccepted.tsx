@@ -124,6 +124,176 @@ const DealAccepted = () => {
     );
   }
 
+  // Contact gate submit handler
+  const handleContactSubmit = async () => {
+    if (!contactName.trim() || !contactEmail.trim() || !contactPhone.trim()) {
+      toast.error("Please fill in your name, email, and phone number.");
+      return;
+    }
+    if (!/\S+@\S+\.\S+/.test(contactEmail)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+    if (contactPhone.replace(/\D/g, "").length < 10) {
+      toast.error("Please enter a valid phone number (10+ digits).");
+      return;
+    }
+    setContactSaving(true);
+    try {
+      const subId = (submission as any)?.id;
+      if (subId) {
+        await supabase.from("submissions").update({
+          name: contactName.trim(),
+          email: contactEmail.trim(),
+          phone: contactPhone.trim(),
+          zip: contactZip.trim() || null,
+        }).eq("id", subId);
+
+        // Log consent
+        logConsent({
+          customerName: contactName.trim(),
+          customerPhone: contactPhone.trim(),
+          customerEmail: contactEmail.trim(),
+          formSource: "deal_accepted_gate",
+          submissionToken: token,
+          dealershipName: config.dealership_name,
+        });
+
+        // Fire notifications now that we have contact info
+        supabase.functions.invoke("send-notification", {
+          body: { trigger_key: "staff_customer_accepted", submission_id: subId },
+        }).catch(console.error);
+        supabase.functions.invoke("send-notification", {
+          body: { trigger_key: "customer_offer_accepted", submission_id: subId },
+        }).catch(console.error);
+      }
+      setSubmission(prev => prev ? { ...prev, name: contactName.trim(), email: contactEmail.trim(), phone: contactPhone.trim(), zip: contactZip.trim() || prev.zip } : prev);
+      setContactGateOpen(false);
+      toast.success("Information saved! Your offer is locked in.");
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setContactSaving(false);
+    }
+  };
+
+  // Show contact gate if needed
+  if (contactGateOpen) {
+    const s = submission;
+    const vehicleStr = [s.vehicle_year, s.vehicle_make, s.vehicle_model].filter(Boolean).join(" ");
+    const cashOffer = s.offered_price || s.estimated_offer_high || 0;
+    const isEstimate = !s.offered_price && !!s.estimated_offer_high;
+
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="bg-gradient-to-r from-primary via-[hsl(210,100%,30%)] to-primary text-primary-foreground px-6 py-4">
+          <div className="max-w-lg mx-auto flex items-center gap-3">
+            <img src={config.logo_white_url || harteLogoFallback} alt={config.dealership_name || "Dealership"} className="h-[50px] w-auto" />
+            <div>
+              <h1 className="font-bold text-lg">Almost There!</h1>
+              <p className="text-sm opacity-80">Lock in your offer</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-lg mx-auto px-6 py-8">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-card rounded-xl p-6 shadow-lg border border-border mb-6"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-8 h-8 rounded-full bg-success/20 flex items-center justify-center">
+                <CheckCircle className="w-4 h-4 text-success" />
+              </div>
+              <p className="font-bold text-card-foreground">Offer Accepted!</p>
+            </div>
+            <p className="text-2xl font-extrabold text-accent mt-2">
+              {isEstimate
+                ? `$${cashOffer.toLocaleString("en-US", { maximumFractionDigits: 0 })}`
+                : `$${cashOffer.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+              }
+            </p>
+            <p className="text-sm text-muted-foreground">{vehicleStr}</p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-card rounded-xl p-6 shadow-lg border-2 border-primary/20"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <Lock className="w-5 h-5 text-primary" />
+              <h2 className="font-bold text-card-foreground text-lg">Lock In Your Price</h2>
+            </div>
+            <p className="text-sm text-muted-foreground mb-5">
+              Enter your contact information to finalize your accepted offer. We'll reach out to schedule your inspection.
+            </p>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="gate-name">Full Name *</Label>
+                <Input
+                  id="gate-name"
+                  value={contactName}
+                  onChange={e => setContactName(e.target.value)}
+                  placeholder="John Smith"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="gate-email">Email Address *</Label>
+                <Input
+                  id="gate-email"
+                  type="email"
+                  value={contactEmail}
+                  onChange={e => setContactEmail(e.target.value)}
+                  placeholder="john@example.com"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="gate-phone">Phone Number *</Label>
+                <Input
+                  id="gate-phone"
+                  type="tel"
+                  value={contactPhone}
+                  onChange={e => setContactPhone(e.target.value)}
+                  placeholder="(555) 123-4567"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="gate-zip">Zip Code</Label>
+                <Input
+                  id="gate-zip"
+                  value={contactZip}
+                  onChange={e => setContactZip(e.target.value)}
+                  placeholder="06001"
+                  className="mt-1"
+                />
+              </div>
+            </div>
+
+            <p className="text-[10px] text-muted-foreground mt-4 leading-relaxed">
+              By submitting, you consent to receive calls, texts, and emails from {config.dealership_name || "our dealership"} regarding your vehicle offer. Consent is not a condition of purchase.
+            </p>
+
+            <Button
+              onClick={handleContactSubmit}
+              disabled={contactSaving}
+              className="w-full mt-5 py-5 text-base font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg gap-2"
+            >
+              {contactSaving ? "Saving..." : "Lock In My Offer"}
+              <ArrowRight className="w-5 h-5" />
+            </Button>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
   const s = submission;
   const vehicleStr = [s.vehicle_year, s.vehicle_make, s.vehicle_model].filter(Boolean).join(" ");
   const firstName = s.name?.split(" ")[0] || "";
