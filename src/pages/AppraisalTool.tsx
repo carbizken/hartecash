@@ -757,7 +757,7 @@ export default function AppraisalTool() {
             const inventoryCost = finalValue + reconCost + effectivePack;
             const metrics = [
               { label: "Customer Offer", value: `$${Math.floor(currentOffer).toLocaleString()}`, color: "text-card-foreground", bg: "bg-card border-border/60 shadow-sm", sub: null },
-              { label: "Appraisal Value", value: `$${Math.floor(finalValue).toLocaleString()}`, color: "text-primary", bg: "bg-primary/5 border-primary/25 shadow-sm shadow-primary/5", sub: sub?.appraisal_finalized ? `Finalized ${sub.appraisal_finalized_at ? new Date(sub.appraisal_finalized_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : ""}` : lastSavedAt ? `Updated ${lastSavedAt.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}` : null },
+              { label: "Appraisal Value", value: `$${Math.floor(finalValue).toLocaleString()}`, color: sub?.appraisal_finalized ? "text-emerald-700" : "text-primary", bg: sub?.appraisal_finalized ? "bg-emerald-500/10 border-emerald-500/40 shadow-sm ring-1 ring-emerald-500/20" : "bg-primary/5 border-primary/25 shadow-sm shadow-primary/5", sub: sub?.appraisal_finalized ? `✓ Finalized ${sub.appraisal_finalized_at ? new Date(sub.appraisal_finalized_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : ""}` : lastSavedAt ? `Updated ${lastSavedAt.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}` : null },
             ];
             if (hidePackFromAppraisal) {
               metrics.push({ label: "Recon Cost", value: `$${Math.floor(reconCost + effectivePack).toLocaleString()}`, color: "text-destructive", bg: "bg-card border-border/60 shadow-sm", sub: null });
@@ -783,7 +783,7 @@ export default function AppraisalTool() {
                 {metric.label === "__RETAIL__" ? (RETAIL_TIER_LABELS[retailProfitBasis] || "Retail Avg") : metric.label}
               </div>
               <div className={`text-lg font-black tracking-tight ${metric.color}`}>{metric.value}</div>
-              {metric.sub && <div className="text-[8px] text-muted-foreground mt-0.5">{metric.sub}</div>}
+              {metric.sub && <div className={`mt-0.5 ${metric.label === "Appraisal Value" && sub?.appraisal_finalized ? "text-[10px] font-bold text-emerald-600" : "text-[8px] text-muted-foreground"}`}>{metric.sub}</div>}
             </div>
           ))}
         </div>
