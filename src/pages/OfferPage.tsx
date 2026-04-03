@@ -14,7 +14,7 @@ import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { InlineEdit } from "@/components/offer/InlineEdit";
 import OfferConditionBlock, { buildConditionItems } from "@/components/offer/OfferConditionBlock";
 import OfferPrintLayout from "@/components/offer/OfferPrintLayout";
-import { buildOfferFormData, buildStoredBBVehicle, buildSubmissionBBPayload, fetchMileageAdjustedBBVehicle, parseStoredJson } from "@/lib/submissionOffer";
+import { buildOfferFormData, buildStoredBBVehicle, buildSubmissionBBPayload, parseStoredJson } from "@/lib/submissionOffer";
 import { calculateOffer, type OfferSettings, type OfferRule } from "@/lib/offerCalculator";
 import { resolveEffectiveSettings } from "@/lib/resolvePricingModel";
 import { useToast } from "@/hooks/use-toast";
@@ -97,6 +97,22 @@ const CONDITION_OPTIONS = [
   { value: "fair", label: "Fair" },
 ];
 
+const LOCKED_OFFER_STATUSES = new Set([
+  "offer_accepted",
+  "inspection_scheduled",
+  "inspection_completed",
+  "appraisal_completed",
+  "manager_approval",
+  "price_agreed",
+  "docs_title",
+  "deal_finalized",
+  "title_verified",
+  "ownership_verified",
+  "title_ownership_verified",
+  "check_request_submitted",
+  "purchase_complete",
+]);
+
 const OfferPage = () => {
   const { token } = useParams<{ token: string }>();
   const [submission, setSubmission] = useState<OfferSubmission | null>(null);
@@ -162,19 +178,9 @@ const OfferPage = () => {
 
       if (conditionData) {
         const selectedOptions = parseStoredJson<string[]>(conditionData.bb_selected_options, []);
-        let resolvedBBVehicle = buildStoredBBVehicle({ ...sub, ...conditionData });
+        const resolvedBBVehicle = buildStoredBBVehicle({ ...sub, ...conditionData });
 
-        if (!sub.offered_price && sub.vin && sub.mileage) {
-          const freshVehicle = await fetchMileageAdjustedBBVehicle({
-            vin: sub.vin,
-            mileage: parseInt(sub.mileage.replace(/[^0-9]/g, "")) || 0,
-          });
-          if (freshVehicle) {
-            resolvedBBVehicle = freshVehicle;
-          }
-        }
-
-        if (!sub.offered_price && resolvedBBVehicle) {
+        if (resolvedBBVehicle) {
           const estimate = calculateOffer(
             resolvedBBVehicle,
             buildOfferFormData({ ...sub, ...conditionData }),
@@ -250,7 +256,7 @@ const OfferPage = () => {
     // The offer logic engine recalculates using the already-persisted market data.
     const resolvedBBVehicle = buildStoredBBVehicle({ ...newSubmission, ...newCondition });
 
-    if (resolvedBBVehicle && !submission.offered_price) {
+    if (resolvedBBVehicle) {
       const newEstimate = calculateOffer(
         resolvedBBVehicle,
         buildOfferFormData({ ...newSubmission, ...newCondition }),
@@ -333,11 +339,29 @@ const OfferPage = () => {
   const vehicleStr = [s.vehicle_year, s.vehicle_make, s.vehicle_model].filter(Boolean).join(" ");
   const firstName = s.name?.split(" ")[0] || "";
 
-  const hasOfferedPrice = !!s.offered_price;
-  const ACCEPTED_STATUSES = ['contacted', 'inspection_scheduled', 'inspection_completed', 'appraisal_completed', 'manager_approval', 'price_agreed', 'docs_title', 'purchase_complete'];
-  const isAccepted = hasOfferedPrice || (!!s.progress_status && ACCEPTED_STATUSES.includes(s.progress_status));
-  const hasEstimate = !!s.estimated_offer_high;
-  const cashOffer = s.offered_price || s.estimated_offer_high || 0;
+  const liveSelectedOptions = parseStoredJson<string[]>(condition?.bb_selected_options, []);
+  const liveBBVehicle = condition ? buildStoredBBVehicle({ ...s, ...condition }) : null;
+  const liveEstimate = liveBBVehicle
+    ? calculateOffer(
+        liveBBVehicle,
+        buildOfferFormData({ ...s, ...condition }),
+        liveSelectedOptions,
+        offerSettings,
+        offerRules,
+      )
+    : null;
+
+  const isAccepted = !!s.progress_status && LOCKED_OFFER_STATUSES.has(s.progress_status);
+  const hasStoredOfferData = Boolean(
+    s.bb_tradein_avg ||
+    s.bb_wholesale_avg ||
+    s.bb_retail_avg ||
+    condition?.bb_value_tiers,
+  );
+  const cashOffer = (!isAccepted ? liveEstimate?.high : s.offered_price)
+    ?? s.estimated_offer_high
+    ?? s.offered_price
+    ?? 0;
 
   if (cashOffer <= 0) return (
     <div className="min-h-screen flex items-center justify-center bg-background p-6">
@@ -362,8 +386,8 @@ const OfferPage = () => {
   const tradeInValue = calcTradeInValue(cashOffer, taxRate);
   const tradeInValueLow = tradeInValue;
 
-  // Can edit only if no manual offered_price has been set by dealer
-  const canEdit = !hasOfferedPrice && !!s.bb_tradein_avg;
+  // Offer stays editable until it has moved into a locked post-acceptance state.
+  const canEdit = !isAccepted && hasStoredOfferData;
 
   // Price guarantee countdown
   const guaranteeDays = config.price_guarantee_days || 8;
@@ -773,7 +797,7 @@ const OfferPage = () => {
         condition={condition}
         vehicleStr={vehicleStr}
         createdDate={createdDate}
-        isEstimate={false}
+        isEstimate={!isAccepted}
         isExpired={isExpired}
         daysRemaining={daysRemaining}
         expiresDate={expiresDate}
