@@ -209,7 +209,7 @@ function AxleRow({
 }) {
   return (
     <div className={cn("grid items-center gap-4", compact ? "grid-cols-2" : "grid-cols-[1fr_auto_1fr]")}>
-      <Corner label={left.label} depth={left.depth} side="left" type={type} onChange={onChangeLeft} readOnly={readOnly} />
+      <Corner label={left.label} depth={left.depth} side="left" type={type} onChange={onChangeLeft} readOnly={readOnly} compact={compact} />
       {!compact && (
         <div className="hidden md:flex items-center justify-center">
           <div className="rounded-full border border-border bg-background px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground shadow-sm">
@@ -217,7 +217,7 @@ function AxleRow({
           </div>
         </div>
       )}
-      <Corner label={right.label} depth={right.depth} side="right" type={type} onChange={onChangeRight} readOnly={readOnly} />
+      <Corner label={right.label} depth={right.depth} side="right" type={type} onChange={onChangeRight} readOnly={readOnly} compact={compact} />
     </div>
   );
 }
