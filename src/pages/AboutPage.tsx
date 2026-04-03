@@ -106,7 +106,7 @@ const AboutPage = () => {
               <p className="text-xs md:text-sm text-muted-foreground mt-1">Vehicles Purchased</p>
             </div>
             <div>
-              <p className="text-2xl md:text-3xl font-extrabold text-primary">{config.stats_rating || "4.9"}</p>
+              <p className="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary">{config.stats_rating || "4.9"}</p>
               <p className="text-xs md:text-sm text-muted-foreground mt-1">Average Rating</p>
             </div>
             <div>
