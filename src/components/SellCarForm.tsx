@@ -75,7 +75,16 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
   const [bbLoading, setBbLoading] = useState(false);
   const [selectedAddDeducts, setSelectedAddDeducts] = useState<string[]>([]);
   const [showTrimStep, setShowTrimStep] = useState(false);
+  const [offerSettingsEarly, setOfferSettingsEarly] = useState<OfferSettings | null>(null);
+  const [offerRulesEarly, setOfferRulesEarly] = useState<OfferRule[]>([]);
 
+  // Fetch offer settings early so LiveOfferPreview uses the real waterfall
+  useEffect(() => {
+    resolveEffectiveSettings(tenant.dealership_id).then(({ settings, rules }) => {
+      if (settings) setOfferSettingsEarly(settings);
+      if (rules) setOfferRulesEarly(rules);
+    }).catch(() => {});
+  }, [tenant.dealership_id]);
   // ── Abandoned form auto-save ──
   // Save a partial submission when the user has contact info but leaves
   const savePartialRef = useRef<() => void>();
