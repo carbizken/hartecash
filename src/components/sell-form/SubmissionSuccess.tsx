@@ -18,6 +18,7 @@ const formatCurrency = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
 const SubmissionSuccess = ({ uploadUrl, vehicleInfo, nextStep, offerEstimate }: Props) => {
+  const { config } = useSiteConfig();
   useEffect(() => {
     const duration = 2000;
     const end = Date.now() + duration;
