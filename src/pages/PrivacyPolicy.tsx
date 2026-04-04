@@ -4,6 +4,7 @@ import { useSiteConfig } from "@/hooks/useSiteConfig";
 import SEO from "@/components/SEO";
 
 const PrivacyPolicy = () => {
+  const { config } = useSiteConfig();
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SEO
