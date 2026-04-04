@@ -13,6 +13,7 @@ interface AdminHeaderProps {
 }
 
 const AdminHeader = ({ darkMode, setDarkMode, userRole, onLogout }: AdminHeaderProps) => {
+  const { config } = useSiteConfig();
   return (
     <header className="sticky top-0 z-50 bg-gradient-to-r from-[hsl(210,100%,15%)] via-[hsl(210,100%,20%)] to-[hsl(220,80%,18%)] text-white shadow-lg">
       <div className="px-3 md:px-4 py-1 flex items-center justify-between gap-2">
