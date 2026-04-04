@@ -2,7 +2,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Printer, Save, CheckCircle2, Loader2, QrCode, Link2, X, Smartphone } from "lucide-react";
+import { Printer, Save, CheckCircle2, Loader2, QrCode, Link2, X, Smartphone, Sparkles, Globe } from "lucide-react";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
