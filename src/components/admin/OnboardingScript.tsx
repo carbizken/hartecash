@@ -458,6 +458,33 @@ export default function OnboardingScript({ targetDealershipId }: OnboardingScrip
         </div>
       )}
 
+      {/* AI Auto-Fill Panel */}
+      <div className="mb-6 border rounded-lg p-5 bg-gradient-to-r from-primary/5 to-accent/5 print:hidden">
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="w-5 h-5 text-primary" />
+          <h3 className="font-semibold text-sm">AI Auto-Fill from Dealer Website</h3>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          Enter the dealer's website URL and we'll automatically pull their name, phone, address, colors, social links, locations, and more.
+        </p>
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="e.g. harteauto.com"
+              value={scrapeUrl}
+              onChange={(e) => setScrapeUrl(e.target.value)}
+              className="pl-9 h-9"
+              onKeyDown={(e) => e.key === "Enter" && handleScrape()}
+            />
+          </div>
+          <Button onClick={handleScrape} size="sm" disabled={scraping} className="gap-2 shrink-0">
+            {scraping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            {scraping ? "Scanning…" : "Scrape & Auto-Fill"}
+          </Button>
+        </div>
+      </div>
+
       {/* Progress bar */}
       <div className="mb-6 print:hidden">
         <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
