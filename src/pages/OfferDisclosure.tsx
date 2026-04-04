@@ -56,8 +56,8 @@ const sections: Section[] = [
     render: () => (
       <>
         <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 mb-4">
-          <p className="text-sm font-semibold text-destructive mb-1">HarteCash cannot purchase vehicles with any of the following title brands or designations — regardless of condition, mileage, or offer amount.</p>
-          <p className="text-[13px] text-destructive/85 leading-relaxed">These restrictions are firm and non-negotiable. Verify your vehicle's title status before scheduling an appointment. If an ineligible brand is discovered at inspection that was not disclosed at submission, HarteCash reserves the right to immediately withdraw the Offer.</p>
+          <p className="text-sm font-semibold text-destructive mb-1">Our program cannot purchase vehicles with any of the following title brands or designations — regardless of condition, mileage, or offer amount.</p>
+          <p className="text-[13px] text-destructive/85 leading-relaxed">These restrictions are firm and non-negotiable. Verify your vehicle's title status before scheduling an appointment. If an ineligible brand is discovered at inspection that was not disclosed at submission, Our program reserves the right to immediately withdraw the Offer.</p>
         </div>
         <div className="flex flex-col gap-2 mb-4">
           {ineligibleTitles.map((t) => (
@@ -72,7 +72,7 @@ const sections: Section[] = [
         </div>
         <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
           <p className="text-[13px] text-destructive leading-relaxed">
-            If an ineligible title brand or designation is discovered at inspection that was not disclosed at the time of submission, HarteCash reserves the right to immediately withdraw the Offer at no cost to either party. See Section 02 for your full disclosure obligations prior to submission.
+            If an ineligible title brand or designation is discovered at inspection that was not disclosed at the time of submission, Our program reserves the right to immediately withdraw the Offer at no cost to either party. See Section 02 for your full disclosure obligations prior to submission.
           </p>
         </div>
       </>
@@ -83,8 +83,8 @@ const sections: Section[] = [
     title: "Offer Validity, Accuracy & Your Disclosure Obligations",
     render: () => (
       <>
-        <p>Your HarteCash Offer is a genuine estimated offer generated from the vehicle details you provide. It is valid for <strong>eight (8) calendar days</strong> from the date and time of issuance. This Offer is not a guaranteed purchase price and is contingent upon our in-person verification of your vehicle's actual condition, mileage, use, and history.</p>
-        <p>If the vehicle's actual condition, equipment, mileage, or history differs from the information you provided, HarteCash and Harte Auto Group reserve the right to revise the Offer upward or downward, or to decline to purchase the vehicle.</p>
+        <p>Your Our program Offer is a genuine estimated offer generated from the vehicle details you provide. It is valid for <strong>eight (8) calendar days</strong> from the date and time of issuance. This Offer is not a guaranteed purchase price and is contingent upon our in-person verification of your vehicle's actual condition, mileage, use, and history.</p>
+        <p>If the vehicle's actual condition, equipment, mileage, or history differs from the information you provided, Our program and our dealership reserve the right to revise the Offer upward or downward, or to decline to purchase the vehicle.</p>
         <div className="bg-muted border border-border border-l-4 border-l-primary rounded-lg p-4 my-4">
           <p className="text-xs font-bold text-foreground uppercase tracking-wider mb-1">Federal Odometer Disclosure — Your Certification</p>
           <p className="text-[13px] text-muted-foreground leading-relaxed">
@@ -108,7 +108,7 @@ const sections: Section[] = [
       <>
         <div className="bg-primary/5 border border-primary/15 rounded-lg p-4 mb-4">
           <p className="text-sm font-semibold text-primary mb-2">We believe you deserve the most your vehicle is worth — and we built our process to prove it.</p>
-          <p className="text-[13px] text-muted-foreground leading-relaxed">Most programs use condition only as a reason to reduce your offer after you arrive. HarteCash takes a different approach. When your vehicle arrives in better condition than estimated — particularly tires and brake pads — our inspector measures those components directly and your Final Offer is recalculated to include a <strong className="text-foreground">Fair Value Credit</strong> for what's actually there.</p>
+          <p className="text-[13px] text-muted-foreground leading-relaxed">Most programs use condition only as a reason to reduce your offer after you arrive. Our program takes a different approach. When your vehicle arrives in better condition than estimated — particularly tires and brake pads — our inspector measures those components directly and your Final Offer is recalculated to include a <strong className="text-foreground">Fair Value Credit</strong> for what's actually there.</p>
         </div>
         <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Tire & Brake Fair Value Credit — Specific Thresholds</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
@@ -132,7 +132,7 @@ const sections: Section[] = [
             </div>
           ))}
         </div>
-        <p>Tread depth is measured with a calibrated gauge. Brake pad life is assessed by direct measurement where accessible. Both are documented in your inspection record. The Fair Value Credit reflects remaining useful life relative to industry-standard replacement thresholds, as determined solely by Harte Auto Group's qualified inspection staff. <strong>All inspection measurements, condition assessments, and Fair Value Credit determinations are made at the sole and final discretion of the Harte Auto Group inspector. These determinations are not subject to customer dispute or negotiation as a condition of the transaction.</strong> The customer retains the right to decline the Final Offer in its entirety.</p>
+        <p>Tread depth is measured with a calibrated gauge. Brake pad life is assessed by direct measurement where accessible. Both are documented in your inspection record. The Fair Value Credit reflects remaining useful life relative to industry-standard replacement thresholds, as determined solely by our dealership's qualified inspection staff. <strong>All inspection measurements, condition assessments, and Fair Value Credit determinations are made at the sole and final discretion of the our dealership inspector. These determinations are not subject to customer dispute or negotiation as a condition of the transaction.</strong> The customer retains the right to decline the Final Offer in its entirety.</p>
         <div className="bg-muted border border-border border-l-4 border-l-success rounded-lg p-4 mt-4">
           <p className="text-[13px] text-foreground leading-relaxed">
             <strong>Our commitment to you:</strong> It is our goal to ensure that if your vehicle's actual condition at inspection meaningfully exceeds what was reported at the time of online submission, that difference will be reflected in your Final Offer — subject to current market conditions, our inspection findings, and the terms of this disclosure. Every factor we measure is applied transparently and in good faith. You always retain the right to accept or decline the Final Offer.
@@ -146,7 +146,7 @@ const sections: Section[] = [
     title: "How We Determine Your Vehicle's Value",
     render: () => (
       <>
-        <p>HarteCash determines your vehicle's value exclusively through our <strong>proprietary valuation methodology</strong> — an independent system developed and maintained by Harte Auto Group. Our valuations are not derived from, affiliated with, or endorsed by any third-party pricing service including Kelley Blue Book, Edmunds, Black Book, NADA Guides, or any other external platform.</p>
+        <p>Our program determines your vehicle's value exclusively through our <strong>proprietary valuation methodology</strong> — an independent system developed and maintained by our dealership. Our valuations are not derived from, affiliated with, or endorsed by any third-party pricing service including Kelley Blue Book, Edmunds, Black Book, NADA Guides, or any other external platform.</p>
         <p>Our system analyzes thousands of data points from wholesale market transactions, regional and national retail sales, current inventory demand, internal acquisition data, and continuously evolving market conditions — all interpreted through our own proprietary pricing intelligence.</p>
         <p className="mb-4">
           The factors below are assessed at in-person inspection and may result in an upward or downward adjustment to your Final Offer.{" "}
@@ -182,7 +182,7 @@ const sections: Section[] = [
     title: "In-Person Verification",
     render: () => (
       <>
-        <p>Once you accept your HarteCash Offer, a Harte Auto Group representative will conduct a physical inspection of your vehicle. The following are verified at every inspection:</p>
+        <p>Once you accept your Our program Offer, a our dealership representative will conduct a physical inspection of your vehicle. The following are verified at every inspection:</p>
         <ul className="list-none space-y-2 mb-4">
           {[
             "Odometer reading confirmed against submitted mileage",
@@ -213,7 +213,7 @@ const sections: Section[] = [
     title: "Eligibility & Required Documentation",
     render: () => (
       <>
-        <p>To complete your vehicle sale with HarteCash, please bring the following at the time of your appointment:</p>
+        <p>To complete your vehicle sale with Our program, please bring the following at the time of your appointment:</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
           {[
             "Valid vehicle title or lien payoff letter; all titled owners must be present",
@@ -234,13 +234,13 @@ const sections: Section[] = [
             <AlertTriangle className="w-3.5 h-3.5 text-destructive" />
             <span className="text-[11px] font-bold text-destructive uppercase tracking-wider">Ineligible Vehicles</span>
           </div>
-          <p className="text-[13px] text-destructive leading-relaxed">HarteCash <strong>cannot purchase</strong> vehicles with salvage, total loss, rebuilt/reconstructed, TMU, lemon law buyback, flood damage, or junk title designations. See Section 01 for the complete list. Do not schedule an appointment without first verifying your title status.</p>
+          <p className="text-[13px] text-destructive leading-relaxed">Our program <strong>cannot purchase</strong> vehicles with salvage, total loss, rebuilt/reconstructed, TMU, lemon law buyback, flood damage, or junk title designations. See Section 01 for the complete list. Do not schedule an appointment without first verifying your title status.</p>
         </div>
         <p>Customers with outstanding loan or lease balances are responsible for any negative equity at closing, payable by cash, cashier's check, or certified funds. In certain circumstances, negative equity may be applied toward a new vehicle purchase, subject to credit approval.</p>
         <div className="bg-muted border border-border border-l-4 border-l-primary rounded-lg p-4 mt-1">
           <p className="text-xs font-bold text-foreground uppercase tracking-wider mb-1">Trade-In Tax Credit — Eligibility Notice</p>
           <p className="text-[13px] text-muted-foreground leading-relaxed">
-            If you are applying your vehicle's value as a trade-in toward a qualified new or pre-owned vehicle purchase, a trade-in tax credit may be available under applicable state law. <strong className="text-foreground">HarteCash and Harte Auto Group do not determine, grant, or guarantee trade-in tax credit eligibility.</strong> The availability and amount of any trade-in tax credit is subject to: (1) verification that the customer is completing a qualified vehicle purchase — new or pre-owned — as defined by the state in which the vehicle will be registered; and (2) verification of the applicable tax credit provisions under the registration state's law at the time of the transaction. State laws governing trade-in tax credits vary from state to state and are subject to change. Customers are encouraged to confirm their eligibility with their tax advisor or the relevant state taxing authority prior to completing their transaction.
+            If you are applying your vehicle's value as a trade-in toward a qualified new or pre-owned vehicle purchase, a trade-in tax credit may be available under applicable state law. <strong className="text-foreground">Our program and our dealership do not determine, grant, or guarantee trade-in tax credit eligibility.</strong> The availability and amount of any trade-in tax credit is subject to: (1) verification that the customer is completing a qualified vehicle purchase — new or pre-owned — as defined by the state in which the vehicle will be registered; and (2) verification of the applicable tax credit provisions under the registration state's law at the time of the transaction. State laws governing trade-in tax credits vary from state to state and are subject to change. Customers are encouraged to confirm their eligibility with their tax advisor or the relevant state taxing authority prior to completing their transaction.
           </p>
         </div>
       </>
@@ -253,11 +253,11 @@ const sections: Section[] = [
       <>
         <div className="flex flex-col gap-3 mb-4">
           {[
-            { step: "01", title: "Schedule Your Appointment", body: "Select a convenient time at your nearest Harte Auto Group location, subject to availability. You will receive a confirmation with everything you need to bring." },
-            { step: "02", title: "Vehicle Inspection", body: "A Harte Auto Group representative will conduct a thorough physical inspection of your vehicle. Inspection time varies based on vehicle condition and documentation. All factors from Section 04 are evaluated at this time." },
+            { step: "01", title: "Schedule Your Appointment", body: "Select a convenient time at your nearest our dealership location, subject to availability. You will receive a confirmation with everything you need to bring." },
+            { step: "02", title: "Vehicle Inspection", body: "A our dealership representative will conduct a thorough physical inspection of your vehicle. Inspection time varies based on vehicle condition and documentation. All factors from Section 04 are evaluated at this time." },
             { step: "03", title: "Final Offer Presentation", body: "Following the inspection, we will present your Final Purchase Offer in writing. This may be higher or lower than your online estimate based on inspection findings. You are under no obligation to accept." },
             { step: "04", title: "Paperwork & Title Transfer", body: "If you accept the Final Offer, we handle all required documentation including the bill of sale, odometer disclosure statement, and title transfer paperwork. All titled owners must be present with valid ID." },
-            { step: "05", title: "Payment", body: "Payment is typically issued the same business day you accept the Final Offer, via check or electronic transfer, subject to successful title verification, clearance of all required documentation, and confirmation of any outstanding lien payoff. HarteCash reserves the right to delay payment if title or lien status cannot be immediately verified." },
+            { step: "05", title: "Payment", body: "Payment is typically issued the same business day you accept the Final Offer, via check or electronic transfer, subject to successful title verification, clearance of all required documentation, and confirmation of any outstanding lien payoff. Our program reserves the right to delay payment if title or lien status cannot be immediately verified." },
           ].map((s) => (
             <div key={s.step} className="flex gap-4 items-start bg-muted border border-border rounded-lg p-4">
               <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -279,14 +279,14 @@ const sections: Section[] = [
     title: "Market Conditions, Re-Appraisals & Limitation of Liability",
     render: () => (
       <>
-        <p>The automotive market changes daily. Regional supply and demand, seasonal buying patterns, fuel prices, interest rate environments, and national inventory levels all influence what any given vehicle is worth at any moment. HarteCash's proprietary valuation model continuously monitors these conditions. If your Offer expires after the 8-day validity window or you request a new appraisal, a fresh Offer will be generated reflecting current market conditions — which may be higher or lower than your original Offer. HarteCash and Harte Auto Group are not responsible for market fluctuations that occur between the date of your Estimated Offer and the date of your inspection appointment.</p>
+        <p>The automotive market changes daily. Regional supply and demand, seasonal buying patterns, fuel prices, interest rate environments, and national inventory levels all influence what any given vehicle is worth at any moment. Our program's proprietary valuation model continuously monitors these conditions. If your Offer expires after the 8-day validity window or you request a new appraisal, a fresh Offer will be generated reflecting current market conditions — which may be higher or lower than your original Offer. Our program and our dealership are not responsible for market fluctuations that occur between the date of your Estimated Offer and the date of your inspection appointment.</p>
         <div className="bg-muted border border-border border-l-4 border-l-foreground rounded-lg p-4 mt-4">
           <p className="text-xs font-bold text-foreground uppercase tracking-wider mb-1.5">Limitation of Liability & Governing Law</p>
           <p className="text-[13px] text-muted-foreground leading-relaxed mb-2.5">
-            <strong className="text-foreground">Limitation of liability:</strong> To the fullest extent permitted by applicable law, HarteCash and Harte Auto Group shall not be liable for any indirect, incidental, consequential, special, or punitive damages arising out of or related to the Estimated Offer, the valuation process, any inspection, or any related transaction — including but not limited to claims that a customer declined or forfeited another offer in reliance on the HarteCash Estimated Offer. HarteCash's maximum liability to any seller shall not exceed the Final Purchase Offer amount stated in the executed purchase agreement, if any.
+            <strong className="text-foreground">Limitation of liability:</strong> To the fullest extent permitted by applicable law, Our program and our dealership shall not be liable for any indirect, incidental, consequential, special, or punitive damages arising out of or related to the Estimated Offer, the valuation process, any inspection, or any related transaction — including but not limited to claims that a customer declined or forfeited another offer in reliance on the Our program Estimated Offer. Our program's maximum liability to any seller shall not exceed the Final Purchase Offer amount stated in the executed purchase agreement, if any.
           </p>
           <p className="text-[13px] text-muted-foreground leading-relaxed">
-            <strong className="text-foreground">Governing law & venue:</strong> This disclosure and any dispute, claim, or controversy arising out of or relating to the HarteCash vehicle valuation program, any Estimated Offer, or any related transaction shall be governed by and construed in accordance with the laws of the State of Connecticut, without regard to its conflict of law provisions. Any legal action or proceeding shall be brought exclusively in the state or federal courts of competent jurisdiction located in the State of Connecticut, and each party irrevocably consents to the personal jurisdiction of such courts.
+            <strong className="text-foreground">Governing law & venue:</strong> This disclosure and any dispute, claim, or controversy arising out of or relating to the Our program vehicle valuation program, any Estimated Offer, or any related transaction shall be governed by and construed in accordance with the laws of the State of Connecticut, without regard to its conflict of law provisions. Any legal action or proceeding shall be brought exclusively in the state or federal courts of competent jurisdiction located in the State of Connecticut, and each party irrevocably consents to the personal jurisdiction of such courts.
           </p>
         </div>
       </>
@@ -352,7 +352,7 @@ const OfferDisclosure = () => {
       <main className="flex-1 max-w-3xl mx-auto px-5 py-10 md:py-14 w-full">
         {/* Intro callout */}
         <div className="bg-card border border-border border-l-4 border-l-primary rounded-xl p-5 mb-7 text-sm leading-relaxed text-muted-foreground">
-          The HarteCash vehicle purchase and trade-in tool provides customers with an <strong className="text-foreground font-semibold">Estimated Purchase Offer</strong> based on information submitted through HarteCash.com. This disclosure explains how your Offer is calculated, your obligations as a seller, our <strong className="text-foreground font-semibold">Fair Value Credit</strong> policy, the full transaction process, and which vehicles are ineligible. Please read this carefully before submitting.
+          The Our program vehicle purchase and trade-in tool provides customers with an <strong className="text-foreground font-semibold">Estimated Purchase Offer</strong> based on information submitted through Our program.com. This disclosure explains how your Offer is calculated, your obligations as a seller, our <strong className="text-foreground font-semibold">Fair Value Credit</strong> policy, the full transaction process, and which vehicles are ineligible. Please read this carefully before submitting.
         </div>
 
         {/* Accordion */}
