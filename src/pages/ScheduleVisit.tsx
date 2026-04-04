@@ -133,7 +133,7 @@ const ScheduleVisit = () => {
       const next = { ...prev, [field]: value };
       // Reset time if date changes and current time is no longer valid
       if (field === "preferred_date") {
-        const slots = getTimeSlotsForDate(value);
+        const slots = getTimeSlotsFromConfig(value, config.business_hours || []);
         if (!slots.includes(prev.preferred_time)) {
           next.preferred_time = "";
         }
