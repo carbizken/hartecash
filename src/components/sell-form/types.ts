@@ -131,6 +131,9 @@ export const initialFormData: FormData = {
   nextStep: "",
   preferredLocationId: "",
   salespersonName: "",
+  manualYear: "",
+  manualMake: "",
+  manualModel: "",
 };
 
 export const STEPS = [
