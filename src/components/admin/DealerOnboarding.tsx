@@ -15,10 +15,10 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import {
   Save, Loader2, CalendarIcon, Building2, Phone as PhoneIcon, Bot,
-  Store, Network, Building, Rocket, CheckCircle, Clock, Pause, XCircle,
-  Sparkles, Globe, ArrowRight
+  Store, Network, Building, Rocket, CheckCircle, Clock, Pause, XCircle
 } from "lucide-react";
 import OnboardingChecklist from "./OnboardingChecklist";
+import DealerWebsiteAutofillCard from "./DealerWebsiteAutofillCard";
 
 interface DealerAccount {
   id: string;
