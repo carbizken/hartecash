@@ -68,7 +68,30 @@ serve(async (req) => {
       }
     });
 
-    const bbData = await bbRes.json();
+    const bbText = await bbRes.text();
+    if (!bbRes.ok) {
+      console.error(`BB API returned ${bbRes.status}: ${bbText.substring(0, 500)}`);
+      return new Response(JSON.stringify({ error: `Black Book API error (${bbRes.status})`, vehicles: [] }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    if (!bbText.trim()) {
+      console.error("BB API returned empty response body");
+      return new Response(JSON.stringify({ error: "Black Book returned empty response", vehicles: [] }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
+    let bbData: Record<string, unknown>;
+    try {
+      bbData = JSON.parse(bbText);
+    } catch (parseErr) {
+      console.error("BB API returned non-JSON:", bbText.substring(0, 500));
+      return new Response(JSON.stringify({ error: "Black Book returned invalid data", vehicles: [] }), {
+        status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
 
     // Check for errors
     if (bbData.error_count > 0) {
