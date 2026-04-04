@@ -1,25 +1,22 @@
+## Pre-Launch Tenant Decoupling & Polish
 
+### 1. De-hardcode "Harte" logo fallbacks (16 files)
+All files import `harte-logo.png` or `harte-logo-white.png` as fallback logos. These should use `config.logo_url` / `config.logo_white_url` with a **generic** fallback (text-based dealer name) instead of a Harte-specific image. Files affected:
+- SiteHeader, SubmissionSuccess, OfferDisclosure, UploadDocs, OfferPage, ScheduleVisit, AdminHeader, UploadPhotos, CustomerPortal, AdminLogin, TermsOfService, PrivacyPolicy, DealAccepted, SubmissionDetailSheet, Sitemap, PitchDeck
 
-## Current Access Points
+### 2. De-hardcode default config strings
+- `useSiteConfig.ts` defaults: Change `"Harte Auto Group"` → `"Our Dealership"`, update about_hero defaults to generic text
+- `TenantContext.tsx`: Change default display_name from `"Harte Auto Group"` → `"AutoCurb"` (platform name)
+- `SEO.tsx`: Change hardcoded `BASE_URL` from hartecash.lovable.app → use `window.location.origin` dynamically
+- `printUtils.ts`: Change "Harte Auto Group" fallback → use passed dealer name or generic
 
-The inspection sheet lives at `/inspection/:id` and can currently only be reached from:
-1. **Offer Page** (`/offer/:token`) — via an "Inspection Sheet" button in the header/footer
-2. **Direct URL** — if you know the submission ID
+### 3. De-hardcode edge function store locations
+- `send-reschedule-notification` and `send-appointment-confirmation`: Replace hardcoded `STORE_LOCATIONS` map with a DB lookup from `dealership_locations` table
 
-It is **not linked from the Admin Dashboard**, which is where inspectors would most naturally look for it.
+### 4. Footer hardcoded color
+- `SiteFooter.tsx` line 34: `bg-[hsl(220,13%,18%)]` should use a semantic token
 
-## Plan: Add Inspection Sheet Access from Admin Dashboard
+### 5. QR code logo in SubmissionSuccess
+- Currently imports `harte-logo.png` for QR overlay — should use `config.logo_url`
 
-### 1. Add "Inspection Sheet" button to the submission detail panel in AdminDashboard
-- In the submission detail sidebar/panel (where you see vehicle info, status, notes), add an "Inspection Sheet" button/link
-- It will navigate to `/inspection/{submission.id}` (opens in new tab so they don't lose their place)
-- Place it near the existing action buttons (Print Offer, etc.)
-
-### 2. Optionally add it to the Admin Sidebar
-- Add an "Inspections" or "Inspection Sheet" entry under the Pipeline group, though since it requires a submission ID, it makes more sense as a per-submission action button rather than a sidebar nav item
-
-### Technical Details
-- **File to edit**: `src/pages/AdminDashboard.tsx` — add a `Link` or `<a target="_blank">` button in the submission detail panel
-- Uses the submission's `id` field to construct `/inspection/${selected.id}`
-- Icon: `ClipboardList` or `Search` (already imported)
-
+**Not changing**: KenPage.tsx (personal pitch deck, intentionally Harte-specific)
