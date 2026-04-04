@@ -33,7 +33,7 @@ const decodeVin = async (vin: string): Promise<VehicleInfo | null> => {
 };
 
 const StepVehicleInfo = ({ formData, update, vehicleInfo, setVehicleInfo, bbSelectedVehicle }: Props) => {
-  const [activeTab, setActiveTab] = useState<"vin" | "plate">("vin");
+  const [activeTab, setActiveTab] = useState<"vin" | "plate" | "ymm">("vin");
   const [vinLoading, setVinLoading] = useState(false);
   const [vinError, setVinError] = useState("");
 
