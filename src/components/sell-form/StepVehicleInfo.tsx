@@ -71,12 +71,21 @@ const StepVehicleInfo = ({ formData, update, vehicleInfo, setVehicleInfo, bbSele
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab("vin")}
+          onClick={() => { setActiveTab("vin"); setVehicleInfo(null); setVinError(""); }}
           className={`flex-1 py-3 text-[15px] font-semibold border-b-[3px] -mb-[2px] transition-all ${
             activeTab === "vin" ? "text-accent border-accent" : "text-muted-foreground border-transparent"
           }`}
         >
           VIN Number
+        </button>
+        <button
+          type="button"
+          onClick={() => { setActiveTab("ymm"); setVehicleInfo(null); setVinError(""); }}
+          className={`flex-1 py-3 text-[15px] font-semibold border-b-[3px] -mb-[2px] transition-all ${
+            activeTab === "ymm" ? "text-accent border-accent" : "text-muted-foreground border-transparent"
+          }`}
+        >
+          Year / Make
         </button>
       </div>
 
