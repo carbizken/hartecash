@@ -296,6 +296,7 @@ const sections: Section[] = [
 
 // ─── Page ────────────────────────────────────────────────────────────────────
 const OfferDisclosure = () => {
+  const { config } = useSiteConfig();
   const [open, setOpen] = useState<number | null>(null);
   const toggle = (i: number) => setOpen(open === i ? null : i);
 
