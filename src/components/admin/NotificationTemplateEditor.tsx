@@ -23,8 +23,8 @@ const SAMPLE_DATA: Record<string, string> = {
   "{{portal_link}}": "https://hartecash.lovable.app/offer/abc123",
   "{{appointment_date}}": "January 15, 2026",
   "{{appointment_time}}": "10:30 AM",
-  "{{location}}": "Harte Auto — Hartford, CT",
-  "{{dealership_name}}": "Harte Auto Group",
+  "{{location}}": "Main Location",
+  "{{dealership_name}}": "Our Dealership",
   "{{status}}": "Offer Made",
   "{{guarantee_days}}": "8",
 };
