@@ -304,15 +304,15 @@ const ServiceLanding = () => {
   return (
     <div className="min-h-screen bg-[hsl(222,47%,5%)] text-[hsl(210,40%,98%)]">
       <SEO
-        title="Service Customer Trade-In Value | Harte Auto Group"
-        description="Already here for service? Find out what your car is worth in 60 seconds. Get a guaranteed cash offer or trade-in value from Harte Auto Group."
+        title="Service Customer Trade-In Value | Our Dealership"
+        description="Already here for service? Find out what your car is worth in 60 seconds. Get a guaranteed cash offer or trade-in value from Our Dealership."
         path="/service"
         noindex
       />
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[hsl(222,47%,5%)]/90 backdrop-blur-md border-b border-[hsl(217,33%,17%)] overflow-visible">
         <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between">
-          <img src={serviceLogo} alt="Harte Auto Group" className="h-32 -my-8" />
+          <img src={serviceLogo} alt="Our Dealership" className="h-32 -my-8" />
           <span className="text-sm font-semibold text-[hsl(215,20%,65%)] tracking-wider uppercase">Service Customer Exclusive</span>
         </div>
       </header>
@@ -561,7 +561,7 @@ const ServiceLanding = () => {
 
                   <div className="p-3 bg-[hsl(222,47%,12%)] border border-[hsl(217,33%,22%)] rounded-lg">
                     <p className="text-[11px] text-[hsl(215,20%,50%)] leading-relaxed">
-                      By submitting, you consent to receive autodialed calls, texts (SMS/MMS), and emails from Harte Auto Group at the number and email provided regarding your vehicle and offer. Consent is not a condition of purchase. Msg & data rates may apply. Msg frequency varies. Reply STOP to opt out. See our{" "}
+                      By submitting, you consent to receive autodialed calls, texts (SMS/MMS), and emails from Our Dealership at the number and email provided regarding your vehicle and offer. Consent is not a condition of purchase. Msg & data rates may apply. Msg frequency varies. Reply STOP to opt out. See our{" "}
                       <a href="/privacy#sms-consent" target="_blank" rel="noopener noreferrer" className="underline text-[hsl(210,80%,60%)] hover:no-underline">Privacy Policy</a>{" "}
                       and{" "}
                       <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline text-[hsl(210,80%,60%)] hover:no-underline">Terms of Service</a>.
@@ -682,7 +682,7 @@ const ServiceLanding = () => {
                         <Car className="w-4 h-4 text-[hsl(210,80%,60%)]" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-[hsl(210,40%,98%)]">Harte Auto Service</p>
+                        <p className="text-xs font-bold text-[hsl(210,40%,98%)]">Our Service Team</p>
                         <p className="text-[10px] text-[hsl(215,20%,50%)]">+1 (866) 851-7390</p>
                       </div>
                     </div>
@@ -692,7 +692,7 @@ const ServiceLanding = () => {
                       <div className="flex justify-start">
                         <div className="max-w-[90%] bg-[hsl(222,47%,18%)] border border-[hsl(217,33%,22%)] rounded-2xl rounded-tl-sm px-3 py-2.5">
                           <p className="text-[11px] text-[hsl(210,40%,92%)] leading-relaxed">
-                            Hi Sarah 👋 — reminder that your 2021 Toyota RAV4 is in for service tomorrow, Fri Feb 21 at 9:30 AM at Harte Auto.
+                            Hi Sarah 👋 — reminder that your 2021 Toyota RAV4 is in for service tomorrow, Fri Feb 21 at 9:30 AM at Our Dealership.
                           </p>
                           <p className="text-[10px] text-[hsl(215,20%,45%)] mt-1">Thu 4:12 PM</p>
                         </div>
@@ -786,7 +786,7 @@ const ServiceLanding = () => {
 
       {/* Footer */}
       <footer className="border-t border-[hsl(217,33%,17%)] py-8 px-5 text-center">
-        <img src={serviceLogo} alt="Harte Auto Group" className="h-20 mx-auto mb-3 opacity-60" />
+        <img src={serviceLogo} alt="Our Dealership" className="h-20 mx-auto mb-3 opacity-60" />
         <p className="text-xs text-[hsl(215,20%,45%)]">
           Family-owned since 1952 • 150 Weston Street, Hartford, CT 06120 • (866) 851-7390
         </p>
