@@ -108,6 +108,67 @@ const StepVehicleInfo = ({ formData, update, vehicleInfo, setVehicleInfo, bbSele
             />
           </FormField>
         </>
+      ) : activeTab === "ymm" ? (
+        <>
+          <p className="text-sm text-muted-foreground mb-4">
+            Don't have your VIN or plate handy? Enter your vehicle details manually.
+          </p>
+          <FormField label="Year">
+            <Input
+              placeholder="e.g. 2021"
+              value={formData.manualYear || ""}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                update("manualYear", val);
+                if (val.length === 4 && formData.manualMake && formData.manualModel) {
+                  setVehicleInfo({ year: val, make: formData.manualMake, model: formData.manualModel });
+                }
+              }}
+              maxLength={4}
+              className="py-3.5 px-4 text-base border-2 border-input focus:border-accent focus:ring-accent/10"
+            />
+          </FormField>
+          <FormField label="Make">
+            <Input
+              placeholder="e.g. Toyota"
+              value={formData.manualMake || ""}
+              onChange={(e) => {
+                update("manualMake", e.target.value);
+                if (formData.manualYear?.length === 4 && e.target.value && formData.manualModel) {
+                  setVehicleInfo({ year: formData.manualYear, make: e.target.value, model: formData.manualModel });
+                }
+              }}
+              className="py-3.5 px-4 text-base border-2 border-input focus:border-accent focus:ring-accent/10"
+            />
+          </FormField>
+          <FormField label="Model">
+            <Input
+              placeholder="e.g. Camry"
+              value={formData.manualModel || ""}
+              onChange={(e) => {
+                update("manualModel", e.target.value);
+                if (formData.manualYear?.length === 4 && formData.manualMake && e.target.value) {
+                  setVehicleInfo({ year: formData.manualYear, make: formData.manualMake, model: e.target.value });
+                }
+              }}
+              className="py-3.5 px-4 text-base border-2 border-input focus:border-accent focus:ring-accent/10"
+            />
+          </FormField>
+          {vehicleInfo && (
+            <div className="mb-5 p-4 bg-success/10 border border-success/30 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle className="w-5 h-5 text-success" />
+                <span className="text-sm font-bold text-card-foreground">Vehicle Set</span>
+              </div>
+              <p className="text-base font-semibold text-card-foreground">
+                {vehicleInfo.year} {vehicleInfo.make} {vehicleInfo.model}
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                For the most accurate offer, try using your VIN instead.
+              </p>
+            </div>
+          )}
+        </>
       ) : (
         <>
           <FormField label="VIN Number">
