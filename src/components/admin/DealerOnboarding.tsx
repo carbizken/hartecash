@@ -246,6 +246,26 @@ const DealerOnboarding = ({ isAdmin = false, onNavigate, targetDealershipId, onD
         </Badge>
       </div>
 
+      {/* AI Auto-Fill CTA */}
+      {onNavigate && (
+        <Card className="border-primary/30 bg-gradient-to-r from-primary/5 to-accent/5">
+          <CardContent className="flex items-center gap-4 py-4">
+            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 shrink-0">
+              <Sparkles className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-sm text-card-foreground">AI-Powered Auto-Fill</h3>
+              <p className="text-xs text-muted-foreground">Scrape the dealer's website to auto-populate branding, contact info, colors, and social links.</p>
+            </div>
+            <Button onClick={() => onNavigate("onboarding-script")} size="sm" className="gap-2 shrink-0">
+              <Globe className="w-4 h-4" />
+              Open Onboarding Script
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Onboarding Checklist */}
       <OnboardingChecklist onNavigate={onNavigate} dealershipId={dealershipId} />
 
