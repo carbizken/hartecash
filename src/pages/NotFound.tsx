@@ -9,7 +9,7 @@ const NotFound = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SEO
-        title="Page Not Found | Harte Auto Group"
+        title={`Page Not Found | ${config.dealership_name}`}
         description="The page you're looking for doesn't exist. Get a cash offer for your car in 2 minutes."
         path="/404"
         noindex
