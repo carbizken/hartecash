@@ -77,6 +77,7 @@ Deno.serve(async (req) => {
     const firstName = sanitize(customer_name?.split(" ")[0]) || "friend";
 
     // Fetch dealership name (reuse adminClient from above)
+    const appointmentDealershipId = appointment.dealership_id || "default";
     const { data: siteConfig } = await adminClient
       .from("site_config")
       .select("dealership_name")
