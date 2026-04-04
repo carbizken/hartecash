@@ -2,7 +2,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Printer, Save, CheckCircle2, Loader2, QrCode, Link2, X, Smartphone } from "lucide-react";
+import { Printer, Save, CheckCircle2, Loader2, QrCode, Link2, X, Smartphone, Sparkles, Globe } from "lucide-react";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -231,6 +231,8 @@ export default function OnboardingScript({ targetDealershipId }: OnboardingScrip
   const [loading, setLoading] = useState(true);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [dirty, setDirty] = useState(false);
+  const [scrapeUrl, setScrapeUrl] = useState("");
+  const [scraping, setScraping] = useState(false);
 
   // Count filled answers
   const totalQuestions = SECTIONS.reduce((sum, s) => sum + s.questions.length, 0);
@@ -273,6 +275,82 @@ export default function OnboardingScript({ targetDealershipId }: OnboardingScrip
     });
     setDirty(true);
   }, []);
+
+  const handleScrape = async () => {
+    if (!scrapeUrl.trim()) {
+      toast.error("Enter a dealer website URL first");
+      return;
+    }
+    setScraping(true);
+    toast.info("Scanning dealer website… this may take 15-30 seconds");
+    try {
+      const { data, error } = await supabase.functions.invoke("scrape-dealer-site", {
+        body: { url: scrapeUrl.trim() },
+      });
+      if (error) throw error;
+      if (!data?.success || !data?.data) {
+        toast.error(data?.error || "Failed to extract dealer info");
+        setScraping(false);
+        return;
+      }
+
+      const d = data.data;
+      const fieldMap: Record<string, string | undefined> = {
+        dealership_name: d.dealership_name,
+        tagline: d.tagline,
+        phone: d.phone,
+        email: d.email,
+        address: d.address,
+        website: d.website || scrapeUrl.trim(),
+        google_review: d.google_review,
+        facebook: d.facebook,
+        instagram: d.instagram,
+        tiktok: d.tiktok,
+        youtube: d.youtube,
+        primary_color: d.primary_color,
+        accent_color: d.accent_color,
+        architecture: d.architecture,
+      };
+
+      // Map locations
+      if (d.locations && Array.isArray(d.locations)) {
+        d.locations.forEach((loc: any, i: number) => {
+          const n = i + 1;
+          if (loc.name) fieldMap[`loc${n}_name`] = loc.name;
+          if (loc.address) fieldMap[`loc${n}_address`] = loc.address;
+          if (loc.city_state_zip) fieldMap[`loc${n}_csz`] = loc.city_state_zip;
+          if (loc.brands) fieldMap[`loc${n}_brands`] = loc.brands;
+        });
+      }
+
+      // Map business hours
+      if (d.business_hours && Array.isArray(d.business_hours)) {
+        // Store as a readable summary
+        const hoursStr = d.business_hours.map((h: any) => `${h.days}: ${h.hours}`).join("\n");
+        if (hoursStr) fieldMap["business_hours_summary"] = hoursStr;
+      }
+
+      // Apply all found values (don't overwrite existing answers)
+      let filled = 0;
+      setAnswers((prev) => {
+        const next = { ...prev };
+        for (const [key, val] of Object.entries(fieldMap)) {
+          if (val && val.trim() && !next[key]?.trim()) {
+            next[key] = val;
+            filled++;
+          }
+        }
+        return next;
+      });
+
+      setDirty(true);
+      toast.success(`Auto-filled ${filled} fields from ${d.dealership_name || "website"}`);
+    } catch (err: any) {
+      console.error("Scrape error:", err);
+      toast.error("Failed to scrape website: " + (err.message || "Unknown error"));
+    }
+    setScraping(false);
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -379,6 +457,33 @@ export default function OnboardingScript({ targetDealershipId }: OnboardingScrip
           </div>
         </div>
       )}
+
+      {/* AI Auto-Fill Panel */}
+      <div className="mb-6 border rounded-lg p-5 bg-gradient-to-r from-primary/5 to-accent/5 print:hidden">
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="w-5 h-5 text-primary" />
+          <h3 className="font-semibold text-sm">AI Auto-Fill from Dealer Website</h3>
+        </div>
+        <p className="text-xs text-muted-foreground mb-3">
+          Enter the dealer's website URL and we'll automatically pull their name, phone, address, colors, social links, locations, and more.
+        </p>
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="e.g. harteauto.com"
+              value={scrapeUrl}
+              onChange={(e) => setScrapeUrl(e.target.value)}
+              className="pl-9 h-9"
+              onKeyDown={(e) => e.key === "Enter" && handleScrape()}
+            />
+          </div>
+          <Button onClick={handleScrape} size="sm" disabled={scraping} className="gap-2 shrink-0">
+            {scraping ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            {scraping ? "Scanning…" : "Scrape & Auto-Fill"}
+          </Button>
+        </div>
+      </div>
 
       {/* Progress bar */}
       <div className="mb-6 print:hidden">
