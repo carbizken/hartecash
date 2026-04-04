@@ -23,30 +23,62 @@ interface DealerLocation {
   show_in_scheduling: boolean;
 }
 
-// Store hours: Mon-Thu 9AM-7PM, Fri-Sat 9AM-6PM, Sun Closed
-const WEEKDAY_SLOTS = [
-  "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM",
-  "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
-  "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM",
-  "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM",
-  "5:00 PM", "5:30 PM", "6:00 PM", "6:30 PM",
-];
+/**
+ * Parses "9 AM" or "7 PM" → 9 or 19 (24h).
+ * Handles formats like "9 AM", "12 PM", "6 PM".
+ */
+const parseHour = (str: string): number => {
+  const m = str.trim().match(/^(\d{1,2})\s*(AM|PM)$/i);
+  if (!m) return 9;
+  let h = parseInt(m[1], 10);
+  const period = m[2].toUpperCase();
+  if (period === "PM" && h !== 12) h += 12;
+  if (period === "AM" && h === 12) h = 0;
+  return h;
+};
 
-const FRIDAY_SAT_SLOTS = [
-  "9:00 AM", "9:30 AM", "10:00 AM", "10:30 AM",
-  "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
-  "1:00 PM", "1:30 PM", "2:00 PM", "2:30 PM",
-  "3:00 PM", "3:30 PM", "4:00 PM", "4:30 PM",
-  "5:00 PM", "5:30 PM",
-];
+const generateSlots = (openHour: number, closeHour: number): string[] => {
+  const slots: string[] = [];
+  for (let h = openHour; h < closeHour; h++) {
+    for (const min of [0, 30]) {
+      const display = h % 12 === 0 ? 12 : h % 12;
+      const ampm = h < 12 ? "AM" : "PM";
+      slots.push(`${display}:${min === 0 ? "00" : "30"} ${ampm}`);
+    }
+  }
+  return slots;
+};
 
-const getTimeSlotsForDate = (dateStr: string): string[] => {
-  if (!dateStr) return WEEKDAY_SLOTS;
+/** Maps day-of-week index (0=Sun…6=Sat) to a label used in business_hours config */
+const DAY_LABELS: Record<number, string[]> = {
+  0: ["Sun", "Sunday"],
+  1: ["Mon", "Monday", "Mon–Thu", "Mon-Thu", "Mon–Fri", "Mon-Fri"],
+  2: ["Tue", "Tuesday", "Mon–Thu", "Mon-Thu", "Mon–Fri", "Mon-Fri"],
+  3: ["Wed", "Wednesday", "Mon–Thu", "Mon-Thu", "Mon–Fri", "Mon-Fri"],
+  4: ["Thu", "Thursday", "Mon–Thu", "Mon-Thu", "Mon–Fri", "Mon-Fri"],
+  5: ["Fri", "Friday", "Fri–Sat", "Fri-Sat", "Mon–Fri", "Mon-Fri"],
+  6: ["Sat", "Saturday", "Fri–Sat", "Fri-Sat"],
+};
+
+const getTimeSlotsFromConfig = (
+  dateStr: string,
+  hours: { days: string; hours: string }[]
+): string[] => {
+  if (!dateStr || !hours?.length) return generateSlots(9, 19);
   const date = new Date(dateStr + "T12:00:00");
-  const day = date.getDay(); // 0=Sun, 1=Mon, ..., 5=Fri, 6=Sat
-  if (day === 0) return []; // Sunday closed
-  if (day === 5 || day === 6) return FRIDAY_SAT_SLOTS; // Fri-Sat 9-6
-  return WEEKDAY_SLOTS; // Mon-Thu 9-7
+  const dow = date.getDay();
+  const labels = DAY_LABELS[dow] || [];
+
+  for (const entry of hours) {
+    if (labels.some((l) => entry.days.includes(l))) {
+      if (/closed/i.test(entry.hours)) return [];
+      const parts = entry.hours.split(/\s*[–-]\s*/);
+      if (parts.length === 2) {
+        return generateSlots(parseHour(parts[0]), parseHour(parts[1]));
+      }
+    }
+  }
+  return generateSlots(9, 19);
 };
 
 const isSunday = (dateStr: string): boolean => {

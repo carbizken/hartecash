@@ -4,11 +4,12 @@ import { useSiteConfig } from "@/hooks/useSiteConfig";
 const ValueProps = () => {
   const { config } = useSiteConfig();
   const shortName = (config.dealership_name || "Us").split(" ")[0];
+  const days = config.price_guarantee_days || 8;
   const items = [
     {
       icon: <Shield className="w-8 h-8 text-success" />,
-      title: "8-Day Price Guarantee",
-      desc: "Your offer is locked in for 8 full days. No pressure, no surprises — sell on your schedule.",
+      title: `${days}-Day Price Guarantee`,
+      desc: `Your offer is locked in for ${days} full days. No pressure, no surprises — sell on your schedule.`,
       highlight: true,
     },
     {
