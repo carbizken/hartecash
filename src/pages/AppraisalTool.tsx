@@ -19,10 +19,9 @@ import {
   Pencil, ArrowDown, Loader2, ClipboardCheck, BarChart3, ArrowRight,
   Calendar, Plus, Trash2, Shield, SlidersHorizontal, CheckSquare, Zap, Lock, Unlock,
 } from "lucide-react";
-import ProfitSpreadGauge from "@/components/admin/ProfitSpreadGauge";
-import MarketContextPanel from "@/components/admin/MarketContextPanel";
-import RetailMarketPanel from "@/components/admin/RetailMarketPanel";
-import BrakePadDepthWidget from "@/components/inspection/BrakePadDepthWidget";
+import AppraisalConditionInputs from "@/components/appraisal/AppraisalConditionInputs";
+import AppraisalTireBrakeHealth from "@/components/appraisal/AppraisalTireBrakeHealth";
+import AppraisalSidebar from "@/components/appraisal/AppraisalSidebar";
 import { calculateOffer, type OfferSettings, type OfferRule, type OfferEstimate, calcHighMileagePenaltyPct, calcColorAdjustmentPct, DEFAULT_HIGH_MILEAGE_PENALTY, DEFAULT_COLOR_DESIRABILITY, DEFAULT_SEASONAL_ADJUSTMENT } from "@/lib/offerCalculator";
 import type { FormData, BBVehicle, BBAddDeduct } from "@/components/sell-form/types";
 import { formatGrade } from "@/lib/formatGrade";
