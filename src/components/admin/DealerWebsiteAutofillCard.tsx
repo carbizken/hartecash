@@ -366,7 +366,12 @@ export default function DealerWebsiteAutofillCard({
         configFillCount += 1;
       }
 
-      const businessHours = Array.isArray(scraped.business_hours)
+      const successColor = normalizeBrandColor(scraped.success_color);
+      if (successColor && !isFilledText(currentConfig?.success_color)) {
+        configUpdates.success_color = successColor;
+        configFillCount += 1;
+      }
+
         ? scraped.business_hours
             .filter((item) => isFilledText(item?.days) && isFilledText(item?.hours))
             .map((item) => ({ days: item.days!.trim(), hours: item.hours!.trim() }))
