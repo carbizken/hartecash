@@ -38,7 +38,7 @@ const stepCtaLabels: Record<string, string> = {
   "Select Your Vehicle": "That's My Car",
   "Vehicle Build": "Next: Condition →",
   "Condition": "Almost Done →",
-  "History": "Next →",
+  "History": "Next: Your Details →",
 };
 
 const stepVariants = {
