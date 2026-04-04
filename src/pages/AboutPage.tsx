@@ -27,31 +27,30 @@ const ICON_MAP: Record<string, LucideIcon> = {
 };
 
 const DEFAULT_MILESTONES: AboutMilestone[] = [
-  { year: "1951", label: "George Harte Sr. opens his first Chevrolet dealership in Connecticut" },
-  { year: "1970s", label: "The Harte family expands into West Haven, Wallingford & beyond" },
-  { year: "2014", label: "New state-of-the-art Infiniti facility built in Wallingford" },
-  { year: "2020s", label: "Tom & Greg Harte launch Harte Cash — a digital-first vehicle buying platform" },
-  { year: "Today", label: "Four generations, five locations, and 14,000+ vehicles purchased from neighbors across CT" },
+  { year: "Day 1", label: "Founded with a mission to make selling your car simple" },
+  { year: "Growth", label: "Expanded operations and built a reputation for fairness" },
+  { year: "Digital", label: "Launched an online platform for instant cash offers" },
+  { year: "Today", label: "Thousands of vehicles purchased from happy customers" },
 ];
 
 const DEFAULT_VALUES: AboutValue[] = [
-  { icon: "HandshakeIcon", title: "You're Family Here", text: "George Harte Sr. believed every customer deserves to be treated like family. Four generations later, that's still the standard. No pressure, no games — just honest conversations." },
-  { icon: "Shield", title: "Nothing Hidden, Ever", text: "Every offer includes a full breakdown. We show you exactly how we valued your vehicle, what we factored in, and what you'll walk away with. Transparency isn't a buzzword here — it's how we were raised." },
-  { icon: "Clock", title: "Your Time Matters", text: "We built Harte Cash so you can get a real offer in under 2 minutes — not 2 hours at a dealership. We handle the loan payoffs, the paperwork, and we'll even come pick up your car." },
-  { icon: "Award", title: "Earned Trust, Not Bought", text: "A 4.9-star rating across 2,400+ reviews doesn't happen by accident. It comes from decades of keeping our word and treating people right. Ask your neighbor — chances are they've worked with us." },
+  { icon: "HandshakeIcon", title: "You're Family Here", text: "Every customer deserves to be treated like family. No pressure, no games — just honest conversations." },
+  { icon: "Shield", title: "Nothing Hidden, Ever", text: "Every offer includes a full breakdown. We show you exactly how we valued your vehicle, what we factored in, and what you'll walk away with." },
+  { icon: "Clock", title: "Your Time Matters", text: "Get a real offer in under 2 minutes — not 2 hours at a dealership. We handle the loan payoffs, the paperwork, and we'll even come pick up your car." },
+  { icon: "Award", title: "Earned Trust, Not Bought", text: "Our reputation comes from decades of keeping our word and treating people right." },
 ];
 
 const DEFAULT_STORY = "";
 
 const AboutPage = () => {
   const { config } = useSiteConfig();
-  const name = config.dealership_name || "Harte Auto Group";
+  const name = config.dealership_name || "Our Dealership";
   const [locations, setLocations] = useState<DealerLocation[]>([]);
 
   const milestones = config.about_milestones?.length ? config.about_milestones : DEFAULT_MILESTONES;
   const values = config.about_values?.length ? config.about_values : DEFAULT_VALUES;
-  const heroHeadline = config.about_hero_headline || "Four Generations. One Promise.";
-  const heroSubtext = config.about_hero_subtext || "Since 1951, the Harte family has been helping Connecticut drivers — not just sell and buy cars, but feel good about the experience. That's the only way we know how to do it.";
+  const heroHeadline = config.about_hero_headline || "Our Story";
+  const heroSubtext = config.about_hero_subtext || "We're passionate about helping drivers get the most value for their vehicles — no haggling, no stress.";
   const customStory = config.about_story || DEFAULT_STORY;
 
   useEffect(() => {
@@ -130,33 +129,24 @@ const AboutPage = () => {
             ) : (
               <div className="prose prose-sm max-w-none text-foreground/85 space-y-4">
                 <p>
-                  It started with a handshake. In <strong>1951</strong>, George Harte Sr.
-                  opened a Chevrolet dealership in Connecticut with one simple belief:
-                  <em> treat every person who walks through your door like family</em>. He
-                  didn't have a marketing team or a mission statement — just a genuine desire
-                  to help his neighbors find the right car at a fair price.
+                  We started with a simple belief:
+                  <em> treat every person who walks through your door like family</em>. No
+                  marketing gimmicks or corporate scripts — just a genuine desire
+                  to help our neighbors get a fair deal.
                 </p>
                 <p>
-                  That belief became the foundation for everything that followed. The
-                  dealership grew from a single lot into{" "}
-                  <strong>{locations.length || 5} locations</strong> across Connecticut,
-                  representing Nissan, Infiniti, and Hyundai. George's children carried the
-                  business forward, and today, brothers <strong>Tom and Greg Harte</strong>{" "}
-                  lead the group as third-generation owners — with the fourth generation
-                  already part of the family business.
-                </p>
-                <p>
-                  A lot has changed since 1951. But the way we treat people hasn't. Many of
-                  our team members have been with us for <strong>10, 15, even 20+ years</strong>.
+                  That belief became the foundation for everything that followed. We grew from a single location into{" "}
+                  <strong>{locations.length || "multiple"} locations</strong>, and our team members
+                  have been with us for <strong>10, 15, even 20+ years</strong>.
                   Customers come back generation after generation — not because we run the
                   flashiest ads, but because when they work with us, they know they'll be
                   treated honestly.
                 </p>
                 <p>
                   That's why we built <strong>{name}</strong>. We wanted to bring
-                  that same family-first philosophy to people who just want to sell their car
+                  that same philosophy to people who just want to sell their car
                   — quickly, fairly, and without the runaround. You get a real offer in
-                  under 2 minutes, backed by an{" "}
+                  under 2 minutes, backed by a{" "}
                   <strong>{config.price_guarantee_days || 8}-day price guarantee</strong>.
                   We handle the loan payoffs, the paperwork, and we'll even pick up your
                   vehicle for free. It's the kind of experience we'd want for our own family.
@@ -228,18 +218,17 @@ const AboutPage = () => {
                   </div>
                 </article>
               ))}
-              {locations.length === 0 &&
-                ["Harte Nissan — Hartford", "Harte Infiniti — Hartford", "George Harte Nissan — West Haven", "George Harte Infiniti — Wallingford", "Harte Hyundai — Old Saybrook"].map((l) => (
-                  <div key={l} className="bg-card border border-border rounded-xl p-5 flex items-start gap-3">
-                    <div className="shrink-0 w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mt-0.5">
-                      <Building2 className="w-4 h-4 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-foreground text-sm">{l.split(" — ")[0]}</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">{l.split(" — ")[1]}, CT</p>
-                    </div>
+              {locations.length === 0 && (
+                <div className="bg-card border border-border rounded-xl p-5 flex items-start gap-3">
+                  <div className="shrink-0 w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center mt-0.5">
+                    <Building2 className="w-4 h-4 text-primary" />
                   </div>
-                ))}
+                  <div>
+                    <h3 className="font-bold text-foreground text-sm">{name}</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">{config.address || "Contact us for location details"}</p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </section>

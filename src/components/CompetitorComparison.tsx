@@ -13,7 +13,7 @@ interface ComparisonFeature {
 const CompetitorComparison = () => {
   const { config } = useSiteConfig();
   const { tenant } = useTenant();
-  const name = config.dealership_name || "Harte Auto Group";
+  const name = config.dealership_name || "Our Dealership";
   const shortName = name.split(" ")[0];
   const animate = config.enable_animations;
 

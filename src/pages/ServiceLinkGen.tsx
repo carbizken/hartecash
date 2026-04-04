@@ -206,7 +206,7 @@ const ServiceLinkGen = () => {
       {/* Header */}
       <header className={t.header}>
         <div className="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between">
-          <img src={serviceLogo} alt="Harte Auto Group" className="h-32 -my-8" />
+          <img src={serviceLogo} alt="Service" className="h-32 -my-8" />
           <div className="flex items-center gap-4">
             <span className={`text-sm font-semibold tracking-wider uppercase ${t.headerLabel}`}>Link Generator</span>
             <button

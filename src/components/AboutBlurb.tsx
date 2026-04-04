@@ -7,7 +7,7 @@ import { useSiteConfig } from "@/hooks/useSiteConfig";
  */
 const AboutBlurb = () => {
   const { config } = useSiteConfig();
-  const name = config.dealership_name || "Harte Auto Group";
+  const name = config.dealership_name || "Our Dealership";
 
   return (
     <section

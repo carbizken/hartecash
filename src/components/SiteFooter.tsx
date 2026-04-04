@@ -31,7 +31,7 @@ const SiteFooter = () => {
   }, []);
 
   return (
-    <footer className="bg-[hsl(220,13%,18%)] text-primary-foreground py-10 lg:py-14 px-5">
+    <footer className="bg-card border-t border-border py-10 lg:py-14 px-5 text-card-foreground">
       <div className="max-w-6xl mx-auto lg:grid lg:grid-cols-3 lg:gap-8 text-center lg:text-left">
         <div>
           <h3 className="text-xl font-bold mb-4 opacity-90">{dealerName.toUpperCase()}</h3>
@@ -54,7 +54,7 @@ const SiteFooter = () => {
             )}
           </div>
           {locations.filter(l => l.show_in_footer).length > 0 && (
-            <div className="mt-4 pt-3 border-t border-white/10">
+            <div className="mt-4 pt-3 border-t border-border">
               <h5 className="text-xs font-bold uppercase tracking-wider opacity-50 mb-2">Our Locations</h5>
               <div className="text-xs opacity-50 leading-relaxed space-y-1">
                  {locations.filter(l => l.show_in_footer).map((loc) => (

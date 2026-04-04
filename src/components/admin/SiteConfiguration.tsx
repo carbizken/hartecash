@@ -55,7 +55,7 @@ interface SiteConfig {
 
 const DEFAULT_CONFIG: SiteConfig = {
   id: "",
-  dealership_name: "Harte Auto Group",
+  dealership_name: "Our Dealership",
   tagline: "Sell Your Car The Easy Way",
   phone: "",
   email: "",
@@ -756,7 +756,7 @@ const SiteConfiguration = () => {
           <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
             <div className="flex-1 mr-3">
               <Label className="text-sm font-semibold">Match Vehicle Brand to OEM Dealership</Label>
-              <p className="text-xs text-muted-foreground mt-0.5">Route a Nissan to Harte Nissan, an Infiniti to Harte Infiniti, etc. based on the vehicle make being sold.</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Route vehicles to the matching brand's location based on the vehicle make being sold.</p>
             </div>
             <Switch
               checked={config.assign_oem_brand_match}

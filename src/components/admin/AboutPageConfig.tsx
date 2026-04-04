@@ -174,7 +174,7 @@ const AboutPageConfig = () => {
               className="font-mono text-xs"
             />
             <p className="text-[10px] text-muted-foreground mt-1">
-              Leave blank to use the default Harte story. Supports basic HTML tags for formatting.
+              Leave blank to use the default story. Supports basic HTML tags for formatting.
             </p>
           </div>
         </CollapsibleContent>

@@ -1,14 +1,15 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import harteLogo from "@/assets/harte-logo-white.png";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 import SEO from "@/components/SEO";
 
 const PrivacyPolicy = () => {
+  const { config } = useSiteConfig();
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SEO
-        title="Privacy Policy | Harte Auto Group"
-        description="Learn how Harte Auto Group collects, uses, and protects your personal information. Includes SMS consent details and your data rights."
+        title={`Privacy Policy | ${config.dealership_name}`}
+        description={`Learn how ${config.dealership_name} collects, uses, and protects your personal information.`}
         path="/privacy"
       />
       <div className="bg-primary text-primary-foreground px-6 py-4">
@@ -16,7 +17,11 @@ const PrivacyPolicy = () => {
           <Link to="/" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <img src={harteLogo} alt="Harte Auto Group" className="h-20 w-auto" />
+          {config.logo_white_url ? (
+            <img src={config.logo_white_url} alt={config.dealership_name} className="h-20 w-auto" />
+          ) : (
+            <span className="text-lg font-bold">{config.dealership_name}</span>
+          )}
           <h1 className="font-bold text-lg">Privacy Policy</h1>
         </div>
       </div>
@@ -29,7 +34,7 @@ const PrivacyPolicy = () => {
           <section>
             <h2 className="text-xl font-bold text-foreground">1. Who We Are</h2>
             <p>
-              Harte Auto Group ("we," "us," or "our") operates the website{" "}
+              Our Dealership ("we," "us," or "our") operates the website{" "}
               <strong>hartecash.com</strong> and related services. We are a family-owned automobile
               dealership group serving Connecticut since 1952. Our principal office is located at
               150 Weston Street, Hartford, CT 06120.
@@ -65,7 +70,7 @@ const PrivacyPolicy = () => {
               By providing your phone number on any form on hartecash.com — including but not limited to
               the vehicle appraisal form, appointment scheduling form, and service customer form — you
               expressly consent to receive autodialed and/or pre-recorded text messages (SMS and MMS)
-              and phone calls from Harte Auto Group at the phone number you provided. These communications
+              and phone calls from Our Dealership at the phone number you provided. These communications
               may include:
             </p>
             <ul className="list-disc pl-5 space-y-1">
@@ -90,7 +95,7 @@ const PrivacyPolicy = () => {
             <p>
               Your consent to receive text messages is documented at the time of form submission and
               retained in our records. We do not sell, rent, or share your phone number with third
-              parties for their marketing purposes. Your phone number will only be used by Harte Auto
+              parties for their marketing purposes. Your phone number will only be used by our dealership
               Group and its authorized service providers for the purposes described above.
             </p>
           </section>
@@ -160,7 +165,7 @@ const PrivacyPolicy = () => {
             <h2 className="text-xl font-bold text-foreground">11. Contact Us</h2>
             <p>If you have questions about this Privacy Policy or our data practices, contact us:</p>
             <div className="bg-muted/50 border border-border rounded-lg p-4">
-              <p className="font-bold">Harte Auto Group</p>
+              <p className="font-bold">Our Dealership</p>
               <p>150 Weston Street, Hartford, CT 06120</p>
               <p>Phone: (866) 851-7390</p>
             </div>
@@ -170,7 +175,7 @@ const PrivacyPolicy = () => {
 
       <footer className="border-t border-border py-6 px-5 text-center">
         <p className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Harte Auto Group. All rights reserved.
+          © {new Date().getFullYear()} Our Dealership. All rights reserved.
         </p>
       </footer>
     </div>

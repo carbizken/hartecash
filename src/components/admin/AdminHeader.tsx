@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { LogOut, Moon, Sun } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import harteLogoWhiteFallback from "@/assets/harte-logo-white.png";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { ROLE_LABELS } from "@/lib/adminConstants";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -13,12 +13,17 @@ interface AdminHeaderProps {
 }
 
 const AdminHeader = ({ darkMode, setDarkMode, userRole, onLogout }: AdminHeaderProps) => {
+  const { config } = useSiteConfig();
   return (
     <header className="sticky top-0 z-50 bg-gradient-to-r from-[hsl(210,100%,15%)] via-[hsl(210,100%,20%)] to-[hsl(220,80%,18%)] text-white shadow-lg">
       <div className="px-3 md:px-4 py-1 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 md:gap-3 min-w-0">
           <SidebarTrigger className="text-white/80 hover:text-white hover:bg-white/10 -ml-1 shrink-0" />
-          <img src={harteLogoWhiteFallback} alt="Dashboard" className="h-12 md:h-20 w-auto shrink-0" />
+          {config.logo_white_url ? (
+            <img src={config.logo_white_url} alt="Dashboard" className="h-12 md:h-20 w-auto shrink-0" />
+          ) : (
+            <span className="text-sm md:text-base font-bold shrink-0">{config.dealership_name}</span>
+          )}
           <div className="min-w-0">
             <span className="text-sm md:text-lg font-bold">Dashboard</span>
             <span className="hidden sm:inline ml-2 text-xs px-2 py-0.5 rounded-full bg-white/20 text-white/90 font-medium">

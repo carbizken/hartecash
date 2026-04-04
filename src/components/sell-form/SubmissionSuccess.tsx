@@ -5,7 +5,7 @@ import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import type { VehicleInfo } from "./types";
 import type { OfferEstimate } from "@/lib/offerCalculator";
-import harteLogo from "@/assets/harte-logo.png";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 
 interface Props {
   uploadUrl: string;
@@ -18,6 +18,7 @@ const formatCurrency = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
 const SubmissionSuccess = ({ uploadUrl, vehicleInfo, nextStep, offerEstimate }: Props) => {
+  const { config } = useSiteConfig();
   useEffect(() => {
     const duration = 2000;
     const end = Date.now() + duration;
@@ -96,11 +97,13 @@ const SubmissionSuccess = ({ uploadUrl, vehicleInfo, nextStep, offerEstimate }: 
 
       <div className="bg-white p-4 rounded-xl inline-block shadow-lg mb-5 relative">
         <QRCodeSVG value={uploadUrl} size={200} level="H" />
-        <img
-          src={harteLogo}
-          alt=""
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-md bg-white p-1 shadow-sm"
-        />
+        {config.logo_url && (
+          <img
+            src={config.logo_url}
+            alt=""
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-md bg-white p-1 shadow-sm"
+          />
+        )}
       </div>
 
       <div className="flex items-center gap-4 bg-muted/50 rounded-xl p-6 text-left">

@@ -1,14 +1,15 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import harteLogo from "@/assets/harte-logo-white.png";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 import SEO from "@/components/SEO";
 
 const TermsOfService = () => {
+  const { config } = useSiteConfig();
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SEO
-        title="Terms of Service | Harte Auto Group"
-        description="Review the terms and conditions for using hartecash.com and Harte Auto Group's vehicle appraisal and purchasing services."
+        title={`Terms of Service | ${config.dealership_name}`}
+        description={`Review the terms and conditions for using ${config.dealership_name}'s vehicle appraisal and purchasing services.`}
         path="/terms"
       />
       <div className="bg-primary text-primary-foreground px-6 py-4">
@@ -16,7 +17,11 @@ const TermsOfService = () => {
           <Link to="/" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <img src={harteLogo} alt="Harte Auto Group" className="h-20 w-auto" />
+          {config.logo_white_url ? (
+            <img src={config.logo_white_url} alt={config.dealership_name} className="h-20 w-auto" />
+          ) : (
+            <span className="text-lg font-bold">{config.dealership_name}</span>
+          )}
           <h1 className="font-bold text-lg">Terms of Service</h1>
         </div>
       </div>
@@ -30,7 +35,7 @@ const TermsOfService = () => {
             <h2 className="text-xl font-bold text-foreground">1. Acceptance of Terms</h2>
             <p>
               By accessing or using the hartecash.com website and related services operated by
-              Harte Auto Group ("we," "us," or "our"), you agree to be bound by these Terms of
+              Our Dealership ("we," "us," or "our"), you agree to be bound by these Terms of
               Service. If you do not agree to these terms, please do not use our services.
             </p>
           </section>
@@ -38,7 +43,7 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-xl font-bold text-foreground">2. Services</h2>
             <p>
-              Harte Auto Group provides an online platform for vehicle appraisals, trade-in offers,
+              Our Dealership provides an online platform for vehicle appraisals, trade-in offers,
               appointment scheduling, and related automotive services. All offers and valuations
               provided through our website are estimates and subject to in-person vehicle inspection
               and verification.
@@ -59,7 +64,7 @@ const TermsOfService = () => {
             <h2 className="text-xl font-bold text-foreground">4. Communications Consent</h2>
             <p>
               By submitting your contact information through any form on our website, you consent to
-              receive communications from Harte Auto Group, including but not limited to phone calls,
+              receive communications from Our Dealership, including but not limited to phone calls,
               text messages (SMS/MMS), and emails regarding your vehicle submission, offer, or
               appointment. See our{" "}
               <Link to="/privacy#sms-consent" className="text-primary underline hover:no-underline">
@@ -82,7 +87,7 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-xl font-bold text-foreground">6. Limitation of Liability</h2>
             <p>
-              Our website and services are provided "as is" without warranties of any kind. Harte Auto
+              Our website and services are provided "as is" without warranties of any kind. Our dealership
               Group shall not be liable for any indirect, incidental, or consequential damages arising
               from your use of our services.
             </p>
@@ -99,7 +104,7 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-xl font-bold text-foreground">8. Contact</h2>
             <p>
-              Questions about these Terms should be directed to Harte Auto Group at (866) 851-7390
+              Questions about these Terms should be directed to Our Dealership at (866) 851-7390
               or at 150 Weston Street, Hartford, CT 06120.
             </p>
           </section>
@@ -108,7 +113,7 @@ const TermsOfService = () => {
 
       <footer className="border-t border-border py-6 px-5 text-center">
         <p className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Harte Auto Group. All rights reserved.
+          © {new Date().getFullYear()} Our Dealership. All rights reserved.
         </p>
       </footer>
     </div>

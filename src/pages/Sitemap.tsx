@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
-import harteLogo from "@/assets/harte-logo-white.png";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 
 const Sitemap = () => {
+  const { config } = useSiteConfig();
   const sections = [
     {
       title: "Main Pages",
@@ -49,7 +50,11 @@ const Sitemap = () => {
           <Link to="/" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <img src={harteLogo} alt="Harte Auto Group" className="h-20 w-auto" />
+          {config.logo_white_url ? (
+            <img src={config.logo_white_url} alt={config.dealership_name} className="h-20 w-auto" />
+          ) : (
+            <span className="text-lg font-bold">{config.dealership_name}</span>
+          )}
           <h1 className="font-bold text-lg">Sitemap</h1>
         </div>
       </div>
@@ -91,7 +96,7 @@ const Sitemap = () => {
 
       <footer className="border-t border-border py-6 px-5 text-center">
         <p className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Harte Auto Group. All rights reserved.
+          © {new Date().getFullYear()} Our Dealership. All rights reserved.
         </p>
       </footer>
     </div>
