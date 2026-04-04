@@ -34,7 +34,7 @@ const PrivacyPolicy = () => {
           <section>
             <h2 className="text-xl font-bold text-foreground">1. Who We Are</h2>
             <p>
-              Harte Auto Group ("we," "us," or "our") operates the website{" "}
+              Our Dealership ("we," "us," or "our") operates the website{" "}
               <strong>hartecash.com</strong> and related services. We are a family-owned automobile
               dealership group serving Connecticut since 1952. Our principal office is located at
               150 Weston Street, Hartford, CT 06120.
@@ -70,7 +70,7 @@ const PrivacyPolicy = () => {
               By providing your phone number on any form on hartecash.com — including but not limited to
               the vehicle appraisal form, appointment scheduling form, and service customer form — you
               expressly consent to receive autodialed and/or pre-recorded text messages (SMS and MMS)
-              and phone calls from Harte Auto Group at the phone number you provided. These communications
+              and phone calls from Our Dealership at the phone number you provided. These communications
               may include:
             </p>
             <ul className="list-disc pl-5 space-y-1">
@@ -165,7 +165,7 @@ const PrivacyPolicy = () => {
             <h2 className="text-xl font-bold text-foreground">11. Contact Us</h2>
             <p>If you have questions about this Privacy Policy or our data practices, contact us:</p>
             <div className="bg-muted/50 border border-border rounded-lg p-4">
-              <p className="font-bold">Harte Auto Group</p>
+              <p className="font-bold">Our Dealership</p>
               <p>150 Weston Street, Hartford, CT 06120</p>
               <p>Phone: (866) 851-7390</p>
             </div>
@@ -175,7 +175,7 @@ const PrivacyPolicy = () => {
 
       <footer className="border-t border-border py-6 px-5 text-center">
         <p className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Harte Auto Group. All rights reserved.
+          © {new Date().getFullYear()} Our Dealership. All rights reserved.
         </p>
       </footer>
     </div>

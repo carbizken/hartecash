@@ -35,7 +35,7 @@ const TermsOfService = () => {
             <h2 className="text-xl font-bold text-foreground">1. Acceptance of Terms</h2>
             <p>
               By accessing or using the hartecash.com website and related services operated by
-              Harte Auto Group ("we," "us," or "our"), you agree to be bound by these Terms of
+              Our Dealership ("we," "us," or "our"), you agree to be bound by these Terms of
               Service. If you do not agree to these terms, please do not use our services.
             </p>
           </section>
@@ -43,7 +43,7 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-xl font-bold text-foreground">2. Services</h2>
             <p>
-              Harte Auto Group provides an online platform for vehicle appraisals, trade-in offers,
+              Our Dealership provides an online platform for vehicle appraisals, trade-in offers,
               appointment scheduling, and related automotive services. All offers and valuations
               provided through our website are estimates and subject to in-person vehicle inspection
               and verification.
@@ -64,7 +64,7 @@ const TermsOfService = () => {
             <h2 className="text-xl font-bold text-foreground">4. Communications Consent</h2>
             <p>
               By submitting your contact information through any form on our website, you consent to
-              receive communications from Harte Auto Group, including but not limited to phone calls,
+              receive communications from Our Dealership, including but not limited to phone calls,
               text messages (SMS/MMS), and emails regarding your vehicle submission, offer, or
               appointment. See our{" "}
               <Link to="/privacy#sms-consent" className="text-primary underline hover:no-underline">
@@ -104,7 +104,7 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-xl font-bold text-foreground">8. Contact</h2>
             <p>
-              Questions about these Terms should be directed to Harte Auto Group at (866) 851-7390
+              Questions about these Terms should be directed to Our Dealership at (866) 851-7390
               or at 150 Weston Street, Hartford, CT 06120.
             </p>
           </section>
@@ -113,7 +113,7 @@ const TermsOfService = () => {
 
       <footer className="border-t border-border py-6 px-5 text-center">
         <p className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Harte Auto Group. All rights reserved.
+          © {new Date().getFullYear()} Our Dealership. All rights reserved.
         </p>
       </footer>
     </div>
