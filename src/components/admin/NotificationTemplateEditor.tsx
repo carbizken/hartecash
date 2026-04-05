@@ -20,7 +20,7 @@ const SAMPLE_DATA: Record<string, string> = {
   "{{vehicle}}": "2021 Toyota Camry",
   "{{mileage}}": "34,200",
   "{{offer_amount}}": "$18,500",
-  "{{portal_link}}": "https://hartecash.lovable.app/offer/abc123",
+  "{{portal_link}}": "https://app.autocurb.io/offer/abc123",
   "{{appointment_date}}": "January 15, 2026",
   "{{appointment_time}}": "10:30 AM",
   "{{location}}": "Main Location",
