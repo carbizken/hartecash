@@ -25,7 +25,7 @@ const STATUS_COLORS: Record<string, string> = {
   rewarded: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300",
 };
 
-const MyReferrals = ({ staffName, staffEmail }: { staffName: string; staffEmail: string }) => {
+const MyReferrals = ({ staffName }: { staffName: string }) => {
   const { tenant } = useTenant();
   const { toast } = useToast();
   const [referrals, setReferrals] = useState<MyReferral[]>([]);
