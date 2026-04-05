@@ -34,7 +34,7 @@ const TermsOfService = () => {
           <section>
             <h2 className="text-xl font-bold text-foreground">1. Acceptance of Terms</h2>
             <p>
-              By accessing or using the hartecash.com website and related services operated by
+              By accessing or using this website and related services operated by
               Our Dealership ("we," "us," or "our"), you agree to be bound by these Terms of
               Service. If you do not agree to these terms, please do not use our services.
             </p>

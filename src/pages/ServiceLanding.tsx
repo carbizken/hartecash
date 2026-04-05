@@ -709,7 +709,7 @@ const ServiceLanding = () => {
                           {/* Personalized deep link */}
                           <div className="mt-2 bg-[hsl(210,100%,20%)]/30 border border-[hsl(210,100%,30%)]/40 rounded-xl px-2.5 py-2">
                             <p className="text-[9px] text-[hsl(210,80%,70%)] font-bold break-all leading-snug">
-                              hartecash.com/service?vin=2T3BFREV5MW123456<br />&date=2026-02-21&time=9%3A30+AM
+                              yourdealership.com/service?vin=2T3BFREV5MW123456<br />&date=2026-02-21&time=9%3A30+AM
                             </p>
                             <p className="text-[9px] text-[hsl(215,20%,50%)] mt-0.5">Your vehicle & appt are pre-filled ✓</p>
                           </div>
