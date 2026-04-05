@@ -83,7 +83,8 @@ const SubmissionsTable = ({
   };
 
   const cellPad = isCompact ? "px-2 py-1.5" : "px-3 py-3";
-  const fontSize = isCompact ? "text-xs" : "text-sm";
+
+  const getHoursSinceUpdate = (sub: Submission) => {
     const refDate = sub.status_updated_at || sub.created_at;
     return (Date.now() - new Date(refDate).getTime()) / (1000 * 60 * 60);
   };
