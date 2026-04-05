@@ -84,6 +84,15 @@ const ReferralPage = () => {
     toast({ title: "Copied!", description: "Your referral link is on the clipboard." });
   };
 
+  const sendSms = () => {
+    if (!smsPhone.trim()) return;
+    const message = `Hey! I just signed up with ${dealerName} to sell/trade cars and earn rewards. Check them out using my link: ${referralLink}`;
+    const smsUrl = `sms:${smsPhone.trim()}?body=${encodeURIComponent(message)}`;
+    window.open(smsUrl, "_self");
+    setSmsSent(true);
+    toast({ title: "Text ready!", description: "Your messaging app should open with the referral link pre-filled." });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <SEO
