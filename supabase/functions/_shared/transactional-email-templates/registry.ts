@@ -26,4 +26,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'appointment-reminder': appointmentReminder,
   'appointment-rescheduled': appointmentRescheduled,
   'referral-invite': referralInvite,
+  'demo-request': demoRequest,
 }
