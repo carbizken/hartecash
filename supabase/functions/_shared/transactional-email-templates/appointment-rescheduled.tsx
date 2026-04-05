@@ -55,8 +55,8 @@ export const template = {
     vehicle: '2022 Honda Accord',
     appointmentDate: 'January 20, 2026',
     appointmentTime: '2:00 PM',
-    location: 'Harte Nissan — Hartford',
-    dealershipName: 'Harte Nissan',
+    location: 'Example Motors — Main St',
+    dealershipName: 'Example Motors',
   },
 } satisfies TemplateEntry
 

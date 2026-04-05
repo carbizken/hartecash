@@ -119,12 +119,12 @@ export const template = {
     customerName: 'Jane Smith',
     vehicle: '2022 Honda Accord',
     offerAmount: '$18,500',
-    portalLink: 'https://hartecash.lovable.app/offer/abc123',
-    photosLink: 'https://hartecash.lovable.app/upload-photos/abc123',
-    docsLink: 'https://hartecash.lovable.app/upload-docs/abc123',
+    portalLink: 'https://example.com/offer/abc123',
+    photosLink: 'https://example.com/upload-photos/abc123',
+    docsLink: 'https://example.com/upload-docs/abc123',
     hasPhotos: false,
     hasDocs: false,
-    dealershipName: 'Harte Nissan',
+    dealershipName: 'Example Motors',
   },
 } satisfies TemplateEntry
 
