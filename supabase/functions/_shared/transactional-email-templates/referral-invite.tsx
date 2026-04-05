@@ -167,11 +167,11 @@ export const template = {
   displayName: 'Customer referral invite',
   previewData: {
     customerName: 'Mike Johnson',
-    referralLink: 'https://hartecash.lovable.app/?ref=ABCD1234',
+    referralLink: 'https://example.com/?ref=ABCD1234',
     rewardAmount: '200',
-    dealershipName: 'Harte Nissan',
-    staffName: 'Sarah from Harte Nissan',
-    personalNote: "Hey Mike! I work at Harte Nissan and we're buying cars right now at great prices. I thought of you — it literally takes 2 minutes to get an offer. You should check it out!",
+    dealershipName: 'Example Motors',
+    staffName: 'Sarah from Example Motors',
+    personalNote: "Hey Mike! I work at Example Motors and we're buying cars right now at great prices. I thought of you — it literally takes 2 minutes to get an offer. You should check it out!",
     isStaffInvite: true,
   },
 } satisfies TemplateEntry
