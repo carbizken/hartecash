@@ -107,6 +107,7 @@ const checklistSubtext = { fontSize: '13px', color: 'hsl(220, 9%, 46%)', margin:
 const checklistItems = { margin: '0' }
 const checklistItem = { fontSize: '14px', color: 'hsl(210, 29%, 24%)', margin: '0 0 10px', lineHeight: '1.4', paddingLeft: '4px' }
 
+const uploadBtn = { backgroundColor: 'hsl(210, 100%, 25%)', color: '#ffffff', fontSize: '14px', fontWeight: 'bold' as const, padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' as const, marginTop: '10px' }
 const tipBox = { backgroundColor: '#fffbeb', borderRadius: '8px', padding: '14px 16px', margin: '0 0 20px', border: '1px solid #fde68a' }
 const tipText = { fontSize: '13px', color: 'hsl(210, 29%, 24%)', margin: '0', lineHeight: '1.5' }
 
