@@ -516,7 +516,7 @@ export default function PitchDeck() {
                 return (
                   <button
                     key={key}
-                    onClick={() => setExpandedChannel(isExpanded ? null : key)}
+                    onClick={() => handleChannelClick(key)}
                     className={`group rounded-2xl border backdrop-blur-sm p-8 text-left transition-all duration-300 cursor-pointer ${
                       isExpanded ? colorMap[color] : "border-white/10 bg-white/5 hover:border-white/20"
                     }`}
