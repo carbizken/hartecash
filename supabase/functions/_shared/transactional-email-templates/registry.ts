@@ -16,6 +16,7 @@ import { template as appointmentConfirmation } from './appointment-confirmation.
 import { template as appointmentReminder } from './appointment-reminder.tsx'
 import { template as appointmentRescheduled } from './appointment-rescheduled.tsx'
 import { template as referralInvite } from './referral-invite.tsx'
+import { template as demoRequest } from './demo-request.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'offer-ready': offerReady,
