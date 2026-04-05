@@ -188,7 +188,7 @@ const DealAccepted = () => {
       <div className="min-h-screen bg-background">
         <div className="bg-gradient-to-r from-primary via-[hsl(210,100%,30%)] to-primary text-primary-foreground px-6 py-4">
           <div className="max-w-lg mx-auto flex items-center gap-3">
-            <img src={config.logo_white_url || harteLogoFallback} alt={config.dealership_name || "Dealership"} className="h-[50px] w-auto" />
+            <img src={config.logo_white_url || logoFallback} alt={config.dealership_name || "Dealership"} className="h-[50px] w-auto" />
             <div>
               <h1 className="font-bold text-lg">Almost There!</h1>
               <p className="text-sm opacity-80">Lock in your offer</p>
@@ -339,7 +339,7 @@ const DealAccepted = () => {
             Back to offer
           </Link>
           <div className="flex items-center gap-3">
-            <img src={config.logo_white_url || harteLogoFallback} alt={config.dealership_name || "Dealership"} className="h-[70px] w-auto" />
+            <img src={config.logo_white_url || logoFallback} alt={config.dealership_name || "Dealership"} className="h-[70px] w-auto" />
             <div className="flex-1">
               <h1 className="font-bold text-lg lg:text-xl">
                 {isFirstVisit ? "Deal Accepted!" : "Welcome Back!"}

@@ -334,7 +334,7 @@ const UploadPhotos = () => {
           <Link to={`/my-submission/${token}`} className="text-primary-foreground/80 hover:text-primary-foreground transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <img src={config.logo_white_url || harteLogoFallback} alt={config.dealership_name} className="h-[70px] w-auto" />
+          <img src={config.logo_white_url || logoFallback} alt={config.dealership_name} className="h-[70px] w-auto" />
           <h1 className="font-bold text-lg">Upload Vehicle Photos</h1>
         </div>
       </div>

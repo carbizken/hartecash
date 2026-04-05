@@ -313,7 +313,7 @@ const CustomerPortal = () => {
             My submissions
           </Link>
           <div className="flex items-center gap-4">
-            <img src={config.logo_white_url || harteLogoWhiteFallback} alt={config.dealership_name || "Dealership"} className="h-[70px] w-auto drop-shadow-lg" />
+            <img src={config.logo_white_url || logoWhiteFallback} alt={config.dealership_name || "Dealership"} className="h-[70px] w-auto drop-shadow-lg" />
             <div className="flex-1 border-l border-primary-foreground/15 pl-4">
               <h1 className="font-display text-xl lg:text-2xl tracking-wide">{vehicleStr || "My Submission"}</h1>
               {firstName && <p className="text-sm text-primary-foreground/70 mt-0.5">Welcome back, {firstName}</p>}

@@ -12,7 +12,7 @@ const SiteHeader = () => {
   const show = () => { clearTimeout(timeout.current); setOpen(true); };
   const hide = () => { timeout.current = setTimeout(() => setOpen(false), 200); };
 
-  const logoSrc = config.logo_url || harteLogo;
+  const logoSrc = config.logo_url || logoFallback;
   const dealerName = config.dealership_name || "Our Dealership";
 
   return (

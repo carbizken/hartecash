@@ -209,7 +209,7 @@ const SubmissionDetailSheet = ({
     }
     let logoBase64 = "";
     try {
-      const resp = await fetch(harteLogoFallback);
+      const resp = await fetch(logoFallback);
       const blob = await resp.blob();
       logoBase64 = await new Promise<string>((resolve) => { const r = new FileReader(); r.onloadend = () => resolve(r.result as string); r.readAsDataURL(blob); });
     } catch { logoBase64 = ""; }
