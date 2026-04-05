@@ -341,7 +341,8 @@ export function calculateOffer(
   formData: FormData,
   selectedAddDeducts: string[],
   settings?: OfferSettings | null,
-  rules?: OfferRule[] | null
+  rules?: OfferRule[] | null,
+  promoBonus?: number
 ): OfferEstimate | null {
   if (!bbVehicle) return null;
 
