@@ -17,7 +17,7 @@ import {
 
 import type { TemplateEntry } from './registry.ts'
 
-const SITE_NAME = 'Harte Auto Group'
+const SITE_NAME = 'Our Dealership'
 
 interface OfferReadyProps {
   customerName?: string
