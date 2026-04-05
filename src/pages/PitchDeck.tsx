@@ -85,6 +85,8 @@ function BrowserFrame({ label, children, className = "" }: { label: string; chil
 export default function PitchDeck() {
   const { config } = useSiteConfig();
   const [expandedChannel, setExpandedChannel] = useState<"off-street" | "service" | "trade" | null>(null);
+  const [showDemoForm, setShowDemoForm] = useState(false);
+  const [demoSubmitting, setDemoSubmitting] = useState(false);
   const channelRef = useRef<HTMLDivElement>(null);
   const expandedRef = useRef<HTMLDivElement>(null);
 
