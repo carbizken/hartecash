@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import {
   Inbox, CalendarDays, Users, ShieldCheck, SlidersHorizontal,
-  Settings, Bell, ListChecks, MessageSquareQuote, BarChart3, Send, MapPin, Car, ScrollText, Shield, Lock, Wrench, Rocket, Gauge, Network, Camera
+  Settings, Bell, ListChecks, MessageSquareQuote, BarChart3, Send, MapPin, Car, ScrollText, Shield, Lock, Wrench, Rocket, Gauge, Network, Camera, Gift
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
@@ -88,6 +88,7 @@ const AdminSidebar = ({
   const teamBadgeCount = canManageAccess ? pendingRequestCount + permissionRequestCount : 0;
   const systemItems = [
     ...(canManageAccess ? [{ key: "staff", label: "Staff & Permissions", icon: Users, badge: teamBadgeCount > 0 ? String(teamBadgeCount) : undefined, badgeVariant: "destructive" as const }] : []),
+    ...(canManageAccess ? [{ key: "referrals", label: "Referrals", icon: Gift }] : []),
     { key: "compliance", label: "Compliance", icon: ShieldCheck },
     { key: "reports", label: "Reports & Export", icon: Send },
     ...(isPlatformAdmin ? [{ key: "tenants", label: "Dealer Tenants", icon: Network }] : []),

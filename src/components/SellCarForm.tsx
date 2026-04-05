@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Shield, Loader2 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import CalculatingOffer from "@/components/CalculatingOffer";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { Button } from "@/components/ui/button";
@@ -54,6 +54,8 @@ interface SellCarFormProps {
 
 const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarFormProps) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const referralCode = searchParams.get("ref") || undefined;
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [vehicleInfo, setVehicleInfo] = useState<VehicleInfo | null>(null);
@@ -437,6 +439,7 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
           store_location_id: storeLocationId || null,
           salesperson_name: formData.salespersonName || null,
           bb_selected_options: selectedAddDeducts.length > 0 ? selectedAddDeducts : [],
+          referral_code: referralCode || null,
         } as any);
 
       if (error) throw error;

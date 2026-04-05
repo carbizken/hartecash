@@ -1432,6 +1432,77 @@ export type Database = {
         }
         Relationships: []
       }
+      referrals: {
+        Row: {
+          converted_at: string | null
+          created_at: string
+          dealership_id: string
+          id: string
+          notes: string | null
+          referral_code: string
+          referred_by_staff: string | null
+          referred_name: string | null
+          referred_submission_id: string | null
+          referrer_email: string | null
+          referrer_name: string | null
+          referrer_phone: string | null
+          referrer_token: string | null
+          reward_amount: number | null
+          reward_type: string | null
+          rewarded_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          converted_at?: string | null
+          created_at?: string
+          dealership_id?: string
+          id?: string
+          notes?: string | null
+          referral_code: string
+          referred_by_staff?: string | null
+          referred_name?: string | null
+          referred_submission_id?: string | null
+          referrer_email?: string | null
+          referrer_name?: string | null
+          referrer_phone?: string | null
+          referrer_token?: string | null
+          reward_amount?: number | null
+          reward_type?: string | null
+          rewarded_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          converted_at?: string | null
+          created_at?: string
+          dealership_id?: string
+          id?: string
+          notes?: string | null
+          referral_code?: string
+          referred_by_staff?: string | null
+          referred_name?: string | null
+          referred_submission_id?: string | null
+          referrer_email?: string | null
+          referrer_name?: string | null
+          referrer_phone?: string | null
+          referrer_token?: string | null
+          reward_amount?: number | null
+          reward_type?: string | null
+          rewarded_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_submission_id_fkey"
+            columns: ["referred_submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       site_config: {
         Row: {
           about_hero_headline: string
@@ -1730,6 +1801,7 @@ export type Database = {
           photos_uploaded: boolean
           plate: string | null
           progress_status: string
+          referral_code: string | null
           review_requested: boolean
           review_requested_at: string | null
           salesperson_name: string | null
@@ -1825,6 +1897,7 @@ export type Database = {
           photos_uploaded?: boolean
           plate?: string | null
           progress_status?: string
+          referral_code?: string | null
           review_requested?: boolean
           review_requested_at?: string | null
           salesperson_name?: string | null
@@ -1920,6 +1993,7 @@ export type Database = {
           photos_uploaded?: boolean
           plate?: string | null
           progress_status?: string
+          referral_code?: string | null
           review_requested?: boolean
           review_requested_at?: string | null
           salesperson_name?: string | null
