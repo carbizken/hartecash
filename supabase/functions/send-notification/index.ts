@@ -1,4 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import * as React from 'npm:react@18.3.1'
+import { renderAsync } from 'npm:@react-email/components@0.0.22'
+import { TEMPLATES } from '../_shared/transactional-email-templates/registry.ts'
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -6,7 +9,20 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-/** Default templates — must stay in sync with src/lib/notificationDefaults.ts */
+// Map notification trigger_keys to transactional email template names
+const TRIGGER_TO_TEMPLATE: Record<string, string> = {
+  customer_offer_ready: 'offer-ready',
+  customer_offer_accepted: 'offer-accepted',
+  customer_offer_increased: 'offer-increased',
+  customer_appointment_booked: 'appointment-confirmation',
+  customer_appointment_reminder: 'appointment-reminder',
+  customer_appointment_rescheduled: 'appointment-rescheduled',
+};
+
+const SENDER_DOMAIN = "notify.autocurb.io";
+const FROM_DOMAIN = "notify.autocurb.io";
+
+/** Default templates for staff emails and fallback */
 const DEFAULT_TEMPLATES: Record<string, { email_subject: string; email_body: string; sms_body: string }> = {
   customer_offer_ready: {
     email_subject: "Your Offer Is Ready — {{dealership_name}}",
@@ -20,18 +36,23 @@ const DEFAULT_TEMPLATES: Record<string, { email_subject: string; email_body: str
   },
   customer_offer_accepted: {
     email_subject: "Offer Accepted — Next Steps for Your {{vehicle}}",
-    email_body: "Hi {{customer_name}},\n\nThank you for accepting our offer on your {{vehicle}}!\n\nOffer Amount: {{offer_amount}}\n\nNext Steps:\n1. Schedule your inspection visit\n2. Bring your title, registration, and valid ID\n3. We'll handle the rest!\n\nSchedule now: {{portal_link}}\n\nBest regards,\n{{dealership_name}}",
+    email_body: "Hi {{customer_name}},\n\nThank you for accepting our offer on your {{vehicle}}!\n\nOffer Amount: {{offer_amount}}\n\nSchedule now: {{portal_link}}\n\nBest regards,\n{{dealership_name}}",
     sms_body: "Hi {{customer_name}}, your offer of {{offer_amount}} for your {{vehicle}} is confirmed! Schedule your visit: {{portal_link}} — {{dealership_name}}",
   },
   customer_appointment_reminder: {
     email_subject: "Reminder: Your Appointment Is Tomorrow",
-    email_body: "Hi {{customer_name}},\n\nJust a friendly reminder — your inspection is tomorrow!\n\nDate: {{appointment_date}}\nTime: {{appointment_time}}\nLocation: {{location}}\nVehicle: {{vehicle}}\n\nRemember to bring:\n• Vehicle title\n• Valid photo ID\n• Registration\n• All keys & remotes\n\nSee you soon!\n{{dealership_name}}",
+    email_body: "Hi {{customer_name}},\n\nJust a friendly reminder — your inspection is tomorrow!\n\nDate: {{appointment_date}}\nTime: {{appointment_time}}\nLocation: {{location}}\nVehicle: {{vehicle}}\n\nSee you soon!\n{{dealership_name}}",
     sms_body: "Reminder: Your visit is tomorrow at {{appointment_time}} at {{location}}. Bring title, ID & keys. See you there! — {{dealership_name}}",
   },
   customer_appointment_rescheduled: {
     email_subject: "Your Appointment Has Been Rescheduled",
-    email_body: "Hi {{customer_name}},\n\nYour inspection appointment has been rescheduled.\n\nNew Date: {{appointment_date}}\nNew Time: {{appointment_time}}\nLocation: {{location}}\nVehicle: {{vehicle}}\n\nIf you need to make changes, please contact us.\n\nBest regards,\n{{dealership_name}}",
+    email_body: "Hi {{customer_name}},\n\nYour inspection appointment has been rescheduled.\n\nNew Date: {{appointment_date}}\nNew Time: {{appointment_time}}\nLocation: {{location}}\n\nBest regards,\n{{dealership_name}}",
     sms_body: "Hi {{customer_name}}, your appointment has been rescheduled to {{appointment_date}} at {{appointment_time}} at {{location}}. — {{dealership_name}}",
+  },
+  customer_appointment_booked: {
+    email_subject: "Appointment Confirmed — {{appointment_date}}",
+    email_body: "Hi {{customer_name}},\n\nYour inspection appointment has been confirmed.\n\nDate: {{appointment_date}}\nTime: {{appointment_time}}\nLocation: {{location}}\n\nRemember to bring title, ID, registration, and all keys.\n\nSee you soon!\n{{dealership_name}}",
+    sms_body: "Appointment confirmed for {{appointment_date}} at {{appointment_time}} at {{location}}. Bring title, ID & keys. — {{dealership_name}}",
   },
   staff_customer_accepted: {
     email_subject: "🎉 Customer Accepted Offer — {{customer_name}}",
@@ -75,7 +96,7 @@ const DEFAULT_TEMPLATES: Record<string, { email_subject: string; email_body: str
   },
   abandoned_lead: {
     email_subject: "⚠️ Abandoned Lead — {{customer_name}}",
-    email_body: "A customer started the sell form but didn't finish.\n\nName: {{customer_name}}\nEmail: {{customer_email}}\nPhone: {{customer_phone}}\nVehicle: {{vehicle}}\nMileage: {{mileage}}\n\nThis lead needs immediate follow-up. They showed interest but left before getting an offer.",
+    email_body: "A customer started the sell form but didn't finish.\n\nName: {{customer_name}}\nEmail: {{customer_email}}\nPhone: {{customer_phone}}\nVehicle: {{vehicle}}\nMileage: {{mileage}}\n\nThis lead needs immediate follow-up.",
     sms_body: "⚠️ Abandoned lead: {{customer_name}} ({{vehicle}}) started the form but didn't finish. Follow up ASAP!",
   },
 };
@@ -112,18 +133,21 @@ function textToHtml(text: string, dealerName: string): string {
     </div>`;
 }
 
+function generateToken(): string {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 interface SendRequest {
   trigger_key: string;
   submission_id?: string;
-  // For customer triggers, email/phone come from submission
-  // For staff triggers, recipients come from notification_settings
-  // Extra context data:
   appointment_date?: string;
   appointment_time?: string;
   location?: string;
-  channels?: string[]; // override channels
-  recipient_email?: string; // explicit override
-  recipient_phone?: string; // explicit override
+  channels?: string[];
+  recipient_email?: string;
+  recipient_phone?: string;
 }
 
 Deno.serve(async (req) => {
@@ -146,7 +170,7 @@ Deno.serve(async (req) => {
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch submission data if provided (needed to derive dealership_id)
+    // Fetch submission data if provided
     let sub: any = null;
     let dealershipId = "default";
     if (submission_id) {
@@ -168,18 +192,18 @@ Deno.serve(async (req) => {
     const dealerName = siteConfig?.dealership_name || "Our Dealership";
     const guaranteeDays = String(siteConfig?.price_guarantee_days || 8);
 
-    // Fetch notification settings scoped to tenant
+    // Fetch notification settings
     const { data: notifSettings } = await supabase
       .from("notification_settings")
       .select("*")
       .eq("dealership_id", dealershipId)
       .maybeSingle();
 
-    // Check if this trigger is enabled
     const isStaffTrigger = trigger_key.startsWith("staff_") ||
       ["new_submission", "hot_lead", "appointment_booked", "photos_uploaded", "docs_uploaded", "status_change", "abandoned_lead"].includes(trigger_key);
     const isCustomerTrigger = trigger_key.startsWith("customer_");
 
+    // Check if trigger enabled
     const enabledKey = `notify_${trigger_key}`;
     if (notifSettings && (notifSettings as any)[enabledKey] === false) {
       return new Response(JSON.stringify({ skipped: true, reason: "Trigger disabled" }), {
@@ -187,12 +211,10 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get channels — column name is always `{trigger_key}_channels`
+    // Get channels
     const fullChannelKey = `${trigger_key}_channels`;
-
     const channels: string[] = body.channels ||
-      (notifSettings as any)?.[fullChannelKey] ||
-      ["email"];
+      (notifSettings as any)?.[fullChannelKey] || ["email"];
 
     // Build template variables
     const vehicle = sub ? [sub.vehicle_year, sub.vehicle_make, sub.vehicle_model].filter(Boolean).join(" ") : "";
@@ -238,19 +260,16 @@ Deno.serve(async (req) => {
     let smsRecipients: string[] = [];
 
     if (isCustomerTrigger) {
-      // Send to the customer
       if (body.recipient_email) emailRecipients = [body.recipient_email];
       else if (sub?.email) emailRecipients = [sub.email];
       if (body.recipient_phone) smsRecipients = [body.recipient_phone];
       else if (sub?.phone) smsRecipients = [sub.phone];
     } else if (isStaffTrigger) {
-      // Check for per-trigger recipient overrides
       const triggerRecipients = (notifSettings as any)?.staff_trigger_recipients?.[trigger_key];
       if (triggerRecipients) {
         emailRecipients = triggerRecipients.emails || [];
         smsRecipients = triggerRecipients.phones || [];
       } else {
-        // Fall back to global staff recipients
         emailRecipients = (notifSettings as any)?.email_recipients || [];
         smsRecipients = (notifSettings as any)?.sms_recipients || [];
       }
@@ -259,107 +278,175 @@ Deno.serve(async (req) => {
     // Check opt-outs for customer triggers
     if (isCustomerTrigger && sub) {
       if (sub.email) {
-        const { data: optOut } = await supabase
+        const { data: emailOpt } = await supabase
           .from("opt_outs")
           .select("id")
-          .or(`email.eq.${sub.email},phone.eq.${sub.phone}`)
+          .eq("email", sub.email)
+          .in("channel", ["email", "all"])
           .limit(1);
-        if (optOut && optOut.length > 0) {
-          // Check specific channels
-          const { data: emailOpt } = await supabase
-            .from("opt_outs")
-            .select("id")
-            .eq("email", sub.email)
-            .in("channel", ["email", "all"])
-            .limit(1);
-          if (emailOpt && emailOpt.length > 0) emailRecipients = [];
+        if (emailOpt && emailOpt.length > 0) emailRecipients = [];
 
-          const { data: smsOpt } = await supabase
-            .from("opt_outs")
-            .select("id")
-            .eq("phone", sub.phone)
-            .in("channel", ["sms", "all"])
-            .limit(1);
-          if (smsOpt && smsOpt.length > 0) smsRecipients = [];
-        }
+        const { data: smsOpt } = await supabase
+          .from("opt_outs")
+          .select("id")
+          .eq("phone", sub.phone)
+          .in("channel", ["sms", "all"])
+          .limit(1);
+        if (smsOpt && smsOpt.length > 0) smsRecipients = [];
       }
     }
 
     // Check quiet hours for SMS
     if (notifSettings && (notifSettings as any).quiet_hours_enabled) {
       const now = new Date();
-      const hours = now.getHours();
-      const mins = now.getMinutes();
-      const currentTime = `${String(hours).padStart(2, "0")}:${String(mins).padStart(2, "0")}`;
+      const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
       const start = (notifSettings as any).quiet_hours_start || "21:00";
       const end = (notifSettings as any).quiet_hours_end || "08:00";
       const inQuietHours = start > end
         ? currentTime >= start || currentTime < end
         : currentTime >= start && currentTime < end;
-      if (inQuietHours) {
-        smsRecipients = []; // Suppress SMS during quiet hours
-      }
+      if (inQuietHours) smsRecipients = [];
     }
 
     const results: { email?: string; sms?: string } = {};
 
-    // Helper to log notification
     const logNotification = async (channel: string, recipient: string, status: string, errorMsg?: string) => {
       try {
         await supabase.from("notification_log").insert({
-          trigger_key,
-          channel,
-          recipient,
-          status,
+          trigger_key, channel, recipient, status,
           error_message: errorMsg || null,
           submission_id: submission_id || null,
+          dealership_id: dealershipId,
         });
       } catch (e) {
         console.error("Failed to log notification:", e);
       }
     };
 
-    // Send emails
+    // ── SEND EMAILS ──
     if (channels.includes("email") && emailRecipients.length > 0) {
-      const resendKey = Deno.env.get("RESEND_API_KEY");
-      if (resendKey) {
-        try {
-          const emailHtml = textToHtml(emailBodyText, dealerName);
-          const emailRes = await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${resendKey}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              from: `${dealerName} <onboarding@resend.dev>`,
-              to: emailRecipients,
-              subject: emailSubject,
-              html: emailHtml,
-            }),
-          });
-          const emailData = await emailRes.json();
-          console.log("Email response:", JSON.stringify(emailData));
-          const emailStatus = emailRes.ok ? "sent" : "failed";
-          results.email = emailRes.ok ? "sent" : `failed: ${JSON.stringify(emailData)}`;
-          for (const addr of emailRecipients) {
-            await logNotification("email", addr, emailStatus, emailRes.ok ? undefined : JSON.stringify(emailData));
-          }
-        } catch (e) {
-          console.error("Email error:", e);
-          results.email = "error";
-          for (const addr of emailRecipients) {
+      const templateKey = TRIGGER_TO_TEMPLATE[trigger_key];
+      const reactTemplate = templateKey ? TEMPLATES[templateKey] : null;
+
+      if (isCustomerTrigger && reactTemplate) {
+        // Use branded React Email template + email queue for customer emails
+        for (const addr of emailRecipients) {
+          try {
+            const templateData = {
+              customerName: templateVars.customer_name,
+              vehicle: templateVars.vehicle,
+              offerAmount: templateVars.offer_amount,
+              portalLink: templateVars.portal_link,
+              guaranteeDays: templateVars.guarantee_days,
+              dealershipName: templateVars.dealership_name,
+              appointmentDate: templateVars.appointment_date,
+              appointmentTime: templateVars.appointment_time,
+              location: templateVars.location,
+            };
+
+            const html = await renderAsync(React.createElement(reactTemplate.component, templateData));
+            const plainText = await renderAsync(React.createElement(reactTemplate.component, templateData), { plainText: true });
+            const resolvedSubject = typeof reactTemplate.subject === 'function'
+              ? reactTemplate.subject(templateData)
+              : reactTemplate.subject;
+
+            const messageId = crypto.randomUUID();
+            const idempotencyKey = `${trigger_key}-${submission_id || 'no-sub'}-${messageId}`;
+
+            // Log pending
+            await supabase.from("email_send_log").insert({
+              message_id: messageId,
+              template_name: templateKey,
+              recipient_email: addr,
+              status: "pending",
+            });
+
+            // Enqueue to transactional email queue
+            const { error: enqueueError } = await supabase.rpc("enqueue_email", {
+              queue_name: "transactional_emails",
+              payload: {
+                message_id: messageId,
+                to: addr,
+                from: `${dealerName} <noreply@${FROM_DOMAIN}>`,
+                sender_domain: SENDER_DOMAIN,
+                subject: resolvedSubject,
+                html,
+                text: plainText,
+                purpose: "transactional",
+                label: templateKey,
+                idempotency_key: idempotencyKey,
+                queued_at: new Date().toISOString(),
+              },
+            });
+
+            if (enqueueError) {
+              console.error("Failed to enqueue customer email:", enqueueError);
+              results.email = `failed: ${enqueueError.message}`;
+              await logNotification("email", addr, "failed", enqueueError.message);
+            } else {
+              console.log(`Customer email enqueued: ${templateKey} → ${addr}`);
+              results.email = "queued";
+              await logNotification("email", addr, "sent");
+            }
+          } catch (e) {
+            console.error("Customer email error:", e);
+            results.email = "error";
             await logNotification("email", addr, "error", String(e));
           }
         }
       } else {
-        results.email = "skipped: no RESEND_API_KEY";
+        // Staff emails: use the email queue with inline HTML
+        for (const addr of emailRecipients) {
+          try {
+            const emailHtml = textToHtml(emailBodyText, dealerName);
+            const messageId = crypto.randomUUID();
+            const idempotencyKey = `${trigger_key}-${submission_id || 'no-sub'}-${messageId}`;
+
+            await supabase.from("email_send_log").insert({
+              message_id: messageId,
+              template_name: trigger_key,
+              recipient_email: addr,
+              status: "pending",
+            });
+
+            const { error: enqueueError } = await supabase.rpc("enqueue_email", {
+              queue_name: "transactional_emails",
+              payload: {
+                message_id: messageId,
+                to: addr,
+                from: `${dealerName} <noreply@${FROM_DOMAIN}>`,
+                sender_domain: SENDER_DOMAIN,
+                subject: emailSubject,
+                html: emailHtml,
+                text: emailBodyText,
+                purpose: "transactional",
+                label: trigger_key,
+                idempotency_key: idempotencyKey,
+                queued_at: new Date().toISOString(),
+              },
+            });
+
+            if (enqueueError) {
+              console.error("Failed to enqueue staff email:", enqueueError);
+              results.email = `failed: ${enqueueError.message}`;
+              await logNotification("email", addr, "failed", enqueueError.message);
+            } else {
+              console.log(`Staff email enqueued: ${trigger_key} → ${addr}`);
+              results.email = "queued";
+              await logNotification("email", addr, "sent");
+            }
+          } catch (e) {
+            console.error("Staff email error:", e);
+            results.email = "error";
+            await logNotification("email", addr, "error", String(e));
+          }
+        }
       }
     } else {
       results.email = channels.includes("email") ? "skipped: no recipients" : "channel_disabled";
     }
 
-    // Send SMS
+    // ── SEND SMS ──
     if (channels.includes("sms") && smsRecipients.length > 0) {
       const twilioSid = Deno.env.get("TWILIO_ACCOUNT_SID");
       const twilioToken = Deno.env.get("TWILIO_AUTH_TOKEN");
@@ -377,11 +464,7 @@ Deno.serve(async (req) => {
                 Authorization: "Basic " + btoa(`${twilioSid}:${twilioToken}`),
                 "Content-Type": "application/x-www-form-urlencoded",
               },
-              body: new URLSearchParams({
-                To: phone,
-                From: twilioPhone,
-                Body: smsText,
-              }),
+              body: new URLSearchParams({ To: phone, From: twilioPhone, Body: smsText }),
             });
             const smsData = await smsRes.json();
             console.log("SMS response:", JSON.stringify(smsData));
