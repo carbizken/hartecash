@@ -168,9 +168,20 @@ const SubmissionsTable = ({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="Search leads..." value={search} onChange={(e) => onSearchChange(e.target.value)} className="pl-9" />
         </div>
-        <Button variant={showFilterPanel ? "default" : "outline"} size="sm" onClick={onToggleFilterPanel}>
-          Filter {(statusFilter || sourceFilter || storeFilter || dateRangeFilter.from || dateRangeFilter.to) && "*"}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleDensity}
+            className="text-muted-foreground hover:text-foreground px-2"
+            title={isCompact ? "Spacious view" : "Compact view"}
+          >
+            {isCompact ? <Rows3 className="w-4 h-4" /> : <Rows2 className="w-4 h-4" />}
+          </Button>
+          <Button variant={showFilterPanel ? "default" : "outline"} size="sm" onClick={onToggleFilterPanel}>
+            Filter {(statusFilter || sourceFilter || storeFilter || dateRangeFilter.from || dateRangeFilter.to) && "*"}
+          </Button>
+        </div>
       </div>
 
       {/* Quick-filter chips */}
