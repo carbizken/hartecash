@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Shield, ArrowRight, CheckCircle, Loader2, Car, CalendarDays,
-  Wrench, DollarSign, Clock, Star, RefreshCw, ShieldCheck, TrendingUp
+  Wrench, DollarSign, Clock, Star, RefreshCw, ShieldCheck, TrendingUp, Gift
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -783,6 +783,29 @@ const ServiceLanding = () => {
           </div>
         </section>
       )}
+
+      {/* Referral Banner */}
+      <div className="bg-[hsl(220,26%,14%)] py-10 px-5">
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-[hsl(210,100%,25%)]/20 rounded-full px-3 py-1 mb-3">
+            <Gift className="w-4 h-4 text-[hsl(210,100%,65%)]" />
+            <span className="text-xs font-bold text-[hsl(210,100%,65%)] uppercase tracking-wider">Referral Program</span>
+          </div>
+          <h3 className="text-xl md:text-2xl font-bold text-white mb-2">
+            Know Someone With a Car to Sell?
+          </h3>
+          <p className="text-[hsl(215,20%,55%)] text-sm md:text-base mb-5 max-w-lg mx-auto">
+            Earn up to <strong className="text-white">$200</strong> for every person you refer. No limits!
+          </p>
+          <a
+            href="/referral"
+            className="inline-flex items-center gap-2 bg-[hsl(210,100%,25%)] text-white px-6 py-3 rounded-xl font-semibold text-sm hover:bg-[hsl(210,100%,30%)] transition-colors"
+          >
+            <Gift className="w-4 h-4" />
+            Learn More & Start Earning
+          </a>
+        </div>
+      </div>
 
       {/* Footer */}
       <footer className="border-t border-[hsl(217,33%,17%)] py-8 px-5 text-center">

@@ -18,6 +18,7 @@ const ValueProps = lazy(() => import("@/components/ValueProps"));
 const Testimonials = lazy(() => import("@/components/Testimonials"));
 const FAQ = lazy(() => import("@/components/FAQ"));
 const CTABanner = lazy(() => import("@/components/CTABanner"));
+const ReferralBanner = lazy(() => import("@/components/ReferralBanner"));
 
 const Index = () => {
   const { config } = useSiteConfig();
@@ -52,6 +53,7 @@ const Index = () => {
           <ValueProps />
           <Testimonials />
           <FAQ />
+          <ReferralBanner />
           <CTABanner />
         </Suspense>
       </main>

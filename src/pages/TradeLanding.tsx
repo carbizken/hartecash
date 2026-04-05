@@ -8,6 +8,7 @@ import CompetitorComparison from "@/components/CompetitorComparison";
 import Testimonials from "@/components/Testimonials";
 import FAQ from "@/components/FAQ";
 import CTABanner from "@/components/CTABanner";
+import ReferralBanner from "@/components/ReferralBanner";
 import SiteFooter from "@/components/SiteFooter";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 
@@ -40,6 +41,7 @@ const TradeLanding = () => {
         <ValueProps />
         <Testimonials />
         <FAQ />
+        <ReferralBanner />
         <CTABanner />
       </main>
       <SiteFooter />

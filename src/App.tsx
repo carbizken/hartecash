@@ -41,6 +41,7 @@ const AppraisalTool = lazy(() => import("./pages/AppraisalTool"));
 const SuperAdminDashboard = lazy(() => import("./pages/SuperAdminDashboard"));
 const OnboardingMobile = lazy(() => import("./pages/OnboardingMobile"));
 const EmailUnsubscribe = lazy(() => import("./pages/EmailUnsubscribe"));
+const ReferralPage = lazy(() => import("./pages/ReferralPage"));
 
 const queryClient = new QueryClient();
 
@@ -81,6 +82,7 @@ const AnimatedRoutes = () => {
             <Route path="/super-admin" element={<SuperAdminDashboard />} />
             <Route path="/onboard/:dealershipId" element={<OnboardingMobile />} />
             <Route path="/email-unsubscribe" element={<EmailUnsubscribe />} />
+            <Route path="/referral" element={<ReferralPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
