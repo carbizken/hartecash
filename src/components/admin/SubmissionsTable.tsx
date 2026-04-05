@@ -353,7 +353,7 @@ const SubmissionsTable = ({
                           );
                         })()}
                       </td>
-                      <td className="px-3 py-3">
+                      <td className={cellPad}>
                         <div className="flex flex-col gap-1">
                           <Select value={sub.progress_status} onValueChange={(val) => onInlineStatusChange(sub, val)}>
                             <SelectTrigger className={`w-44 h-7 text-xs font-medium ${
