@@ -439,6 +439,7 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
           store_location_id: storeLocationId || null,
           salesperson_name: formData.salespersonName || null,
           bb_selected_options: selectedAddDeducts.length > 0 ? selectedAddDeducts : [],
+          referral_code: referralCode || null,
         } as any);
 
       if (error) throw error;
