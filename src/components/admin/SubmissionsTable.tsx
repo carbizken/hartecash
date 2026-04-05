@@ -275,19 +275,19 @@ const SubmissionsTable = ({
         <>
           <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-[1100px] text-sm">
+              <table className={`min-w-[1100px] ${fontSize}`}>
                 <thead>
                   <tr className="border-b border-border bg-muted/50">
-                    <th className="text-left px-3 py-3 font-semibold text-muted-foreground whitespace-nowrap">Date</th>
-                    <th className="text-left px-3 py-3 font-semibold text-muted-foreground whitespace-nowrap">Name</th>
-                    <th className="text-left px-3 py-3 font-semibold text-muted-foreground whitespace-nowrap">Vehicle</th>
-                    <th className="text-left px-3 py-3 font-semibold text-muted-foreground whitespace-nowrap">VIN</th>
-                    <th className="text-left px-3 py-3 font-semibold text-muted-foreground whitespace-nowrap">Contact</th>
-                    <th className="text-left px-3 py-3 font-semibold text-muted-foreground whitespace-nowrap">Source</th>
-                    <th className="text-right px-3 py-3 font-semibold text-muted-foreground whitespace-nowrap">Offer</th>
-                    <th className="text-left px-3 py-3 font-semibold text-muted-foreground whitespace-nowrap min-w-[160px]">Status</th>
-                    <th className="text-center px-2 py-3 font-semibold text-muted-foreground whitespace-nowrap">Age</th>
-                    <th className="text-right px-3 py-3 font-semibold text-muted-foreground whitespace-nowrap">Actions</th>
+                    <th className={`text-left ${cellPad} font-semibold text-muted-foreground whitespace-nowrap`}>Date</th>
+                    <th className={`text-left ${cellPad} font-semibold text-muted-foreground whitespace-nowrap`}>Name</th>
+                    <th className={`text-left ${cellPad} font-semibold text-muted-foreground whitespace-nowrap`}>Vehicle</th>
+                    {!isCompact && <th className={`text-left ${cellPad} font-semibold text-muted-foreground whitespace-nowrap`}>VIN</th>}
+                    <th className={`text-left ${cellPad} font-semibold text-muted-foreground whitespace-nowrap`}>Contact</th>
+                    <th className={`text-left ${cellPad} font-semibold text-muted-foreground whitespace-nowrap`}>Source</th>
+                    <th className={`text-right ${cellPad} font-semibold text-muted-foreground whitespace-nowrap`}>Offer</th>
+                    <th className={`text-left ${cellPad} font-semibold text-muted-foreground whitespace-nowrap min-w-[160px]`}>Status</th>
+                    <th className={`text-center px-2 ${isCompact ? "py-1.5" : "py-3"} font-semibold text-muted-foreground whitespace-nowrap`}>Age</th>
+                    <th className={`text-right ${cellPad} font-semibold text-muted-foreground whitespace-nowrap`}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
