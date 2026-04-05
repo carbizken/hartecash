@@ -1,5 +1,6 @@
 import SEO from "@/components/SEO";
 import SiteHeader from "@/components/SiteHeader";
+import { useEmbedMode } from "@/hooks/useEmbedMode";
 import HeroOffset from "@/components/HeroOffset";
 import HowItWorks from "@/components/HowItWorks";
 import ValueProps from "@/components/ValueProps";
