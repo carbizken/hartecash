@@ -1789,6 +1789,7 @@ export type Database = {
           appraisal_finalized_at: string | null
           appraisal_finalized_by: string | null
           appraised_by: string | null
+          assigned_rep_email: string | null
           bb_add_deducts: Json | null
           bb_base_whole_avg: number | null
           bb_class_name: string | null
@@ -1885,6 +1886,7 @@ export type Database = {
           appraisal_finalized_at?: string | null
           appraisal_finalized_by?: string | null
           appraised_by?: string | null
+          assigned_rep_email?: string | null
           bb_add_deducts?: Json | null
           bb_base_whole_avg?: number | null
           bb_class_name?: string | null
@@ -1981,6 +1983,7 @@ export type Database = {
           appraisal_finalized_at?: string | null
           appraisal_finalized_by?: string | null
           appraised_by?: string | null
+          assigned_rep_email?: string | null
           bb_add_deducts?: Json | null
           bb_base_whole_avg?: number | null
           bb_class_name?: string | null
