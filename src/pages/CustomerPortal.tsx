@@ -18,6 +18,7 @@ import CommunicationPreferences from "@/components/portal/CommunicationPreferenc
 import InspectionDisclosure from "@/components/portal/InspectionDisclosure";
 import WhatToExpect from "@/components/portal/WhatToExpect";
 import EquipmentValueImpact from "@/components/portal/EquipmentValueImpact";
+import PromoBanner from "@/components/portal/PromoBanner";
 
 import ProgressSteps, { mapStatusToStepIndex } from "@/components/portal/ProgressSteps";
 import PortalOfferCard from "@/components/portal/PortalOfferCard";
