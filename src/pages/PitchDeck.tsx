@@ -539,8 +539,11 @@ export default function PitchDeck() {
       </section>
 
       {/* Expanded channel content */}
-      {expandedChannel === "service" && <ServiceDriveInlineContent onBackToTop={scrollToChannels} />}
-      {expandedChannel === "trade" && <TradePitchInlineContent onBackToTop={scrollToChannels} />}
+      <div ref={expandedRef}>
+        {expandedChannel === "off-street" && <OffStreetInlineContent onBackToTop={scrollToChannels} />}
+        {expandedChannel === "service" && <ServiceDriveInlineContent onBackToTop={scrollToChannels} />}
+        {expandedChannel === "trade" && <TradePitchInlineContent onBackToTop={scrollToChannels} />}
+      </div>
 
       {/* ═══ 8 — BOTTOM LINE ═══ */}
       <section className="px-6 py-20 md:py-28 bg-[hsl(220,25%,8%)]">
