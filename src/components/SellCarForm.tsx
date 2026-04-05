@@ -54,6 +54,8 @@ interface SellCarFormProps {
 
 const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarFormProps) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const referralCode = searchParams.get("ref") || undefined;
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [vehicleInfo, setVehicleInfo] = useState<VehicleInfo | null>(null);
