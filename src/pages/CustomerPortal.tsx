@@ -367,6 +367,7 @@ const CustomerPortal = () => {
       <div className="lg:hidden">
         <div className="max-w-lg mx-auto p-6 space-y-5">
           <WhatsNextCard {...whatsNextProps} />
+          {condition?.dealership_id && <PromoBanner dealershipId={condition.dealership_id} />}
           <PortalOfferCard {...offerCardProps} />
           <CompletionChecklist {...checklistProps} />
           <VehiclePhotos token={s.token} photosUploaded={s.photos_uploaded} />
