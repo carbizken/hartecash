@@ -335,6 +335,7 @@ const CustomerPortal = () => {
             {/* Left column — sticky */}
             <div className="col-span-2">
               <div className="sticky top-6 space-y-5">
+                {condition?.dealership_id && <PromoBanner dealershipId={condition.dealership_id} />}
                 <PortalOfferCard {...offerCardProps} />
                 <PortalVehicleSummary {...vehicleSummaryProps} />
                 <DealerContactCard />
