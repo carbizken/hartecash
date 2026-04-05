@@ -34,10 +34,9 @@ const PrivacyPolicy = () => {
           <section>
             <h2 className="text-xl font-bold text-foreground">1. Who We Are</h2>
             <p>
-              Our Dealership ("we," "us," or "our") operates the website{" "}
-              <strong>hartecash.com</strong> and related services. We are a family-owned automobile
-              dealership group serving Connecticut since 1952. Our principal office is located at
-              150 Weston Street, Hartford, CT 06120.
+              Our Dealership ("we," "us," or "our") operates this website
+              and related services. This privacy policy applies to all information collected
+              through our platform.
             </p>
           </section>
 
