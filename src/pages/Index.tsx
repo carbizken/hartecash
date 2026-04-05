@@ -59,8 +59,8 @@ const Index = () => {
           <CTABanner />
         </Suspense>
       </main>
-      <SiteFooter />
-      <BackToTop />
+      {!embed && <SiteFooter />}
+      {!embed && <BackToTop />}
     </div>
   );
 };
