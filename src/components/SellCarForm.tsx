@@ -177,7 +177,8 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
     if (formConfig.step_vehicle_build) steps.push("Vehicle Build");
     if (formConfig.step_condition_history) steps.push("Condition");
     steps.push("History");
-    if (!offerFirst) steps.push("Finalize");
+    // Always include contact capture — even in offer-first mode
+    steps.push("Finalize");
     return steps;
   };
 
@@ -526,7 +527,7 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
       case "History":
         return <StepHistory formData={formData} update={update} formConfig={formConfig} bbVehicle={bbSelectedVehicle} vehicleInfo={vehicleInfo} leadSource={leadSource} />;
       case "Finalize":
-        return <StepFinalize formData={formData} update={update} />;
+        return <StepFinalize formData={formData} update={update} offerFirst={offerFirst} />;
       default:
         return null;
     }
@@ -639,9 +640,7 @@ const SellCarForm = ({ leadSource = "inventory", variant = "default" }: SellCarF
       </form>
 
       <p className="text-center mt-4 text-[13px] text-muted-foreground">
-        {offerFirst
-          ? "🔒 No contact info needed — see your offer instantly."
-          : "🔒 Your information is 100% secure and never shared."}
+        🔒 Your information is 100% secure and never shared.
       </p>
 
       <div className="bg-gradient-to-br from-success to-[hsl(160,84%,30%)] text-success-foreground p-5 rounded-xl mt-6 text-center shadow-lg shadow-success/30">
