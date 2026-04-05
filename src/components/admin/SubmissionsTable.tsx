@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { formatPhone } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Search, Eye, Trash2, ChevronLeft, ChevronRight, CheckCircle,
   AlertTriangle, TrendingUp, UserCheck, XCircle, Camera, FileText,
+  Rows3, Rows2,
 } from "lucide-react";
 import type { Submission, DealerLocation } from "@/lib/adminConstants";
 import { ALL_STATUS_OPTIONS, getStatusLabel, isAcceptedWithAppointment, isAcceptedWithoutAppointment, isOfferPendingSubmission, isOfferUpdatedByStaff } from "@/lib/adminConstants";
