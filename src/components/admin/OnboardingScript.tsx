@@ -603,7 +603,40 @@ export default function OnboardingScript({ targetDealershipId }: OnboardingScrip
                       </div>
                     )}
 
-                    {q.type === "choice" && q.choices && (
+                    {q.type === "choice" && q.choices && q.id === "acquisition_intent" && (
+                      <div className="w-full space-y-2">
+                        <div className="flex justify-between text-[10px] text-muted-foreground px-1">
+                          <span>🟢 Conservative</span>
+                          <span>🔴 Predator</span>
+                        </div>
+                        <div className="relative h-3 rounded-full overflow-hidden" style={{ background: "linear-gradient(to right, hsl(var(--chart-2)), hsl(var(--chart-4)), hsl(var(--destructive)))" }}>
+                          {(() => {
+                            const idx = (q.choices || []).indexOf(answers[q.id] || "");
+                            if (idx < 0) return null;
+                            const pct = (idx / ((q.choices || []).length - 1)) * 100;
+                            return <div className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-background border-2 border-foreground shadow-md transition-all" style={{ left: `calc(${pct}% - 8px)` }} />;
+                          })()}
+                        </div>
+                        <div className="flex justify-between gap-1">
+                          {q.choices.map((c, i) => (
+                            <button
+                              key={c}
+                              type="button"
+                              onClick={() => toggleChoice(q.id, c)}
+                              className={`flex-1 text-[10px] py-1.5 rounded-md border transition-colors text-center ${
+                                answers[q.id] === c
+                                  ? "bg-primary text-primary-foreground border-primary font-bold"
+                                  : "border-border hover:bg-muted"
+                              }`}
+                            >
+                              {c}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {q.type === "choice" && q.choices && q.id !== "acquisition_intent" && (
                       <div className="flex flex-wrap gap-1.5">
                         {q.choices.map((c) => (
                           <button
