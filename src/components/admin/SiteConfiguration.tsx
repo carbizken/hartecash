@@ -54,8 +54,13 @@ interface SiteConfig {
   referral_program_enabled: boolean;
   referral_reward_sell_enabled: boolean;
   referral_reward_sell_amount: number;
+  referral_reward_buy_enabled: boolean;
+  referral_reward_buy_amount: number;
+  referral_reward_sell_buy_enabled: boolean;
+  referral_reward_sell_buy_amount: number;
   referral_reward_trade_enabled: boolean;
   referral_reward_trade_amount: number;
+  referral_reward_type: string;
 }
 
 const DEFAULT_CONFIG: SiteConfig = {
@@ -97,8 +102,13 @@ const DEFAULT_CONFIG: SiteConfig = {
   referral_program_enabled: false,
   referral_reward_sell_enabled: false,
   referral_reward_sell_amount: 0,
+  referral_reward_buy_enabled: false,
+  referral_reward_buy_amount: 0,
+  referral_reward_sell_buy_enabled: false,
+  referral_reward_sell_buy_amount: 0,
   referral_reward_trade_enabled: false,
   referral_reward_trade_amount: 0,
+  referral_reward_type: "cash",
 };
 
 interface SectionProps {
@@ -847,6 +857,23 @@ const SiteConfiguration = () => {
 
           {config.referral_program_enabled && (
             <div className="space-y-4 pl-1 border-l-2 border-primary/20 ml-2 pl-4">
+              {/* Reward Type */}
+              <div className="space-y-1.5 p-4 bg-muted/40 rounded-xl border border-border">
+                <Label className="text-sm font-semibold">Reward Type</Label>
+                <p className="text-xs text-muted-foreground mb-2">How do you pay referrers?</p>
+                <Select value={config.referral_reward_type} onValueChange={v => update("referral_reward_type", v)}>
+                  <SelectTrigger className="max-w-[220px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cash">Cash / Check</SelectItem>
+                    <SelectItem value="service_credit">Service Credit</SelectItem>
+                    <SelectItem value="gift_card">Gift Card</SelectItem>
+                    <SelectItem value="dealer_choice">Dealer's Choice</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Sell Reward */}
               <div className="space-y-3 p-4 bg-muted/40 rounded-xl border border-border">
                 <div className="flex items-center justify-between">
@@ -880,12 +907,78 @@ const SiteConfiguration = () => {
                 )}
               </div>
 
-              {/* Trade-In Reward */}
+              {/* Buy Reward */}
               <div className="space-y-3 p-4 bg-muted/40 rounded-xl border border-border">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label className="text-sm font-semibold">Bonus: Referred Customer Also Trades In</Label>
-                    <p className="text-xs text-muted-foreground">Additional reward when the referred person buys a new or preowned vehicle from you</p>
+                    <Label className="text-sm font-semibold">Reward: Referred Customer Buys a Car</Label>
+                    <p className="text-xs text-muted-foreground">Pay the referrer when the person they sent purchases a vehicle from you</p>
+                  </div>
+                  <Switch
+                    checked={config.referral_reward_buy_enabled}
+                    onCheckedChange={v => {
+                      setConfig(prev => {
+                        const next = { ...prev, referral_reward_buy_enabled: v };
+                        setHasChanges(JSON.stringify(next) !== JSON.stringify(savedConfig));
+                        return next;
+                      });
+                    }}
+                  />
+                </div>
+                {config.referral_reward_buy_enabled && (
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold">Reward Amount ($)</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={config.referral_reward_buy_amount}
+                      onChange={e => update("referral_reward_buy_amount", Number(e.target.value))}
+                      className="max-w-[160px]"
+                      placeholder="e.g. 150"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Sell + Buy Combo Reward */}
+              <div className="space-y-3 p-4 bg-muted/40 rounded-xl border border-border">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm font-semibold">Bonus: Referred Customer Sells AND Buys</Label>
+                    <p className="text-xs text-muted-foreground">Higher reward when the referral both sells their car and purchases from you</p>
+                  </div>
+                  <Switch
+                    checked={config.referral_reward_sell_buy_enabled}
+                    onCheckedChange={v => {
+                      setConfig(prev => {
+                        const next = { ...prev, referral_reward_sell_buy_enabled: v };
+                        setHasChanges(JSON.stringify(next) !== JSON.stringify(savedConfig));
+                        return next;
+                      });
+                    }}
+                  />
+                </div>
+                {config.referral_reward_sell_buy_enabled && (
+                  <div className="space-y-1.5">
+                    <Label className="text-xs font-semibold">Combo Reward Amount ($)</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={config.referral_reward_sell_buy_amount}
+                      onChange={e => update("referral_reward_sell_buy_amount", Number(e.target.value))}
+                      className="max-w-[160px]"
+                      placeholder="e.g. 350"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Legacy trade-in bonus */}
+              <div className="space-y-3 p-4 bg-muted/40 rounded-xl border border-border">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm font-semibold">Stackable Trade-In Bonus</Label>
+                    <p className="text-xs text-muted-foreground">Additional bonus on top of sell reward when a trade-in is involved</p>
                   </div>
                   <Switch
                     checked={config.referral_reward_trade_enabled}
@@ -914,7 +1007,7 @@ const SiteConfiguration = () => {
               </div>
 
               <p className="text-xs text-muted-foreground italic">
-                Example: $200 when a referred customer sells us their car + $100 bonus if they also purchase a vehicle = $300 total reward.
+                Example: $200 sell + $150 buy + $350 combo (sell & buy). Reward type: {config.referral_reward_type === "cash" ? "Cash/Check" : config.referral_reward_type === "service_credit" ? "Service Credit" : config.referral_reward_type === "gift_card" ? "Gift Card" : "Dealer's Choice"}.
               </p>
             </div>
           )}
