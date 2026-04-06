@@ -22,6 +22,7 @@ interface Location {
   is_active: boolean;
   show_in_footer: boolean;
   show_in_scheduling: boolean;
+  show_in_inspection: boolean;
   temporarily_offline: boolean;
   use_bdc: boolean;
   zip_codes: string[];
