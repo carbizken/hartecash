@@ -212,6 +212,10 @@ const LocationManagement = () => {
                   <Label className="text-[10px] text-muted-foreground">Scheduling</Label>
                   <Switch checked={loc.show_in_scheduling} onCheckedChange={() => toggleField(loc.id, "show_in_scheduling", loc.show_in_scheduling)} />
                 </div>
+                <div className="flex items-center gap-1.5" title="Allow inspections at this location">
+                  <Label className="text-[10px] text-muted-foreground">Inspection</Label>
+                  <Switch checked={loc.show_in_inspection} onCheckedChange={() => toggleField(loc.id, "show_in_inspection", loc.show_in_inspection)} />
+                </div>
                 <div className="flex items-center gap-1.5" title="Temporarily take this location offline — hides from scheduling and lead routing">
                   <Label className={`text-[10px] ${loc.temporarily_offline ? 'text-amber-600 font-semibold' : 'text-muted-foreground'}`}>
                     {loc.temporarily_offline ? '⚠ Offline' : 'Online'}

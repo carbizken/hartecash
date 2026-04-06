@@ -100,12 +100,15 @@ const ScheduleVisit = () => {
     const fetchLocations = async () => {
       const { data } = await supabase
         .from("dealership_locations" as any)
-        .select("id, name, city, state, address, show_in_scheduling, temporarily_offline")
+        .select("id, name, city, state, address, show_in_scheduling, show_in_inspection, temporarily_offline")
         .eq("is_active", true)
-        .eq("show_in_scheduling", true)
         .eq("temporarily_offline", false)
         .order("sort_order");
-      if (data) setLocations(data as unknown as DealerLocation[]);
+      // Filter to locations that allow either scheduling or inspection
+      if (data) {
+        const filtered = (data as any[]).filter((l: any) => l.show_in_scheduling || l.show_in_inspection);
+        setLocations(filtered as unknown as DealerLocation[]);
+      }
     };
     fetchLocations();
   }, []);
