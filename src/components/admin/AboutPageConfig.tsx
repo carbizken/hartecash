@@ -31,6 +31,7 @@ interface LocationAbout {
   about_hero_subtext: string;
   about_story: string;
   about_image_url: string;
+  about_image_urls: string[];
 }
 
 const ICON_OPTIONS = [
@@ -57,6 +58,7 @@ const AboutPageConfig = () => {
   const [heroSubtext, setHeroSubtext] = useState("");
   const [story, setStory] = useState("");
   const [aboutImageUrl, setAboutImageUrl] = useState("");
+  const [aboutImageUrls, setAboutImageUrls] = useState<string[]>([]);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [values, setValues] = useState<ValueItem[]>([]);
 
@@ -76,12 +78,12 @@ const AboutPageConfig = () => {
       const [configRes, locsRes] = await Promise.all([
         supabase
           .from("site_config")
-          .select("about_hero_headline, about_hero_subtext, about_story, about_milestones, about_values, about_image_url")
+          .select("about_hero_headline, about_hero_subtext, about_story, about_milestones, about_values, about_image_url, about_image_urls")
           .eq("dealership_id", dealershipId)
           .maybeSingle(),
         supabase
           .from("dealership_locations")
-          .select("id, name, use_corporate_about, about_hero_headline, about_hero_subtext, about_story, about_image_url")
+          .select("id, name, use_corporate_about, about_hero_headline, about_hero_subtext, about_story, about_image_url, about_image_urls")
           .eq("dealership_id", dealershipId)
           .eq("is_active", true)
           .order("sort_order", { ascending: true }),
@@ -93,6 +95,8 @@ const AboutPageConfig = () => {
         setHeroSubtext(d.about_hero_subtext || "");
         setStory(d.about_story || "");
         setAboutImageUrl(d.about_image_url || "");
+        const urls = Array.isArray((d as any).about_image_urls) ? (d as any).about_image_urls : [];
+        setAboutImageUrls(urls.length > 0 ? urls : (d.about_image_url ? [d.about_image_url] : []));
         setMilestones(Array.isArray(d.about_milestones) ? d.about_milestones : []);
         setValues(Array.isArray(d.about_values) ? d.about_values : []);
       }
@@ -107,6 +111,9 @@ const AboutPageConfig = () => {
             about_hero_subtext: l.about_hero_subtext || "",
             about_story: l.about_story || "",
             about_image_url: l.about_image_url || "",
+            about_image_urls: Array.isArray(l.about_image_urls) && l.about_image_urls.length > 0
+              ? l.about_image_urls
+              : (l.about_image_url ? [l.about_image_url] : []),
           }))
         );
       }
@@ -124,7 +131,8 @@ const AboutPageConfig = () => {
         about_hero_headline: heroHeadline,
         about_hero_subtext: heroSubtext,
         about_story: story,
-        about_image_url: aboutImageUrl || null,
+        about_image_url: aboutImageUrls[0] || null,
+        about_image_urls: aboutImageUrls,
         about_milestones: milestones,
         about_values: values,
       } as any)
@@ -147,7 +155,8 @@ const AboutPageConfig = () => {
         about_hero_headline: loc.about_hero_headline || null,
         about_hero_subtext: loc.about_hero_subtext || null,
         about_story: loc.about_story || null,
-        about_image_url: loc.about_image_url || null,
+        about_image_url: loc.about_image_urls[0] || null,
+        about_image_urls: loc.about_image_urls || [],
       } as any)
       .eq("id", loc.id);
 
@@ -245,8 +254,8 @@ const AboutPageConfig = () => {
                 heroHeadline={heroHeadline} setHeroHeadline={setHeroHeadline}
                 heroSubtext={heroSubtext} setHeroSubtext={setHeroSubtext}
                 story={story} setStory={setStory}
-                imageUrl={aboutImageUrl} setImageUrl={setAboutImageUrl}
-                onImageUpload={(file) => handleImageUpload(file, setAboutImageUrl)}
+                imageUrls={aboutImageUrls} setImageUrls={setAboutImageUrls}
+                onImageUpload={(file) => handleImageUpload(file, (url) => setAboutImageUrls(prev => [...prev, url]))}
                 milestones={milestones} setMilestones={setMilestones}
                 values={values} setValues={setValues}
                 heroOpen={heroOpen} setHeroOpen={setHeroOpen}
@@ -314,38 +323,39 @@ const AboutPageConfig = () => {
                         className="font-mono text-xs"
                       />
                     </div>
-                    {/* Location image upload */}
+                    {/* Location photos (multiple) */}
                     <div>
-                      <Label className="text-xs">Location Photo</Label>
-                      <p className="text-[10px] text-muted-foreground mb-2">Building exterior, team photo, or storefront image.</p>
-                      <div className="border border-border rounded-lg p-3 bg-muted/30 flex flex-col items-center gap-2 min-h-[80px]">
-                        {loc.about_image_url ? (
-                          <div className="relative">
-                            <img src={loc.about_image_url} alt="Location" className="max-h-24 rounded-md object-cover" />
-                            <button
-                              type="button"
-                              onClick={() => updateLocation(loc.id, "about_image_url", "")}
-                              className="absolute -top-2 -right-2 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-                            >×</button>
+                      <Label className="text-xs">Location Photos</Label>
+                      <p className="text-[10px] text-muted-foreground mb-2">Upload multiple images for a carousel.</p>
+                      <div className="border border-border rounded-lg p-3 bg-muted/30 space-y-2 min-h-[80px]">
+                        {loc.about_image_urls.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {loc.about_image_urls.map((url, idx) => (
+                              <div key={idx} className="relative group">
+                                <img src={url} alt={`Location ${idx + 1}`} className="h-20 w-auto rounded-md object-cover border border-border" />
+                                <button
+                                  type="button"
+                                  onClick={() => updateLocation(loc.id, "about_image_urls", loc.about_image_urls.filter((_: string, i: number) => i !== idx))}
+                                  className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                >×</button>
+                              </div>
+                            ))}
                           </div>
                         ) : (
-                          <ImagePlus className="w-8 h-8 text-muted-foreground/40" />
+                          <div className="flex justify-center py-1">
+                            <ImagePlus className="w-8 h-8 text-muted-foreground/40" />
+                          </div>
                         )}
-                        <label className="cursor-pointer text-xs text-primary hover:underline">
-                          {loc.about_image_url ? "Replace" : "Upload"}
+                        <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs text-primary hover:underline">
+                          <ImagePlus className="w-3.5 h-3.5" />
+                          {loc.about_image_urls.length > 0 ? "Add another" : "Upload"}
                           <input type="file" accept="image/*" className="hidden" onChange={e => {
                             const f = e.target.files?.[0];
-                            if (f) handleImageUpload(f, (url) => updateLocation(loc.id, "about_image_url", url));
+                            if (f) handleImageUpload(f, (url) => updateLocation(loc.id, "about_image_urls", [...loc.about_image_urls, url]));
                             e.target.value = "";
                           }} />
                         </label>
                       </div>
-                      <Input
-                        value={loc.about_image_url}
-                        onChange={(e) => updateLocation(loc.id, "about_image_url", e.target.value)}
-                        placeholder="Or paste URL"
-                        className="text-xs h-8 mt-1"
-                      />
                     </div>
                   </div>
                 )}
@@ -365,8 +375,8 @@ const AboutPageConfig = () => {
             heroHeadline={heroHeadline} setHeroHeadline={setHeroHeadline}
             heroSubtext={heroSubtext} setHeroSubtext={setHeroSubtext}
             story={story} setStory={setStory}
-            imageUrl={aboutImageUrl} setImageUrl={setAboutImageUrl}
-            onImageUpload={(file) => handleImageUpload(file, setAboutImageUrl)}
+            imageUrls={aboutImageUrls} setImageUrls={setAboutImageUrls}
+            onImageUpload={(file) => handleImageUpload(file, (url) => setAboutImageUrls(prev => [...prev, url]))}
             milestones={milestones} setMilestones={setMilestones}
             values={values} setValues={setValues}
             heroOpen={heroOpen} setHeroOpen={setHeroOpen}
@@ -387,7 +397,7 @@ interface CorporateAboutFieldsProps {
   heroHeadline: string; setHeroHeadline: (v: string) => void;
   heroSubtext: string; setHeroSubtext: (v: string) => void;
   story: string; setStory: (v: string) => void;
-  imageUrl: string; setImageUrl: (v: string) => void;
+  imageUrls: string[]; setImageUrls: (v: string[]) => void;
   onImageUpload: (file: File) => void;
   milestones: Milestone[]; setMilestones: (v: Milestone[]) => void;
   values: ValueItem[]; setValues: (v: ValueItem[]) => void;
@@ -402,7 +412,7 @@ interface CorporateAboutFieldsProps {
 const CorporateAboutFields = ({
   heroHeadline, setHeroHeadline, heroSubtext, setHeroSubtext,
   story, setStory,
-  imageUrl, setImageUrl, onImageUpload,
+  imageUrls, setImageUrls, onImageUpload,
   milestones, values,
   heroOpen, setHeroOpen, storyOpen, setStoryOpen,
   milestonesOpen, setMilestonesOpen, valuesOpen, setValuesOpen,
@@ -451,25 +461,34 @@ const CorporateAboutFields = ({
       </CollapsibleContent>
     </Collapsible>
 
-    {/* About Photo */}
+    {/* About Photos (multiple) */}
     <div className="px-1">
-      <Label className="text-xs font-semibold">Dealership Photo</Label>
-      <p className="text-[10px] text-muted-foreground mb-2">Upload a building exterior, family photo, or team image for the About page.</p>
-      <div className="border border-border rounded-lg p-3 bg-muted/30 flex flex-col items-center gap-2 min-h-[100px]">
-        {imageUrl ? (
-          <div className="relative">
-            <img src={imageUrl} alt="About" className="max-h-32 rounded-md object-cover" />
-            <button
-              type="button"
-              onClick={() => setImageUrl("")}
-              className="absolute -top-2 -right-2 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-            >×</button>
+      <Label className="text-xs font-semibold">Dealership Photos</Label>
+      <p className="text-[10px] text-muted-foreground mb-2">
+        Upload multiple images (building, team, storefront). They'll display as a carousel on the About page.
+      </p>
+      <div className="border border-border rounded-lg p-3 bg-muted/30 space-y-3 min-h-[100px]">
+        {imageUrls.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {imageUrls.map((url, idx) => (
+              <div key={idx} className="relative group">
+                <img src={url} alt={`About ${idx + 1}`} className="h-24 w-auto rounded-md object-cover border border-border" />
+                <button
+                  type="button"
+                  onClick={() => setImageUrls(imageUrls.filter((_, i) => i !== idx))}
+                  className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                >×</button>
+              </div>
+            ))}
           </div>
         ) : (
-          <ImagePlus className="w-10 h-10 text-muted-foreground/40" />
+          <div className="flex justify-center py-2">
+            <ImagePlus className="w-10 h-10 text-muted-foreground/40" />
+          </div>
         )}
-        <label className="cursor-pointer text-xs text-primary hover:underline">
-          {imageUrl ? "Replace image" : "Upload image"}
+        <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs text-primary hover:underline">
+          <ImagePlus className="w-3.5 h-3.5" />
+          {imageUrls.length > 0 ? "Add another photo" : "Upload photo"}
           <input type="file" accept="image/*" className="hidden" onChange={e => {
             const f = e.target.files?.[0];
             if (f) onImageUpload(f);
@@ -477,12 +496,6 @@ const CorporateAboutFields = ({
           }} />
         </label>
       </div>
-      <Input
-        value={imageUrl}
-        onChange={(e) => setImageUrl(e.target.value)}
-        placeholder="Or paste image URL"
-        className="text-xs h-8 mt-1"
-      />
     </div>
 
     {/* Milestones */}
