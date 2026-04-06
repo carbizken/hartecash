@@ -31,6 +31,7 @@ interface LocationAbout {
   about_hero_subtext: string;
   about_story: string;
   about_image_url: string;
+  about_image_urls: string[];
 }
 
 const ICON_OPTIONS = [
