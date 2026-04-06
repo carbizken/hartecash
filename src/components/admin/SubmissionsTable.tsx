@@ -274,7 +274,7 @@ const SubmissionsTable = ({
         <div className="text-center py-12 text-muted-foreground">No submissions found.</div>
       ) : (
         <>
-          <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+          <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden backdrop-blur-sm">
             <div className="overflow-x-auto">
               <table className={`min-w-[1100px] ${fontSize}`}>
                 <thead>
