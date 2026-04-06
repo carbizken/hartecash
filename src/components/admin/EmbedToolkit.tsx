@@ -28,7 +28,7 @@ const EmbedToolkit = () => {
   const [targetPage, setTargetPage] = useState("/trade");
   const [widgetPosition, setWidgetPosition] = useState("bottom-right");
   const [locations, setLocations] = useState<DealerLocation[]>([]);
-  const [selectedLocationId, setSelectedLocationId] = useState<string>("");
+  const [selectedLocationId, setSelectedLocationId] = useState<string>("__all__");
 
   useEffect(() => {
     supabase
@@ -47,7 +47,7 @@ const EmbedToolkit = () => {
   // Build URL with optional store param
   const buildUrl = (path: string, extraParams: string[] = []) => {
     const params = [...extraParams];
-    if (selectedLocationId) params.push(`store=${selectedLocationId}`);
+    if (selectedLocationId && selectedLocationId !== "__all__") params.push(`store=${selectedLocationId}`);
     const qs = params.length > 0 ? `?${params.join("&")}` : "";
     return `${baseUrl}${path}${qs}`;
   };
@@ -186,7 +186,7 @@ const EmbedToolkit = () => {
                   <SelectValue placeholder="All locations (auto-assign by ZIP)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All locations (auto-assign)</SelectItem>
+                  <SelectItem value="__all__">All locations (auto-assign)</SelectItem>
                   {locations.map((loc) => (
                     <SelectItem key={loc.id} value={loc.id}>
                       {loc.name} — {loc.city}, {loc.state}
@@ -194,7 +194,7 @@ const EmbedToolkit = () => {
                   ))}
                 </SelectContent>
               </Select>
-              {selectedLocationId && (
+              {selectedLocationId && selectedLocationId !== "__all__" && (
                 <p className="text-[11px] text-primary font-medium">
                   ✓ Leads from this embed will be tagged to {selectedLocLabel?.name} — no store selection shown to customers.
                 </p>
@@ -304,7 +304,7 @@ const EmbedToolkit = () => {
             <li><strong>Link Button:</strong> Paste the HTML wherever you want a trade-in CTA — vehicle pages, homepage banners, service pages.</li>
             <li><strong>Floating Widget:</strong> Add the script tag just before the closing <code className="bg-muted px-1 rounded text-xs">&lt;/body&gt;</code> tag in your site's footer template.</li>
             <li><strong>iFrame:</strong> Create a new page (e.g. <code className="bg-muted px-1 rounded text-xs">/trade-in</code>) and paste the iframe code in the page body.</li>
-            {selectedLocationId && (
+            {selectedLocationId && selectedLocationId !== "__all__" && (
               <li><strong>Store Tag:</strong> This snippet includes a <code className="bg-muted px-1 rounded text-xs">store={selectedLocationId.slice(0, 8)}…</code> parameter that auto-assigns leads to <strong>{selectedLocLabel?.name}</strong>. Generate separate snippets for each store's website.</li>
             )}
           </ul>
