@@ -95,6 +95,8 @@ const AboutPageConfig = () => {
         setHeroSubtext(d.about_hero_subtext || "");
         setStory(d.about_story || "");
         setAboutImageUrl(d.about_image_url || "");
+        const urls = Array.isArray((d as any).about_image_urls) ? (d as any).about_image_urls : [];
+        setAboutImageUrls(urls.length > 0 ? urls : (d.about_image_url ? [d.about_image_url] : []));
         setMilestones(Array.isArray(d.about_milestones) ? d.about_milestones : []);
         setValues(Array.isArray(d.about_values) ? d.about_values : []);
       }
