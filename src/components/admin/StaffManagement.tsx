@@ -466,6 +466,28 @@ const StaffManagement = () => {
                     </SelectContent>
                   </Select>
                 </td>
+                {locations.length > 0 && (
+                  <td className="px-4 py-3">
+                    {member.role === "admin" ? (
+                      <span className="text-xs text-muted-foreground italic">All Stores</span>
+                    ) : (
+                      <Select
+                        value={member.location_id || "all"}
+                        onValueChange={(v) => handleLocationChange(member, v)}
+                      >
+                        <SelectTrigger className="w-40 h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Stores</SelectItem>
+                          {locations.map(loc => (
+                            <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </td>
+                )}
                 <td className="px-4 py-3 text-right">
                   <div className="flex items-center justify-end gap-1">
                     {member.role !== "admin" && (
