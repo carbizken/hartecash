@@ -269,12 +269,21 @@ const SubmissionsTable = ({
       )}
 
       {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Loading submissions...</div>
+        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3 animate-in fade-in">
+          <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+          <span className="text-sm font-medium">Loading pipeline…</span>
+        </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">No submissions found.</div>
+        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-2 animate-in fade-in">
+          <div className="w-14 h-14 rounded-2xl bg-muted/60 flex items-center justify-center">
+            <Search className="w-6 h-6 text-muted-foreground/40" />
+          </div>
+          <span className="text-sm font-medium">No submissions found</span>
+          <span className="text-xs text-muted-foreground/70">Try adjusting your filters</span>
+        </div>
       ) : (
         <>
-          <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+          <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden backdrop-blur-sm">
             <div className="overflow-x-auto">
               <table className={`min-w-[1100px] ${fontSize}`}>
                 <thead>
@@ -296,7 +305,7 @@ const SubmissionsTable = ({
                     const hours = getHoursSinceUpdate(sub);
                     const sla = getSlaLevel(hours, sub.progress_status);
                     return (
-                    <tr key={sub.id} className={`border-b border-border last:border-0 hover:bg-primary/5 transition-colors border-l-3 ${sla.borderClass} ${sla.bgClass} ${idx % 2 === 1 ? "bg-muted/20" : ""}`}>
+                    <tr key={sub.id} className={`border-b border-border last:border-0 hover:bg-primary/5 transition-colors border-l-3 ${sla.borderClass} ${sla.bgClass} ${idx % 2 === 1 ? "bg-muted/20" : ""} admin-row`}>
                       <td className={`${cellPad} whitespace-nowrap`}>{new Date(sub.created_at).toLocaleDateString()}</td>
                       <td className={`${cellPad} font-medium text-card-foreground whitespace-nowrap`}>{sub.name || "—"}</td>
                       <td className={`${cellPad} whitespace-nowrap`}>
@@ -406,10 +415,28 @@ const SubmissionsTable = ({
             </div>
           </div>
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-4">
-              <Button variant="outline" size="sm" disabled={page === 0} onClick={() => onPageChange(page - 1)}><ChevronLeft className="w-4 h-4" /></Button>
-              <span className="text-sm text-muted-foreground">Page {page + 1} of {totalPages}</span>
-              <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => onPageChange(page + 1)}><ChevronRight className="w-4 h-4" /></Button>
+            <div className="flex items-center justify-between mt-4">
+              <span className="text-xs text-muted-foreground">
+                Showing {page * pageSize + 1}–{Math.min((page + 1) * pageSize, total)} of {total} leads
+              </span>
+              <div className="flex items-center gap-1.5">
+                <Button variant="outline" size="sm" disabled={page === 0} onClick={() => onPageChange(page - 1)} className="h-8 w-8 p-0"><ChevronLeft className="w-4 h-4" /></Button>
+                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                  const pageNum = totalPages <= 5 ? i : Math.max(0, Math.min(page - 2, totalPages - 5)) + i;
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={pageNum === page ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => onPageChange(pageNum)}
+                      className="h-8 w-8 p-0 text-xs font-semibold"
+                    >
+                      {pageNum + 1}
+                    </Button>
+                  );
+                })}
+                <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => onPageChange(page + 1)} className="h-8 w-8 p-0"><ChevronRight className="w-4 h-4" /></Button>
+              </div>
             </div>
           )}
         </>

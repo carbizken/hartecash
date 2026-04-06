@@ -183,7 +183,12 @@ const DashboardAnalytics = () => {
   };
 
   if (metrics.loading) {
-    return <div className="text-sm text-muted-foreground py-4">Loading analytics…</div>;
+    return (
+      <div className="flex items-center justify-center py-8 gap-3 animate-in fade-in">
+        <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+        <span className="text-sm text-muted-foreground font-medium">Loading analytics…</span>
+      </div>
+    );
   }
 
   const monthTrend = metrics.prevMonthLeads > 0
@@ -330,7 +335,7 @@ function KpiCard({ label, value, icon: Icon, color, bg, sub, badge }: {
   sub?: string; badge?: { value: string; positive: boolean };
 }) {
   return (
-    <div className="relative overflow-hidden bg-card rounded-xl border border-border p-4 shadow-sm">
+    <div className="relative overflow-hidden bg-card rounded-xl border border-border p-4 shadow-sm premium-card cursor-default">
       <div className={`absolute inset-0 bg-gradient-to-br ${bg} pointer-events-none`} />
       <div className="relative">
         <div className="flex items-center justify-between mb-1.5">
