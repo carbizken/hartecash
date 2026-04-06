@@ -54,8 +54,13 @@ interface SiteConfig {
   referral_program_enabled: boolean;
   referral_reward_sell_enabled: boolean;
   referral_reward_sell_amount: number;
+  referral_reward_buy_enabled: boolean;
+  referral_reward_buy_amount: number;
+  referral_reward_sell_buy_enabled: boolean;
+  referral_reward_sell_buy_amount: number;
   referral_reward_trade_enabled: boolean;
   referral_reward_trade_amount: number;
+  referral_reward_type: string;
 }
 
 const DEFAULT_CONFIG: SiteConfig = {
