@@ -361,12 +361,29 @@ const DealerOnboarding = ({ isAdmin = false, onNavigate, targetDealershipId, onD
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Plan Info */}
+            {/* Plan Tier */}
             <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Plan</Label>
-              <div className="flex items-center gap-2 h-10 px-3 rounded-md border border-border bg-muted/30">
-                <span className="text-sm font-medium text-card-foreground">Standard — $1,995/mo</span>
-              </div>
+              <Label className="text-xs font-semibold">Plan Tier</Label>
+              <Select
+                value={account.plan_tier}
+                onValueChange={(v) => {
+                  updateField("plan_tier", v);
+                  const tier = PLAN_TIERS.find(t => t.value === v);
+                  if (tier && tier.cost > 0) updateField("plan_cost", tier.cost);
+                }}
+                disabled={readOnly}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {PLAN_TIERS.map(t => (
+                    <SelectItem key={t.value} value={t.value}>
+                      {t.label}{t.cost > 0 ? ` — $${t.cost.toLocaleString()}/mo` : " — Custom"}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Plan Cost */}
@@ -377,8 +394,11 @@ const DealerOnboarding = ({ isAdmin = false, onNavigate, targetDealershipId, onD
                 min={0}
                 value={account.plan_cost}
                 onChange={e => updateField("plan_cost", Number(e.target.value))}
-                disabled={readOnly}
+                disabled={readOnly || account.plan_tier !== "enterprise"}
               />
+              {account.plan_tier !== "enterprise" && (
+                <p className="text-xs text-muted-foreground">Auto-set by plan tier</p>
+              )}
             </div>
 
             {/* Start Date */}
