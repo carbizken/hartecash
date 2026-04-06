@@ -6,6 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Upload, Trash2, Image, Loader2 } from "lucide-react";
+import OemLogoPicker from "./OemLogoPicker";
 
 interface LocationLogoSectionProps {
   location: {
