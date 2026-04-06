@@ -225,7 +225,7 @@ const AdminSidebar = ({
           </SidebarGroup>
         )}
       </SidebarContent>
-      <SidebarFooter className="p-3 space-y-2">
+      <SidebarFooter className="p-3 space-y-2 border-t border-border/50">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -237,11 +237,28 @@ const AdminSidebar = ({
               {!collapsed && <span className="flex-1 truncate">Platform Updates</span>}
             </SidebarMenuButton>
           </SidebarMenuItem>
+          {isPlatformAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => navigate("/super-admin")}
+                tooltip={collapsed ? "Command Center" : undefined}
+                className="transition-all duration-200 text-amber-500 dark:text-amber-400 hover:bg-amber-500/10"
+              >
+                <Gauge className="w-4 h-4 shrink-0" />
+                {!collapsed && <span className="flex-1 truncate font-semibold">Command Center</span>}
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
         {!collapsed && (
-          <p className="text-[10px] text-sidebar-foreground/40 text-center">
-            Admin Portal
-          </p>
+          <div className="text-center space-y-0.5">
+            <p className="text-[10px] text-sidebar-foreground/50 font-medium tracking-wider uppercase">
+              HarteCash
+            </p>
+            <p className="text-[9px] text-sidebar-foreground/30">
+              Enterprise Platform
+            </p>
+          </div>
         )}
       </SidebarFooter>
     </Sidebar>

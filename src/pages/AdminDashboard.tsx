@@ -36,6 +36,8 @@ const AdminDashboard = () => {
             darkMode={db.darkMode}
             setDarkMode={db.setDarkMode}
             userRole={db.userRole}
+            userName={db.userName}
+            isPlatformAdmin={db.userRole === "admin" && db.tenant.dealership_id === "default"}
             onLogout={async () => {
               await supabase.auth.signOut();
               db.navigate("/admin/login");
