@@ -101,40 +101,48 @@ const LocationLogoSection = ({ location, dealershipId, onUpdate }: LocationLogoS
         <Label className="text-xs font-semibold">Logo Configuration</Label>
       </div>
 
-      {/* Corporate Logo */}
-      <div className="space-y-2">
+      {/* Corporate Logo — Light & Dark */}
+      <div className="space-y-3">
         <Label className="text-xs text-muted-foreground">Corporate / Parent Logo</Label>
-        <div className="flex items-center gap-3">
-          {location.corporate_logo_url ? (
-            <div className="relative group">
-              <img
-                src={location.corporate_logo_url}
-                alt="Corporate logo"
-                className="h-12 w-auto max-w-[160px] object-contain rounded border border-border bg-background p-1"
-              />
-              <button
-                onClick={() => onUpdate("corporate_logo_url", null)}
-                className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Trash2 className="w-3 h-3" />
-              </button>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Light variant */}
+          <div className="space-y-1">
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Light / Default</span>
+            <div className="flex items-center gap-2">
+              {location.corporate_logo_url ? (
+                <div className="relative group">
+                  <img src={location.corporate_logo_url} alt="Corporate logo (light)" className="h-12 w-auto max-w-[140px] object-contain rounded border border-border bg-background p-1" />
+                  <button onClick={() => onUpdate("corporate_logo_url", null)} className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-3 h-3" /></button>
+                </div>
+              ) : (
+                <div className="h-12 w-28 rounded border border-dashed border-border flex items-center justify-center text-[10px] text-muted-foreground">No logo</div>
+              )}
+              <Button size="sm" variant="outline" onClick={() => corpInputRef.current?.click()} disabled={uploading === "corporate"} className="gap-1.5">
+                {uploading === "corporate" ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                Upload
+              </Button>
+              <input ref={corpInputRef} type="file" accept="image/*" className="hidden" onChange={handleCorpUpload} />
             </div>
-          ) : (
-            <div className="h-12 w-32 rounded border border-dashed border-border flex items-center justify-center text-xs text-muted-foreground">
-              No logo
+          </div>
+          {/* Dark variant */}
+          <div className="space-y-1">
+            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Dark (for light backgrounds)</span>
+            <div className="flex items-center gap-2">
+              {location.corporate_logo_dark_url ? (
+                <div className="relative group">
+                  <img src={location.corporate_logo_dark_url} alt="Corporate logo (dark)" className="h-12 w-auto max-w-[140px] object-contain rounded border border-border bg-muted p-1" />
+                  <button onClick={() => onUpdate("corporate_logo_dark_url", null)} className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"><Trash2 className="w-3 h-3" /></button>
+                </div>
+              ) : (
+                <div className="h-12 w-28 rounded border border-dashed border-border flex items-center justify-center text-[10px] text-muted-foreground">No logo</div>
+              )}
+              <Button size="sm" variant="outline" onClick={() => corpDarkInputRef.current?.click()} disabled={uploading === "corporate_dark"} className="gap-1.5">
+                {uploading === "corporate_dark" ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                Upload
+              </Button>
+              <input ref={corpDarkInputRef} type="file" accept="image/*" className="hidden" onChange={handleCorpDarkUpload} />
             </div>
-          )}
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => corpInputRef.current?.click()}
-            disabled={uploading === "corporate"}
-            className="gap-1.5"
-          >
-            {uploading === "corporate" ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
-            Upload
-          </Button>
-          <input ref={corpInputRef} type="file" accept="image/*" className="hidden" onChange={handleCorpUpload} />
+          </div>
         </div>
       </div>
 
