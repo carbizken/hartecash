@@ -318,6 +318,7 @@ export type Database = {
         Row: {
           about_hero_headline: string | null
           about_hero_subtext: string | null
+          about_image_url: string | null
           about_story: string | null
           address: string | null
           all_brands: boolean
@@ -352,6 +353,7 @@ export type Database = {
         Insert: {
           about_hero_headline?: string | null
           about_hero_subtext?: string | null
+          about_image_url?: string | null
           about_story?: string | null
           address?: string | null
           all_brands?: boolean
@@ -386,6 +388,7 @@ export type Database = {
         Update: {
           about_hero_headline?: string | null
           about_hero_subtext?: string | null
+          about_image_url?: string | null
           about_story?: string | null
           address?: string | null
           all_brands?: boolean
@@ -1591,6 +1594,7 @@ export type Database = {
         Row: {
           about_hero_headline: string
           about_hero_subtext: string
+          about_image_url: string | null
           about_milestones: Json
           about_story: string
           about_values: Json
@@ -1656,6 +1660,7 @@ export type Database = {
         Insert: {
           about_hero_headline?: string
           about_hero_subtext?: string
+          about_image_url?: string | null
           about_milestones?: Json
           about_story?: string
           about_values?: Json
@@ -1721,6 +1726,7 @@ export type Database = {
         Update: {
           about_hero_headline?: string
           about_hero_subtext?: string
+          about_image_url?: string | null
           about_milestones?: Json
           about_story?: string
           about_values?: Json

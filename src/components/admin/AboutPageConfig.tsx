@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Save, Loader2, Plus, Trash2, ChevronDown, GripVertical, ExternalLink, Building2 } from "lucide-react";
+import { Save, Loader2, Plus, Trash2, ChevronDown, GripVertical, ExternalLink, Building2, ImagePlus } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -30,6 +30,7 @@ interface LocationAbout {
   about_hero_headline: string;
   about_hero_subtext: string;
   about_story: string;
+  about_image_url: string;
 }
 
 const ICON_OPTIONS = [
@@ -55,6 +56,7 @@ const AboutPageConfig = () => {
   const [heroHeadline, setHeroHeadline] = useState("");
   const [heroSubtext, setHeroSubtext] = useState("");
   const [story, setStory] = useState("");
+  const [aboutImageUrl, setAboutImageUrl] = useState("");
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [values, setValues] = useState<ValueItem[]>([]);
 
@@ -74,12 +76,12 @@ const AboutPageConfig = () => {
       const [configRes, locsRes] = await Promise.all([
         supabase
           .from("site_config")
-          .select("about_hero_headline, about_hero_subtext, about_story, about_milestones, about_values")
+          .select("about_hero_headline, about_hero_subtext, about_story, about_milestones, about_values, about_image_url")
           .eq("dealership_id", dealershipId)
           .maybeSingle(),
         supabase
           .from("dealership_locations")
-          .select("id, name, use_corporate_about, about_hero_headline, about_hero_subtext, about_story")
+          .select("id, name, use_corporate_about, about_hero_headline, about_hero_subtext, about_story, about_image_url")
           .eq("dealership_id", dealershipId)
           .eq("is_active", true)
           .order("sort_order", { ascending: true }),
@@ -90,6 +92,7 @@ const AboutPageConfig = () => {
         setHeroHeadline(d.about_hero_headline || "");
         setHeroSubtext(d.about_hero_subtext || "");
         setStory(d.about_story || "");
+        setAboutImageUrl(d.about_image_url || "");
         setMilestones(Array.isArray(d.about_milestones) ? d.about_milestones : []);
         setValues(Array.isArray(d.about_values) ? d.about_values : []);
       }
@@ -103,6 +106,7 @@ const AboutPageConfig = () => {
             about_hero_headline: l.about_hero_headline || "",
             about_hero_subtext: l.about_hero_subtext || "",
             about_story: l.about_story || "",
+            about_image_url: l.about_image_url || "",
           }))
         );
       }
@@ -120,6 +124,7 @@ const AboutPageConfig = () => {
         about_hero_headline: heroHeadline,
         about_hero_subtext: heroSubtext,
         about_story: story,
+        about_image_url: aboutImageUrl || null,
         about_milestones: milestones,
         about_values: values,
       } as any)
@@ -142,6 +147,7 @@ const AboutPageConfig = () => {
         about_hero_headline: loc.about_hero_headline || null,
         about_hero_subtext: loc.about_hero_subtext || null,
         about_story: loc.about_story || null,
+        about_image_url: loc.about_image_url || null,
       } as any)
       .eq("id", loc.id);
 
@@ -175,6 +181,23 @@ const AboutPageConfig = () => {
     setValues(updated);
   };
 
+  const handleImageUpload = async (file: File, onUrl: (url: string) => void) => {
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Too large", description: "Max 5 MB.", variant: "destructive" });
+      return;
+    }
+    const ext = file.name.split(".").pop();
+    const path = `about/${dealershipId}_${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("dealer-logos").upload(path, file, { upsert: true });
+    if (error) {
+      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    const { data: urlData } = supabase.storage.from("dealer-logos").getPublicUrl(path);
+    onUrl(urlData.publicUrl);
+    toast({ title: "Uploaded", description: "Image uploaded — save to apply." });
+  };
+
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-muted-foreground py-8">
@@ -193,10 +216,8 @@ const AboutPageConfig = () => {
           <p className="text-xs text-muted-foreground">Customize the /about page content for your dealership.</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" className="gap-1.5" asChild>
-            <a href="/about" target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="w-3.5 h-3.5" /> Preview
-            </a>
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={() => window.open("/about", "_blank")}>
+            <ExternalLink className="w-3.5 h-3.5" /> Preview
           </Button>
         </div>
       </div>
@@ -224,6 +245,8 @@ const AboutPageConfig = () => {
                 heroHeadline={heroHeadline} setHeroHeadline={setHeroHeadline}
                 heroSubtext={heroSubtext} setHeroSubtext={setHeroSubtext}
                 story={story} setStory={setStory}
+                imageUrl={aboutImageUrl} setImageUrl={setAboutImageUrl}
+                onImageUpload={(file) => handleImageUpload(file, setAboutImageUrl)}
                 milestones={milestones} setMilestones={setMilestones}
                 values={values} setValues={setValues}
                 heroOpen={heroOpen} setHeroOpen={setHeroOpen}
@@ -291,6 +314,39 @@ const AboutPageConfig = () => {
                         className="font-mono text-xs"
                       />
                     </div>
+                    {/* Location image upload */}
+                    <div>
+                      <Label className="text-xs">Location Photo</Label>
+                      <p className="text-[10px] text-muted-foreground mb-2">Building exterior, team photo, or storefront image.</p>
+                      <div className="border border-border rounded-lg p-3 bg-muted/30 flex flex-col items-center gap-2 min-h-[80px]">
+                        {loc.about_image_url ? (
+                          <div className="relative">
+                            <img src={loc.about_image_url} alt="Location" className="max-h-24 rounded-md object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => updateLocation(loc.id, "about_image_url", "")}
+                              className="absolute -top-2 -right-2 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                            >×</button>
+                          </div>
+                        ) : (
+                          <ImagePlus className="w-8 h-8 text-muted-foreground/40" />
+                        )}
+                        <label className="cursor-pointer text-xs text-primary hover:underline">
+                          {loc.about_image_url ? "Replace" : "Upload"}
+                          <input type="file" accept="image/*" className="hidden" onChange={e => {
+                            const f = e.target.files?.[0];
+                            if (f) handleImageUpload(f, (url) => updateLocation(loc.id, "about_image_url", url));
+                            e.target.value = "";
+                          }} />
+                        </label>
+                      </div>
+                      <Input
+                        value={loc.about_image_url}
+                        onChange={(e) => updateLocation(loc.id, "about_image_url", e.target.value)}
+                        placeholder="Or paste URL"
+                        className="text-xs h-8 mt-1"
+                      />
+                    </div>
                   </div>
                 )}
               </div>
@@ -309,6 +365,8 @@ const AboutPageConfig = () => {
             heroHeadline={heroHeadline} setHeroHeadline={setHeroHeadline}
             heroSubtext={heroSubtext} setHeroSubtext={setHeroSubtext}
             story={story} setStory={setStory}
+            imageUrl={aboutImageUrl} setImageUrl={setAboutImageUrl}
+            onImageUpload={(file) => handleImageUpload(file, setAboutImageUrl)}
             milestones={milestones} setMilestones={setMilestones}
             values={values} setValues={setValues}
             heroOpen={heroOpen} setHeroOpen={setHeroOpen}
@@ -329,6 +387,8 @@ interface CorporateAboutFieldsProps {
   heroHeadline: string; setHeroHeadline: (v: string) => void;
   heroSubtext: string; setHeroSubtext: (v: string) => void;
   story: string; setStory: (v: string) => void;
+  imageUrl: string; setImageUrl: (v: string) => void;
+  onImageUpload: (file: File) => void;
   milestones: Milestone[]; setMilestones: (v: Milestone[]) => void;
   values: ValueItem[]; setValues: (v: ValueItem[]) => void;
   heroOpen: boolean; setHeroOpen: (v: boolean) => void;
@@ -342,6 +402,7 @@ interface CorporateAboutFieldsProps {
 const CorporateAboutFields = ({
   heroHeadline, setHeroHeadline, heroSubtext, setHeroSubtext,
   story, setStory,
+  imageUrl, setImageUrl, onImageUpload,
   milestones, values,
   heroOpen, setHeroOpen, storyOpen, setStoryOpen,
   milestonesOpen, setMilestonesOpen, valuesOpen, setValuesOpen,
@@ -389,6 +450,40 @@ const CorporateAboutFields = ({
         </div>
       </CollapsibleContent>
     </Collapsible>
+
+    {/* About Photo */}
+    <div className="px-1">
+      <Label className="text-xs font-semibold">Dealership Photo</Label>
+      <p className="text-[10px] text-muted-foreground mb-2">Upload a building exterior, family photo, or team image for the About page.</p>
+      <div className="border border-border rounded-lg p-3 bg-muted/30 flex flex-col items-center gap-2 min-h-[100px]">
+        {imageUrl ? (
+          <div className="relative">
+            <img src={imageUrl} alt="About" className="max-h-32 rounded-md object-cover" />
+            <button
+              type="button"
+              onClick={() => setImageUrl("")}
+              className="absolute -top-2 -right-2 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+            >×</button>
+          </div>
+        ) : (
+          <ImagePlus className="w-10 h-10 text-muted-foreground/40" />
+        )}
+        <label className="cursor-pointer text-xs text-primary hover:underline">
+          {imageUrl ? "Replace image" : "Upload image"}
+          <input type="file" accept="image/*" className="hidden" onChange={e => {
+            const f = e.target.files?.[0];
+            if (f) onImageUpload(f);
+            e.target.value = "";
+          }} />
+        </label>
+      </div>
+      <Input
+        value={imageUrl}
+        onChange={(e) => setImageUrl(e.target.value)}
+        placeholder="Or paste image URL"
+        className="text-xs h-8 mt-1"
+      />
+    </div>
 
     {/* Milestones */}
     <Collapsible open={milestonesOpen} onOpenChange={setMilestonesOpen}>
