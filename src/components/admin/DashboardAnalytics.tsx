@@ -330,7 +330,7 @@ function KpiCard({ label, value, icon: Icon, color, bg, sub, badge }: {
   sub?: string; badge?: { value: string; positive: boolean };
 }) {
   return (
-    <div className="relative overflow-hidden bg-card rounded-xl border border-border p-4 shadow-sm">
+    <div className="relative overflow-hidden bg-card rounded-xl border border-border p-4 shadow-sm premium-card cursor-default">
       <div className={`absolute inset-0 bg-gradient-to-br ${bg} pointer-events-none`} />
       <div className="relative">
         <div className="flex items-center justify-between mb-1.5">

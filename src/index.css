@@ -16,6 +16,29 @@
   transition: box-shadow 0.4s ease, border-color 0.4s ease;
 }
 
+/* Premium shimmer animation for admin header */
+@keyframes shimmer {
+  0%, 100% { transform: translateX(-100%); }
+  50% { transform: translateX(100%); }
+}
+
+/* Premium card hover lift */
+.premium-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.premium-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px -8px hsl(var(--primary) / 0.12);
+}
+
+/* Admin table row micro-interaction */
+.admin-row {
+  transition: background-color 0.15s ease, transform 0.1s ease;
+}
+.admin-row:active {
+  transform: scale(0.998);
+}
+
 @layer base {
   :root {
     --background: 216 33% 97%;
