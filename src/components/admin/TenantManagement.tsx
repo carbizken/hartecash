@@ -117,32 +117,20 @@ const TenantManagement = ({ onSetupDealer }: TenantManagementProps) => {
       error = insertError;
 
       if (!insertError) {
-        // Seed a site_config row for the new dealer
-        await supabase.from("site_config").insert({
-          dealership_id: payload.dealership_id,
-          dealership_name: payload.display_name,
-        } as any);
-        // Seed form_config
-        await supabase.from("form_config").insert({
-          dealership_id: payload.dealership_id,
-        } as any);
-        // Seed offer_settings
-        await supabase.from("offer_settings").insert({
-          dealership_id: payload.dealership_id,
-        } as any);
-        // Seed inspection_config
-        await supabase.from("inspection_config").insert({
-          dealership_id: payload.dealership_id,
-        } as any);
-        // Seed notification_settings
-        await supabase.from("notification_settings").insert({
-          dealership_id: payload.dealership_id,
-        } as any);
-        // Seed dealer_accounts
-        await supabase.from("dealer_accounts").insert({
-          dealership_id: payload.dealership_id,
-        } as any);
-        // Seed branded notification_templates for the new dealer
+        // Seed config rows for the new dealer — fire all in parallel
+        const seeds = await Promise.all([
+          supabase.from("site_config").insert({ dealership_id: payload.dealership_id, dealership_name: payload.display_name } as any),
+          supabase.from("form_config").insert({ dealership_id: payload.dealership_id } as any),
+          supabase.from("offer_settings").insert({ dealership_id: payload.dealership_id } as any),
+          supabase.from("inspection_config").insert({ dealership_id: payload.dealership_id } as any),
+          supabase.from("notification_settings").insert({ dealership_id: payload.dealership_id } as any),
+          supabase.from("dealer_accounts").insert({ dealership_id: payload.dealership_id } as any),
+        ]);
+        const seedErrors = seeds.filter(s => s.error).map(s => s.error?.message);
+        if (seedErrors.length) {
+          console.warn("Seed errors:", seedErrors);
+        }
+        // Seed notification templates
         await seedNotificationTemplates(payload.dealership_id, payload.display_name);
       }
     }
