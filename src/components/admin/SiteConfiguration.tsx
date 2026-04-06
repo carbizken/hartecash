@@ -102,8 +102,13 @@ const DEFAULT_CONFIG: SiteConfig = {
   referral_program_enabled: false,
   referral_reward_sell_enabled: false,
   referral_reward_sell_amount: 0,
+  referral_reward_buy_enabled: false,
+  referral_reward_buy_amount: 0,
+  referral_reward_sell_buy_enabled: false,
+  referral_reward_sell_buy_amount: 0,
   referral_reward_trade_enabled: false,
   referral_reward_trade_amount: 0,
+  referral_reward_type: "cash",
 };
 
 interface SectionProps {
