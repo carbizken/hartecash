@@ -387,6 +387,8 @@ interface CorporateAboutFieldsProps {
   heroHeadline: string; setHeroHeadline: (v: string) => void;
   heroSubtext: string; setHeroSubtext: (v: string) => void;
   story: string; setStory: (v: string) => void;
+  imageUrl: string; setImageUrl: (v: string) => void;
+  onImageUpload: (file: File) => void;
   milestones: Milestone[]; setMilestones: (v: Milestone[]) => void;
   values: ValueItem[]; setValues: (v: ValueItem[]) => void;
   heroOpen: boolean; setHeroOpen: (v: boolean) => void;
@@ -400,6 +402,7 @@ interface CorporateAboutFieldsProps {
 const CorporateAboutFields = ({
   heroHeadline, setHeroHeadline, heroSubtext, setHeroSubtext,
   story, setStory,
+  imageUrl, setImageUrl, onImageUpload,
   milestones, values,
   heroOpen, setHeroOpen, storyOpen, setStoryOpen,
   milestonesOpen, setMilestonesOpen, valuesOpen, setValuesOpen,
