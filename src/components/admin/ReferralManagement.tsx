@@ -119,7 +119,7 @@ const ReferralManagement = () => {
   };
 
   const copyLink = (code: string) => {
-    const link = `${window.location.origin}/?ref=${code}`;
+    const link = `${tenantBaseUrl}/?ref=${code}`;
     navigator.clipboard.writeText(link);
     toast({ title: "Copied!", description: "Referral link copied to clipboard." });
   };
