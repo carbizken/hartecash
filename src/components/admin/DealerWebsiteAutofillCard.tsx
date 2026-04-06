@@ -64,6 +64,7 @@ interface ScrapedDealerInfo {
   about_hero_headline?: string;
   about_mission?: string;
   about_values_list?: string[];
+  about_milestones?: { year?: string; label?: string }[];
   oem_brands?: string[];
   staff_emails?: string[];
   staff_phones?: string[];
@@ -80,6 +81,8 @@ interface ScrapedDealerInfo {
   meta_description?: string;
   favicon_url?: string;
   certifications?: string[];
+  community_involvement?: string;
+  service_offerings?: string[];
 }
 
 type OnboardingAnswers = Record<string, string>;
