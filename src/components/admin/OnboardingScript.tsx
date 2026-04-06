@@ -2,7 +2,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Printer, Save, CheckCircle2, Loader2, QrCode, Link2, X, Smartphone, Sparkles, Globe, ChevronDown, ChevronRight, Rocket, ExternalLink } from "lucide-react";
+import { Printer, Save, CheckCircle2, Loader2, QrCode, Link2, X, Smartphone, Sparkles, Globe, ChevronDown, ChevronRight, Rocket, ExternalLink, PenLine } from "lucide-react";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -361,10 +361,10 @@ export default function OnboardingScript({ targetDealershipId, onNavigate }: Onb
   return (
     <div className="max-w-4xl">
       {/* Screen-only header */}
-      <div className="flex items-center justify-between mb-4 print:hidden">
+      <div className="flex items-center justify-between mb-6 print:hidden">
         <div>
-          <h2 className="text-xl font-semibold">Onboarding Questionnaire</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="text-2xl font-bold text-foreground tracking-tight">Onboarding Questionnaire</h2>
+          <p className="text-sm text-muted-foreground mt-1">
             Complete on screen, go mobile, or send a link to the dealer.
           </p>
         </div>
@@ -390,14 +390,14 @@ export default function OnboardingScript({ targetDealershipId, onNavigate }: Onb
 
       {/* QR Code + Link Panel */}
       {showQR && (
-        <div className="mb-6 border rounded-lg p-6 bg-card print:hidden">
+        <div className="mb-6 border rounded-xl p-6 bg-card shadow-sm print:hidden">
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="bg-background p-4 rounded-lg border">
+            <div className="bg-background p-4 rounded-xl border shadow-sm">
               <QRCodeSVG value={mobileUrl} size={160} />
             </div>
             <div className="flex-1 space-y-3 text-center md:text-left">
-              <h3 className="font-semibold flex items-center gap-2 justify-center md:justify-start">
-                <QrCode className="w-4 h-4" />
+              <h3 className="font-bold text-base flex items-center gap-2 justify-center md:justify-start">
+                <QrCode className="w-4 h-4 text-primary" />
                 Go Mobile or Send to Dealer
               </h3>
               <p className="text-sm text-muted-foreground">
@@ -424,10 +424,12 @@ export default function OnboardingScript({ targetDealershipId, onNavigate }: Onb
       )}
 
       {/* AI Auto-Fill Panel */}
-      <div className="mb-6 border rounded-lg p-5 bg-gradient-to-r from-primary/5 to-accent/5 print:hidden">
+      <div className="mb-6 border rounded-xl p-5 bg-card shadow-sm print:hidden">
         <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold text-sm">AI Auto-Fill from Dealer Website</h3>
+          <div className="p-1.5 rounded-lg bg-primary/10">
+            <Sparkles className="w-4 h-4 text-primary" />
+          </div>
+          <h3 className="font-bold text-sm">AI Auto-Fill from Dealer Website</h3>
         </div>
         <p className="text-xs text-muted-foreground mb-3">
           Enter the dealer's website URL and we'll automatically pull their name, phone, address, colors, social links, locations, and more.
@@ -451,35 +453,43 @@ export default function OnboardingScript({ targetDealershipId, onNavigate }: Onb
       </div>
 
       {/* Progress bar */}
-      <div className="mb-4 print:hidden">
-        <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-          <span>{filledCount} of {totalQuestions} questions answered</span>
+      <div className="mb-6 print:hidden">
+        <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+          <span className="font-medium">{filledCount} of {totalQuestions} questions answered</span>
           <div className="flex items-center gap-3">
-            <span>{progressPct}%</span>
-            <button onClick={expandAll} className="text-primary hover:underline text-[11px]">Expand All</button>
-            <button onClick={collapseAll} className="text-primary hover:underline text-[11px]">Collapse All</button>
+            <span className="font-bold text-primary text-sm">{progressPct}%</span>
+            <button onClick={expandAll} className="text-primary hover:underline text-[11px] font-medium">Expand All</button>
+            <button onClick={collapseAll} className="text-primary hover:underline text-[11px] font-medium">Collapse All</button>
           </div>
         </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
-          <div className="h-full bg-primary rounded-full transition-all duration-300" style={{ width: `${progressPct}%` }} />
+        <div className="h-3 bg-muted rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-500 ease-out"
+            style={{
+              width: `${progressPct}%`,
+              background: progressPct === 100
+                ? "hsl(var(--primary))"
+                : "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))",
+            }}
+          />
         </div>
         {savedAt && (
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2">
             <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
             Last saved: {savedAt}
-            {dirty && <span className="text-destructive ml-2">• Unsaved changes</span>}
+            {dirty && <span className="text-destructive ml-2 font-medium">• Unsaved changes</span>}
           </div>
         )}
       </div>
 
       {/* Apply All Button */}
       <div className="mb-6 print:hidden">
-        <Button onClick={handleApplyAll} disabled={applying} variant="outline" className="w-full gap-2 border-primary/30 hover:bg-primary/5">
+        <Button onClick={handleApplyAll} disabled={applying} variant="outline" className="w-full gap-2 border-primary/30 hover:bg-primary/5 h-11">
           {applying ? <Loader2 className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4 text-primary" />}
-          {applying ? "Applying to all config tables…" : "Apply All Answers → Config Tables"}
+          {applying ? "Applying settings…" : "Apply Answers to Platform Settings"}
         </Button>
         <p className="text-[11px] text-muted-foreground mt-1.5 text-center">
-          Writes answers to Site Config, Form Config, Notifications, Inspection, and Locations. Save first!
+          Syncs your answers to Site Config, Form Config, Notifications, Inspection, and Locations. Save first!
         </p>
       </div>
 
@@ -499,24 +509,24 @@ export default function OnboardingScript({ targetDealershipId, onNavigate }: Onb
           const isOpen = openSections.has(section.title);
 
           return (
-            <div key={section.title} className="border rounded-lg overflow-hidden print:break-inside-avoid">
+            <div key={section.title} className="border rounded-xl overflow-hidden shadow-sm print:break-inside-avoid">
               {/* Accordion header */}
               <button
                 type="button"
                 onClick={() => toggleSection(section.title)}
                 className={cn(
-                  "w-full flex items-center justify-between px-4 py-2.5 text-left transition-colors print:pointer-events-none",
-                  isOpen ? "bg-muted/50 border-b" : "bg-muted/30 hover:bg-muted/50"
+                  "w-full flex items-center justify-between px-5 py-3.5 text-left transition-colors print:pointer-events-none",
+                  isOpen ? "bg-muted/60 border-b" : "bg-card hover:bg-muted/40"
                 )}
               >
-                <h3 className="text-sm font-bold flex items-center gap-2">
-                  <span>{section.icon}</span>
+                <h3 className="text-sm font-bold flex items-center gap-2.5">
+                  <span className="text-base">{section.icon}</span>
                   {section.title}
-                  {isComplete && <CheckCircle2 className="w-3.5 h-3.5 text-primary" />}
+                  {isComplete && <CheckCircle2 className="w-4 h-4 text-primary" />}
                 </h3>
-                <div className="flex items-center gap-2 print:hidden">
+                <div className="flex items-center gap-2.5 print:hidden">
                   <span className={cn(
-                    "text-[10px] font-medium px-1.5 py-0.5 rounded-full",
+                    "text-[11px] font-bold px-2 py-0.5 rounded-full",
                     isComplete ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                   )}>
                     {filled}/{total}
@@ -527,14 +537,14 @@ export default function OnboardingScript({ targetDealershipId, onNavigate }: Onb
 
               {/* Accordion content */}
               {(isOpen || typeof window !== "undefined" && window.matchMedia?.("print")?.matches) && (
-                <div className={cn("divide-y", !isOpen && "hidden print:block")}>
+                <div className={cn("divide-y divide-border/50", !isOpen && "hidden print:block")}>
                   {section.questions.map((q) => (
-                    <div key={q.id} className="px-4 py-3 flex items-start gap-3">
+                    <div key={q.id} className="px-5 py-3.5 flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">{q.label}</p>
-                        {q.hint && <p className="text-xs text-muted-foreground mt-0.5">{q.hint}</p>}
+                        <p className="text-sm font-semibold text-card-foreground">{q.label}</p>
+                        {q.hint && <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{q.hint}</p>}
                       </div>
-                      <div className="shrink-0 w-64">
+                      <div className="shrink-0 sm:w-72">
                         {renderQuestion(q)}
                       </div>
                     </div>
@@ -546,13 +556,20 @@ export default function OnboardingScript({ targetDealershipId, onNavigate }: Onb
         })}
 
         {/* Digital Signature Block */}
-        <div className="border rounded-lg p-6 print:break-inside-avoid print:mt-8">
-          <h3 className="text-sm font-bold mb-1">Sign-Off</h3>
-          <p className="text-xs text-muted-foreground mb-4">
-            Both parties sign below to confirm the onboarding configuration is agreed upon.
-          </p>
+        <div className="border-2 border-primary/20 rounded-xl p-8 print:break-inside-avoid print:mt-8 bg-card shadow-sm">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <PenLine className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-foreground">Sign-Off</h3>
+              <p className="text-xs text-muted-foreground">
+                Both parties sign below to confirm the onboarding configuration is agreed upon.
+              </p>
+            </div>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <div className="hidden print:block">
               <p className="text-xs text-muted-foreground mb-16">Dealer Representative</p>
               <div className="border-b-2 border-muted-foreground/30 mb-1" />
@@ -572,14 +589,14 @@ export default function OnboardingScript({ targetDealershipId, onNavigate }: Onb
             </div>
           </div>
 
-          <div className="mt-4 print:hidden flex gap-3">
-            <Button onClick={handleSave} disabled={saving} className="gap-2">
+          <div className="mt-6 print:hidden flex gap-3">
+            <Button onClick={handleSave} disabled={saving} className="gap-2 h-11 flex-1">
               <Save className="w-4 h-4" />
               {saving ? "Saving…" : "Save All"}
             </Button>
-            <Button onClick={handleApplyAll} disabled={applying} variant="outline" className="gap-2">
+            <Button onClick={handleApplyAll} disabled={applying} variant="outline" className="gap-2 h-11 flex-1">
               {applying ? <Loader2 className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4" />}
-              Apply to Config
+              Apply to Platform
             </Button>
           </div>
         </div>
