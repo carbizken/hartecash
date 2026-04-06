@@ -40,12 +40,14 @@ const StoreSelector = ({ children }: { children: React.ReactNode }) => {
     const fetchLocations = async () => {
       const { data } = await supabase
         .from("dealership_locations" as any)
-        .select("id, name, city, state, address, oem_logo_urls, corporate_logo_url")
+        .select("id, name, city, state, address, oem_logo_urls, corporate_logo_url, show_in_inspection")
         .eq("dealership_id", dealershipId)
         .eq("is_active", true)
+        .eq("temporarily_offline", false)
         .order("sort_order");
 
-      const locs = (data as any[] || []) as LocationCard[];
+      // Only show locations that accept inspections
+      const locs = ((data as any[]) || []).filter((l: any) => l.show_in_inspection !== false) as LocationCard[];
       setLocations(locs);
       setLoading(false);
     };

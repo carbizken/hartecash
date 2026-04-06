@@ -22,6 +22,7 @@ interface Location {
   is_active: boolean;
   show_in_footer: boolean;
   show_in_scheduling: boolean;
+  show_in_inspection: boolean;
   temporarily_offline: boolean;
   use_bdc: boolean;
   zip_codes: string[];
@@ -91,7 +92,7 @@ const LocationManagement = () => {
     }
   };
 
-  const toggleField = async (id: string, field: "is_active" | "show_in_footer" | "show_in_scheduling" | "temporarily_offline" | "use_bdc", current: boolean) => {
+  const toggleField = async (id: string, field: "is_active" | "show_in_footer" | "show_in_scheduling" | "show_in_inspection" | "temporarily_offline" | "use_bdc", current: boolean) => {
     const { error } = await supabase
       .from("dealership_locations" as any)
       .update({ [field]: !current })
@@ -122,7 +123,7 @@ const LocationManagement = () => {
     for (const loc of locations) {
       const { error } = await supabase
         .from("dealership_locations" as any)
-        .update({ name: loc.name, city: loc.city, state: loc.state, address: loc.address, sort_order: loc.sort_order, zip_codes: loc.zip_codes || [], oem_brands: loc.oem_brands || [], center_zip: loc.center_zip || '', coverage_radius_miles: loc.coverage_radius_miles || 0, all_brands: loc.all_brands ?? true, excluded_oem_brands: loc.excluded_oem_brands || [], temporarily_offline: loc.temporarily_offline ?? false, use_bdc: loc.use_bdc ?? false, corporate_logo_url: loc.corporate_logo_url || null, oem_logo_urls: loc.oem_logo_urls || [], logo_layout: loc.logo_layout || 'side_by_side', show_corporate_logo: loc.show_corporate_logo ?? false, show_corporate_on_landing_only: loc.show_corporate_on_landing_only ?? false } as any)
+        .update({ name: loc.name, city: loc.city, state: loc.state, address: loc.address, sort_order: loc.sort_order, zip_codes: loc.zip_codes || [], oem_brands: loc.oem_brands || [], center_zip: loc.center_zip || '', coverage_radius_miles: loc.coverage_radius_miles || 0, all_brands: loc.all_brands ?? true, excluded_oem_brands: loc.excluded_oem_brands || [], temporarily_offline: loc.temporarily_offline ?? false, use_bdc: loc.use_bdc ?? false, show_in_inspection: loc.show_in_inspection ?? true, corporate_logo_url: loc.corporate_logo_url || null, corporate_logo_dark_url: loc.corporate_logo_dark_url || null, oem_logo_urls: loc.oem_logo_urls || [], logo_layout: loc.logo_layout || 'side_by_side', show_corporate_logo: loc.show_corporate_logo ?? false, show_corporate_on_landing_only: loc.show_corporate_on_landing_only ?? false } as any)
         .eq("id", loc.id);
       if (error) hasError = true;
     }
@@ -210,6 +211,10 @@ const LocationManagement = () => {
                 <div className="flex items-center gap-1.5" title="Show this location in the customer scheduling dropdown">
                   <Label className="text-[10px] text-muted-foreground">Scheduling</Label>
                   <Switch checked={loc.show_in_scheduling} onCheckedChange={() => toggleField(loc.id, "show_in_scheduling", loc.show_in_scheduling)} />
+                </div>
+                <div className="flex items-center gap-1.5" title="Allow inspections at this location">
+                  <Label className="text-[10px] text-muted-foreground">Inspection</Label>
+                  <Switch checked={loc.show_in_inspection} onCheckedChange={() => toggleField(loc.id, "show_in_inspection", loc.show_in_inspection)} />
                 </div>
                 <div className="flex items-center gap-1.5" title="Temporarily take this location offline — hides from scheduling and lead routing">
                   <Label className={`text-[10px] ${loc.temporarily_offline ? 'text-amber-600 font-semibold' : 'text-muted-foreground'}`}>
