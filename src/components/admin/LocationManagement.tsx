@@ -229,7 +229,6 @@ const LocationManagement = () => {
                   </SelectContent>
                 </Select>
               </div>
-              </div>
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1.5" title="Active">
                   <Label className="text-[10px] text-muted-foreground">Active</Label>
