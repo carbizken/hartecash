@@ -437,6 +437,8 @@ export default function DealerWebsiteAutofillCard({
       maybeSet("logo_url", currentConfig?.logo_url, scraped.logo_url);
       maybeSet("hero_headline", currentConfig?.hero_headline, scraped.hero_headline);
       maybeSet("hero_subtext", currentConfig?.hero_subtext, scraped.hero_subtext);
+      maybeSet("about_hero_headline", (currentConfig as any)?.about_hero_headline, scraped.about_hero_headline);
+      maybeSet("about_story", (currentConfig as any)?.about_story, scraped.about_story);
       maybeSet("stats_years_in_business", currentConfig?.stats_years_in_business, scraped.stats_years_in_business);
       maybeSet("stats_rating", currentConfig?.stats_rating, scraped.stats_rating);
       maybeSet("stats_reviews_count", currentConfig?.stats_reviews_count, scraped.stats_reviews_count);

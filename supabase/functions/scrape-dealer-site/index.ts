@@ -134,9 +134,12 @@ ${markdown.slice(0, 12000)}`,
                   success_color: { type: "string", description: "Success/CTA color as hex (green-ish button color)" },
                   logo_url: { type: "string", description: "URL to the dealership logo image" },
                   // Section 4: Hero content
-                  hero_headline: { type: "string", description: "Main hero headline text from the homepage" },
-                  hero_subtext: { type: "string", description: "Hero subtext/description from the homepage" },
-                  // Brands
+                   hero_headline: { type: "string", description: "Main hero headline text from the homepage" },
+                   hero_subtext: { type: "string", description: "Hero subtext/description from the homepage" },
+                   // About us content
+                   about_story: { type: "string", description: "The dealership's About Us / Our Story text if found on the page or linked about page. Include the full narrative." },
+                   about_hero_headline: { type: "string", description: "About page headline if different from main hero" },
+                   // Brands
                   oem_brands: {
                     type: "array",
                     items: { type: "string" },
