@@ -45,6 +45,14 @@ const SiteHeader = () => {
             )}
             {/* Main dealership logo */}
             <img src={logoSrc} alt={dealerName} className="h-[72px] md:h-[84px] w-auto" width={317} height={112} fetchPriority="high" />
+            {/* Secondary logo */}
+            {secondaryUrl && (
+              <img
+                src={secondaryUrl}
+                alt="Secondary"
+                className="h-[36px] md:h-[44px] w-auto object-contain"
+              />
+            )}
             {/* OEM brand logos */}
             {hasOemLogos && (
               <div className="flex items-center gap-1.5">

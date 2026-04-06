@@ -43,7 +43,7 @@ export function useLocationLogos() {
 
     supabase
       .from("dealership_locations")
-      .select("corporate_logo_url, corporate_logo_dark_url, oem_logo_urls, logo_layout, show_corporate_logo, show_corporate_on_landing_only")
+      .select("corporate_logo_url, corporate_logo_dark_url, secondary_logo_url, secondary_logo_dark_url, oem_logo_urls, logo_layout, show_corporate_logo, show_corporate_on_landing_only")
       .eq("dealership_id", did)
       .eq("is_active", true)
       .order("sort_order", { ascending: true })
