@@ -269,9 +269,18 @@ const SubmissionsTable = ({
       )}
 
       {loading ? (
-        <div className="text-center py-12 text-muted-foreground">Loading submissions...</div>
+        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3 animate-in fade-in">
+          <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+          <span className="text-sm font-medium">Loading pipeline…</span>
+        </div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">No submissions found.</div>
+        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-2 animate-in fade-in">
+          <div className="w-14 h-14 rounded-2xl bg-muted/60 flex items-center justify-center">
+            <Search className="w-6 h-6 text-muted-foreground/40" />
+          </div>
+          <span className="text-sm font-medium">No submissions found</span>
+          <span className="text-xs text-muted-foreground/70">Try adjusting your filters</span>
+        </div>
       ) : (
         <>
           <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden backdrop-blur-sm">

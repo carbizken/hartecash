@@ -183,7 +183,12 @@ const DashboardAnalytics = () => {
   };
 
   if (metrics.loading) {
-    return <div className="text-sm text-muted-foreground py-4">Loading analytics…</div>;
+    return (
+      <div className="flex items-center justify-center py-8 gap-3 animate-in fade-in">
+        <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+        <span className="text-sm text-muted-foreground font-medium">Loading analytics…</span>
+      </div>
+    );
   }
 
   const monthTrend = metrics.prevMonthLeads > 0
