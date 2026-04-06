@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Save, Loader2, Plus, Trash2, ChevronDown, GripVertical, ExternalLink } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Save, Loader2, Plus, Trash2, ChevronDown, GripVertical, ExternalLink, Building2 } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Milestone {
   year: string;
@@ -19,6 +21,15 @@ interface ValueItem {
   icon: string;
   title: string;
   text: string;
+}
+
+interface LocationAbout {
+  id: string;
+  name: string;
+  use_corporate_about: boolean;
+  about_hero_headline: string;
+  about_hero_subtext: string;
+  about_story: string;
 }
 
 const ICON_OPTIONS = [
@@ -41,37 +52,64 @@ const AboutPageConfig = () => {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const [heroHeadline, setHeroHeadline] = useState("Four Generations. One Promise.");
+  const [heroHeadline, setHeroHeadline] = useState("");
   const [heroSubtext, setHeroSubtext] = useState("");
   const [story, setStory] = useState("");
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [values, setValues] = useState<ValueItem[]>([]);
 
   const [heroOpen, setHeroOpen] = useState(true);
-  const [storyOpen, setStoryOpen] = useState(false);
+  const [storyOpen, setStoryOpen] = useState(true);
   const [milestonesOpen, setMilestonesOpen] = useState(false);
   const [valuesOpen, setValuesOpen] = useState(false);
+
+  const [locations, setLocations] = useState<LocationAbout[]>([]);
+  const [savingLoc, setSavingLoc] = useState<string | null>(null);
 
   const { tenant } = useTenant();
   const dealershipId = tenant.dealership_id;
 
   useEffect(() => {
-    supabase
-      .from("site_config")
-      .select("about_hero_headline, about_hero_subtext, about_story, about_milestones, about_values")
-      .eq("dealership_id", dealershipId)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) {
-          const d = data as any;
-          setHeroHeadline(d.about_hero_headline || "");
-          setHeroSubtext(d.about_hero_subtext || "");
-          setStory(d.about_story || "");
-          setMilestones(Array.isArray(d.about_milestones) ? d.about_milestones : []);
-          setValues(Array.isArray(d.about_values) ? d.about_values : []);
-        }
-        setLoading(false);
-      });
+    const load = async () => {
+      const [configRes, locsRes] = await Promise.all([
+        supabase
+          .from("site_config")
+          .select("about_hero_headline, about_hero_subtext, about_story, about_milestones, about_values")
+          .eq("dealership_id", dealershipId)
+          .maybeSingle(),
+        supabase
+          .from("dealership_locations")
+          .select("id, name, use_corporate_about, about_hero_headline, about_hero_subtext, about_story")
+          .eq("dealership_id", dealershipId)
+          .eq("is_active", true)
+          .order("sort_order", { ascending: true }),
+      ]);
+
+      if (configRes.data) {
+        const d = configRes.data as any;
+        setHeroHeadline(d.about_hero_headline || "");
+        setHeroSubtext(d.about_hero_subtext || "");
+        setStory(d.about_story || "");
+        setMilestones(Array.isArray(d.about_milestones) ? d.about_milestones : []);
+        setValues(Array.isArray(d.about_values) ? d.about_values : []);
+      }
+
+      if (locsRes.data && locsRes.data.length > 0) {
+        setLocations(
+          (locsRes.data as any[]).map((l) => ({
+            id: l.id,
+            name: l.name,
+            use_corporate_about: l.use_corporate_about ?? true,
+            about_hero_headline: l.about_hero_headline || "",
+            about_hero_subtext: l.about_hero_subtext || "",
+            about_story: l.about_story || "",
+          }))
+        );
+      }
+
+      setLoading(false);
+    };
+    load();
   }, [dealershipId]);
 
   const handleSave = async () => {
@@ -93,6 +131,32 @@ const AboutPageConfig = () => {
       toast({ title: "About page updated" });
     }
     setSaving(false);
+  };
+
+  const handleSaveLocation = async (loc: LocationAbout) => {
+    setSavingLoc(loc.id);
+    const { error } = await supabase
+      .from("dealership_locations")
+      .update({
+        use_corporate_about: loc.use_corporate_about,
+        about_hero_headline: loc.about_hero_headline || null,
+        about_hero_subtext: loc.about_hero_subtext || null,
+        about_story: loc.about_story || null,
+      } as any)
+      .eq("id", loc.id);
+
+    if (error) {
+      toast({ title: "Error saving", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: `${loc.name} About Us updated` });
+    }
+    setSavingLoc(null);
+  };
+
+  const updateLocation = (id: string, field: keyof LocationAbout, value: any) => {
+    setLocations((prev) =>
+      prev.map((l) => (l.id === id ? { ...l, [field]: value } : l))
+    );
   };
 
   const addMilestone = () => setMilestones([...milestones, { year: "", label: "" }]);
@@ -119,6 +183,8 @@ const AboutPageConfig = () => {
     );
   }
 
+  const hasMultipleLocations = locations.length > 1;
+
   return (
     <div className="space-y-4 max-w-3xl">
       <div className="flex items-center justify-between">
@@ -132,138 +198,281 @@ const AboutPageConfig = () => {
               <ExternalLink className="w-3.5 h-3.5" /> Preview
             </a>
           </Button>
-          <Button onClick={handleSave} disabled={saving} size="sm" className="gap-1.5">
-            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-            Save
-          </Button>
         </div>
       </div>
 
-      {/* Hero */}
-      <Collapsible open={heroOpen} onOpenChange={setHeroOpen}>
-        <CollapsibleTrigger className="flex items-center gap-2 w-full text-left py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
-          <ChevronDown className={`w-4 h-4 transition-transform ${heroOpen ? "" : "-rotate-90"}`} />
-          <span className="font-semibold text-sm">Hero Section</span>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-3 space-y-3 px-1">
-          <div>
-            <Label className="text-xs">Headline</Label>
-            <Input value={heroHeadline} onChange={(e) => setHeroHeadline(e.target.value)} placeholder="Four Generations. One Promise." />
-          </div>
-          <div>
-            <Label className="text-xs">Subtext</Label>
-            <Textarea value={heroSubtext} onChange={(e) => setHeroSubtext(e.target.value)} rows={3} placeholder="Brief intro paragraph…" />
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+      {hasMultipleLocations ? (
+        <Tabs defaultValue="corporate" className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="corporate" className="gap-1.5">
+              <Building2 className="w-3.5 h-3.5" /> Corporate
+            </TabsTrigger>
+            {locations.map((loc) => (
+              <TabsTrigger key={loc.id} value={loc.id}>{loc.name}</TabsTrigger>
+            ))}
+          </TabsList>
 
-      {/* Story */}
-      <Collapsible open={storyOpen} onOpenChange={setStoryOpen}>
-        <CollapsibleTrigger className="flex items-center gap-2 w-full text-left py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
-          <ChevronDown className={`w-4 h-4 transition-transform ${storyOpen ? "" : "-rotate-90"}`} />
-          <span className="font-semibold text-sm">Our Story</span>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-3 space-y-3 px-1">
-          <div>
-            <Label className="text-xs">Story Content (HTML supported)</Label>
-            <Textarea
-              value={story}
-              onChange={(e) => setStory(e.target.value)}
-              rows={12}
-              placeholder="Write your dealership's story here. You can use <strong>, <em>, <br> tags for formatting."
-              className="font-mono text-xs"
-            />
-            <p className="text-[10px] text-muted-foreground mt-1">
-              Leave blank to use the default story. Supports basic HTML tags for formatting.
-            </p>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
-
-      {/* Milestones */}
-      <Collapsible open={milestonesOpen} onOpenChange={setMilestonesOpen}>
-        <CollapsibleTrigger className="flex items-center gap-2 w-full text-left py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
-          <ChevronDown className={`w-4 h-4 transition-transform ${milestonesOpen ? "" : "-rotate-90"}`} />
-          <span className="font-semibold text-sm">Timeline Milestones</span>
-          <span className="text-[10px] text-muted-foreground ml-auto mr-2">{milestones.length} items</span>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-3 space-y-3 px-1">
-          {milestones.map((m, i) => (
-            <div key={i} className="flex items-start gap-2 bg-card border border-border rounded-lg p-3">
-              <GripVertical className="w-4 h-4 text-muted-foreground mt-2 shrink-0" />
-              <div className="flex-1 space-y-2">
-                <Input
-                  value={m.year}
-                  onChange={(e) => updateMilestone(i, "year", e.target.value)}
-                  placeholder="Year (e.g. 1951, 2020s, Today)"
-                  className="text-xs h-8"
-                />
-                <Textarea
-                  value={m.label}
-                  onChange={(e) => updateMilestone(i, "label", e.target.value)}
-                  placeholder="Description of this milestone"
-                  rows={2}
-                  className="text-xs"
-                />
-              </div>
-              <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8 text-destructive" onClick={() => removeMilestone(i)}>
-                <Trash2 className="w-3.5 h-3.5" />
-              </Button>
-            </div>
-          ))}
-          <Button variant="outline" size="sm" onClick={addMilestone} className="gap-1.5">
-            <Plus className="w-3.5 h-3.5" /> Add Milestone
-          </Button>
-        </CollapsibleContent>
-      </Collapsible>
-
-      {/* Values */}
-      <Collapsible open={valuesOpen} onOpenChange={setValuesOpen}>
-        <CollapsibleTrigger className="flex items-center gap-2 w-full text-left py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
-          <ChevronDown className={`w-4 h-4 transition-transform ${valuesOpen ? "" : "-rotate-90"}`} />
-          <span className="font-semibold text-sm">Values / Differentiators</span>
-          <span className="text-[10px] text-muted-foreground ml-auto mr-2">{values.length} items</span>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-3 space-y-3 px-1">
-          {values.map((v, i) => (
-            <div key={i} className="bg-card border border-border rounded-lg p-3 space-y-2">
-              <div className="flex items-center gap-2">
-                <Select value={v.icon} onValueChange={(val) => updateValue(i, "icon", val)}>
-                  <SelectTrigger className="w-36 h-8 text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ICON_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  value={v.title}
-                  onChange={(e) => updateValue(i, "title", e.target.value)}
-                  placeholder="Value title"
-                  className="flex-1 text-xs h-8"
-                />
-                <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8 text-destructive" onClick={() => removeValue(i)}>
-                  <Trash2 className="w-3.5 h-3.5" />
+          <TabsContent value="corporate">
+            <div className="space-y-4">
+              <div className="flex justify-end">
+                <Button onClick={handleSave} disabled={saving} size="sm" className="gap-1.5">
+                  {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                  Save Corporate About
                 </Button>
               </div>
+              <CorporateAboutFields
+                heroHeadline={heroHeadline} setHeroHeadline={setHeroHeadline}
+                heroSubtext={heroSubtext} setHeroSubtext={setHeroSubtext}
+                story={story} setStory={setStory}
+                milestones={milestones} setMilestones={setMilestones}
+                values={values} setValues={setValues}
+                heroOpen={heroOpen} setHeroOpen={setHeroOpen}
+                storyOpen={storyOpen} setStoryOpen={setStoryOpen}
+                milestonesOpen={milestonesOpen} setMilestonesOpen={setMilestonesOpen}
+                valuesOpen={valuesOpen} setValuesOpen={setValuesOpen}
+                addMilestone={addMilestone} removeMilestone={removeMilestone} updateMilestone={updateMilestone}
+                addValue={addValue} removeValue={removeValue} updateValue={updateValue}
+              />
+            </div>
+          </TabsContent>
+
+          {locations.map((loc) => (
+            <TabsContent key={loc.id} value={loc.id}>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Switch
+                      checked={loc.use_corporate_about}
+                      onCheckedChange={(v) => updateLocation(loc.id, "use_corporate_about", v)}
+                    />
+                    <Label className="text-sm">Use corporate About Us</Label>
+                  </div>
+                  <Button
+                    onClick={() => handleSaveLocation(loc)}
+                    disabled={savingLoc === loc.id}
+                    size="sm"
+                    className="gap-1.5"
+                  >
+                    {savingLoc === loc.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                    Save
+                  </Button>
+                </div>
+
+                {loc.use_corporate_about ? (
+                  <div className="rounded-lg border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
+                    This store uses the corporate About Us content. Toggle off to write a custom About Us for <strong>{loc.name}</strong>.
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div>
+                      <Label className="text-xs">Headline</Label>
+                      <Input
+                        value={loc.about_hero_headline}
+                        onChange={(e) => updateLocation(loc.id, "about_hero_headline", e.target.value)}
+                        placeholder="Store-specific headline"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Subtext</Label>
+                      <Textarea
+                        value={loc.about_hero_subtext}
+                        onChange={(e) => updateLocation(loc.id, "about_hero_subtext", e.target.value)}
+                        rows={3}
+                        placeholder="Brief intro paragraph…"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Story Content (HTML supported)</Label>
+                      <Textarea
+                        value={loc.about_story}
+                        onChange={(e) => updateLocation(loc.id, "about_story", e.target.value)}
+                        rows={12}
+                        placeholder="Write this store's unique story here…"
+                        className="font-mono text-xs"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          ))}
+        </Tabs>
+      ) : (
+        <>
+          <div className="flex justify-end">
+            <Button onClick={handleSave} disabled={saving} size="sm" className="gap-1.5">
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              Save
+            </Button>
+          </div>
+          <CorporateAboutFields
+            heroHeadline={heroHeadline} setHeroHeadline={setHeroHeadline}
+            heroSubtext={heroSubtext} setHeroSubtext={setHeroSubtext}
+            story={story} setStory={setStory}
+            milestones={milestones} setMilestones={setMilestones}
+            values={values} setValues={setValues}
+            heroOpen={heroOpen} setHeroOpen={setHeroOpen}
+            storyOpen={storyOpen} setStoryOpen={setStoryOpen}
+            milestonesOpen={milestonesOpen} setMilestonesOpen={setMilestonesOpen}
+            valuesOpen={valuesOpen} setValuesOpen={setValuesOpen}
+            addMilestone={addMilestone} removeMilestone={removeMilestone} updateMilestone={updateMilestone}
+            addValue={addValue} removeValue={removeValue} updateValue={updateValue}
+          />
+        </>
+      )}
+    </div>
+  );
+};
+
+/* ─── Corporate About Fields (shared) ─── */
+interface CorporateAboutFieldsProps {
+  heroHeadline: string; setHeroHeadline: (v: string) => void;
+  heroSubtext: string; setHeroSubtext: (v: string) => void;
+  story: string; setStory: (v: string) => void;
+  milestones: Milestone[]; setMilestones: (v: Milestone[]) => void;
+  values: ValueItem[]; setValues: (v: ValueItem[]) => void;
+  heroOpen: boolean; setHeroOpen: (v: boolean) => void;
+  storyOpen: boolean; setStoryOpen: (v: boolean) => void;
+  milestonesOpen: boolean; setMilestonesOpen: (v: boolean) => void;
+  valuesOpen: boolean; setValuesOpen: (v: boolean) => void;
+  addMilestone: () => void; removeMilestone: (i: number) => void; updateMilestone: (i: number, f: keyof Milestone, v: string) => void;
+  addValue: () => void; removeValue: (i: number) => void; updateValue: (i: number, f: keyof ValueItem, v: string) => void;
+}
+
+const CorporateAboutFields = ({
+  heroHeadline, setHeroHeadline, heroSubtext, setHeroSubtext,
+  story, setStory,
+  milestones, values,
+  heroOpen, setHeroOpen, storyOpen, setStoryOpen,
+  milestonesOpen, setMilestonesOpen, valuesOpen, setValuesOpen,
+  addMilestone, removeMilestone, updateMilestone,
+  addValue, removeValue, updateValue,
+}: CorporateAboutFieldsProps) => (
+  <div className="space-y-4">
+    {/* Hero */}
+    <Collapsible open={heroOpen} onOpenChange={setHeroOpen}>
+      <CollapsibleTrigger className="flex items-center gap-2 w-full text-left py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
+        <ChevronDown className={`w-4 h-4 transition-transform ${heroOpen ? "" : "-rotate-90"}`} />
+        <span className="font-semibold text-sm">Hero Section</span>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="pt-3 space-y-3 px-1">
+        <div>
+          <Label className="text-xs">Headline</Label>
+          <Input value={heroHeadline} onChange={(e) => setHeroHeadline(e.target.value)} placeholder="Four Generations. One Promise." />
+        </div>
+        <div>
+          <Label className="text-xs">Subtext</Label>
+          <Textarea value={heroSubtext} onChange={(e) => setHeroSubtext(e.target.value)} rows={3} placeholder="Brief intro paragraph…" />
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+
+    {/* Story */}
+    <Collapsible open={storyOpen} onOpenChange={setStoryOpen}>
+      <CollapsibleTrigger className="flex items-center gap-2 w-full text-left py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
+        <ChevronDown className={`w-4 h-4 transition-transform ${storyOpen ? "" : "-rotate-90"}`} />
+        <span className="font-semibold text-sm">Our Story</span>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="pt-3 space-y-3 px-1">
+        <div>
+          <Label className="text-xs">Story Content (HTML supported)</Label>
+          <Textarea
+            value={story}
+            onChange={(e) => setStory(e.target.value)}
+            rows={12}
+            placeholder="Write your dealership's story here. You can use <strong>, <em>, <br> tags for formatting."
+            className="font-mono text-xs"
+          />
+          <p className="text-[10px] text-muted-foreground mt-1">
+            Leave blank to use the default story. Supports basic HTML tags for formatting.
+          </p>
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+
+    {/* Milestones */}
+    <Collapsible open={milestonesOpen} onOpenChange={setMilestonesOpen}>
+      <CollapsibleTrigger className="flex items-center gap-2 w-full text-left py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
+        <ChevronDown className={`w-4 h-4 transition-transform ${milestonesOpen ? "" : "-rotate-90"}`} />
+        <span className="font-semibold text-sm">Timeline Milestones</span>
+        <span className="text-[10px] text-muted-foreground ml-auto mr-2">{milestones.length} items</span>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="pt-3 space-y-3 px-1">
+        {milestones.map((m, i) => (
+          <div key={i} className="flex items-start gap-2 bg-card border border-border rounded-lg p-3">
+            <GripVertical className="w-4 h-4 text-muted-foreground mt-2 shrink-0" />
+            <div className="flex-1 space-y-2">
+              <Input
+                value={m.year}
+                onChange={(e) => updateMilestone(i, "year", e.target.value)}
+                placeholder="Year (e.g. 1951, 2020s, Today)"
+                className="text-xs h-8"
+              />
               <Textarea
-                value={v.text}
-                onChange={(e) => updateValue(i, "text", e.target.value)}
-                placeholder="Description of this value"
+                value={m.label}
+                onChange={(e) => updateMilestone(i, "label", e.target.value)}
+                placeholder="Description of this milestone"
                 rows={2}
                 className="text-xs"
               />
             </div>
-          ))}
-          <Button variant="outline" size="sm" onClick={addValue} className="gap-1.5">
-            <Plus className="w-3.5 h-3.5" /> Add Value
-          </Button>
-        </CollapsibleContent>
-      </Collapsible>
-    </div>
-  );
-};
+            <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8 text-destructive" onClick={() => removeMilestone(i)}>
+              <Trash2 className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+        ))}
+        <Button variant="outline" size="sm" onClick={addMilestone} className="gap-1.5">
+          <Plus className="w-3.5 h-3.5" /> Add Milestone
+        </Button>
+      </CollapsibleContent>
+    </Collapsible>
+
+    {/* Values */}
+    <Collapsible open={valuesOpen} onOpenChange={setValuesOpen}>
+      <CollapsibleTrigger className="flex items-center gap-2 w-full text-left py-2 px-3 bg-muted/50 rounded-lg hover:bg-muted transition-colors">
+        <ChevronDown className={`w-4 h-4 transition-transform ${valuesOpen ? "" : "-rotate-90"}`} />
+        <span className="font-semibold text-sm">Values / Differentiators</span>
+        <span className="text-[10px] text-muted-foreground ml-auto mr-2">{values.length} items</span>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="pt-3 space-y-3 px-1">
+        {values.map((v, i) => (
+          <div key={i} className="bg-card border border-border rounded-lg p-3 space-y-2">
+            <div className="flex items-center gap-2">
+              <Select value={v.icon} onValueChange={(val) => updateValue(i, "icon", val)}>
+                <SelectTrigger className="w-36 h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ICON_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Input
+                value={v.title}
+                onChange={(e) => updateValue(i, "title", e.target.value)}
+                placeholder="Value title"
+                className="flex-1 text-xs h-8"
+              />
+              <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8 text-destructive" onClick={() => removeValue(i)}>
+                <Trash2 className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+            <Textarea
+              value={v.text}
+              onChange={(e) => updateValue(i, "text", e.target.value)}
+              placeholder="Description of this value"
+              rows={2}
+              className="text-xs"
+            />
+          </div>
+        ))}
+        <Button variant="outline" size="sm" onClick={addValue} className="gap-1.5">
+          <Plus className="w-3.5 h-3.5" /> Add Value
+        </Button>
+      </CollapsibleContent>
+    </Collapsible>
+  </div>
+);
 
 export default AboutPageConfig;

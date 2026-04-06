@@ -60,6 +60,8 @@ interface ScrapedDealerInfo {
   num_locations?: string;
   hero_headline?: string;
   hero_subtext?: string;
+  about_story?: string;
+  about_hero_headline?: string;
   oem_brands?: string[];
   staff_emails?: string[];
   staff_phones?: string[];
@@ -257,7 +259,7 @@ export default function DealerWebsiteAutofillCard({
       // Fetch current config to determine what's new vs existing
       const [configRes] = await Promise.all([
         supabase.from("site_config")
-          .select("dealership_name, tagline, phone, email, address, website_url, google_review_url, facebook_url, instagram_url, tiktok_url, youtube_url, primary_color, accent_color, success_color, logo_url, business_hours, hero_headline, hero_subtext, stats_years_in_business, stats_rating, stats_reviews_count, stats_cars_purchased")
+          .select("dealership_name, tagline, phone, email, address, website_url, google_review_url, facebook_url, instagram_url, tiktok_url, youtube_url, primary_color, accent_color, success_color, logo_url, business_hours, hero_headline, hero_subtext, about_hero_headline, about_story, stats_years_in_business, stats_rating, stats_reviews_count, stats_cars_purchased")
           .eq("dealership_id", dealershipId)
           .maybeSingle(),
       ]);
@@ -387,7 +389,7 @@ export default function DealerWebsiteAutofillCard({
     try {
       const [configRes, accountRes, existingLocsRes] = await Promise.all([
         supabase.from("site_config")
-          .select("dealership_name, tagline, phone, email, address, website_url, google_review_url, facebook_url, instagram_url, tiktok_url, youtube_url, primary_color, accent_color, success_color, logo_url, business_hours, hero_headline, hero_subtext, stats_years_in_business, stats_rating, stats_reviews_count, stats_cars_purchased")
+          .select("dealership_name, tagline, phone, email, address, website_url, google_review_url, facebook_url, instagram_url, tiktok_url, youtube_url, primary_color, accent_color, success_color, logo_url, business_hours, hero_headline, hero_subtext, about_hero_headline, about_story, stats_years_in_business, stats_rating, stats_reviews_count, stats_cars_purchased")
           .eq("dealership_id", dealershipId).maybeSingle(),
         supabase.from("dealer_accounts")
           .select("id, architecture, bdc_model, onboarding_answers")
@@ -435,6 +437,8 @@ export default function DealerWebsiteAutofillCard({
       maybeSet("logo_url", currentConfig?.logo_url, scraped.logo_url);
       maybeSet("hero_headline", currentConfig?.hero_headline, scraped.hero_headline);
       maybeSet("hero_subtext", currentConfig?.hero_subtext, scraped.hero_subtext);
+      maybeSet("about_hero_headline", (currentConfig as any)?.about_hero_headline, scraped.about_hero_headline);
+      maybeSet("about_story", (currentConfig as any)?.about_story, scraped.about_story);
       maybeSet("stats_years_in_business", currentConfig?.stats_years_in_business, scraped.stats_years_in_business);
       maybeSet("stats_rating", currentConfig?.stats_rating, scraped.stats_rating);
       maybeSet("stats_reviews_count", currentConfig?.stats_reviews_count, scraped.stats_reviews_count);
