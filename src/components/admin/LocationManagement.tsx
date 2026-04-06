@@ -47,6 +47,7 @@ interface Location {
   logo_layout: string;
   show_corporate_logo: boolean;
   show_corporate_on_landing_only: boolean;
+  location_type: string;
 }
 
 const LocationManagement = () => {
