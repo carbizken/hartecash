@@ -361,10 +361,10 @@ export default function OnboardingScript({ targetDealershipId, onNavigate }: Onb
   return (
     <div className="max-w-4xl">
       {/* Screen-only header */}
-      <div className="flex items-center justify-between mb-4 print:hidden">
+      <div className="flex items-center justify-between mb-6 print:hidden">
         <div>
-          <h2 className="text-xl font-semibold">Onboarding Questionnaire</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="text-2xl font-bold text-foreground tracking-tight">Onboarding Questionnaire</h2>
+          <p className="text-sm text-muted-foreground mt-1">
             Complete on screen, go mobile, or send a link to the dealer.
           </p>
         </div>
@@ -390,14 +390,14 @@ export default function OnboardingScript({ targetDealershipId, onNavigate }: Onb
 
       {/* QR Code + Link Panel */}
       {showQR && (
-        <div className="mb-6 border rounded-lg p-6 bg-card print:hidden">
+        <div className="mb-6 border rounded-xl p-6 bg-card shadow-sm print:hidden">
           <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="bg-background p-4 rounded-lg border">
+            <div className="bg-background p-4 rounded-xl border shadow-sm">
               <QRCodeSVG value={mobileUrl} size={160} />
             </div>
             <div className="flex-1 space-y-3 text-center md:text-left">
-              <h3 className="font-semibold flex items-center gap-2 justify-center md:justify-start">
-                <QrCode className="w-4 h-4" />
+              <h3 className="font-bold text-base flex items-center gap-2 justify-center md:justify-start">
+                <QrCode className="w-4 h-4 text-primary" />
                 Go Mobile or Send to Dealer
               </h3>
               <p className="text-sm text-muted-foreground">
@@ -424,10 +424,12 @@ export default function OnboardingScript({ targetDealershipId, onNavigate }: Onb
       )}
 
       {/* AI Auto-Fill Panel */}
-      <div className="mb-6 border rounded-lg p-5 bg-gradient-to-r from-primary/5 to-accent/5 print:hidden">
+      <div className="mb-6 border rounded-xl p-5 bg-card shadow-sm print:hidden">
         <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold text-sm">AI Auto-Fill from Dealer Website</h3>
+          <div className="p-1.5 rounded-lg bg-primary/10">
+            <Sparkles className="w-4 h-4 text-primary" />
+          </div>
+          <h3 className="font-bold text-sm">AI Auto-Fill from Dealer Website</h3>
         </div>
         <p className="text-xs text-muted-foreground mb-3">
           Enter the dealer's website URL and we'll automatically pull their name, phone, address, colors, social links, locations, and more.
@@ -451,35 +453,43 @@ export default function OnboardingScript({ targetDealershipId, onNavigate }: Onb
       </div>
 
       {/* Progress bar */}
-      <div className="mb-4 print:hidden">
-        <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-          <span>{filledCount} of {totalQuestions} questions answered</span>
+      <div className="mb-6 print:hidden">
+        <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+          <span className="font-medium">{filledCount} of {totalQuestions} questions answered</span>
           <div className="flex items-center gap-3">
-            <span>{progressPct}%</span>
-            <button onClick={expandAll} className="text-primary hover:underline text-[11px]">Expand All</button>
-            <button onClick={collapseAll} className="text-primary hover:underline text-[11px]">Collapse All</button>
+            <span className="font-bold text-primary text-sm">{progressPct}%</span>
+            <button onClick={expandAll} className="text-primary hover:underline text-[11px] font-medium">Expand All</button>
+            <button onClick={collapseAll} className="text-primary hover:underline text-[11px] font-medium">Collapse All</button>
           </div>
         </div>
-        <div className="h-2 bg-muted rounded-full overflow-hidden">
-          <div className="h-full bg-primary rounded-full transition-all duration-300" style={{ width: `${progressPct}%` }} />
+        <div className="h-3 bg-muted rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-500 ease-out"
+            style={{
+              width: `${progressPct}%`,
+              background: progressPct === 100
+                ? "hsl(var(--primary))"
+                : "linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))",
+            }}
+          />
         </div>
         {savedAt && (
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-2">
             <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
             Last saved: {savedAt}
-            {dirty && <span className="text-destructive ml-2">• Unsaved changes</span>}
+            {dirty && <span className="text-destructive ml-2 font-medium">• Unsaved changes</span>}
           </div>
         )}
       </div>
 
       {/* Apply All Button */}
       <div className="mb-6 print:hidden">
-        <Button onClick={handleApplyAll} disabled={applying} variant="outline" className="w-full gap-2 border-primary/30 hover:bg-primary/5">
+        <Button onClick={handleApplyAll} disabled={applying} variant="outline" className="w-full gap-2 border-primary/30 hover:bg-primary/5 h-11">
           {applying ? <Loader2 className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4 text-primary" />}
-          {applying ? "Applying to all config tables…" : "Apply All Answers → Config Tables"}
+          {applying ? "Applying settings…" : "Apply Answers to Platform Settings"}
         </Button>
         <p className="text-[11px] text-muted-foreground mt-1.5 text-center">
-          Writes answers to Site Config, Form Config, Notifications, Inspection, and Locations. Save first!
+          Syncs your answers to Site Config, Form Config, Notifications, Inspection, and Locations. Save first!
         </p>
       </div>
 
