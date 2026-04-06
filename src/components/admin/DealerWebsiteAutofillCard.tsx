@@ -184,6 +184,16 @@ const buildAnswerMap = (data: ScrapedDealerInfo, url: string): OnboardingAnswers
   if (Array.isArray(data.about_values_list) && data.about_values_list.length > 0) {
     fieldMap.about_values = data.about_values_list.join(", ");
   }
+  if (Array.isArray(data.about_milestones) && data.about_milestones.length > 0) {
+    fieldMap.about_milestones = data.about_milestones
+      .filter(m => m.year && m.label)
+      .map(m => `${m.year}: ${m.label}`)
+      .join("\n");
+  }
+  setField("community_involvement", data.community_involvement);
+  if (Array.isArray(data.service_offerings) && data.service_offerings.length > 0) {
+    fieldMap.service_offerings = data.service_offerings.join(", ");
+  }
 
   if (Array.isArray(data.staff_emails) && data.staff_emails.length > 0) {
     fieldMap.staff_emails = data.staff_emails.join("\n");
@@ -192,13 +202,11 @@ const buildAnswerMap = (data: ScrapedDealerInfo, url: string): OnboardingAnswers
     fieldMap.staff_sms = data.staff_phones.join("\n");
   }
   if (Array.isArray(data.locations)) {
-    data.locations.slice(0, 5).forEach((location, index) => {
-      const item = index + 1;
-      setField(`loc${item}_name`, location.name);
-      setField(`loc${item}_address`, location.address);
-      setField(`loc${item}_csz`, location.city_state_zip);
-      setField(`loc${item}_brands`, location.brands);
-    });
+    // Use dynamic format for locations
+    const locLines = data.locations.slice(0, 10).map(loc => {
+      return [loc.name, loc.address, loc.city_state_zip, loc.brands].filter(Boolean).join(" | ");
+    }).filter(Boolean);
+    if (locLines.length > 0) fieldMap.locations_dynamic = locLines.join("\n");
   }
   if (Array.isArray(data.staff_members) && data.staff_members.length > 0) {
     const adminEmails: string[] = [], gsmEmails: string[] = [], ucmEmails: string[] = [], bdcEmails: string[] = [];
@@ -217,14 +225,14 @@ const buildAnswerMap = (data: ScrapedDealerInfo, url: string): OnboardingAnswers
     if (bdcEmails.length) fieldMap.bdc_users = bdcEmails.join("\n");
   }
   if (Array.isArray(data.business_hours)) {
-    const summary = data.business_hours
+    // Map to the new onboarding format: Days | Hours per line
+    const salesHours = data.business_hours.filter(h => !h.department || h.department.toLowerCase() === "sales" || h.department.toLowerCase() === "general");
+    const relevantHours = salesHours.length > 0 ? salesHours : data.business_hours;
+    const summary = relevantHours
       .filter((item) => isFilledText(item?.days) && isFilledText(item?.hours))
-      .map((item) => {
-        const prefix = isFilledText(item.department) ? `${item.department} — ` : "";
-        return `${prefix}${item.days!.trim()}: ${item.hours!.trim()}`;
-      })
+      .map((item) => `${item.days!.trim()} | ${item.hours!.trim()}`)
       .join("\n");
-    if (summary) fieldMap.business_hours_summary = summary;
+    if (summary) fieldMap.business_hours = summary;
   }
   setField("special_instructions", data.dealer_group_name ? `Part of ${data.dealer_group_name}` : undefined);
   return fieldMap;
