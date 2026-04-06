@@ -92,6 +92,7 @@ const AboutPageConfig = () => {
         setHeroHeadline(d.about_hero_headline || "");
         setHeroSubtext(d.about_hero_subtext || "");
         setStory(d.about_story || "");
+        setAboutImageUrl(d.about_image_url || "");
         setMilestones(Array.isArray(d.about_milestones) ? d.about_milestones : []);
         setValues(Array.isArray(d.about_values) ? d.about_values : []);
       }
