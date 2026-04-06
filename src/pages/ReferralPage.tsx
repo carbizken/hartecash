@@ -58,7 +58,7 @@ const ReferralPage = () => {
     if (!name.trim() || !email.trim()) return;
     setSubmitting(true);
     const code = generateCode();
-    const link = `${window.location.origin}/?ref=${code}`;
+    const link = `${tenantBaseUrl}/?ref=${code}`;
 
     const { error } = await supabase.from("referrals").insert({
       dealership_id: tenant.dealership_id,
