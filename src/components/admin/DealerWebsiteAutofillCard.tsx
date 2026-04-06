@@ -62,6 +62,8 @@ interface ScrapedDealerInfo {
   hero_subtext?: string;
   about_story?: string;
   about_hero_headline?: string;
+  about_mission?: string;
+  about_values_list?: string[];
   oem_brands?: string[];
   staff_emails?: string[];
   staff_phones?: string[];
@@ -74,6 +76,10 @@ interface ScrapedDealerInfo {
   stats_rating?: string;
   stats_reviews_count?: string;
   stats_cars_purchased?: string;
+  established_year?: string;
+  meta_description?: string;
+  favicon_url?: string;
+  certifications?: string[];
 }
 
 type OnboardingAnswers = Record<string, string>;
