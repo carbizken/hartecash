@@ -38,6 +38,7 @@ const STATUS_COLORS: Record<string, string> = {
 const ReferralManagement = () => {
   const { tenant } = useTenant();
   const { toast } = useToast();
+  const tenantBaseUrl = useTenantBaseUrl();
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
