@@ -2304,6 +2304,7 @@ export type Database = {
         Returns: {
           display_name: string
           email: string
+          location_id: string
           phone_number: string
           profile_image_url: string
           role: string
