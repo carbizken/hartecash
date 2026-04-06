@@ -37,7 +37,6 @@ const Index = () => {
       <FAQPageJsonLd />
       <HowToJsonLd />
       {!embed && <SiteHeader />}
-      <StoreSelector>
         <main>
           {layout === "offset_right" ? (
             <HeroOffset side="right" />
