@@ -556,13 +556,20 @@ export default function OnboardingScript({ targetDealershipId, onNavigate }: Onb
         })}
 
         {/* Digital Signature Block */}
-        <div className="border rounded-lg p-6 print:break-inside-avoid print:mt-8">
-          <h3 className="text-sm font-bold mb-1">Sign-Off</h3>
-          <p className="text-xs text-muted-foreground mb-4">
-            Both parties sign below to confirm the onboarding configuration is agreed upon.
-          </p>
+        <div className="border-2 border-primary/20 rounded-xl p-8 print:break-inside-avoid print:mt-8 bg-card shadow-sm">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <PenLine className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-foreground">Sign-Off</h3>
+              <p className="text-xs text-muted-foreground">
+                Both parties sign below to confirm the onboarding configuration is agreed upon.
+              </p>
+            </div>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <div className="hidden print:block">
               <p className="text-xs text-muted-foreground mb-16">Dealer Representative</p>
               <div className="border-b-2 border-muted-foreground/30 mb-1" />
@@ -582,14 +589,14 @@ export default function OnboardingScript({ targetDealershipId, onNavigate }: Onb
             </div>
           </div>
 
-          <div className="mt-4 print:hidden flex gap-3">
-            <Button onClick={handleSave} disabled={saving} className="gap-2">
+          <div className="mt-6 print:hidden flex gap-3">
+            <Button onClick={handleSave} disabled={saving} className="gap-2 h-11 flex-1">
               <Save className="w-4 h-4" />
               {saving ? "Saving…" : "Save All"}
             </Button>
-            <Button onClick={handleApplyAll} disabled={applying} variant="outline" className="gap-2">
+            <Button onClick={handleApplyAll} disabled={applying} variant="outline" className="gap-2 h-11 flex-1">
               {applying ? <Loader2 className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4" />}
-              Apply to Config
+              Apply to Platform
             </Button>
           </div>
         </div>
