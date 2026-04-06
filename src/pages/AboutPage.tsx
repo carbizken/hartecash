@@ -184,8 +184,8 @@ const AboutPage = () => {
         <section className="py-14 md:py-20 px-5" aria-label="Our story">
           <div className="max-w-5xl mx-auto">
             <h2 className="text-2xl md:text-3xl font-extrabold text-foreground mb-6 text-center">Our Story</h2>
-            <div className={`${aboutImage ? "flex flex-col md:flex-row gap-8 items-start" : ""}`}>
-              <div className={`${aboutImage ? "md:flex-1" : "max-w-3xl mx-auto"}`}>
+            <div className={`${aboutImageUrls.length > 0 ? "flex flex-col md:flex-row gap-8 items-start" : ""}`}>
+              <div className={`${aboutImageUrls.length > 0 ? "md:flex-1" : "max-w-3xl mx-auto"}`}>
                 {customStory ? (
                   <div
                     className="prose prose-sm max-w-none text-foreground/85 space-y-4"
@@ -219,13 +219,9 @@ const AboutPage = () => {
                   </div>
                 )}
               </div>
-              {aboutImage && (
+              {aboutImageUrls.length > 0 && (
                 <div className="md:w-[380px] shrink-0">
-                  <img
-                    src={aboutImage}
-                    alt={`${name} dealership`}
-                    className="rounded-xl shadow-lg w-full h-auto object-cover"
-                  />
+                  <ImageCarousel images={aboutImageUrls} alt={`${name} dealership`} />
                 </div>
               )}
             </div>
