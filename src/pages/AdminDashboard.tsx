@@ -8,10 +8,15 @@ import AdminSectionRenderer from "@/components/admin/AdminSectionRenderer";
 import RequestAccessDialog from "@/components/admin/RequestAccessDialog";
 import SubmissionDetailSheet from "@/components/admin/SubmissionDetailSheet";
 import { useAdminDashboard } from "@/hooks/useAdminDashboard";
+import { useRef, useEffect } from "react";
 
 const AdminDashboard = () => {
   const db = useAdminDashboard();
+  const contentRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    contentRef.current?.scrollTo({ top: 0, behavior: "instant" });
+  }, [db.activeSection]);
   return (
     <SidebarProvider>
         <div className="min-h-screen bg-background transition-colors duration-300 flex w-full relative">
@@ -46,7 +51,7 @@ const AdminDashboard = () => {
             }}
           />
 
-          <div className="flex-1 px-3 md:px-4 py-4 md:py-6 overflow-auto">
+          <div ref={contentRef} className="flex-1 px-3 md:px-4 py-4 md:py-6 overflow-auto">
             <div className="max-w-[1400px] mx-auto space-y-4">
               <div className="flex items-center justify-between">
                 <AdminBreadcrumbNav activeSection={db.activeSection} onNavigate={db.setActiveSection} />
