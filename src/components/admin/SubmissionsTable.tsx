@@ -415,10 +415,28 @@ const SubmissionsTable = ({
             </div>
           </div>
           {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-4">
-              <Button variant="outline" size="sm" disabled={page === 0} onClick={() => onPageChange(page - 1)}><ChevronLeft className="w-4 h-4" /></Button>
-              <span className="text-sm text-muted-foreground">Page {page + 1} of {totalPages}</span>
-              <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => onPageChange(page + 1)}><ChevronRight className="w-4 h-4" /></Button>
+            <div className="flex items-center justify-between mt-4">
+              <span className="text-xs text-muted-foreground">
+                Showing {page * pageSize + 1}–{Math.min((page + 1) * pageSize, total)} of {total} leads
+              </span>
+              <div className="flex items-center gap-1.5">
+                <Button variant="outline" size="sm" disabled={page === 0} onClick={() => onPageChange(page - 1)} className="h-8 w-8 p-0"><ChevronLeft className="w-4 h-4" /></Button>
+                {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                  const pageNum = totalPages <= 5 ? i : Math.max(0, Math.min(page - 2, totalPages - 5)) + i;
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={pageNum === page ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => onPageChange(pageNum)}
+                      className="h-8 w-8 p-0 text-xs font-semibold"
+                    >
+                      {pageNum + 1}
+                    </Button>
+                  );
+                })}
+                <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => onPageChange(page + 1)} className="h-8 w-8 p-0"><ChevronRight className="w-4 h-4" /></Button>
+              </div>
             </div>
           )}
         </>
