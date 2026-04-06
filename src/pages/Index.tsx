@@ -59,7 +59,6 @@ const Index = () => {
             <CTABanner />
           </Suspense>
         </main>
-      </StoreSelector>
       {!embed && <SiteFooter />}
       {!embed && <BackToTop />}
     </div>

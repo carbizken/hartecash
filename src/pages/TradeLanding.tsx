@@ -47,7 +47,6 @@ const TradeLanding = () => {
           <ReferralBanner />
           <CTABanner />
         </main>
-      </StoreSelector>
       {!embed && <SiteFooter />}
     </div>
   );
