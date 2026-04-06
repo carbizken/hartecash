@@ -332,6 +332,7 @@ export type Database = {
           excluded_oem_brands: string[]
           id: string
           is_active: boolean
+          location_type: string
           logo_layout: string
           name: string
           oem_brands: string[]
@@ -367,6 +368,7 @@ export type Database = {
           excluded_oem_brands?: string[]
           id?: string
           is_active?: boolean
+          location_type?: string
           logo_layout?: string
           name: string
           oem_brands?: string[]
@@ -402,6 +404,7 @@ export type Database = {
           excluded_oem_brands?: string[]
           id?: string
           is_active?: boolean
+          location_type?: string
           logo_layout?: string
           name?: string
           oem_brands?: string[]

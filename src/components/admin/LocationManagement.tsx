@@ -9,8 +9,16 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 
-import { Plus, Trash2, GripVertical, Save, Loader2, MapPin, ChevronDown, ChevronRight, X, MapPinned, Car, Radar } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Plus, Trash2, GripVertical, Save, Loader2, MapPin, ChevronDown, ChevronRight, X, MapPinned, Car, Radar, Store, Building2, ShoppingCart, Warehouse } from "lucide-react";
 import LocationLogoSection from "./LocationLogoSection";
+
+const LOCATION_TYPE_OPTIONS = [
+  { value: "primary", label: "Primary Store", icon: Store, color: "bg-primary/10 text-primary border-primary/20" },
+  { value: "sister_store", label: "Sister Store", icon: Building2, color: "bg-blue-500/10 text-blue-600 border-blue-200" },
+  { value: "used_car", label: "Used Car Center", icon: ShoppingCart, color: "bg-amber-500/10 text-amber-600 border-amber-200" },
+  { value: "buying_center", label: "Buying Center", icon: Warehouse, color: "bg-emerald-500/10 text-emerald-600 border-emerald-200" },
+];
 
 interface Location {
   id: string;
@@ -39,6 +47,7 @@ interface Location {
   logo_layout: string;
   show_corporate_logo: boolean;
   show_corporate_on_landing_only: boolean;
+  location_type: string;
 }
 
 const LocationManagement = () => {
@@ -55,6 +64,7 @@ const LocationManagement = () => {
   const [zipInputs, setZipInputs] = useState<Record<string, string>>({});
   const [brandInputs, setBrandInputs] = useState<Record<string, string>>({});
   const [excludedBrandInputs, setExcludedBrandInputs] = useState<Record<string, string>>({});
+  const [newLocationType, setNewLocationType] = useState("primary");
 
   const fetchLocations = async () => {
     const { data, error } = await supabase
@@ -84,12 +94,12 @@ const LocationManagement = () => {
     const maxOrder = locations.length > 0 ? Math.max(...locations.map(l => l.sort_order)) : 0;
     const { error } = await supabase
       .from("dealership_locations" as any)
-      .insert({ name: newName.trim(), city: newCity.trim(), state: newState.trim() || "CT", sort_order: maxOrder + 1 });
+      .insert({ name: newName.trim(), city: newCity.trim(), state: newState.trim() || "CT", sort_order: maxOrder + 1, location_type: newLocationType } as any);
     if (error) {
       toast({ title: "Failed to add location", variant: "destructive" });
     } else {
       toast({ title: "Location added" });
-      setNewName(""); setNewCity(""); setNewState("CT");
+      setNewName(""); setNewCity(""); setNewState("CT"); setNewLocationType("primary");
       fetchLocations();
     }
   };
@@ -125,7 +135,7 @@ const LocationManagement = () => {
     for (const loc of locations) {
       const { error } = await supabase
         .from("dealership_locations" as any)
-        .update({ name: loc.name, city: loc.city, state: loc.state, address: loc.address, sort_order: loc.sort_order, zip_codes: loc.zip_codes || [], oem_brands: loc.oem_brands || [], center_zip: loc.center_zip || '', coverage_radius_miles: loc.coverage_radius_miles || 0, all_brands: loc.all_brands ?? true, excluded_oem_brands: loc.excluded_oem_brands || [], temporarily_offline: loc.temporarily_offline ?? false, use_bdc: loc.use_bdc ?? false, show_in_inspection: loc.show_in_inspection ?? true, corporate_logo_url: loc.corporate_logo_url || null, corporate_logo_dark_url: loc.corporate_logo_dark_url || null, oem_logo_urls: loc.oem_logo_urls || [], logo_layout: loc.logo_layout || 'side_by_side', show_corporate_logo: loc.show_corporate_logo ?? false, show_corporate_on_landing_only: loc.show_corporate_on_landing_only ?? false } as any)
+        .update({ name: loc.name, city: loc.city, state: loc.state, address: loc.address, sort_order: loc.sort_order, zip_codes: loc.zip_codes || [], oem_brands: loc.oem_brands || [], center_zip: loc.center_zip || '', coverage_radius_miles: loc.coverage_radius_miles || 0, all_brands: loc.all_brands ?? true, excluded_oem_brands: loc.excluded_oem_brands || [], temporarily_offline: loc.temporarily_offline ?? false, use_bdc: loc.use_bdc ?? false, show_in_inspection: loc.show_in_inspection ?? true, corporate_logo_url: loc.corporate_logo_url || null, corporate_logo_dark_url: loc.corporate_logo_dark_url || null, oem_logo_urls: loc.oem_logo_urls || [], logo_layout: loc.logo_layout || 'side_by_side', show_corporate_logo: loc.show_corporate_logo ?? false, show_corporate_on_landing_only: loc.show_corporate_on_landing_only ?? false, location_type: loc.location_type || 'primary' } as any)
         .eq("id", loc.id);
       if (error) hasError = true;
     }
@@ -181,7 +191,7 @@ const LocationManagement = () => {
                 <GripVertical className="w-4 h-4 text-muted-foreground/40" />
                 <button onClick={() => moveDown(index)} disabled={index === locations.length - 1} className="text-muted-foreground hover:text-foreground disabled:opacity-30 text-xs">▼</button>
               </div>
-              <div className="flex-1 grid grid-cols-3 gap-2">
+              <div className="flex-1 grid grid-cols-4 gap-2">
                 <Input
                   value={loc.name}
                   onChange={(e) => updateLocation(loc.id, "name", e.target.value)}
@@ -200,6 +210,24 @@ const LocationManagement = () => {
                   placeholder="State"
                   className="text-sm w-20"
                 />
+                <Select
+                  value={loc.location_type || "primary"}
+                  onValueChange={(val) => setLocations(prev => prev.map(l => l.id === loc.id ? { ...l, location_type: val } : l))}
+                >
+                  <SelectTrigger className="text-xs h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LOCATION_TYPE_OPTIONS.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        <span className="flex items-center gap-1.5">
+                          <opt.icon className="w-3 h-3" />
+                          {opt.label}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1.5" title="Active">
@@ -598,6 +626,21 @@ const LocationManagement = () => {
           <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Location name" className="flex-1" />
           <Input value={newCity} onChange={(e) => setNewCity(e.target.value)} placeholder="City" className="w-32" />
           <Input value={newState} onChange={(e) => setNewState(e.target.value)} placeholder="State" className="w-20" />
+          <Select value={newLocationType} onValueChange={setNewLocationType}>
+            <SelectTrigger className="w-40 text-xs h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {LOCATION_TYPE_OPTIONS.map(opt => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  <span className="flex items-center gap-1.5">
+                    <opt.icon className="w-3 h-3" />
+                    {opt.label}
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Button onClick={addLocation} size="sm" className="gap-1">
             <Plus className="w-4 h-4" /> Add
           </Button>
