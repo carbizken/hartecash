@@ -248,7 +248,7 @@ const StaffManagement = () => {
     // Insert role via user_roles table (RLS requires admin)
     const { data: inserted, error: insertErr } = await supabase
       .from("user_roles")
-      .insert({ user_id: profile.user_id, role: addRole as any })
+      .insert({ user_id: profile.user_id, role: addRole as any, location_id: addLocationId === "all" ? null : addLocationId } as any)
       .select("id")
       .single();
 
