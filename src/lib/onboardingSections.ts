@@ -212,16 +212,6 @@ export const ONBOARDING_SECTIONS: Section[] = [
       { id: "bdc_users", label: "Sales / BDC Users (email)", type: "multiline" },
     ],
   },
-  {
-    title: "13. Staff & Roles",
-    icon: "👥",
-    questions: [
-      { id: "admin_users", label: "Admin Users (email)", type: "multiline" },
-      { id: "gsm_users", label: "GSM/GM Users (email)", type: "multiline" },
-      { id: "ucm_users", label: "Used Car Managers (email)", type: "multiline" },
-      { id: "bdc_users", label: "Sales / BDC Users (email)", type: "multiline" },
-    ],
-  },
 ];
 
 /**
