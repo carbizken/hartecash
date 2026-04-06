@@ -42,6 +42,7 @@ const SuperAdminDashboard = lazy(() => import("./pages/SuperAdminDashboard"));
 const OnboardingMobile = lazy(() => import("./pages/OnboardingMobile"));
 const EmailUnsubscribe = lazy(() => import("./pages/EmailUnsubscribe"));
 const ReferralPage = lazy(() => import("./pages/ReferralPage"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 
 const queryClient = new QueryClient();
 
