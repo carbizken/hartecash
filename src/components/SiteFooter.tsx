@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
-import { Facebook, Instagram, Youtube } from "lucide-react";
+import { Facebook, Instagram, Youtube, MapPin, ExternalLink } from "lucide-react";
 
 interface DealerLocation {
   id: string;
@@ -30,90 +30,113 @@ const SiteFooter = () => {
     fetchLocations();
   }, []);
 
+  const footerLocations = locations.filter(l => l.show_in_footer);
+
   return (
-    <footer className="bg-card border-t border-border py-10 lg:py-14 px-5 text-card-foreground">
-      <div className="max-w-6xl mx-auto lg:grid lg:grid-cols-3 lg:gap-8 text-center lg:text-left">
+    <footer className="bg-card border-t border-border py-12 lg:py-16 px-5 text-card-foreground relative overflow-hidden">
+      {/* Subtle gradient accent */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      
+      <div className="max-w-6xl mx-auto lg:grid lg:grid-cols-3 lg:gap-12 text-center lg:text-left">
         <div>
-          <h3 className="text-xl font-bold mb-4 opacity-90">{dealerName.toUpperCase()}</h3>
+          <h3 className="text-xl font-bold mb-4 tracking-wide">{dealerName.toUpperCase()}</h3>
           {config.address && (
-            <p className="text-sm opacity-60 mb-2">{config.address}</p>
+            <p className="text-sm text-muted-foreground mb-2 flex items-start gap-1.5 justify-center lg:justify-start">
+              <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-primary/50" />
+              {config.address}
+            </p>
           )}
-          <p className="text-sm opacity-60">
+          <p className="text-sm text-muted-foreground mt-4">
             © {new Date().getFullYear()} {dealerName}. All rights reserved.
           </p>
+          
+          {/* Social icons inline with brand */}
+          {(config.facebook_url || config.instagram_url || config.youtube_url || config.tiktok_url) && (
+            <div className="flex gap-2 mt-4 lg:justify-start justify-center">
+              {config.facebook_url && (
+                <a href={config.facebook_url} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-9 h-9 rounded-lg bg-muted/50 hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-all duration-200">
+                  <Facebook className="w-4 h-4" />
+                </a>
+              )}
+              {config.instagram_url && (
+                <a href={config.instagram_url} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-9 h-9 rounded-lg bg-muted/50 hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-all duration-200">
+                  <Instagram className="w-4 h-4" />
+                </a>
+              )}
+              {config.youtube_url && (
+                <a href={config.youtube_url} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="w-9 h-9 rounded-lg bg-muted/50 hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-all duration-200">
+                  <Youtube className="w-4 h-4" />
+                </a>
+              )}
+              {config.tiktok_url && (
+                <a href={config.tiktok_url} target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="w-9 h-9 rounded-lg bg-muted/50 hover:bg-primary/10 hover:text-primary flex items-center justify-center transition-all duration-200 text-xs font-bold">
+                  TT
+                </a>
+              )}
+            </div>
+          )}
         </div>
-        <div className="mt-6 lg:mt-0">
-          <h4 className="text-sm font-bold uppercase tracking-wider opacity-70 mb-3">Contact</h4>
-          <div className="text-sm opacity-60 leading-relaxed space-y-1">
-            {config.phone && <p>{config.phone}</p>}
+
+        <div className="mt-8 lg:mt-0">
+          <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground mb-4">Contact</h4>
+          <div className="text-sm text-muted-foreground leading-relaxed space-y-2">
+            {config.phone && <p className="font-medium text-card-foreground">{config.phone}</p>}
             {config.email && <p>{config.email}</p>}
             {config.website_url && (
-              <a href={config.website_url} target="_blank" rel="noopener noreferrer" className="hover:opacity-90 transition-opacity block">
+              <a href={config.website_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:text-primary transition-colors">
                 {config.website_url.replace(/^https?:\/\//, "")}
+                <ExternalLink className="w-3 h-3" />
               </a>
             )}
           </div>
-          {locations.filter(l => l.show_in_footer).length > 0 && (
-            <div className="mt-4 pt-3 border-t border-border">
-              <h5 className="text-xs font-bold uppercase tracking-wider opacity-50 mb-2">Our Locations</h5>
-              <div className="text-xs opacity-50 leading-relaxed space-y-1">
-                 {locations.filter(l => l.show_in_footer).map((loc) => (
-                   <div key={loc.id}>
-                     {loc.address ? (
-                       <a
-                         href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${loc.name} ${loc.address} ${loc.city} ${loc.state}`)}`}
-                         target="_blank"
-                         rel="noopener noreferrer"
-                         className="hover:opacity-90 transition-opacity"
-                       >
-                         <p>{loc.name} — {loc.city}, {loc.state}</p>
-                         <p className="opacity-70 ml-2 underline underline-offset-2">{loc.address} ↗</p>
-                       </a>
-                     ) : (
-                       <p>{loc.name} — {loc.city}, {loc.state}</p>
-                     )}
-                   </div>
-                 ))}
+          {footerLocations.length > 0 && (
+            <div className="mt-5 pt-4 border-t border-border/50">
+              <h5 className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground mb-3">Our Locations</h5>
+              <div className="text-sm text-muted-foreground leading-relaxed space-y-2">
+                {footerLocations.map((loc) => (
+                  <div key={loc.id}>
+                    {loc.address ? (
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${loc.name} ${loc.address} ${loc.city} ${loc.state}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group block hover:text-primary transition-colors"
+                      >
+                        <p className="font-medium text-card-foreground group-hover:text-primary">{loc.name} — {loc.city}, {loc.state}</p>
+                        <p className="text-xs text-muted-foreground/70 group-hover:text-primary/70">{loc.address} ↗</p>
+                      </a>
+                    ) : (
+                      <p className="font-medium text-card-foreground">{loc.name} — {loc.city}, {loc.state}</p>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           )}
         </div>
-        <div className="mt-6 lg:mt-0">
-          <h4 className="text-sm font-bold uppercase tracking-wider opacity-70 mb-3">Quick Links</h4>
-          <div className="flex flex-col gap-2">
-            <Link to="/my-submission" className="text-sm opacity-60 hover:opacity-90 transition-opacity">View My Offer</Link>
-            <Link to="/schedule" className="text-sm opacity-60 hover:opacity-90 transition-opacity">Schedule a Visit</Link>
-            <Link to="/privacy" className="text-sm opacity-60 hover:opacity-90 transition-opacity">Privacy Policy</Link>
-            <Link to="/terms" className="text-sm opacity-60 hover:opacity-90 transition-opacity">Terms of Service</Link>
-            <Link to="/disclosure" className="text-sm opacity-60 hover:opacity-90 transition-opacity">Offer Disclosure</Link>
-            <Link to="/referral" className="text-sm opacity-60 hover:opacity-90 transition-opacity">Referral Program 💰</Link>
-            <Link to="/admin/login" className="text-[10px] opacity-20 hover:opacity-50 transition-opacity mt-3" aria-label="Staff portal">•</Link>
-            <Link to="/sitemap" className="text-xs opacity-40 hover:opacity-70 transition-opacity">.</Link>
+
+        <div className="mt-8 lg:mt-0">
+          <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-muted-foreground mb-4">Quick Links</h4>
+          <div className="flex flex-col gap-1.5">
+            {[
+              { to: "/my-submission", label: "View My Offer" },
+              { to: "/schedule", label: "Schedule a Visit" },
+              { to: "/privacy", label: "Privacy Policy" },
+              { to: "/terms", label: "Terms of Service" },
+              { to: "/disclosure", label: "Offer Disclosure" },
+              { to: "/referral", label: "Referral Program 💰" },
+            ].map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className="text-sm text-muted-foreground hover:text-primary py-0.5 transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+            <Link to="/admin/login" className="text-[10px] text-muted-foreground/20 hover:text-muted-foreground/50 transition-opacity mt-4" aria-label="Staff portal">•</Link>
+            <Link to="/sitemap" className="text-xs text-muted-foreground/40 hover:text-muted-foreground/70 transition-opacity">.</Link>
           </div>
-          {(config.facebook_url || config.instagram_url || config.youtube_url || config.tiktok_url) && (
-            <div className="flex gap-3 mt-4 lg:justify-start justify-center">
-              {config.facebook_url && (
-                <a href={config.facebook_url} target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="opacity-60 hover:opacity-100 transition-opacity">
-                  <Facebook className="w-5 h-5" />
-                </a>
-              )}
-              {config.instagram_url && (
-                <a href={config.instagram_url} target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="opacity-60 hover:opacity-100 transition-opacity">
-                  <Instagram className="w-5 h-5" />
-                </a>
-              )}
-              {config.youtube_url && (
-                <a href={config.youtube_url} target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="opacity-60 hover:opacity-100 transition-opacity">
-                  <Youtube className="w-5 h-5" />
-                </a>
-              )}
-              {config.tiktok_url && (
-                <a href={config.tiktok_url} target="_blank" rel="noopener noreferrer" aria-label="TikTok" className="opacity-60 hover:opacity-100 transition-opacity text-xs font-bold">
-                  TikTok
-                </a>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </footer>
