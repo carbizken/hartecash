@@ -460,25 +460,34 @@ const CorporateAboutFields = ({
       </CollapsibleContent>
     </Collapsible>
 
-    {/* About Photo */}
+    {/* About Photos (multiple) */}
     <div className="px-1">
-      <Label className="text-xs font-semibold">Dealership Photo</Label>
-      <p className="text-[10px] text-muted-foreground mb-2">Upload a building exterior, family photo, or team image for the About page.</p>
-      <div className="border border-border rounded-lg p-3 bg-muted/30 flex flex-col items-center gap-2 min-h-[100px]">
-        {imageUrl ? (
-          <div className="relative">
-            <img src={imageUrl} alt="About" className="max-h-32 rounded-md object-cover" />
-            <button
-              type="button"
-              onClick={() => setImageUrl("")}
-              className="absolute -top-2 -right-2 bg-destructive text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-            >×</button>
+      <Label className="text-xs font-semibold">Dealership Photos</Label>
+      <p className="text-[10px] text-muted-foreground mb-2">
+        Upload multiple images (building, team, storefront). They'll display as a carousel on the About page.
+      </p>
+      <div className="border border-border rounded-lg p-3 bg-muted/30 space-y-3 min-h-[100px]">
+        {imageUrls.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {imageUrls.map((url, idx) => (
+              <div key={idx} className="relative group">
+                <img src={url} alt={`About ${idx + 1}`} className="h-24 w-auto rounded-md object-cover border border-border" />
+                <button
+                  type="button"
+                  onClick={() => setImageUrls(imageUrls.filter((_, i) => i !== idx))}
+                  className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                >×</button>
+              </div>
+            ))}
           </div>
         ) : (
-          <ImagePlus className="w-10 h-10 text-muted-foreground/40" />
+          <div className="flex justify-center py-2">
+            <ImagePlus className="w-10 h-10 text-muted-foreground/40" />
+          </div>
         )}
-        <label className="cursor-pointer text-xs text-primary hover:underline">
-          {imageUrl ? "Replace image" : "Upload image"}
+        <label className="cursor-pointer inline-flex items-center gap-1.5 text-xs text-primary hover:underline">
+          <ImagePlus className="w-3.5 h-3.5" />
+          {imageUrls.length > 0 ? "Add another photo" : "Upload photo"}
           <input type="file" accept="image/*" className="hidden" onChange={e => {
             const f = e.target.files?.[0];
             if (f) onImageUpload(f);
@@ -486,12 +495,6 @@ const CorporateAboutFields = ({
           }} />
         </label>
       </div>
-      <Input
-        value={imageUrl}
-        onChange={(e) => setImageUrl(e.target.value)}
-        placeholder="Or paste image URL"
-        className="text-xs h-8 mt-1"
-      />
     </div>
 
     {/* Milestones */}
