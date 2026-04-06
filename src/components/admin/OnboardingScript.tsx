@@ -509,24 +509,24 @@ export default function OnboardingScript({ targetDealershipId, onNavigate }: Onb
           const isOpen = openSections.has(section.title);
 
           return (
-            <div key={section.title} className="border rounded-lg overflow-hidden print:break-inside-avoid">
+            <div key={section.title} className="border rounded-xl overflow-hidden shadow-sm print:break-inside-avoid">
               {/* Accordion header */}
               <button
                 type="button"
                 onClick={() => toggleSection(section.title)}
                 className={cn(
-                  "w-full flex items-center justify-between px-4 py-2.5 text-left transition-colors print:pointer-events-none",
-                  isOpen ? "bg-muted/50 border-b" : "bg-muted/30 hover:bg-muted/50"
+                  "w-full flex items-center justify-between px-5 py-3.5 text-left transition-colors print:pointer-events-none",
+                  isOpen ? "bg-muted/60 border-b" : "bg-card hover:bg-muted/40"
                 )}
               >
-                <h3 className="text-sm font-bold flex items-center gap-2">
-                  <span>{section.icon}</span>
+                <h3 className="text-sm font-bold flex items-center gap-2.5">
+                  <span className="text-base">{section.icon}</span>
                   {section.title}
-                  {isComplete && <CheckCircle2 className="w-3.5 h-3.5 text-primary" />}
+                  {isComplete && <CheckCircle2 className="w-4 h-4 text-primary" />}
                 </h3>
-                <div className="flex items-center gap-2 print:hidden">
+                <div className="flex items-center gap-2.5 print:hidden">
                   <span className={cn(
-                    "text-[10px] font-medium px-1.5 py-0.5 rounded-full",
+                    "text-[11px] font-bold px-2 py-0.5 rounded-full",
                     isComplete ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                   )}>
                     {filled}/{total}
@@ -537,14 +537,14 @@ export default function OnboardingScript({ targetDealershipId, onNavigate }: Onb
 
               {/* Accordion content */}
               {(isOpen || typeof window !== "undefined" && window.matchMedia?.("print")?.matches) && (
-                <div className={cn("divide-y", !isOpen && "hidden print:block")}>
+                <div className={cn("divide-y divide-border/50", !isOpen && "hidden print:block")}>
                   {section.questions.map((q) => (
-                    <div key={q.id} className="px-4 py-3 flex items-start gap-3">
+                    <div key={q.id} className="px-5 py-3.5 flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">{q.label}</p>
-                        {q.hint && <p className="text-xs text-muted-foreground mt-0.5">{q.hint}</p>}
+                        <p className="text-sm font-semibold text-card-foreground">{q.label}</p>
+                        {q.hint && <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{q.hint}</p>}
                       </div>
-                      <div className="shrink-0 w-64">
+                      <div className="shrink-0 sm:w-72">
                         {renderQuestion(q)}
                       </div>
                     </div>
