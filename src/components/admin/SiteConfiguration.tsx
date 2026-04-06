@@ -51,6 +51,11 @@ interface SiteConfig {
   assign_buying_center: boolean;
   buying_center_location_id: string | null;
   vehicle_image_angle: string;
+  referral_program_enabled: boolean;
+  referral_reward_sell_enabled: boolean;
+  referral_reward_sell_amount: number;
+  referral_reward_trade_enabled: boolean;
+  referral_reward_trade_amount: number;
 }
 
 const DEFAULT_CONFIG: SiteConfig = {
