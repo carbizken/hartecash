@@ -5,7 +5,8 @@ import { toast } from "@/hooks/use-toast";
 import { Upload, Copy, FileSpreadsheet, Link2, CheckCircle2, Trash2, Sun, Moon } from "lucide-react";
 // @ts-ignore - read-excel-file browser entry
 import readXlsxFile from "read-excel-file/browser";
-import serviceLogo from "@/assets/logo-placeholder.png";
+import serviceLogoFallback from "@/assets/logo-placeholder.png";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
 
 interface CustomerRow {
   name: string;
