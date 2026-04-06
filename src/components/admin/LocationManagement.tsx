@@ -48,6 +48,8 @@ interface Location {
   show_corporate_logo: boolean;
   show_corporate_on_landing_only: boolean;
   location_type: string;
+  established_year: number | null;
+  use_corporate_established_year: boolean;
 }
 
 const LocationManagement = () => {
@@ -135,7 +137,7 @@ const LocationManagement = () => {
     for (const loc of locations) {
       const { error } = await supabase
         .from("dealership_locations" as any)
-        .update({ name: loc.name, city: loc.city, state: loc.state, address: loc.address, sort_order: loc.sort_order, zip_codes: loc.zip_codes || [], oem_brands: loc.oem_brands || [], center_zip: loc.center_zip || '', coverage_radius_miles: loc.coverage_radius_miles || 0, all_brands: loc.all_brands ?? true, excluded_oem_brands: loc.excluded_oem_brands || [], temporarily_offline: loc.temporarily_offline ?? false, use_bdc: loc.use_bdc ?? false, show_in_inspection: loc.show_in_inspection ?? true, corporate_logo_url: loc.corporate_logo_url || null, corporate_logo_dark_url: loc.corporate_logo_dark_url || null, oem_logo_urls: loc.oem_logo_urls || [], logo_layout: loc.logo_layout || 'side_by_side', show_corporate_logo: loc.show_corporate_logo ?? false, show_corporate_on_landing_only: loc.show_corporate_on_landing_only ?? false, location_type: loc.location_type || 'primary' } as any)
+        .update({ name: loc.name, city: loc.city, state: loc.state, address: loc.address, sort_order: loc.sort_order, zip_codes: loc.zip_codes || [], oem_brands: loc.oem_brands || [], center_zip: loc.center_zip || '', coverage_radius_miles: loc.coverage_radius_miles || 0, all_brands: loc.all_brands ?? true, excluded_oem_brands: loc.excluded_oem_brands || [], temporarily_offline: loc.temporarily_offline ?? false, use_bdc: loc.use_bdc ?? false, show_in_inspection: loc.show_in_inspection ?? true, corporate_logo_url: loc.corporate_logo_url || null, corporate_logo_dark_url: loc.corporate_logo_dark_url || null, oem_logo_urls: loc.oem_logo_urls || [], logo_layout: loc.logo_layout || 'side_by_side', show_corporate_logo: loc.show_corporate_logo ?? false, show_corporate_on_landing_only: loc.show_corporate_on_landing_only ?? false, location_type: loc.location_type || 'primary', established_year: loc.established_year, use_corporate_established_year: loc.use_corporate_established_year ?? true } as any)
         .eq("id", loc.id);
       if (error) hasError = true;
     }
@@ -228,6 +230,32 @@ const LocationManagement = () => {
                     ))}
                   </SelectContent>
                 </Select>
+                {/* Established Year */}
+                <div className="flex items-center gap-2">
+                  <Label className="text-[10px] text-muted-foreground whitespace-nowrap">Est.</Label>
+                  {loc.use_corporate_established_year && loc.location_type !== "primary" ? (
+                    <span className="text-xs text-muted-foreground italic">Using corporate year</span>
+                  ) : (
+                    <Input
+                      type="number"
+                      min={1800}
+                      max={new Date().getFullYear()}
+                      value={loc.established_year ?? ""}
+                      onChange={e => setLocations(prev => prev.map(l => l.id === loc.id ? { ...l, established_year: e.target.value ? Number(e.target.value) : null } : l))}
+                      placeholder="e.g. 1947"
+                      className="w-24 h-8 text-xs"
+                    />
+                  )}
+                  {loc.location_type !== "primary" && (
+                    <div className="flex items-center gap-1">
+                      <Label className="text-[10px] text-muted-foreground whitespace-nowrap">Use Corp</Label>
+                      <Switch
+                        checked={loc.use_corporate_established_year}
+                        onCheckedChange={v => setLocations(prev => prev.map(l => l.id === loc.id ? { ...l, use_corporate_established_year: v } : l))}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1.5" title="Active">

@@ -8,8 +8,9 @@ const TrustBadges = () => {
   // Parse numeric values from config strings for animated counters
   const carsNum = parseInt((config.stats_cars_purchased || "2400").replace(/[^0-9]/g, "")) || 2400;
   const carsSuffix = (config.stats_cars_purchased || "").replace(/[0-9,]/g, "").trim() || "+";
-  const yearsNum = parseInt((config.stats_years_in_business || "72").replace(/[^0-9]/g, "")) || 72;
-  const yearsSuffix = (config.stats_years_in_business || "").replace(/[0-9,]/g, "").trim() || " yrs";
+  const yearsFromEst = config.established_year ? new Date().getFullYear() - config.established_year : null;
+  const yearsNum = yearsFromEst || parseInt((config.stats_years_in_business || "72").replace(/[^0-9]/g, "")) || 72;
+  const yearsSuffix = yearsFromEst ? "+" : (config.stats_years_in_business || "").replace(/[0-9,]/g, "").trim() || " yrs";
   const ratingVal = parseFloat(config.stats_rating || "4.9") || 4.9;
 
   const stats = [
