@@ -504,6 +504,25 @@ export default function DealerWebsiteAutofillCard({
       maybeSet("hero_subtext", currentConfig?.hero_subtext, scraped.hero_subtext);
       maybeSet("about_hero_headline", (currentConfig as any)?.about_hero_headline, scraped.about_hero_headline);
       maybeSet("about_story", (currentConfig as any)?.about_story, scraped.about_story);
+
+      // About milestones
+      if (Array.isArray(scraped.about_milestones) && scraped.about_milestones.length > 0) {
+        const milestones = scraped.about_milestones
+          .filter(m => m.year && m.label)
+          .map(m => ({ year: m.year!, label: m.label! }));
+        if (milestones.length > 0) {
+          configUpdates.about_milestones = milestones;
+          configFillCount += 1;
+        }
+      }
+
+      // About values
+      if (Array.isArray(scraped.about_values_list) && scraped.about_values_list.length > 0) {
+        const values = scraped.about_values_list.map(v => ({ icon: "Star", title: v, text: "" }));
+        configUpdates.about_values = values;
+        configFillCount += 1;
+      }
+
       maybeSet("stats_years_in_business", currentConfig?.stats_years_in_business, scraped.stats_years_in_business);
       maybeSet("stats_rating", currentConfig?.stats_rating, scraped.stats_rating);
       maybeSet("stats_reviews_count", currentConfig?.stats_reviews_count, scraped.stats_reviews_count);
