@@ -384,6 +384,7 @@ const StaffManagement = () => {
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Phone</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Current Role</th>
               <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Change Role</th>
+              {locations.length > 0 && <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Store</th>}
               <th className="text-right px-4 py-3 font-semibold text-muted-foreground">Actions</th>
             </tr>
           </thead>
