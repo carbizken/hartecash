@@ -29,6 +29,7 @@ const STATUS_COLORS: Record<string, string> = {
 const MyReferrals = ({ staffName }: { staffName: string }) => {
   const { tenant } = useTenant();
   const { toast } = useToast();
+  const tenantBaseUrl = useTenantBaseUrl();
   const [referrals, setReferrals] = useState<MyReferral[]>([]);
   const [loading, setLoading] = useState(true);
   const [staffEmail, setStaffEmail] = useState("");
