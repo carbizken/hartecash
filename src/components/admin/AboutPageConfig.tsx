@@ -56,6 +56,7 @@ const AboutPageConfig = () => {
   const [heroHeadline, setHeroHeadline] = useState("");
   const [heroSubtext, setHeroSubtext] = useState("");
   const [story, setStory] = useState("");
+  const [aboutImageUrl, setAboutImageUrl] = useState("");
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [values, setValues] = useState<ValueItem[]>([]);
 
