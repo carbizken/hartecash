@@ -16,6 +16,7 @@ const DEFAULT_MESSAGE = "Hey! I can get you a cash offer on your vehicle in unde
 const MyLeadLink = () => {
   const { tenant } = useTenant();
   const { toast } = useToast();
+  const tenantBaseUrl = useTenantBaseUrl();
   const { config: siteConfig } = useSiteConfig();
   const [staffEmail, setStaffEmail] = useState("");
   const [showQR, setShowQR] = useState(false);
