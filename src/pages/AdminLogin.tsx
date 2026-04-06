@@ -179,7 +179,7 @@ const AdminLogin = () => {
                 setLoading(true);
                 setError("");
                 const { error: resetErr } = await supabase.auth.resetPasswordForEmail(email, {
-                  redirectTo: window.location.origin + "/admin",
+                  redirectTo: window.location.origin + "/reset-password",
                 });
                 setLoading(false);
                 if (resetErr) {
