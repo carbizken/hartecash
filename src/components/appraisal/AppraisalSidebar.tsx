@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { BarChart3, Wrench, Gauge, ChevronDown } from "lucide-react";
+import { BarChart3, Wrench, Gauge, ChevronDown, RefreshCw } from "lucide-react";
 import ProfitSpreadGauge from "@/components/admin/ProfitSpreadGauge";
 import MarketContextPanel from "@/components/admin/MarketContextPanel";
 import RetailMarketPanel from "@/components/admin/RetailMarketPanel";
@@ -36,13 +37,16 @@ interface Props {
   profitMargin: number;
   activeSettings: any;
   dealerZip?: string;
+  onRefreshInspection?: () => Promise<void>;
 }
 
 export default function AppraisalSidebar({
   sub, bbVehicle, offerResult, finalValue, currentOffer,
   wholesaleAvg, tradeinAvg, retailAvg,
   reconCost, effectivePack, projectedProfit, profitMargin, activeSettings, dealerZip,
+  onRefreshInspection,
 }: Props) {
+  const [refreshingInspection, setRefreshingInspection] = useState(false);
   const hasTires = !!(sub.tire_lf && sub.tire_rf && sub.tire_lr && sub.tire_rr);
   const hasBrakes = !!(sub.brake_lf != null || sub.brake_rf != null || sub.brake_lr != null || sub.brake_rr != null);
   const brakeDepths = (sub.brake_lf != null || sub.brake_rf != null || sub.brake_lr != null || sub.brake_rr != null)
@@ -179,10 +183,27 @@ export default function AppraisalSidebar({
       {hasInspection && (
         <Card className="border-l-4 border-l-primary">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-              <Wrench className="w-3.5 h-3.5 text-primary" />
-              Inspection At-a-Glance
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <Wrench className="w-3.5 h-3.5 text-primary" />
+                Inspection At-a-Glance
+              </CardTitle>
+              {onRefreshInspection && (
+                <Button
+                  variant="ghost" size="sm"
+                  className="h-6 px-2 text-[10px] gap-1"
+                  disabled={refreshingInspection}
+                  onClick={async () => {
+                    setRefreshingInspection(true);
+                    await onRefreshInspection();
+                    setRefreshingInspection(false);
+                  }}
+                >
+                  <RefreshCw className={`w-3 h-3 ${refreshingInspection ? "animate-spin" : ""}`} />
+                  {refreshingInspection ? "Syncing…" : "Refresh"}
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-3">
             {totalChecks > 0 && (
@@ -239,7 +260,29 @@ export default function AppraisalSidebar({
         </Card>
       )}
 
-      {/* AI Damage */}
+      {/* No inspection yet — show refresh button */}
+      {!hasInspection && onRefreshInspection && (
+        <Card className="border-dashed">
+          <CardContent className="py-4 text-center space-y-2">
+            <Wrench className="w-5 h-5 text-muted-foreground mx-auto" />
+            <p className="text-xs text-muted-foreground">No inspection data yet</p>
+            <Button
+              variant="outline" size="sm"
+              className="text-xs gap-1.5"
+              disabled={refreshingInspection}
+              onClick={async () => {
+                setRefreshingInspection(true);
+                await onRefreshInspection();
+                setRefreshingInspection(false);
+              }}
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${refreshingInspection ? "animate-spin" : ""}`} />
+              {refreshingInspection ? "Checking…" : "Pull Inspection Data"}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {sub.ai_damage_summary && (
         <Card>
           <CardHeader className="pb-2">

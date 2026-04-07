@@ -6,7 +6,7 @@ import { useTenant } from "@/contexts/TenantContext";
 import {
   ArrowLeft, Printer, Camera, AlertTriangle, CheckCircle, Car, Gauge, Wrench,
   Save, Smartphone, Eye, Zap, Paintbrush, Armchair, Shield, ThermometerSun,
-  ChevronDown, ChevronRight, CheckCheck, Sparkles, ClipboardCheck,
+  ChevronDown, ChevronRight, CheckCheck, Sparkles, ClipboardCheck, RefreshCw,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { Button } from "@/components/ui/button";
@@ -688,7 +688,6 @@ const InspectionSheet = () => {
         setCustomerGrade(subRes.data.overall_condition || "");
         setOverallGrade(subRes.data.overall_condition || "");
         setInspectorGrade((subRes.data as any).inspector_grade || "");
-        // Pre-populate tire/brake depths from saved data
         if (subRes.data.tire_lf != null) setTireDepth(prev => ({ ...prev, lf: subRes.data.tire_lf }));
         if (subRes.data.tire_rf != null) setTireDepth(prev => ({ ...prev, rf: subRes.data.tire_rf }));
         if (subRes.data.tire_lr != null) setTireDepth(prev => ({ ...prev, lr: subRes.data.tire_lr }));
@@ -697,9 +696,7 @@ const InspectionSheet = () => {
         if (subRes.data.brake_rf != null) setBrakeDepth(prev => ({ ...prev, rf: subRes.data.brake_rf }));
         if (subRes.data.brake_lr != null) setBrakeDepth(prev => ({ ...prev, lr: subRes.data.brake_lr }));
         if (subRes.data.brake_rr != null) setBrakeDepth(prev => ({ ...prev, rr: subRes.data.brake_rr }));
-        // Restore inspector notes (only user-typed notes now)
         if (subRes.data.internal_notes) setInspectorNotes(subRes.data.internal_notes);
-        // Restore saved inspection form data (grades, item notes, measurements)
         const saved = (subRes.data as any).inspection_data;
         if (saved && typeof saved === "object") {
           if (saved.grades) setAllGrades(saved.grades);
@@ -712,7 +709,6 @@ const InspectionSheet = () => {
       if (dmgRes.data) {
         const reports = dmgRes.data as unknown as DamageReport[];
         setDamageReports(reports);
-        // Pre-populate inspection grades from AI damage findings
         prefillGradesFromAI(reports);
       }
       setLoading(false);
@@ -720,6 +716,41 @@ const InspectionSheet = () => {
 
     fetchData();
   }, [id]);
+
+  // Refresh inspection data from database (pulls mobile inspection updates)
+  const [refreshing, setRefreshing] = useState(false);
+  const handleRefreshInspection = useCallback(async () => {
+    if (!id) return;
+    setRefreshing(true);
+    try {
+      const { data: subData } = await supabase.from("submissions").select("*").eq("id", id).maybeSingle();
+      if (subData) {
+        setSubmission(subData);
+        if (subData.tire_lf != null) setTireDepth(prev => ({ ...prev, lf: subData.tire_lf }));
+        if (subData.tire_rf != null) setTireDepth(prev => ({ ...prev, rf: subData.tire_rf }));
+        if (subData.tire_lr != null) setTireDepth(prev => ({ ...prev, lr: subData.tire_lr }));
+        if (subData.tire_rr != null) setTireDepth(prev => ({ ...prev, rr: subData.tire_rr }));
+        if (subData.brake_lf != null) setBrakeDepth(prev => ({ ...prev, lf: subData.brake_lf }));
+        if (subData.brake_rf != null) setBrakeDepth(prev => ({ ...prev, rf: subData.brake_rf }));
+        if (subData.brake_lr != null) setBrakeDepth(prev => ({ ...prev, lr: subData.brake_lr }));
+        if (subData.brake_rr != null) setBrakeDepth(prev => ({ ...prev, rr: subData.brake_rr }));
+        if ((subData as any).inspector_grade) setInspectorGrade((subData as any).inspector_grade);
+        const saved = (subData as any).inspection_data;
+        if (saved && typeof saved === "object") {
+          if (saved.grades) setAllGrades(prev => ({ ...prev, ...saved.grades }));
+          if (saved.itemNotes) setAllNotes(prev => ({ ...prev, ...saved.itemNotes }));
+          if (saved.paintReading) setPaintReading(saved.paintReading);
+          if (saved.oilLife) setOilLife(saved.oilLife);
+          if (saved.batteryHealth) setBatteryHealth(saved.batteryHealth);
+        }
+        toast({ title: "Refreshed", description: "Inspection data updated from latest mobile submission." });
+      }
+    } catch (e) {
+      toast({ title: "Error", description: "Failed to refresh inspection data.", variant: "destructive" });
+    } finally {
+      setRefreshing(false);
+    }
+  }, [id, toast]);
 
   // #8 — Animated save with confetti
    const handleSave = async () => {
@@ -1186,7 +1217,11 @@ const InspectionSheet = () => {
               <p className="text-xs opacity-80">{vehicleTitle} • VIN: {submission.vin || "N/A"}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-primary-foreground/20 gap-1"
+              onClick={handleRefreshInspection} disabled={refreshing}>
+              <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} /> {refreshing ? "Syncing…" : "Sync"}
+            </Button>
             {/* #4 — Progress Ring */}
             <ProgressRing progress={progressPct} size={42} strokeWidth={4} />
             <div className="hidden md:block text-xs text-right">
