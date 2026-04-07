@@ -700,6 +700,57 @@ const LocationManagement = () => {
                         Override corporate defaults for this store's landing page. Leave blank to inherit from corporate config.
                       </p>
 
+                      {/* Custom Domain Mapping */}
+                      <div className="rounded-lg border border-border/60 bg-muted/20 p-4 space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Link2 className="w-4 h-4 text-primary" />
+                          <Label className="text-xs font-semibold">Custom Domain</Label>
+                          {domainMap[loc.id] && (
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-emerald-500/10 text-emerald-600 border-emerald-200 gap-1">
+                              <CheckCircle2 className="w-3 h-3" /> Mapped
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          Assign a custom domain so this store gets its own branded landing page. DNS must point to <code className="font-mono bg-muted px-1 rounded text-[10px]">185.158.133.1</code> with a <code className="font-mono bg-muted px-1 rounded text-[10px]">_lovable</code> TXT record.
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={domainInputs[loc.id] || ""}
+                            onChange={e => setDomainInputs(prev => ({ ...prev, [loc.id]: e.target.value }))}
+                            placeholder="e.g. sellmycar.smithmotors.com"
+                            className="font-mono text-xs flex-1"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() => saveDomain(loc.id, loc.name)}
+                            disabled={domainSaving[loc.id]}
+                            className="gap-1"
+                          >
+                            {domainSaving[loc.id] ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                            {domainMap[loc.id] ? "Update" : "Map"}
+                          </Button>
+                          {domainMap[loc.id] && (
+                            <Button size="sm" variant="ghost" onClick={() => removeDomain(loc.id)} className="text-destructive hover:text-destructive/80 px-2">
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          )}
+                        </div>
+                        {domainMap[loc.id] && (
+                          <div className="flex items-start gap-2 rounded border border-border/40 bg-card p-2.5 text-[11px]">
+                            <AlertCircle className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                            <div className="space-y-1 text-muted-foreground">
+                              <p><strong>After saving</strong>, complete these steps:</p>
+                              <ol className="list-decimal list-inside space-y-0.5">
+                                <li>Add A records (@ and www) → <code className="font-mono bg-muted px-1 rounded">185.158.133.1</code></li>
+                                <li>Add TXT record: <code className="font-mono bg-muted px-1 rounded">_lovable</code></li>
+                                <li>Register domain in <strong>Project Settings → Domains</strong></li>
+                              </ol>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
                       {/* Store Identity */}
                       <div className="space-y-3">
                         <Label className="text-xs font-semibold">Store Identity</Label>
