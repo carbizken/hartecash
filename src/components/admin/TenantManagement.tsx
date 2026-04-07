@@ -122,6 +122,13 @@ const TenantManagement = ({ onSetupDealer }: TenantManagementProps) => {
     if (editing) {
       const result = await supabase.from("tenants").update(payload).eq("id", editing.id);
       error = result.error;
+      // Also update approver role on dealer_accounts
+      if (!error) {
+        await supabase
+          .from("dealer_accounts")
+          .update({ offer_logic_approver_role: form.offerLogicApproverRole } as any)
+          .eq("dealership_id", payload.dealership_id);
+      }
     } else {
       // Create tenant + seed config rows
       const { error: insertError } = await supabase.from("tenants").insert(payload);
