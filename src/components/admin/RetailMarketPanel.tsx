@@ -90,6 +90,7 @@ export default function RetailMarketPanel({ vin, uvc, zipcode, dealerZip, radius
       if (fnError) throw fnError;
       if (data?.error) { setError(data.error); return; }
       setStats(data.statistics);
+      onStatsLoaded?.(data.statistics);
       setFetched(true);
     } catch (e) {
       setError((e as Error).message || "Failed to fetch market data");
