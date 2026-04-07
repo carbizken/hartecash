@@ -453,6 +453,7 @@ const MobileInspection = () => {
             <BrakePadDepthWidget
               tireDepths={{ leftFront: tireLF, rightFront: tireRF, leftRear: tireLR, rightRear: tireRR }}
               brakeDepths={{ leftFront: brakeLF, rightFront: brakeRF, leftRear: brakeLR, rightRear: brakeRR }}
+              inputMode={tireBrakeInputMode}
               onTireChange={(pos, depth) => {
                 if (pos === "leftFront") setTireLF(depth);
                 else if (pos === "rightFront") setTireRF(depth);
