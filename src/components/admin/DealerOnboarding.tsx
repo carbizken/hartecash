@@ -138,6 +138,7 @@ const DealerOnboarding = ({ isAdmin = false, onNavigate, targetDealershipId, onD
         dealership_id: data.dealership_id,
         architecture: data.architecture,
         bdc_model: data.bdc_model,
+        offer_logic_approver_role: data.offer_logic_approver_role,
         start_date: data.start_date,
         billing_date: data.billing_date,
         plan_tier: data.plan_tier,
