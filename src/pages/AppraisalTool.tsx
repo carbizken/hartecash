@@ -1288,6 +1288,24 @@ export default function AppraisalTool() {
             projectedProfit={projectedProfit}
             profitMargin={profitMargin}
             condition={condition}
+            dealerName={tenant.display_name}
+            retailMarketData={retailMarketStats ? {
+              activeCount: retailMarketStats.active?.vehicle_count,
+              activeMean: retailMarketStats.active?.mean_price,
+              activeMedian: retailMarketStats.active?.median_price,
+              soldCount: retailMarketStats.sold?.vehicle_count,
+              soldMean: retailMarketStats.sold?.mean_price,
+              soldMedian: retailMarketStats.sold?.median_price,
+              marketDaysSupply: retailMarketStats.market_days_supply ?? undefined,
+              meanDaysToTurn: retailMarketStats.mean_days_to_turn ?? undefined,
+            } : undefined}
+            waterfallBlocks={waterfallBlocks.map(b => ({ label: b.label, value: b.value, runningTotal: b.runningTotal, type: b.type }))}
+            deductionDetails={{
+              accidents, drivable, smokedIn, tiresReplaced, numKeys, windshield, moonroof,
+              exteriorItems, interiorItems, mechItems, engItems, techItems,
+              deductionAmounts: activeSettings?.deduction_amounts || {},
+              deductionsConfig: activeSettings?.deductions_config || {},
+            }}
           />
         </div>
       )}
