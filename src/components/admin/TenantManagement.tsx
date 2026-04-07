@@ -82,14 +82,23 @@ const TenantManagement = ({ onSetupDealer }: TenantManagementProps) => {
     setDialogOpen(true);
   };
 
-  const openEdit = (t: Tenant) => {
+  const openEdit = async (t: Tenant) => {
     setEditing(t);
+    // Fetch the approver role from dealer_accounts
+    let approverRole = "gsm_gm";
+    const { data: da } = await supabase
+      .from("dealer_accounts")
+      .select("offer_logic_approver_role")
+      .eq("dealership_id", t.dealership_id)
+      .maybeSingle();
+    if (da?.offer_logic_approver_role) approverRole = da.offer_logic_approver_role;
     setForm({
       dealership_id: t.dealership_id,
       slug: t.slug,
       display_name: t.display_name,
       custom_domain: t.custom_domain,
       is_active: t.is_active,
+      offerLogicApproverRole: approverRole,
     });
     setDialogOpen(true);
   };
