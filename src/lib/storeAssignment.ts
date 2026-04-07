@@ -73,9 +73,9 @@ export async function findStoreByZip(customerZip: string, dealershipId: string =
  * Find the best matching dealership by OEM brand of the vehicle being sold.
  * Falls back to null if no brand match found.
  */
-export async function findStoreByBrand(vehicleMake: string): Promise<string | null> {
+export async function findStoreByBrand(vehicleMake: string, dealershipId: string = "default"): Promise<string | null> {
   if (!vehicleMake) return null;
-  const allLocations = await getLocations();
+  const allLocations = await getLocations(dealershipId);
   const locations = getAvailableLocations(allLocations);
   const make = vehicleMake.toLowerCase();
 
