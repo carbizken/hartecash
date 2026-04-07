@@ -305,9 +305,9 @@ const LocationManagement = () => {
               <div className="flex items-center gap-3 p-3 cursor-pointer" onClick={() => toggleExpanded(loc.id)}>
                 {/* Reorder */}
                 <div className="flex flex-col gap-0.5">
-                  <button onClick={() => moveUp(index)} disabled={index === 0} className="text-muted-foreground hover:text-foreground disabled:opacity-30 text-xs">▲</button>
+                  <button onClick={(e) => { e.stopPropagation(); moveUp(index); }} disabled={index === 0} className="text-muted-foreground hover:text-foreground disabled:opacity-30 text-xs">▲</button>
                   <GripVertical className="w-4 h-4 text-muted-foreground/40" />
-                  <button onClick={() => moveDown(index)} disabled={index === locations.length - 1} className="text-muted-foreground hover:text-foreground disabled:opacity-30 text-xs">▼</button>
+                  <button onClick={(e) => { e.stopPropagation(); moveDown(index); }} disabled={index === locations.length - 1} className="text-muted-foreground hover:text-foreground disabled:opacity-30 text-xs">▼</button>
                 </div>
 
                 {/* Identity summary */}
