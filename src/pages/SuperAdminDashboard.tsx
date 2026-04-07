@@ -533,6 +533,11 @@ const SuperAdminDashboard = () => {
           </>
         )}
       </div>
+      {showAddTenant && (
+        <Suspense fallback={null}>
+          <AddTenantWizard onClose={() => setShowAddTenant(false)} onCreated={loadData} />
+        </Suspense>
+      )}
     </div>
   );
 };
