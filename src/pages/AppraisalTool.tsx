@@ -793,10 +793,18 @@ export default function AppraisalTool() {
               </p>
             </div>
           </div>
-          <Button onClick={handleSave} disabled={saving} className="bg-primary-foreground/15 hover:bg-primary-foreground/25 text-primary-foreground rounded-xl border border-primary-foreground/10 shadow-lg">
-            {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Save className="w-4 h-4 mr-1.5" />}
-            Save Appraisal
-          </Button>
+          <div className="flex items-center gap-2">
+            {sub.appraisal_finalized && (
+              <Button onClick={handlePrintACVSheet} variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10 rounded-xl border border-primary-foreground/10">
+                <Printer className="w-4 h-4 mr-1.5" />
+                ACV Sheet
+              </Button>
+            )}
+            <Button onClick={handleSave} disabled={saving} className="bg-primary-foreground/15 hover:bg-primary-foreground/25 text-primary-foreground rounded-xl border border-primary-foreground/10 shadow-lg">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Save className="w-4 h-4 mr-1.5" />}
+              Save Appraisal
+            </Button>
+          </div>
         </div>
       </div>
 
