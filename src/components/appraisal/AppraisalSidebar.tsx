@@ -35,12 +35,13 @@ interface Props {
   projectedProfit: number;
   profitMargin: number;
   activeSettings: any;
+  dealerZip?: string;
 }
 
 export default function AppraisalSidebar({
   sub, bbVehicle, offerResult, finalValue, currentOffer,
   wholesaleAvg, tradeinAvg, retailAvg,
-  reconCost, effectivePack, projectedProfit, profitMargin, activeSettings,
+  reconCost, effectivePack, projectedProfit, profitMargin, activeSettings, dealerZip,
 }: Props) {
   const hasTires = !!(sub.tire_lf && sub.tire_rf && sub.tire_lr && sub.tire_rr);
   const hasBrakes = !!(sub.brake_lf != null || sub.brake_rf != null || sub.brake_lr != null || sub.brake_rr != null);
@@ -167,6 +168,7 @@ export default function AppraisalSidebar({
             vin={sub.vin}
             uvc={bbVehicle?.uvc}
             zipcode={sub.zip || undefined}
+            dealerZip={dealerZip}
             radiusMiles={activeSettings?.retail_search_radius || 100}
             offerHigh={offerResult?.high || currentOffer}
           />

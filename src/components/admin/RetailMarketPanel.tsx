@@ -4,6 +4,7 @@ import {
   Store, TrendingUp, Clock, BarChart3, ChevronDown, Loader2, MapPin, ExternalLink, Car,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
@@ -54,11 +55,12 @@ interface Props {
   vin?: string;
   uvc?: string;
   zipcode?: string;
+  dealerZip?: string;
   radiusMiles?: number;
   offerHigh: number;
 }
 
-export default function RetailMarketPanel({ vin, uvc, zipcode, radiusMiles = 100, offerHigh }: Props) {
+export default function RetailMarketPanel({ vin, uvc, zipcode, dealerZip, radiusMiles = 100, offerHigh }: Props) {
   const [stats, setStats] = useState<RetailStats | null>(null);
   const [listings, setListings] = useState<RetailListing[]>([]);
   const [loading, setLoading] = useState(false);
@@ -67,17 +69,22 @@ export default function RetailMarketPanel({ vin, uvc, zipcode, radiusMiles = 100
   const [fetched, setFetched] = useState(false);
   const [showListings, setShowListings] = useState(false);
   const [radius, setRadius] = useState(radiusMiles);
+  const [searchZip, setSearchZip] = useState(dealerZip || zipcode || "");
 
   useEffect(() => { setRadius(radiusMiles); }, [radiusMiles]);
+  useEffect(() => {
+    // Default to dealer ZIP, fall back to customer ZIP
+    setSearchZip(dealerZip || zipcode || "");
+  }, [dealerZip, zipcode]);
 
   const fetchStats = useCallback(async () => {
     if (!vin && !uvc) return;
-    if (!zipcode) { setError("Customer ZIP needed for market data"); return; }
+    if (!searchZip || searchZip.length < 5) { setError("Valid ZIP code needed for market data"); return; }
     setLoading(true);
     setError(null);
     try {
       const { data, error: fnError } = await supabase.functions.invoke("bb-retail-listings", {
-        body: { vin, uvc, zipcode, radius_miles: radius, include_listings: false },
+        body: { vin, uvc, zipcode: searchZip, radius_miles: radius, include_listings: false },
       });
       if (fnError) throw fnError;
       if (data?.error) { setError(data.error); return; }
@@ -88,15 +95,15 @@ export default function RetailMarketPanel({ vin, uvc, zipcode, radiusMiles = 100
     } finally {
       setLoading(false);
     }
-  }, [vin, uvc, zipcode, radius]);
+  }, [vin, uvc, searchZip, radius]);
 
   const fetchListings = useCallback(async () => {
     if (!vin && !uvc) return;
-    if (!zipcode) return;
+    if (!searchZip) return;
     setListingsLoading(true);
     try {
       const { data, error: fnError } = await supabase.functions.invoke("bb-retail-listings", {
-        body: { vin, uvc, zipcode, radius_miles: radius, include_listings: true },
+        body: { vin, uvc, zipcode: searchZip, radius_miles: radius, include_listings: true },
       });
       if (fnError) throw fnError;
       setListings(data?.listings || []);
@@ -106,7 +113,7 @@ export default function RetailMarketPanel({ vin, uvc, zipcode, radiusMiles = 100
     } finally {
       setListingsLoading(false);
     }
-  }, [vin, uvc, zipcode, radius]);
+  }, [vin, uvc, searchZip, radius]);
 
   if (!fetched) {
     return (
@@ -117,25 +124,45 @@ export default function RetailMarketPanel({ vin, uvc, zipcode, radiusMiles = 100
             Live Market Data
           </span>
         </div>
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-            <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> Search Radius</span>
-            <span className="font-semibold text-card-foreground">{radius} mi</span>
+        {/* ZIP + Radius controls */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-0.5">
+                <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> Search ZIP</span>
+                {dealerZip && searchZip === dealerZip && (
+                  <span className="text-primary font-medium">Dealer Location</span>
+                )}
+              </div>
+              <Input
+                value={searchZip}
+                onChange={e => setSearchZip(e.target.value.replace(/\D/g, "").slice(0, 5))}
+                placeholder="ZIP code"
+                className="h-7 text-xs font-mono"
+                maxLength={5}
+              />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-0.5">
+                <span>Radius</span>
+                <span className="font-semibold text-card-foreground">{radius} mi</span>
+              </div>
+              <Slider min={25} max={500} step={25} value={[radius]} onValueChange={([v]) => setRadius(v)} className="w-full mt-2" />
+            </div>
           </div>
-          <Slider min={25} max={500} step={25} value={[radius]} onValueChange={([v]) => setRadius(v)} className="w-full" />
         </div>
         <Button
           variant="outline"
           size="sm"
           className="w-full text-xs"
           onClick={fetchStats}
-          disabled={loading || (!vin && !uvc) || !zipcode}
+          disabled={loading || (!vin && !uvc) || searchZip.length < 5}
         >
           {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <BarChart3 className="w-3.5 h-3.5 mr-1.5" />}
-          {loading ? "Fetching market data…" : `Pull Retail Market (${radius}mi)`}
+          {loading ? "Fetching market data…" : `Pull Retail Market (${searchZip}, ${radius}mi)`}
         </Button>
         {error && <p className="text-[10px] text-destructive">{error}</p>}
-        {!zipcode && <p className="text-[10px] text-muted-foreground">Customer ZIP code required for market lookup</p>}
+        {searchZip.length < 5 && <p className="text-[10px] text-muted-foreground">Enter a 5-digit ZIP code to search</p>}
       </div>
     );
   }
@@ -155,7 +182,7 @@ export default function RetailMarketPanel({ vin, uvc, zipcode, radiusMiles = 100
 
   return (
     <div className="space-y-3">
-      {/* Header with radius adjuster */}
+      {/* Header with ZIP + radius */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
@@ -164,18 +191,22 @@ export default function RetailMarketPanel({ vin, uvc, zipcode, radiusMiles = 100
               Live Market Data
             </span>
           </div>
-          <div className="flex items-center gap-1 text-[10px] text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
             <MapPin className="w-3 h-3" />
+            <Input
+              value={searchZip}
+              onChange={e => setSearchZip(e.target.value.replace(/\D/g, "").slice(0, 5))}
+              className="h-5 w-16 text-[10px] font-mono px-1 py-0"
+              maxLength={5}
+            />
             <span>{radius}mi</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Slider min={25} max={500} step={25} value={[radius]} onValueChange={([v]) => setRadius(v)} className="flex-1" />
-          {radius !== radiusMiles || !fetched ? (
-            <Button variant="outline" size="sm" className="text-[10px] h-6 px-2 shrink-0" onClick={() => { setFetched(false); setListings([]); setShowListings(false); setTimeout(fetchStats, 50); }} disabled={loading}>
-              {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Refresh"}
-            </Button>
-          ) : null}
+          <Button variant="outline" size="sm" className="text-[10px] h-6 px-2 shrink-0" onClick={() => { setFetched(false); setListings([]); setShowListings(false); setTimeout(fetchStats, 50); }} disabled={loading || searchZip.length < 5}>
+            {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : "Refresh"}
+          </Button>
         </div>
       </div>
 
