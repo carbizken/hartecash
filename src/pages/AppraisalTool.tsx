@@ -563,6 +563,19 @@ export default function AppraisalTool() {
       running = clamped;
     }
 
+    // Market safety cap
+    if (activeSettings.max_market_pct && activeSettings.max_market_pct > 0 && bbVehicle?.retail?.avg) {
+      const retailMkt = Number(bbVehicle.retail.avg);
+      if (retailMkt > 0) {
+        const cap = Math.round(retailMkt * (activeSettings.max_market_pct / 100));
+        if (running > cap) {
+          const diff = cap - running;
+          running = cap;
+          blocks.push({ id: "market_cap", label: `Market Cap (${activeSettings.max_market_pct}% of Retail Avg)`, value: diff, runningTotal: running, type: "subtract", editable: false });
+        }
+      }
+    }
+
     blocks.push({ id: "final", label: "FINAL OFFER", value: running, runningTotal: running, type: "total", editable: false });
     return blocks;
   }, [offerResult, activeSettings, bbVehicle, condition, sub, effectivePack, equipmentTotal, hidePackFromAppraisal]);
