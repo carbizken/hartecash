@@ -27,7 +27,8 @@ const TenantContext = createContext<TenantContextValue>({
 
 export const useTenant = () => useContext(TenantContext);
 
-let cachedTenant: TenantInfo | null = null;
+/** Cache keyed by hostname to avoid re-fetching on the same domain */
+let cachedTenant: { hostname: string; tenant: TenantInfo } | null = null;
 
 /**
  * Resolves the current tenant from the hostname.
