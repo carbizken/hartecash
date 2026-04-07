@@ -118,23 +118,42 @@ interface SectionProps {
   title: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
+  sectionId?: string;
+  forceOpen?: boolean;
 }
 
-const Section = ({ icon: Icon, title, children, defaultOpen = false }: SectionProps) => {
-  const [open, setOpen] = useState(defaultOpen);
+const Section = ({ icon: Icon, title, children, defaultOpen = false, sectionId, forceOpen }: SectionProps) => {
+  const [open, setOpen] = useState(defaultOpen || !!forceOpen);
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (forceOpen) {
+      setOpen(true);
+      // Scroll into view after a short delay to let collapsible open
+      setTimeout(() => {
+        ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        // Flash highlight
+        ref.current?.classList.add("ring-2", "ring-primary/50", "rounded-lg");
+        setTimeout(() => ref.current?.classList.remove("ring-2", "ring-primary/50", "rounded-lg"), 2000);
+      }, 150);
+    }
+  }, [forceOpen]);
+
   return (
-    <Collapsible open={open} onOpenChange={setOpen}>
-      <CollapsibleTrigger asChild>
-        <button className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors text-left">
-          <div className="flex items-center gap-2">
-            <Icon className="w-4 h-4 text-primary" />
-            <span className="font-semibold text-sm text-card-foreground">{title}</span>
-          </div>
-          <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
-        </button>
-      </CollapsibleTrigger>
-      <CollapsibleContent className="px-1 pt-3 pb-1">{children}</CollapsibleContent>
-    </Collapsible>
+    <div ref={ref} id={sectionId}>
+      <Collapsible open={open} onOpenChange={setOpen}>
+        <CollapsibleTrigger asChild>
+          <button className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors text-left">
+            <div className="flex items-center gap-2">
+              <Icon className="w-4 h-4 text-primary" />
+              <span className="font-semibold text-sm text-card-foreground">{title}</span>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="px-1 pt-3 pb-1">{children}</CollapsibleContent>
+      </Collapsible>
+    </div>
   );
 };
 
