@@ -124,25 +124,45 @@ export default function RetailMarketPanel({ vin, uvc, zipcode, dealerZip, radius
             Live Market Data
           </span>
         </div>
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-            <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> Search Radius</span>
-            <span className="font-semibold text-card-foreground">{radius} mi</span>
+        {/* ZIP + Radius controls */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-0.5">
+                <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> Search ZIP</span>
+                {dealerZip && searchZip === dealerZip && (
+                  <span className="text-primary font-medium">Dealer Location</span>
+                )}
+              </div>
+              <Input
+                value={searchZip}
+                onChange={e => setSearchZip(e.target.value.replace(/\D/g, "").slice(0, 5))}
+                placeholder="ZIP code"
+                className="h-7 text-xs font-mono"
+                maxLength={5}
+              />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center justify-between text-[10px] text-muted-foreground mb-0.5">
+                <span>Radius</span>
+                <span className="font-semibold text-card-foreground">{radius} mi</span>
+              </div>
+              <Slider min={25} max={500} step={25} value={[radius]} onValueChange={([v]) => setRadius(v)} className="w-full mt-2" />
+            </div>
           </div>
-          <Slider min={25} max={500} step={25} value={[radius]} onValueChange={([v]) => setRadius(v)} className="w-full" />
         </div>
         <Button
           variant="outline"
           size="sm"
           className="w-full text-xs"
           onClick={fetchStats}
-          disabled={loading || (!vin && !uvc) || !zipcode}
+          disabled={loading || (!vin && !uvc) || searchZip.length < 5}
         >
           {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <BarChart3 className="w-3.5 h-3.5 mr-1.5" />}
-          {loading ? "Fetching market data…" : `Pull Retail Market (${radius}mi)`}
+          {loading ? "Fetching market data…" : `Pull Retail Market (${searchZip}, ${radius}mi)`}
         </Button>
         {error && <p className="text-[10px] text-destructive">{error}</p>}
-        {!zipcode && <p className="text-[10px] text-muted-foreground">Customer ZIP code required for market lookup</p>}
+        {searchZip.length < 5 && <p className="text-[10px] text-muted-foreground">Enter a 5-digit ZIP code to search</p>}
       </div>
     );
   }
