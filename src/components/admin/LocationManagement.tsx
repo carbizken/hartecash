@@ -333,7 +333,7 @@ const LocationManagement = () => {
                 <div className="hidden lg:flex items-center gap-4">
                   <div className="flex items-center gap-1.5" title="Active">
                     <Label className="text-[10px] text-muted-foreground">Active</Label>
-                    <Switch checked={loc.is_active} onCheckedChange={() => toggleField(loc.id, "is_active", loc.is_active)} />
+                    <Switch checked={loc.is_active} onCheckedChange={() => toggleField(loc.id, "is_active", loc.is_active)} onClick={(e) => e.stopPropagation()} />
                   </div>
                 </div>
 
