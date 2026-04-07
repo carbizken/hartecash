@@ -101,17 +101,20 @@ const ArchitectureSelector = ({ selected, onSelect }: Props) => {
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-base text-card-foreground">{card.title}</h3>
+                  <h3 className="font-bold text-sm sm:text-base text-card-foreground">{card.title}</h3>
                   {card.badge && (
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                       {card.badge}
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 leading-relaxed hidden sm:block">
                   {card.subtitle}
                 </p>
-                <p className="text-xs text-muted-foreground/60 mt-1 italic">{card.example}</p>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed sm:hidden">
+                  {card.subtitle.split('.')[0]}.
+                </p>
+                <p className="text-xs text-muted-foreground/60 mt-0.5 sm:mt-1 italic hidden sm:block">{card.example}</p>
               </div>
 
               {/* Selection indicator */}
