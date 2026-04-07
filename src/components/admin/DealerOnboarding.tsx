@@ -361,45 +361,64 @@ const DealerOnboarding = ({ isAdmin = false, onNavigate, targetDealershipId, onD
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Plan Tier */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Plan Tier</Label>
-              <Select
-                value={account.plan_tier}
-                onValueChange={(v) => {
-                  updateField("plan_tier", v);
-                  const tier = PLAN_TIERS.find(t => t.value === v);
-                  if (tier && tier.cost > 0) updateField("plan_cost", tier.cost);
-                }}
-                disabled={readOnly}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {PLAN_TIERS.map(t => (
-                    <SelectItem key={t.value} value={t.value}>
-                      {t.label}{t.cost > 0 ? ` — $${t.cost.toLocaleString()}/mo` : " — Custom"}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Plan display — dealers see simple read-only, super admins see full controls */}
+            {isAdmin ? (
+              <>
+                {/* Plan Tier — super admin only */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Plan Tier</Label>
+                  <Select
+                    value={account.plan_tier}
+                    onValueChange={(v) => {
+                      updateField("plan_tier", v);
+                      const tier = PLAN_TIERS.find(t => t.value === v);
+                      if (tier && tier.cost > 0) updateField("plan_cost", tier.cost);
+                    }}
+                    disabled={readOnly}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PLAN_TIERS.map(t => (
+                        <SelectItem key={t.value} value={t.value}>
+                          {t.label}{t.cost > 0 ? ` — $${t.cost.toLocaleString()}/mo` : " — Custom"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-            {/* Plan Cost */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold">Monthly Cost ($)</Label>
-              <Input
-                type="number"
-                min={0}
-                value={account.plan_cost}
-                onChange={e => updateField("plan_cost", Number(e.target.value))}
-                disabled={readOnly || account.plan_tier !== "enterprise"}
-              />
-              {account.plan_tier !== "enterprise" && (
-                <p className="text-xs text-muted-foreground">Auto-set by plan tier</p>
-              )}
-            </div>
+                {/* Plan Cost — super admin only */}
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Monthly Cost ($)</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={account.plan_cost}
+                    onChange={e => updateField("plan_cost", Number(e.target.value))}
+                    disabled={readOnly || account.plan_tier !== "enterprise"}
+                  />
+                  {account.plan_tier !== "enterprise" && (
+                    <p className="text-xs text-muted-foreground">Auto-set by plan tier</p>
+                  )}
+                </div>
+              </>
+            ) : (
+              /* Dealer admin view — simple read-only pricing */
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label className="text-xs font-semibold">Your Plan</Label>
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border">
+                  <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Rocket className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-card-foreground">$1,995<span className="text-xs font-normal text-muted-foreground">/mo</span></p>
+                    <p className="text-xs text-muted-foreground">Active subscription</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Start Date */}
             <div className="space-y-1.5">
