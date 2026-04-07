@@ -192,22 +192,18 @@ async function fetchSiteConfig(
     }
   }
 
-  // Also merge about fields from the location if it has custom about content
+  // About content: use location-specific if not inheriting corporate
   if (!(locData as any).use_corporate_about) {
-    if ((locData as any).about_story) merged.about_story = (locData as any).about_story;
-    if ((locData as any).about_hero_headline) merged.about_hero_headline = (locData as any).about_hero_headline;
-    if ((locData as any).about_hero_subtext) merged.about_hero_subtext = (locData as any).about_hero_subtext;
+    const aboutKeys: (keyof SiteConfig)[] = ["about_story", "about_hero_headline", "about_hero_subtext"];
+    for (const key of aboutKeys) {
+      const val = (locData as any)[key];
+      if (val) (merged as any)[key] = val;
+    }
   }
 
-  // Use location address if available
-  if ((locData as any).address) {
-    merged.address = (locData as any).address;
-  }
-
-  // Compute established year from location if available
-  if ((locData as any).established_year) {
-    merged.established_year = (locData as any).established_year;
-    merged.stats_years_in_business = `${new Date().getFullYear() - (locData as any).established_year} yrs`;
+  // Compute years in business from established_year
+  if (merged.established_year) {
+    merged.stats_years_in_business = `${new Date().getFullYear() - merged.established_year} yrs`;
   }
 
   return merged;
