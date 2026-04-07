@@ -338,7 +338,7 @@ const LocationManagement = () => {
                 </div>
 
                 {/* Expand / Delete */}
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => toggleExpanded(loc.id)}>
                     {expanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
                   </Button>
