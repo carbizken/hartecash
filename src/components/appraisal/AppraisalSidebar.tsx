@@ -39,13 +39,14 @@ interface Props {
   activeSettings: any;
   dealerZip?: string;
   onRefreshInspection?: () => Promise<void>;
+  onRetailStatsLoaded?: (stats: RetailStats | null) => void;
 }
 
 export default function AppraisalSidebar({
   sub, bbVehicle, offerResult, finalValue, currentOffer,
   wholesaleAvg, tradeinAvg, retailAvg,
   reconCost, effectivePack, projectedProfit, profitMargin, activeSettings, dealerZip,
-  onRefreshInspection,
+  onRefreshInspection, onRetailStatsLoaded,
 }: Props) {
   const [refreshingInspection, setRefreshingInspection] = useState(false);
   const hasTires = !!(sub.tire_lf && sub.tire_rf && sub.tire_lr && sub.tire_rr);
