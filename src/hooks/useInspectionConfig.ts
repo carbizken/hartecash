@@ -85,6 +85,7 @@ export const useInspectionConfig = () => {
           require_notes: (data.require_notes as any) || {},
           custom_items: (data.custom_items as any) || [],
           default_inspection_mode: ((data as any).default_inspection_mode === "full" ? "full" : "standard") as "standard" | "full",
+          tire_brake_input_mode: ((data as any).tire_brake_input_mode === "pass_fail" ? "pass_fail" : "measurement") as "measurement" | "pass_fail",
         });
       }
       setLoading(false);
