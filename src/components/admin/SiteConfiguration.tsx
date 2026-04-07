@@ -164,7 +164,7 @@ interface DealerLocation {
   state: string;
 }
 
-const SiteConfiguration = () => {
+const SiteConfiguration = ({ focusField }: { focusField?: string }) => {
   const { tenant } = useTenant();
   const dealershipId = tenant.dealership_id;
   const [config, setConfig] = useState<SiteConfig>(DEFAULT_CONFIG);
