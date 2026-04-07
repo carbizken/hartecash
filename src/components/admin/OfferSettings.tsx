@@ -140,6 +140,7 @@ interface OfferSettingsRow {
   mileage_tiers: MileageTier[];
   regional_adjustment_pct: number;
   retail_search_radius: number;
+  retail_search_zip: string;
   dealer_pack: number;
   hide_pack_from_appraisal: boolean;
   retail_profit_basis: string;
