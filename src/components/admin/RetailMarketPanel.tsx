@@ -78,12 +78,12 @@ export default function RetailMarketPanel({ vin, uvc, zipcode, dealerZip, radius
 
   const fetchStats = useCallback(async () => {
     if (!vin && !uvc) return;
-    if (!zipcode) { setError("Customer ZIP needed for market data"); return; }
+    if (!searchZip || searchZip.length < 5) { setError("Valid ZIP code needed for market data"); return; }
     setLoading(true);
     setError(null);
     try {
       const { data, error: fnError } = await supabase.functions.invoke("bb-retail-listings", {
-        body: { vin, uvc, zipcode, radius_miles: radius, include_listings: false },
+        body: { vin, uvc, zipcode: searchZip, radius_miles: radius, include_listings: false },
       });
       if (fnError) throw fnError;
       if (data?.error) { setError(data.error); return; }
@@ -94,7 +94,7 @@ export default function RetailMarketPanel({ vin, uvc, zipcode, dealerZip, radius
     } finally {
       setLoading(false);
     }
-  }, [vin, uvc, zipcode, radius]);
+  }, [vin, uvc, searchZip, radius]);
 
   const fetchListings = useCallback(async () => {
     if (!vin && !uvc) return;
