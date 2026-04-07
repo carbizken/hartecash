@@ -277,91 +277,35 @@ const DealerOnboarding = ({ isAdmin = false, onNavigate, targetDealershipId, onD
       {/* Onboarding Checklist */}
       <OnboardingChecklist key={`${dealershipId}-${checklistVersion}`} onNavigate={onNavigate} dealershipId={dealershipId} />
 
-      {/* Architecture */}
+      {/* Architecture — Premium Selector */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-primary" />
-            Dealership Architecture
-          </CardTitle>
-          <CardDescription>How is this dealership structured?</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-3">
-            {ARCHITECTURE_OPTIONS.map(opt => {
-              const Icon = opt.icon;
-              const selected = account.architecture === opt.value;
-              return (
-                <button
-                  key={opt.value}
-                  onClick={() => !readOnly && updateField("architecture", opt.value)}
-                  disabled={readOnly}
-                  className={cn(
-                    "flex items-start gap-3 p-4 rounded-lg border text-left transition-all",
-                    readOnly && "opacity-70 cursor-default",
-                    selected
-                      ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                      : "border-border hover:border-primary/40 hover:bg-muted/30"
-                  )}
-                >
-                  <div className={cn(
-                    "p-2 rounded-md shrink-0",
-                    selected ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                  )}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm text-card-foreground">{opt.label}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{opt.desc}</p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+        <CardContent className="pt-6">
+          <ArchitectureSelector
+            selected={dbArchToArchType(account.architecture, account.plan_tier)}
+            onSelect={(arch) => {
+              if (readOnly) return;
+              const dbArch = architectureToDbValue(arch);
+              const tier = architectureToplanTier(arch);
+              updateField("architecture", dbArch);
+              updateField("plan_tier", tier);
+              const planTier = PLAN_TIERS.find(t => t.value === tier);
+              if (planTier && planTier.cost > 0) updateField("plan_cost", planTier.cost);
+            }}
+          />
         </CardContent>
       </Card>
 
-      {/* BDC Model */}
+      {/* BDC Model — Premium Selector */}
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <PhoneIcon className="w-4 h-4 text-primary" />
-            BDC Model
-          </CardTitle>
-          <CardDescription>How does the dealership handle inbound leads?</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-3">
-            {BDC_OPTIONS.map(opt => {
-              const Icon = opt.icon;
-              const selected = account.bdc_model === opt.value;
-              return (
-                <button
-                  key={opt.value}
-                  onClick={() => !readOnly && updateField("bdc_model", opt.value)}
-                  disabled={readOnly}
-                  className={cn(
-                    "flex items-start gap-3 p-4 rounded-lg border text-left transition-all",
-                    readOnly && "opacity-70 cursor-default",
-                    selected
-                      ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                      : "border-border hover:border-primary/40 hover:bg-muted/30"
-                  )}
-                >
-                  <div className={cn(
-                    "p-2 rounded-md shrink-0",
-                    selected ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                  )}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm text-card-foreground">{opt.label}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{opt.desc}</p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+        <CardContent className="pt-6">
+          <BDCSelector
+            selected={account.bdc_model as BDCType}
+            onSelect={(bdc) => {
+              if (readOnly) return;
+              updateField("bdc_model", bdc);
+            }}
+            disabled={readOnly}
+          />
         </CardContent>
       </Card>
 
