@@ -156,6 +156,7 @@ const InspectionConfiguration = () => {
         setTireDeductPer32((data as any).tire_deduct_per_32 ?? 50);
         setTireAdjustmentMode((data as any).tire_adjustment_mode || 'whole');
         setDefaultInspectionMode((data as any).default_inspection_mode === 'full' ? 'full' : 'standard');
+        setTireBrakeInputMode((data as any).tire_brake_input_mode === 'pass_fail' ? 'pass_fail' : 'measurement');
       }
       setLoading(false);
     };
