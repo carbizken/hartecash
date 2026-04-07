@@ -366,77 +366,138 @@ export default function BrakePadDepthWidget({
           <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
             {showTires && showBrakes ? "Tire Tread & Brake Pads" : showTires ? "Tire Tread" : "Brake Pads"}
           </div>
-          {!compact && (
+          {!compact && inputMode === "measurement" && (
             <div className="mt-0.5 text-[11px] text-muted-foreground">Rear axle top · Front axle bottom</div>
           )}
+          {inputMode === "pass_fail" && (
+            <div className="mt-0.5 text-[11px] text-muted-foreground">Tap each position to toggle Pass / Fail</div>
+          )}
         </div>
-        <Legend showTire={showTires} />
-      </div>
-
-      <div className="space-y-5">
-        {/* Tire Tread Section */}
-        {showTires && (
-          <div>
-            <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Tire Tread</div>
-            <div className="space-y-4">
-              <AxleRow
-                left={{ label: "Left Rear", depth: td.leftRear }}
-                right={{ label: "Right Rear", depth: td.rightRear }}
-                axleLabel="Rear Axle"
-                type="tire"
-                onChangeLeft={onTireChange ? (d) => onTireChange("leftRear", d) : undefined}
-                onChangeRight={onTireChange ? (d) => onTireChange("rightRear", d) : undefined}
-                readOnly={readOnly}
-                compact={compact}
-              />
-              <AxleRow
-                left={{ label: "Left Front", depth: td.leftFront }}
-                right={{ label: "Right Front", depth: td.rightFront }}
-                axleLabel="Front Axle"
-                type="tire"
-                onChangeLeft={onTireChange ? (d) => onTireChange("leftFront", d) : undefined}
-                onChangeRight={onTireChange ? (d) => onTireChange("rightFront", d) : undefined}
-                readOnly={readOnly}
-                compact={compact}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Divider */}
-        {showTires && showBrakes && (
-          <div className="border-t border-dashed border-border" />
-        )}
-
-        {/* Brake Pads Section */}
-        {showBrakes && (
-          <div>
-            <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Brake Pads</div>
-            <div className="space-y-4">
-              <AxleRow
-                left={{ label: "Left Rear", depth: bd.leftRear }}
-                right={{ label: "Right Rear", depth: bd.rightRear }}
-                axleLabel="Rear Axle"
-                type="brake"
-                onChangeLeft={onBrakeChange ? (d) => onBrakeChange("leftRear", d) : undefined}
-                onChangeRight={onBrakeChange ? (d) => onBrakeChange("rightRear", d) : undefined}
-                readOnly={readOnly}
-                compact={compact}
-              />
-              <AxleRow
-                left={{ label: "Left Front", depth: bd.leftFront }}
-                right={{ label: "Right Front", depth: bd.rightFront }}
-                axleLabel="Front Axle"
-                type="brake"
-                onChangeLeft={onBrakeChange ? (d) => onBrakeChange("leftFront", d) : undefined}
-                onChangeRight={onBrakeChange ? (d) => onBrakeChange("rightFront", d) : undefined}
-                readOnly={readOnly}
-                compact={compact}
-              />
-            </div>
+        {inputMode === "measurement" && <Legend showTire={showTires} />}
+        {inputMode === "pass_fail" && (
+          <div className="flex items-center gap-1.5">
+            <span className="rounded-full border border-green-200 bg-green-50 dark:bg-green-950/30 px-2 py-0.5 text-[10px] font-semibold text-green-600">Pass</span>
+            <span className="rounded-full border border-red-200 bg-red-50 dark:bg-red-950/30 px-2 py-0.5 text-[10px] font-semibold text-red-600">Fail</span>
           </div>
         )}
       </div>
+
+      {inputMode === "pass_fail" ? (
+        <div className="space-y-5">
+          {showTires && (
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Tires</div>
+              <div className="space-y-4">
+                <PassFailAxleRow
+                  left={{ label: "Left Rear", value: td.leftRear }}
+                  right={{ label: "Right Rear", value: td.rightRear }}
+                  type="tire"
+                  onChangeLeft={onTireChange ? (v) => onTireChange("leftRear", v) : undefined}
+                  onChangeRight={onTireChange ? (v) => onTireChange("rightRear", v) : undefined}
+                  readOnly={readOnly}
+                />
+                <PassFailAxleRow
+                  left={{ label: "Left Front", value: td.leftFront }}
+                  right={{ label: "Right Front", value: td.rightFront }}
+                  type="tire"
+                  onChangeLeft={onTireChange ? (v) => onTireChange("leftFront", v) : undefined}
+                  onChangeRight={onTireChange ? (v) => onTireChange("rightFront", v) : undefined}
+                  readOnly={readOnly}
+                />
+              </div>
+            </div>
+          )}
+          {showTires && showBrakes && <div className="border-t border-dashed border-border" />}
+          {showBrakes && (
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Brakes</div>
+              <div className="space-y-4">
+                <PassFailAxleRow
+                  left={{ label: "Left Rear", value: bd.leftRear }}
+                  right={{ label: "Right Rear", value: bd.rightRear }}
+                  type="brake"
+                  onChangeLeft={onBrakeChange ? (v) => onBrakeChange("leftRear", v) : undefined}
+                  onChangeRight={onBrakeChange ? (v) => onBrakeChange("rightRear", v) : undefined}
+                  readOnly={readOnly}
+                />
+                <PassFailAxleRow
+                  left={{ label: "Left Front", value: bd.leftFront }}
+                  right={{ label: "Right Front", value: bd.rightFront }}
+                  type="brake"
+                  onChangeLeft={onBrakeChange ? (v) => onBrakeChange("leftFront", v) : undefined}
+                  onChangeRight={onBrakeChange ? (v) => onBrakeChange("rightFront", v) : undefined}
+                  readOnly={readOnly}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-5">
+          {/* Tire Tread Section */}
+          {showTires && (
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Tire Tread</div>
+              <div className="space-y-4">
+                <AxleRow
+                  left={{ label: "Left Rear", depth: td.leftRear }}
+                  right={{ label: "Right Rear", depth: td.rightRear }}
+                  axleLabel="Rear Axle"
+                  type="tire"
+                  onChangeLeft={onTireChange ? (d) => onTireChange("leftRear", d) : undefined}
+                  onChangeRight={onTireChange ? (d) => onTireChange("rightRear", d) : undefined}
+                  readOnly={readOnly}
+                  compact={compact}
+                />
+                <AxleRow
+                  left={{ label: "Left Front", depth: td.leftFront }}
+                  right={{ label: "Right Front", depth: td.rightFront }}
+                  axleLabel="Front Axle"
+                  type="tire"
+                  onChangeLeft={onTireChange ? (d) => onTireChange("leftFront", d) : undefined}
+                  onChangeRight={onTireChange ? (d) => onTireChange("rightFront", d) : undefined}
+                  readOnly={readOnly}
+                  compact={compact}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Divider */}
+          {showTires && showBrakes && (
+            <div className="border-t border-dashed border-border" />
+          )}
+
+          {/* Brake Pads Section */}
+          {showBrakes && (
+            <div>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Brake Pads</div>
+              <div className="space-y-4">
+                <AxleRow
+                  left={{ label: "Left Rear", depth: bd.leftRear }}
+                  right={{ label: "Right Rear", depth: bd.rightRear }}
+                  axleLabel="Rear Axle"
+                  type="brake"
+                  onChangeLeft={onBrakeChange ? (d) => onBrakeChange("leftRear", d) : undefined}
+                  onChangeRight={onBrakeChange ? (d) => onBrakeChange("rightRear", d) : undefined}
+                  readOnly={readOnly}
+                  compact={compact}
+                />
+                <AxleRow
+                  left={{ label: "Left Front", depth: bd.leftFront }}
+                  right={{ label: "Right Front", depth: bd.rightFront }}
+                  axleLabel="Front Axle"
+                  type="brake"
+                  onChangeLeft={onBrakeChange ? (d) => onBrakeChange("leftFront", d) : undefined}
+                  onChangeRight={onBrakeChange ? (d) => onBrakeChange("rightFront", d) : undefined}
+                  readOnly={readOnly}
+                  compact={compact}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
