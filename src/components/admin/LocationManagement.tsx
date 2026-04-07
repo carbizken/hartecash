@@ -112,7 +112,87 @@ const LocationManagement = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchLocations(); }, [dealershipId]);
+  const fetchDomainMappings = useCallback(async () => {
+    const { data } = await supabase
+      .from("tenants" as any)
+      .select("id, custom_domain, slug, location_id")
+      .eq("dealership_id", dealershipId);
+    if (data) {
+      const map: Record<string, { id: string; custom_domain: string | null; slug: string }> = {};
+      for (const t of data as any[]) {
+        if (t.location_id) {
+          map[t.location_id] = { id: t.id, custom_domain: t.custom_domain, slug: t.slug };
+        }
+      }
+      setDomainMap(map);
+      const inputs: Record<string, string> = {};
+      for (const [locId, info] of Object.entries(map)) {
+        inputs[locId] = info.custom_domain || "";
+      }
+      setDomainInputs(prev => ({ ...inputs, ...Object.fromEntries(Object.entries(prev).filter(([k]) => !map[k])) }));
+    }
+  }, [dealershipId]);
+
+  useEffect(() => { fetchLocations(); fetchDomainMappings(); }, [dealershipId]);
+
+  const saveDomain = async (locationId: string, locationName: string) => {
+    const domain = (domainInputs[locationId] || "").trim().toLowerCase();
+    if (!domain) {
+      toast({ title: "Enter a domain", variant: "destructive" });
+      return;
+    }
+    setDomainSaving(prev => ({ ...prev, [locationId]: true }));
+
+    const existing = domainMap[locationId];
+    if (existing) {
+      // Update existing tenant row
+      const { error } = await supabase
+        .from("tenants" as any)
+        .update({ custom_domain: domain, display_name: locationName } as any)
+        .eq("id", existing.id);
+      if (error) {
+        toast({ title: "Failed to update domain", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Domain updated" });
+        fetchDomainMappings();
+      }
+    } else {
+      // Create new tenant row linked to this location
+      const slug = domain.replace(/\./g, "-");
+      const { error } = await supabase
+        .from("tenants" as any)
+        .insert({
+          dealership_id: dealershipId,
+          slug,
+          display_name: locationName,
+          custom_domain: domain,
+          location_id: locationId,
+          is_active: true,
+        } as any);
+      if (error) {
+        toast({ title: "Failed to create domain mapping", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Domain mapped to this store" });
+        fetchDomainMappings();
+      }
+    }
+    setDomainSaving(prev => ({ ...prev, [locationId]: false }));
+  };
+
+  const removeDomain = async (locationId: string) => {
+    const existing = domainMap[locationId];
+    if (!existing) return;
+    if (!confirm("Remove this store's custom domain mapping?")) return;
+    const { error } = await supabase
+      .from("tenants" as any)
+      .delete()
+      .eq("id", existing.id);
+    if (!error) {
+      toast({ title: "Domain mapping removed" });
+      setDomainInputs(prev => ({ ...prev, [locationId]: "" }));
+      fetchDomainMappings();
+    }
+  };
 
   const toggleExpanded = (id: string) => {
     setExpandedIds(prev => {
