@@ -79,8 +79,8 @@ const ArchitectureSelector = ({ selected, onSelect }: Props) => {
               type="button"
               onClick={() => onSelect(card.value)}
               className={cn(
-                "group relative flex items-start gap-4 p-5 rounded-xl border-2 text-left transition-all duration-200",
-                "hover:shadow-lg hover:-translate-y-0.5",
+                "group relative flex items-start gap-3 sm:gap-4 p-3 sm:p-5 rounded-xl border-2 text-left transition-all duration-200",
+                "hover:shadow-lg sm:hover:-translate-y-0.5",
                 isSelected
                   ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-md"
                   : "border-border bg-card hover:border-primary/40"
