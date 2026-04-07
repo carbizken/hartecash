@@ -38,10 +38,10 @@ function getAvailableLocations(locations: LocationWithZips[]): LocationWithZips[
 /**
  * Find the best matching dealership location for a given customer ZIP code.
  */
-export async function findStoreByZip(customerZip: string): Promise<string | null> {
+export async function findStoreByZip(customerZip: string, dealershipId: string = "default"): Promise<string | null> {
   if (!customerZip || customerZip.length < 5) return null;
   const zip5 = customerZip.slice(0, 5);
-  const allLocations = await getLocations();
+  const allLocations = await getLocations(dealershipId);
   const locations = getAvailableLocations(allLocations);
 
   if (locations.length === 0) return allLocations.length > 0 ? allLocations[0].id : null;
