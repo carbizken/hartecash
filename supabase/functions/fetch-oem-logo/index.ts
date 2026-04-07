@@ -1,9 +1,10 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1';
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Curated list of common automotive OEM brands with known logo sources
 const BRAND_LOGOS: Record<string, string> = {
   'acura': 'https://www.carlogos.org/car-logos/acura-logo.png',
   'alfa romeo': 'https://www.carlogos.org/car-logos/alfa-romeo-logo.png',
@@ -50,7 +51,6 @@ Deno.serve(async (req) => {
   try {
     const { action, brand, dealershipId, locationId } = await req.json();
 
-    // Action: list — return all available brands
     if (action === 'list') {
       const brands = Object.keys(BRAND_LOGOS).sort().map(b => ({
         name: b.split(' ').map(w => w[0].toUpperCase() + w.slice(1)).join(' '),
@@ -62,7 +62,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Action: fetch — download the logo and store it in dealer-logos bucket
     if (action === 'fetch') {
       if (!brand || !dealershipId || !locationId) {
         return new Response(
@@ -74,32 +73,34 @@ Deno.serve(async (req) => {
       const brandKey = brand.toLowerCase().trim();
       let logoUrl = BRAND_LOGOS[brandKey];
 
-      // If not in curated list, try Firecrawl search
       if (!logoUrl) {
         const firecrawlKey = Deno.env.get('FIRECRAWL_API_KEY');
         if (firecrawlKey) {
-          const searchRes = await fetch('https://api.firecrawl.dev/v1/search', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${firecrawlKey}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              query: `${brand} car logo transparent PNG official`,
-              limit: 5,
-            }),
-          });
-          const searchData = await searchRes.json();
-          // Try to find an image URL from results
-          if (searchData.data) {
-            for (const result of searchData.data) {
-              const content = (result.markdown || '') + ' ' + (result.html || '');
-              const imgMatch = content.match(/https?:\/\/[^\s"'<>]+\.(?:png|svg|webp)/i);
-              if (imgMatch) {
-                logoUrl = imgMatch[0];
-                break;
+          try {
+            const searchRes = await fetch('https://api.firecrawl.dev/v1/search', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${firecrawlKey}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                query: `${brand} car logo transparent PNG official`,
+                limit: 5,
+              }),
+            });
+            const searchData = await searchRes.json();
+            if (searchData.data) {
+              for (const result of searchData.data) {
+                const content = (result.markdown || '') + ' ' + (result.html || '');
+                const imgMatch = content.match(/https?:\/\/[^\s"'<>]+\.(?:png|svg|webp)/i);
+                if (imgMatch) {
+                  logoUrl = imgMatch[0];
+                  break;
+                }
               }
             }
+          } catch (e) {
+            console.error('Firecrawl search failed:', e);
           }
         }
       }
@@ -126,33 +127,31 @@ Deno.serve(async (req) => {
       const safeName = brandKey.replace(/[^a-z0-9]/g, '_');
       const filePath = `${dealershipId}/${locationId}/oem_${safeName}.${ext}`;
 
-      // Upload to dealer-logos bucket
+      // Use Supabase client SDK for upload
       const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
       const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      const admin = createClient(supabaseUrl, serviceKey);
 
-      const uploadRes = await fetch(
-        `${supabaseUrl}/storage/v1/object/dealer-logos/${filePath}`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${serviceKey}`,
-            'Content-Type': contentType,
-            'x-upsert': 'true',
-          },
-          body: imgData,
-        }
-      );
+      const { error: uploadError } = await admin.storage
+        .from('dealer-logos')
+        .upload(filePath, imgData, {
+          contentType,
+          upsert: true,
+        });
 
-      if (!uploadRes.ok) {
-        const err = await uploadRes.text();
-        console.error('Storage upload error:', err);
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
         return new Response(
           JSON.stringify({ success: false, error: 'Failed to save logo to storage' }),
           { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
-      const publicUrl = `${supabaseUrl}/storage/v1/object/public/dealer-logos/${filePath}?t=${Date.now()}`;
+      const { data: urlData } = admin.storage
+        .from('dealer-logos')
+        .getPublicUrl(filePath);
+
+      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
 
       return new Response(
         JSON.stringify({ success: true, url: publicUrl, brand: brandKey }),
@@ -160,7 +159,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Action: search — search for a brand not in the curated list
     if (action === 'search') {
       if (!brand) {
         return new Response(
@@ -169,7 +167,6 @@ Deno.serve(async (req) => {
         );
       }
       const brandKey = brand.toLowerCase().trim();
-      // Check curated list first
       const found = Object.entries(BRAND_LOGOS)
         .filter(([k]) => k.includes(brandKey))
         .map(([k]) => ({
