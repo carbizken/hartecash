@@ -1577,7 +1577,7 @@ const InspectionSheet = () => {
                                 }}
                                 onBrakeChange={(id, depth) => {
                                   const map: Record<string, string> = { leftFront: "lf", rightFront: "rf", leftRear: "lr", rightRear: "rr" };
-                                  setBrakeDepth(p => ({ ...p, [map[id]]: depth }));
+                                  setBrakeDepth(p => ({ ...p, [map[id]]: depth === -1 ? null : depth }));
                                 }}
                               />
                             </div>
