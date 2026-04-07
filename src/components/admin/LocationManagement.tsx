@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
 import { useToast } from "@/hooks/use-toast";
@@ -11,7 +11,7 @@ import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Trash2, GripVertical, Save, Loader2, MapPin, ChevronDown, ChevronRight, X, MapPinned, Car, Radar, Store, Building2, ShoppingCart, Warehouse, Image, Eye, Globe, Megaphone } from "lucide-react";
+import { Plus, Trash2, GripVertical, Save, Loader2, MapPin, ChevronDown, ChevronRight, X, MapPinned, Car, Radar, Store, Building2, ShoppingCart, Warehouse, Image, Eye, Globe, Megaphone, Link2, ExternalLink, CheckCircle2, AlertCircle } from "lucide-react";
 import LocationLogoSection from "./LocationLogoSection";
 
 const LOCATION_TYPE_OPTIONS = [
@@ -98,6 +98,9 @@ const LocationManagement = () => {
   const [brandInputs, setBrandInputs] = useState<Record<string, string>>({});
   const [excludedBrandInputs, setExcludedBrandInputs] = useState<Record<string, string>>({});
   const [newLocationType, setNewLocationType] = useState("primary");
+  const [domainMap, setDomainMap] = useState<Record<string, { id: string; custom_domain: string | null; slug: string }>>({});
+  const [domainInputs, setDomainInputs] = useState<Record<string, string>>({});
+  const [domainSaving, setDomainSaving] = useState<Record<string, boolean>>({});
 
   const fetchLocations = async () => {
     const { data, error } = await supabase
@@ -109,7 +112,87 @@ const LocationManagement = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchLocations(); }, [dealershipId]);
+  const fetchDomainMappings = useCallback(async () => {
+    const { data } = await supabase
+      .from("tenants" as any)
+      .select("id, custom_domain, slug, location_id")
+      .eq("dealership_id", dealershipId);
+    if (data) {
+      const map: Record<string, { id: string; custom_domain: string | null; slug: string }> = {};
+      for (const t of data as any[]) {
+        if (t.location_id) {
+          map[t.location_id] = { id: t.id, custom_domain: t.custom_domain, slug: t.slug };
+        }
+      }
+      setDomainMap(map);
+      const inputs: Record<string, string> = {};
+      for (const [locId, info] of Object.entries(map)) {
+        inputs[locId] = info.custom_domain || "";
+      }
+      setDomainInputs(prev => ({ ...inputs, ...Object.fromEntries(Object.entries(prev).filter(([k]) => !map[k])) }));
+    }
+  }, [dealershipId]);
+
+  useEffect(() => { fetchLocations(); fetchDomainMappings(); }, [dealershipId]);
+
+  const saveDomain = async (locationId: string, locationName: string) => {
+    const domain = (domainInputs[locationId] || "").trim().toLowerCase();
+    if (!domain) {
+      toast({ title: "Enter a domain", variant: "destructive" });
+      return;
+    }
+    setDomainSaving(prev => ({ ...prev, [locationId]: true }));
+
+    const existing = domainMap[locationId];
+    if (existing) {
+      // Update existing tenant row
+      const { error } = await supabase
+        .from("tenants" as any)
+        .update({ custom_domain: domain, display_name: locationName } as any)
+        .eq("id", existing.id);
+      if (error) {
+        toast({ title: "Failed to update domain", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Domain updated" });
+        fetchDomainMappings();
+      }
+    } else {
+      // Create new tenant row linked to this location
+      const slug = domain.replace(/\./g, "-");
+      const { error } = await supabase
+        .from("tenants" as any)
+        .insert({
+          dealership_id: dealershipId,
+          slug,
+          display_name: locationName,
+          custom_domain: domain,
+          location_id: locationId,
+          is_active: true,
+        } as any);
+      if (error) {
+        toast({ title: "Failed to create domain mapping", description: error.message, variant: "destructive" });
+      } else {
+        toast({ title: "Domain mapped to this store" });
+        fetchDomainMappings();
+      }
+    }
+    setDomainSaving(prev => ({ ...prev, [locationId]: false }));
+  };
+
+  const removeDomain = async (locationId: string) => {
+    const existing = domainMap[locationId];
+    if (!existing) return;
+    if (!confirm("Remove this store's custom domain mapping?")) return;
+    const { error } = await supabase
+      .from("tenants" as any)
+      .delete()
+      .eq("id", existing.id);
+    if (!error) {
+      toast({ title: "Domain mapping removed" });
+      setDomainInputs(prev => ({ ...prev, [locationId]: "" }));
+      fetchDomainMappings();
+    }
+  };
 
   const toggleExpanded = (id: string) => {
     setExpandedIds(prev => {
@@ -616,6 +699,57 @@ const LocationManagement = () => {
                       <p className="text-xs text-muted-foreground">
                         Override corporate defaults for this store's landing page. Leave blank to inherit from corporate config.
                       </p>
+
+                      {/* Custom Domain Mapping */}
+                      <div className="rounded-lg border border-border/60 bg-muted/20 p-4 space-y-3">
+                        <div className="flex items-center gap-2">
+                          <Link2 className="w-4 h-4 text-primary" />
+                          <Label className="text-xs font-semibold">Custom Domain</Label>
+                          {domainMap[loc.id] && (
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-emerald-500/10 text-emerald-600 border-emerald-200 gap-1">
+                              <CheckCircle2 className="w-3 h-3" /> Mapped
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground">
+                          Assign a custom domain so this store gets its own branded landing page. DNS must point to <code className="font-mono bg-muted px-1 rounded text-[10px]">185.158.133.1</code> with a <code className="font-mono bg-muted px-1 rounded text-[10px]">_lovable</code> TXT record.
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={domainInputs[loc.id] || ""}
+                            onChange={e => setDomainInputs(prev => ({ ...prev, [loc.id]: e.target.value }))}
+                            placeholder="e.g. sellmycar.smithmotors.com"
+                            className="font-mono text-xs flex-1"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() => saveDomain(loc.id, loc.name)}
+                            disabled={domainSaving[loc.id]}
+                            className="gap-1"
+                          >
+                            {domainSaving[loc.id] ? <Loader2 className="w-3 h-3 animate-spin" /> : <Save className="w-3 h-3" />}
+                            {domainMap[loc.id] ? "Update" : "Map"}
+                          </Button>
+                          {domainMap[loc.id] && (
+                            <Button size="sm" variant="ghost" onClick={() => removeDomain(loc.id)} className="text-destructive hover:text-destructive/80 px-2">
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          )}
+                        </div>
+                        {domainMap[loc.id] && (
+                          <div className="flex items-start gap-2 rounded border border-border/40 bg-card p-2.5 text-[11px]">
+                            <AlertCircle className="w-3.5 h-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                            <div className="space-y-1 text-muted-foreground">
+                              <p><strong>After saving</strong>, complete these steps:</p>
+                              <ol className="list-decimal list-inside space-y-0.5">
+                                <li>Add A records (@ and www) → <code className="font-mono bg-muted px-1 rounded">185.158.133.1</code></li>
+                                <li>Add TXT record: <code className="font-mono bg-muted px-1 rounded">_lovable</code></li>
+                                <li>Register domain in <strong>Project Settings → Domains</strong></li>
+                              </ol>
+                            </div>
+                          </div>
+                        )}
+                      </div>
 
                       {/* Store Identity */}
                       <div className="space-y-3">
