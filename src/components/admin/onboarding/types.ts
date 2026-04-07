@@ -34,6 +34,7 @@ export interface WizardState {
   planTier: string;
   bdcModel: string;
   locationCount: number;
+  offerLogicApproverRole: string;
   // Step 3 — corporate
   websiteUrl: string;
   scrapedData: Record<string, any> | null;
