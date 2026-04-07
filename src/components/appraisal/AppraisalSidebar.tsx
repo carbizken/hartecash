@@ -168,6 +168,7 @@ export default function AppraisalSidebar({
             vin={sub.vin}
             uvc={bbVehicle?.uvc}
             zipcode={sub.zip || undefined}
+            dealerZip={dealerZip}
             radiusMiles={activeSettings?.retail_search_radius || 100}
             offerHigh={offerResult?.high || currentOffer}
           />
