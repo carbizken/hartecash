@@ -183,10 +183,27 @@ export default function AppraisalSidebar({
       {hasInspection && (
         <Card className="border-l-4 border-l-primary">
           <CardHeader className="pb-2">
-            <CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-              <Wrench className="w-3.5 h-3.5 text-primary" />
-              Inspection At-a-Glance
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <Wrench className="w-3.5 h-3.5 text-primary" />
+                Inspection At-a-Glance
+              </CardTitle>
+              {onRefreshInspection && (
+                <Button
+                  variant="ghost" size="sm"
+                  className="h-6 px-2 text-[10px] gap-1"
+                  disabled={refreshingInspection}
+                  onClick={async () => {
+                    setRefreshingInspection(true);
+                    await onRefreshInspection();
+                    setRefreshingInspection(false);
+                  }}
+                >
+                  <RefreshCw className={`w-3 h-3 ${refreshingInspection ? "animate-spin" : ""}`} />
+                  {refreshingInspection ? "Syncing…" : "Refresh"}
+                </Button>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="space-y-3">
             {totalChecks > 0 && (
