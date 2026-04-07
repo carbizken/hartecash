@@ -206,6 +206,7 @@ export interface OfferSettings {
   deduction_modes?: DeductionModes;
   retail_search_radius?: number;
   retail_search_zip?: string;
+  max_market_pct?: number | null;
 }
 
 export interface OfferRule {
