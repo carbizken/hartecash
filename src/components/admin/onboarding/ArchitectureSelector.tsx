@@ -58,9 +58,9 @@ const CARDS: {
 
 const ArchitectureSelector = ({ selected, onSelect }: Props) => {
   return (
-    <div className="space-y-6">
-      <div className="text-center space-y-2 pb-2">
-        <h2 className="text-2xl font-bold tracking-tight">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="text-center space-y-1 sm:space-y-2 pb-1 sm:pb-2">
+        <h2 className="text-lg sm:text-2xl font-bold tracking-tight">
           How is this dealership structured?
         </h2>
         <p className="text-sm text-muted-foreground max-w-md mx-auto">
@@ -68,7 +68,7 @@ const ArchitectureSelector = ({ selected, onSelect }: Props) => {
         </p>
       </div>
 
-      <div className="grid gap-3">
+      <div className="grid gap-2 sm:gap-3">
         {CARDS.map((card) => {
           const Icon = card.icon;
           const isSelected = selected === card.value;
@@ -79,8 +79,8 @@ const ArchitectureSelector = ({ selected, onSelect }: Props) => {
               type="button"
               onClick={() => onSelect(card.value)}
               className={cn(
-                "group relative flex items-start gap-4 p-5 rounded-xl border-2 text-left transition-all duration-200",
-                "hover:shadow-lg hover:-translate-y-0.5",
+                "group relative flex items-start gap-3 sm:gap-4 p-3 sm:p-5 rounded-xl border-2 text-left transition-all duration-200",
+                "hover:shadow-lg sm:hover:-translate-y-0.5",
                 isSelected
                   ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-md"
                   : "border-border bg-card hover:border-primary/40"
@@ -89,29 +89,32 @@ const ArchitectureSelector = ({ selected, onSelect }: Props) => {
               {/* Icon */}
               <div
                 className={cn(
-                  "flex items-center justify-center w-12 h-12 rounded-xl shrink-0 transition-colors",
+                  "flex items-center justify-center w-9 h-9 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl shrink-0 transition-colors",
                   isSelected
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
                 )}
               >
-                <Icon className="w-6 h-6" />
+                <Icon className="w-4 h-4 sm:w-6 sm:h-6" />
               </div>
 
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-base text-card-foreground">{card.title}</h3>
+                  <h3 className="font-bold text-sm sm:text-base text-card-foreground">{card.title}</h3>
                   {card.badge && (
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
                       {card.badge}
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-muted-foreground mt-0.5 leading-relaxed">
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 leading-relaxed hidden sm:block">
                   {card.subtitle}
                 </p>
-                <p className="text-xs text-muted-foreground/60 mt-1 italic">{card.example}</p>
+                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed sm:hidden">
+                  {card.subtitle.split('.')[0]}.
+                </p>
+                <p className="text-xs text-muted-foreground/60 mt-0.5 sm:mt-1 italic hidden sm:block">{card.example}</p>
               </div>
 
               {/* Selection indicator */}
