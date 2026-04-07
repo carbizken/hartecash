@@ -412,6 +412,41 @@ const InspectionConfiguration = () => {
                   {/* Special sub-toggles for tires */}
                   {sectionKey === "tires" && (
                     <div className="space-y-3">
+                      {/* Input Mode: Measurement vs Pass/Fail */}
+                      <div className="border border-border rounded-lg p-3 bg-muted/20">
+                        <label className="text-sm font-semibold block mb-1">Tire & Brake Input Mode</label>
+                        <p className="text-[10px] text-muted-foreground mb-2">
+                          Choose how inspectors record tire and brake condition
+                        </p>
+                        <div className="flex items-center gap-1 bg-muted rounded-lg p-1 w-fit">
+                          <button
+                            onClick={() => setTireBrakeInputMode("measurement")}
+                            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                              tireBrakeInputMode === "measurement"
+                                ? "bg-primary text-primary-foreground shadow-sm"
+                                : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            Depth Measurements
+                          </button>
+                          <button
+                            onClick={() => setTireBrakeInputMode("pass_fail")}
+                            className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
+                              tireBrakeInputMode === "pass_fail"
+                                ? "bg-primary text-primary-foreground shadow-sm"
+                                : "text-muted-foreground hover:text-foreground"
+                            }`}
+                          >
+                            Pass / Fail
+                          </button>
+                        </div>
+                        <p className="text-[9px] text-muted-foreground mt-1.5">
+                          {tireBrakeInputMode === "measurement"
+                            ? "Inspectors enter exact tread depth (/32\") and brake pad thickness (mm) for each position."
+                            : "Inspectors simply tap each tire/brake position to toggle between Pass and Fail — no measurements needed."}
+                        </p>
+                      </div>
+
                       <label className="flex items-center justify-between text-sm">
                         <span>Tire tread depth (32nds)</span>
                         <Switch checked={showTireTread} onCheckedChange={setShowTireTread} />
