@@ -192,6 +192,7 @@ const InspectionConfiguration = () => {
         tire_deduct_per_32: tireDeductPer32,
         tire_adjustment_mode: tireAdjustmentMode,
         default_inspection_mode: defaultInspectionMode,
+        tire_brake_input_mode: tireBrakeInputMode,
         updated_at: new Date().toISOString(),
       } as any)
       .eq("id", configId);
