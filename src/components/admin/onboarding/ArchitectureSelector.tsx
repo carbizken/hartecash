@@ -58,8 +58,8 @@ const CARDS: {
 
 const ArchitectureSelector = ({ selected, onSelect }: Props) => {
   return (
-    <div className="space-y-6">
-      <div className="text-center space-y-2 pb-2">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="text-center space-y-1 sm:space-y-2 pb-1 sm:pb-2">
         <h2 className="text-2xl font-bold tracking-tight">
           How is this dealership structured?
         </h2>
