@@ -49,6 +49,7 @@ const SiteHeader = () => {
               width={317}
               height={112}
               fetchPriority="high"
+              decoding="async"
             />
             {secondaryUrl && (
               <img
