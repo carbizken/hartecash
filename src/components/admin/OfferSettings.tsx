@@ -376,6 +376,7 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
       lot_cost_per_day: (settings as any).lot_cost_per_day ?? 8,
       learning_threshold: (settings as any).learning_threshold ?? 250,
       archetype_deduction_overrides: (settings as any).archetype_deduction_overrides ?? null,
+      strategy_mode: strategyMode,
       updated_at: new Date().toISOString(),
     } as any).eq("id", settings.id);
 
