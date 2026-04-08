@@ -416,8 +416,14 @@ export default function AppraisalTool() {
 
   const offerResult = useMemo(() => {
     if (!bbVehicle || !activeSettings) return null;
-    return calculateOffer(bbVehicle, formData, liveSelectedAddDeducts, activeSettings, rules);
-  }, [bbVehicle, formData, liveSelectedAddDeducts, activeSettings, rules]);
+    return calculateOffer(
+      bbVehicle, formData, liveSelectedAddDeducts, activeSettings, rules,
+      undefined, // promoBonus
+      retailMarketStats?.market_days_supply ?? undefined,
+      retailMarketStats?.sold?.mean_price ?? undefined,
+      retailMarketStats?.active?.mean_price ?? undefined,
+    );
+  }, [bbVehicle, formData, liveSelectedAddDeducts, activeSettings, rules, retailMarketStats]);
 
   // Effective values
   const currentOffer = sub?.offered_price || sub?.estimated_offer_high || 0;
