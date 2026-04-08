@@ -1287,29 +1287,9 @@ export default function AppraisalTool() {
             )}
           </div>
 
-          {/* ── RIGHT COLUMN — Decide zone ── */}
+          {/* ── RIGHT COLUMN — Intelligence first, then decision tools ── */}
           <div className="space-y-4">
-            {/* Deal Maker Section */}
-            <DealMakerSection
-              customerExpected={sub.offered_price || sub.estimated_offer_high || 0}
-              currentAppraisal={finalValue}
-              bbVehicle={bbVehicle}
-              reconCost={reconCost}
-              targetGrossMin={targetGrossMin}
-              show={sub.progress_status === "offer_declined" || sub.progress_status === "scheduled" || sub.progress_status === "visiting"}
-            />
-
-            {/* Management Override — requires PIN */}
-            {!sub.appraisal_finalized && (
-              <ManagementOverride
-                managerPin={managerPin}
-                currentValue={finalValue}
-                onOverrideChange={(amount, reason) => setManagerOverride({ amount, reason, by: "Manager" })}
-                existingOverride={managerOverride}
-              />
-            )}
-
-            {/* Appraisal Sidebar */}
+            {/* Appraisal Sidebar — Market intelligence leads */}
             <AppraisalSidebar
               sub={sub}
               bbVehicle={bbVehicle}
@@ -1338,6 +1318,26 @@ export default function AppraisalTool() {
               reconEstimate={reconCost}
               learningThreshold={(activeSettings as any)?.learning_threshold ?? 250}
             />
+
+            {/* Deal Maker Section — decision tool */}
+            <DealMakerSection
+              customerExpected={sub.offered_price || sub.estimated_offer_high || 0}
+              currentAppraisal={finalValue}
+              bbVehicle={bbVehicle}
+              reconCost={reconCost}
+              targetGrossMin={targetGrossMin}
+              show={sub.progress_status === "offer_declined" || sub.progress_status === "scheduled" || sub.progress_status === "visiting"}
+            />
+
+            {/* Management Override — requires PIN */}
+            {!sub.appraisal_finalized && (
+              <ManagementOverride
+                managerPin={managerPin}
+                currentValue={finalValue}
+                onOverrideChange={(amount, reason) => setManagerOverride({ amount, reason, by: "Manager" })}
+                existingOverride={managerOverride}
+              />
+            )}
           </div>
         </div>
       </div>
