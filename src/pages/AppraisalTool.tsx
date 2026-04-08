@@ -966,9 +966,15 @@ export default function AppraisalTool() {
           </div>
         </div>
 
-        {/* Market Signal Badge — full-width banner */}
-        {retailMarketStats && (
-          <div className="mb-5 rounded-xl border border-border/60 bg-card p-3 shadow-sm">
+        {/* MARKET PULSE — Always visible, skeleton while loading */}
+        <div className="mb-5 rounded-xl border-2 border-border/60 bg-card p-4 shadow-md">
+          <div className="flex items-center gap-2 mb-3">
+            <BarChart3 className="w-4 h-4 text-primary" />
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Market Pulse — {sub.vehicle_year} {sub.vehicle_make} {sub.vehicle_model}
+            </span>
+          </div>
+          {retailMarketStats ? (
             <div className="flex flex-wrap items-center gap-3">
               <MarketSignalBadge
                 mds={retailMarketStats.market_days_supply}
@@ -976,31 +982,51 @@ export default function AppraisalTool() {
                 askingAvg={retailMarketStats.active?.mean_price}
                 activeCount={retailMarketStats.active?.vehicle_count}
               />
-              <div className="flex flex-wrap items-center gap-4 text-xs ml-auto">
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">Active Comps:</span>
-                  <span className="font-bold text-card-foreground">{retailMarketStats.active?.vehicle_count ?? "—"}</span>
+              <div className="h-6 w-px bg-border" />
+              <div className="flex flex-wrap items-center gap-5 text-sm">
+                <div>
+                  <span className="text-muted-foreground text-xs">Active Listings</span>
+                  <div className="font-bold text-card-foreground text-lg">{retailMarketStats.active?.vehicle_count ?? "—"}</div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">Sold (90d):</span>
-                  <span className="font-bold text-card-foreground">{retailMarketStats.sold?.vehicle_count ?? "—"}</span>
+                <div>
+                  <span className="text-muted-foreground text-xs">Avg Ask</span>
+                  <div className="font-bold text-card-foreground text-lg">${Math.round(retailMarketStats.active?.mean_price || 0).toLocaleString()}</div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">MDS:</span>
-                  <span className="font-bold text-card-foreground">{retailMarketStats.market_days_supply ?? "—"}d</span>
+                <div>
+                  <span className="text-muted-foreground text-xs">Sold (90d)</span>
+                  <div className="font-bold text-card-foreground text-lg">{retailMarketStats.sold?.vehicle_count ?? "—"}</div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">Avg Asking:</span>
-                  <span className="font-bold text-card-foreground">${Math.round(retailMarketStats.active?.mean_price || 0).toLocaleString()}</span>
+                <div>
+                  <span className="text-muted-foreground text-xs">Avg Sold</span>
+                  <div className="font-bold text-card-foreground text-lg">${Math.round(retailMarketStats.sold?.mean_price || 0).toLocaleString()}</div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">Avg Sold:</span>
-                  <span className="font-bold text-card-foreground">${Math.round(retailMarketStats.sold?.mean_price || 0).toLocaleString()}</span>
+                <div>
+                  <span className="text-muted-foreground text-xs">MDS</span>
+                  <div className="font-bold text-card-foreground text-lg">{retailMarketStats.market_days_supply ?? "—"}d</div>
                 </div>
+                {retailMarketStats.mean_days_to_turn != null && (
+                  <div>
+                    <span className="text-muted-foreground text-xs">Avg Turn</span>
+                    <div className="font-bold text-card-foreground text-lg">{retailMarketStats.mean_days_to_turn}d</div>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="flex flex-wrap items-center gap-5">
+              <Skeleton className="h-6 w-28 rounded-full" />
+              <div className="h-6 w-px bg-border" />
+              <div className="flex gap-5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i}>
+                    <Skeleton className="h-3 w-16 mb-1" />
+                    <Skeleton className="h-6 w-12" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* ═══════════════════════════════════════ */}
         {/*  ZONE 2 (INSPECT) + ZONE 3 RIGHT COL  */}
