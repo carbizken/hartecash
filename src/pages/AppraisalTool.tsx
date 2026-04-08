@@ -15,8 +15,9 @@ import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, Car, DollarSign, TrendingUp, TrendingDown, Minus,
   Gauge, ChevronDown, Save, AlertTriangle, CheckCircle, XCircle, Shield,
-  Pencil, ArrowDown, Loader2, SlidersHorizontal, CheckSquare, Lock, Unlock, Printer,
+  Pencil, ArrowDown, Loader2, SlidersHorizontal, CheckSquare, Lock, Unlock, Printer, BarChart3,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import CustomerVsInspectorComparison from "@/components/appraisal/CustomerVsInspectorComparison";
 import AppraisalTireBrakeHealth from "@/components/appraisal/AppraisalTireBrakeHealth";
 import AppraisalSidebar from "@/components/appraisal/AppraisalSidebar";
@@ -886,55 +887,59 @@ export default function AppraisalTool() {
           acvValue={sub.acv_value}
         />
 
-        {/* HUD — Key Metrics Strip — Appraisal Value is dominant */}
-        <div className={`grid grid-cols-2 sm:grid-cols-4 ${hidePackFromAppraisal ? "lg:grid-cols-7" : "lg:grid-cols-8"} gap-2.5 mb-5`}>
+        {/* HUD — Key Metrics Strip — Appraisal Value is DOMINANT scoreboard */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2.5 mb-5">
+          {/* DOMINANT — Appraisal Value card spans 2 cols */}
+          <div className={`col-span-2 rounded-xl border-2 p-4 text-center transition-all shadow-lg ${
+            sub.appraisal_finalized
+              ? "bg-emerald-500/10 border-emerald-500/40 ring-2 ring-emerald-500/30"
+              : "bg-primary/10 border-primary/40 ring-2 ring-primary/30"
+          }`}>
+            <div className="text-[10px] uppercase tracking-[0.1em] font-bold text-muted-foreground mb-1">Appraisal Value</div>
+            <div className={`text-4xl font-black tracking-tight ${sub.appraisal_finalized ? "text-emerald-700 dark:text-emerald-400" : "text-primary"}`}>
+              ${Math.floor(finalValue + (managerOverride.amount || 0)).toLocaleString()}
+            </div>
+            {managerOverride.amount ? (
+              <div className="text-xs font-bold text-amber-500 mt-1">MGR ADJ active</div>
+            ) : sub.appraisal_finalized ? (
+              <div className="text-[10px] font-bold text-emerald-600 mt-1">
+                ✓ Finalized {sub.appraisal_finalized_at ? new Date(sub.appraisal_finalized_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : ""}
+              </div>
+            ) : lastSavedAt ? (
+              <div className="text-[10px] font-bold text-muted-foreground mt-1">
+                Updated {lastSavedAt.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+              </div>
+            ) : null}
+          </div>
+          {/* Secondary metric tiles */}
           {(() => {
             const inventoryCost = finalValue + reconCost + effectivePack;
-            const metrics = [
-              { label: "Customer Offer", value: `$${Math.floor(currentOffer).toLocaleString()}`, color: "text-card-foreground", bg: "bg-card border-border/60 shadow-sm", sub: null, dominant: false },
-              { label: "Appraisal Value", value: `$${Math.floor(finalValue + (managerOverride.amount || 0)).toLocaleString()}`, color: sub?.appraisal_finalized ? "text-emerald-700" : "text-primary", bg: sub?.appraisal_finalized ? "bg-emerald-500/10 border-emerald-500/40 shadow-md ring-2 ring-emerald-500/30" : "bg-primary/10 border-primary/40 shadow-md ring-2 ring-primary/30", sub: managerOverride.amount ? "MGR ADJ active" : sub?.appraisal_finalized ? `✓ Finalized ${sub.appraisal_finalized_at ? new Date(sub.appraisal_finalized_at).toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : ""}` : lastSavedAt ? `Updated ${lastSavedAt.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}` : null, dominant: true },
-            ];
             const stratMode = activeSettings?.strategy_mode || offerResult?.strategyMode || "custom";
             const stratBadge = { conservative: "text-muted-foreground bg-card border-border/60", standard: "text-primary bg-primary/5 border-primary/25", aggressive: "text-amber-600 bg-amber-500/5 border-amber-500/25", predator: "text-destructive bg-destructive/5 border-destructive/25", custom: "text-muted-foreground bg-card border-border/60" }[stratMode] || "bg-card border-border/60";
-            metrics.push({ label: "Strategy", value: (stratMode || "custom").toUpperCase(), color: stratBadge.split(" ")[0], bg: stratBadge, sub: stratMode === "predator" ? "⚠ High risk" : null, dominant: false });
-            if (hidePackFromAppraisal) {
-              metrics.push({ label: "Recon Cost", value: `$${Math.floor(reconCost + effectivePack).toLocaleString()}`, color: "text-destructive", bg: "bg-card border-border/60 shadow-sm", sub: null, dominant: false });
-            } else {
-              metrics.push({ label: "Recon Cost", value: `$${Math.floor(reconCost).toLocaleString()}`, color: "text-destructive", bg: "bg-card border-border/60 shadow-sm", sub: null, dominant: false });
-              metrics.push({ label: "Dealer Pack", value: `$${Math.floor(effectivePack).toLocaleString()}`, color: "text-destructive", bg: "bg-card border-border/60 shadow-sm", sub: null, dominant: false });
-            }
-            metrics.push(
-              { label: "Inventory Cost", value: `$${Math.floor(inventoryCost).toLocaleString()}`, color: "text-amber-600", bg: "bg-amber-500/5 border-amber-500/25 shadow-sm", sub: null, dominant: false },
-              { label: "__RETAIL__", value: retailAvg > 0 ? `$${Math.floor(retailAvg).toLocaleString()}` : "—", color: "text-card-foreground", bg: "bg-card border-border/60 shadow-sm cursor-pointer hover:border-primary/50", sub: "Click to change tier", dominant: false },
-              { label: "Projected Profit", value: `${projectedProfit >= 0 ? "+" : ""}$${Math.floor(Math.abs(projectedProfit)).toLocaleString()}`, color: projectedProfit >= 0 ? "text-emerald-600" : "text-destructive", bg: projectedProfit >= 0 ? "bg-emerald-500/5 border-emerald-500/25 shadow-sm" : "bg-destructive/5 border-destructive/25 shadow-sm", sub: null, dominant: false },
-              { label: "Margin %", value: `${profitMargin.toFixed(1)}%`, color: profitMargin >= 0 ? "text-emerald-600" : "text-destructive", bg: profitMargin >= 0 ? "bg-emerald-500/5 border-emerald-500/25 shadow-sm" : "bg-destructive/5 border-destructive/25 shadow-sm", sub: null, dominant: false },
-            );
-            return metrics;
-          })().map(metric => (
-            <div
-              key={metric.label}
-              className={`rounded-xl border p-3 text-center transition-all hover:shadow-md ${metric.bg} ${metric.dominant ? "row-span-1 col-span-2 sm:col-span-1" : ""}`}
-              onClick={metric.label === "__RETAIL__" ? cycleRetailBasis : undefined}
-              role={metric.label === "__RETAIL__" ? "button" : undefined}
-            >
-              <div className="text-[9px] uppercase tracking-[0.08em] font-bold text-muted-foreground mb-0.5">
-                {metric.label === "__RETAIL__" ? (RETAIL_TIER_LABELS[retailProfitBasis] || "Retail Avg") : metric.label}
+            const secondaryMetrics = [
+              { label: "Customer Offer", value: `$${Math.floor(currentOffer).toLocaleString()}`, color: "text-card-foreground", bg: "bg-card border-border/60 shadow-sm" },
+              { label: "Strategy", value: (stratMode || "custom").toUpperCase(), color: stratBadge.split(" ")[0], bg: stratBadge },
+              { label: "Inventory Cost", value: `$${Math.floor(inventoryCost).toLocaleString()}`, color: "text-amber-600", bg: "bg-amber-500/5 border-amber-500/25 shadow-sm" },
+              { label: "Projected Profit", value: `${projectedProfit >= 0 ? "+" : ""}$${Math.floor(Math.abs(projectedProfit)).toLocaleString()}`, color: projectedProfit >= 0 ? "text-emerald-600" : "text-destructive", bg: projectedProfit >= 0 ? "bg-emerald-500/5 border-emerald-500/25 shadow-sm" : "bg-destructive/5 border-destructive/25 shadow-sm" },
+            ];
+            return secondaryMetrics.map(m => (
+              <div key={m.label} className={`rounded-xl border p-3 text-center transition-all hover:shadow-md ${m.bg}`}>
+                <div className="text-[9px] uppercase tracking-[0.08em] font-bold text-muted-foreground mb-0.5">{m.label}</div>
+                <div className={`text-lg font-black tracking-tight ${m.color}`}>{m.value}</div>
               </div>
-              <div className={`${metric.dominant ? "text-2xl" : "text-lg"} font-black tracking-tight ${metric.color}`}>{metric.value}</div>
-              {metric.sub && <div className={`mt-0.5 ${metric.label === "Appraisal Value" && sub?.appraisal_finalized ? "text-[10px] font-bold text-emerald-600" : "text-[10px] font-bold text-muted-foreground"}`}>{metric.sub}</div>}
-            </div>
-          ))}
+            ));
+          })()}
         </div>
 
-        {/* Vehicle Summary Bar */}
-        <div className="bg-card rounded-xl border border-border/60 p-4 mb-4 shadow-sm">
-          <div className="flex items-center gap-2.5 mb-2.5">
-            <Car className="w-4 h-4 text-primary" />
-            <span className="font-display text-sm text-card-foreground">
+        {/* Vehicle Summary Bar — Commanding identity */}
+        <div className="bg-card rounded-xl border-2 border-primary/20 p-5 mb-4 shadow-md">
+          <div className="flex items-center gap-3 mb-3">
+            <Car className="w-6 h-6 text-primary" />
+            <span className="font-display text-lg font-black text-card-foreground tracking-wide">
               {sub.vehicle_year} {(sub.vehicle_make || "").toUpperCase()} {(sub.vehicle_model || "").toUpperCase()} {liveBbVehicle?.series || ""}
             </span>
             {(liveBbVehicle?.class_name || sub.bb_class_name) && (
-              <span className="text-[10px] font-semibold bg-primary/10 text-primary px-2 py-0.5 rounded-full">{liveBbVehicle?.class_name || sub.bb_class_name}</span>
+              <span className="text-[11px] font-bold bg-primary/15 text-primary px-2.5 py-1 rounded-full">{liveBbVehicle?.class_name || sub.bb_class_name}</span>
             )}
             {bbLoading && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />}
             <div className="ml-auto flex items-center gap-2">
@@ -950,20 +955,26 @@ export default function AppraisalTool() {
               )}
             </div>
           </div>
-          <div className="grid grid-cols-3 sm:grid-cols-7 gap-2 text-xs">
-            <div><span className="text-muted-foreground">Style:</span> <span className="font-medium text-card-foreground">{liveBbVehicle?.style || "—"}</span></div>
-            <div><span className="text-muted-foreground">Drivetrain:</span> <span className="font-bold text-card-foreground">{liveBbVehicle?.drivetrain || sub.bb_drivetrain || "—"}</span></div>
-            <div><span className="text-muted-foreground">Engine:</span> <span className="font-medium text-card-foreground">{liveBbVehicle?.engine || sub.bb_engine || "—"}</span></div>
-            <div><span className="text-muted-foreground">Trans:</span> <span className="font-medium text-card-foreground">{liveBbVehicle?.transmission || sub.bb_transmission || "—"}</span></div>
-            <div><span className="text-muted-foreground">MSRP:</span> <span className="font-bold text-card-foreground">${Number(liveBbVehicle?.msrp || sub.bb_msrp || 0).toLocaleString()}</span></div>
-            <div><span className="text-muted-foreground">Fuel:</span> <span className="font-bold text-card-foreground">{liveBbVehicle?.fuel_type || sub.bb_fuel_type || "—"}</span></div>
-            <div><span className="text-muted-foreground">Color:</span> <span className="font-medium text-card-foreground">{sub.exterior_color || "—"}</span></div>
+          <div className="grid grid-cols-3 sm:grid-cols-7 gap-3 text-sm">
+            <div><span className="text-muted-foreground text-xs">Style</span><div className="font-semibold text-card-foreground">{liveBbVehicle?.style || "—"}</div></div>
+            <div><span className="text-muted-foreground text-xs">Drivetrain</span><div className="font-bold text-card-foreground">{liveBbVehicle?.drivetrain || sub.bb_drivetrain || "—"}</div></div>
+            <div><span className="text-muted-foreground text-xs">Engine</span><div className="font-semibold text-card-foreground">{liveBbVehicle?.engine || sub.bb_engine || "—"}</div></div>
+            <div><span className="text-muted-foreground text-xs">Transmission</span><div className="font-semibold text-card-foreground">{liveBbVehicle?.transmission || sub.bb_transmission || "—"}</div></div>
+            <div><span className="text-muted-foreground text-xs">MSRP</span><div className="font-bold text-card-foreground">${Number(liveBbVehicle?.msrp || sub.bb_msrp || 0).toLocaleString()}</div></div>
+            <div><span className="text-muted-foreground text-xs">Fuel</span><div className="font-bold text-card-foreground">{liveBbVehicle?.fuel_type || sub.bb_fuel_type || "—"}</div></div>
+            <div><span className="text-muted-foreground text-xs">Color</span><div className="font-semibold text-card-foreground">{sub.exterior_color || "—"}</div></div>
           </div>
         </div>
 
-        {/* Market Signal Badge — full-width banner */}
-        {retailMarketStats && (
-          <div className="mb-5 rounded-xl border border-border/60 bg-card p-3 shadow-sm">
+        {/* MARKET PULSE — Always visible, skeleton while loading */}
+        <div className="mb-5 rounded-xl border-2 border-border/60 bg-card p-4 shadow-md">
+          <div className="flex items-center gap-2 mb-3">
+            <BarChart3 className="w-4 h-4 text-primary" />
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              Market Pulse — {sub.vehicle_year} {sub.vehicle_make} {sub.vehicle_model}
+            </span>
+          </div>
+          {retailMarketStats ? (
             <div className="flex flex-wrap items-center gap-3">
               <MarketSignalBadge
                 mds={retailMarketStats.market_days_supply}
@@ -971,31 +982,51 @@ export default function AppraisalTool() {
                 askingAvg={retailMarketStats.active?.mean_price}
                 activeCount={retailMarketStats.active?.vehicle_count}
               />
-              <div className="flex flex-wrap items-center gap-4 text-xs ml-auto">
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">Active Comps:</span>
-                  <span className="font-bold text-card-foreground">{retailMarketStats.active?.vehicle_count ?? "—"}</span>
+              <div className="h-6 w-px bg-border" />
+              <div className="flex flex-wrap items-center gap-5 text-sm">
+                <div>
+                  <span className="text-muted-foreground text-xs">Active Listings</span>
+                  <div className="font-bold text-card-foreground text-lg">{retailMarketStats.active?.vehicle_count ?? "—"}</div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">Sold (90d):</span>
-                  <span className="font-bold text-card-foreground">{retailMarketStats.sold?.vehicle_count ?? "—"}</span>
+                <div>
+                  <span className="text-muted-foreground text-xs">Avg Ask</span>
+                  <div className="font-bold text-card-foreground text-lg">${Math.round(retailMarketStats.active?.mean_price || 0).toLocaleString()}</div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">MDS:</span>
-                  <span className="font-bold text-card-foreground">{retailMarketStats.market_days_supply ?? "—"}d</span>
+                <div>
+                  <span className="text-muted-foreground text-xs">Sold (90d)</span>
+                  <div className="font-bold text-card-foreground text-lg">{retailMarketStats.sold?.vehicle_count ?? "—"}</div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">Avg Asking:</span>
-                  <span className="font-bold text-card-foreground">${Math.round(retailMarketStats.active?.mean_price || 0).toLocaleString()}</span>
+                <div>
+                  <span className="text-muted-foreground text-xs">Avg Sold</span>
+                  <div className="font-bold text-card-foreground text-lg">${Math.round(retailMarketStats.sold?.mean_price || 0).toLocaleString()}</div>
                 </div>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground">Avg Sold:</span>
-                  <span className="font-bold text-card-foreground">${Math.round(retailMarketStats.sold?.mean_price || 0).toLocaleString()}</span>
+                <div>
+                  <span className="text-muted-foreground text-xs">MDS</span>
+                  <div className="font-bold text-card-foreground text-lg">{retailMarketStats.market_days_supply ?? "—"}d</div>
                 </div>
+                {retailMarketStats.mean_days_to_turn != null && (
+                  <div>
+                    <span className="text-muted-foreground text-xs">Avg Turn</span>
+                    <div className="font-bold text-card-foreground text-lg">{retailMarketStats.mean_days_to_turn}d</div>
+                  </div>
+                )}
               </div>
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="flex flex-wrap items-center gap-5">
+              <Skeleton className="h-6 w-28 rounded-full" />
+              <div className="h-6 w-px bg-border" />
+              <div className="flex gap-5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i}>
+                    <Skeleton className="h-3 w-16 mb-1" />
+                    <Skeleton className="h-6 w-12" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* ═══════════════════════════════════════ */}
         {/*  ZONE 2 (INSPECT) + ZONE 3 RIGHT COL  */}
@@ -1256,29 +1287,9 @@ export default function AppraisalTool() {
             )}
           </div>
 
-          {/* ── RIGHT COLUMN — Decide zone ── */}
+          {/* ── RIGHT COLUMN — Intelligence first, then decision tools ── */}
           <div className="space-y-4">
-            {/* Deal Maker Section */}
-            <DealMakerSection
-              customerExpected={sub.offered_price || sub.estimated_offer_high || 0}
-              currentAppraisal={finalValue}
-              bbVehicle={bbVehicle}
-              reconCost={reconCost}
-              targetGrossMin={targetGrossMin}
-              show={sub.progress_status === "offer_declined" || sub.progress_status === "scheduled" || sub.progress_status === "visiting"}
-            />
-
-            {/* Management Override — requires PIN */}
-            {!sub.appraisal_finalized && (
-              <ManagementOverride
-                managerPin={managerPin}
-                currentValue={finalValue}
-                onOverrideChange={(amount, reason) => setManagerOverride({ amount, reason, by: "Manager" })}
-                existingOverride={managerOverride}
-              />
-            )}
-
-            {/* Appraisal Sidebar */}
+            {/* Appraisal Sidebar — Market intelligence leads */}
             <AppraisalSidebar
               sub={sub}
               bbVehicle={bbVehicle}
@@ -1307,6 +1318,26 @@ export default function AppraisalTool() {
               reconEstimate={reconCost}
               learningThreshold={(activeSettings as any)?.learning_threshold ?? 250}
             />
+
+            {/* Deal Maker Section — decision tool */}
+            <DealMakerSection
+              customerExpected={sub.offered_price || sub.estimated_offer_high || 0}
+              currentAppraisal={finalValue}
+              bbVehicle={bbVehicle}
+              reconCost={reconCost}
+              targetGrossMin={targetGrossMin}
+              show={sub.progress_status === "offer_declined" || sub.progress_status === "scheduled" || sub.progress_status === "visiting"}
+            />
+
+            {/* Management Override — requires PIN */}
+            {!sub.appraisal_finalized && (
+              <ManagementOverride
+                managerPin={managerPin}
+                currentValue={finalValue}
+                onOverrideChange={(amount, reason) => setManagerOverride({ amount, reason, by: "Manager" })}
+                existingOverride={managerOverride}
+              />
+            )}
           </div>
         </div>
       </div>
