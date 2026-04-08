@@ -1,4 +1,5 @@
 import type { FormData, BBVehicle } from "@/components/sell-form/types";
+import { classToArchetype, type VehicleArchetype } from "@/lib/vehicleArchetypes";
 
 // ─────────────────────────────────────────────────────────────
 // RETURN TYPES
