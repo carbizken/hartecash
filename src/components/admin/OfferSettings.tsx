@@ -648,6 +648,38 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
               </div>
             </div>
           </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div>
+              <Label className="text-sm font-semibold">Floor Plan Rate</Label>
+              <p className="text-[10px] text-muted-foreground mb-1.5">
+                Annual floor plan interest rate used for carrying cost calculations.
+              </p>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number" min={0} max={20} step={0.25}
+                  value={(settings as any).floor_plan_rate_pct ?? 6.5}
+                  onChange={(e) => setSettings({ ...settings, floor_plan_rate_pct: Number(e.target.value) } as any)}
+                  className="w-24"
+                />
+                <span className="text-sm text-muted-foreground">% / year</span>
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm font-semibold">Lot Cost Per Day</Label>
+              <p className="text-[10px] text-muted-foreground mb-1.5">
+                Daily overhead allocated to each used vehicle on the lot.
+              </p>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                <Input
+                  type="number" min={0} step={1}
+                  value={(settings as any).lot_cost_per_day ?? 8}
+                  onChange={(e) => setSettings({ ...settings, lot_cost_per_day: Number(e.target.value) } as any)}
+                  className="pl-7 w-24"
+                />
+              </div>
+            </div>
+          </div>
           <div className="flex items-center gap-3 mt-4 p-3 rounded-lg border border-border bg-muted/30">
             <Switch
               checked={settings.hide_pack_from_appraisal}
