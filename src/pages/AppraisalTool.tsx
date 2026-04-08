@@ -648,9 +648,16 @@ export default function AppraisalTool() {
       toast({ title: "Locked", description: "Appraisal is finalized. Unlock to make changes.", variant: "destructive" });
       return;
     }
-    const saveVal = acvOverride != null && acvOverride > 0 ? acvOverride : finalValue;
+    const effectiveOverride = managerOverride.amount || 0;
+    const saveVal = (acvOverride != null && acvOverride > 0 ? acvOverride : finalValue) + effectiveOverride;
     setSaving(true);
-    const { error } = await supabase.from("submissions").update({ acv_value: saveVal }).eq("id", sub.id);
+    const updatePayload: any = { acv_value: saveVal };
+    if (managerOverride.amount != null && managerOverride.amount !== 0) {
+      updatePayload.manager_override_amount = managerOverride.amount;
+      updatePayload.manager_override_reason = managerOverride.reason;
+      updatePayload.manager_override_by = managerOverride.by;
+    }
+    const { error } = await supabase.from("submissions").update(updatePayload).eq("id", sub.id);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
