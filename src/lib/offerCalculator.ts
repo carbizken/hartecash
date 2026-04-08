@@ -1,4 +1,5 @@
 import type { FormData, BBVehicle } from "@/components/sell-form/types";
+import { classToArchetype, type VehicleArchetype } from "@/lib/vehicleArchetypes";
 
 // ─────────────────────────────────────────────────────────────
 // RETURN TYPES
@@ -317,10 +318,20 @@ export const DEFAULT_DEDUCTION_MODES: DeductionModes = {
 // OFFER SETTINGS — extended with strategy_mode + market_adjustment
 // ─────────────────────────────────────────────────────────────
 
+export type ArchetypeDeductionOverrides = Partial<Record<VehicleArchetype, {
+  tires_not_replaced?: number;
+  exterior_damage_per_item?: number;
+  smoked_in?: number;
+}>>;
+
 export interface OfferSettings {
   // NEW
   strategy_mode?: StrategyMode;
   market_adjustment?: MarketAdjustmentConfig;
+  archetype_deduction_overrides?: ArchetypeDeductionOverrides | null;
+  floor_plan_rate_pct?: number;
+  lot_cost_per_day?: number;
+  learning_threshold?: number;
 
   // EXISTING (all unchanged)
   bb_value_basis: string;
@@ -590,12 +601,24 @@ export function calculateOffer(
 
   const cfg = settings || DEFAULT_SETTINGS;
   const ded = cfg.deductions_config || DEFAULT_DEDUCTIONS;
-  const amt = cfg.deduction_amounts || DEFAULT_DEDUCTION_AMOUNTS;
+  const rawAmt = cfg.deduction_amounts || DEFAULT_DEDUCTION_AMOUNTS;
   const condMults = cfg.condition_multipliers || DEFAULT_CONDITION_MULTIPLIERS;
   const condBasisMap = cfg.condition_basis_map || DEFAULT_CONDITION_BASIS_MAP;
   const modes = cfg.deduction_modes || DEFAULT_DEDUCTION_MODES;
   const strategyMode: StrategyMode = cfg.strategy_mode ?? "standard";
   const mktConfig: MarketAdjustmentConfig = cfg.market_adjustment ?? DEFAULT_MARKET_ADJUSTMENT;
+
+  // Apply archetype-specific deduction overrides
+  const archetype = classToArchetype(bbVehicle.class_name);
+  const archetypeOverrides = cfg.archetype_deduction_overrides?.[archetype];
+  const amt: DeductionAmounts = archetypeOverrides
+    ? {
+        ...rawAmt,
+        ...(archetypeOverrides.tires_not_replaced != null ? { tires_not_replaced: archetypeOverrides.tires_not_replaced } : {}),
+        ...(archetypeOverrides.exterior_damage_per_item != null ? { exterior_damage_per_item: archetypeOverrides.exterior_damage_per_item } : {}),
+        ...(archetypeOverrides.smoked_in != null ? { smoked_in: archetypeOverrides.smoked_in } : {}),
+      }
+    : rawAmt;
 
   // ── STEP 1: Base value from condition-mapped BB tier ──
   const conditionKey = formData.overallCondition as keyof ConditionBasisMap;

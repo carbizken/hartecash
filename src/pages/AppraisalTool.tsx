@@ -27,6 +27,10 @@ import { calculateOffer, type OfferSettings, type OfferRule, type OfferEstimate,
 import type { FormData, BBVehicle, BBAddDeduct } from "@/components/sell-form/types";
 import { formatGrade } from "@/lib/formatGrade";
 import ACVSheet from "@/components/offer/ACVSheet";
+import OutcomeEntryPanel from "@/components/appraisal/OutcomeEntryPanel";
+import HistoricalInsightPanel from "@/components/appraisal/HistoricalInsightPanel";
+import MarketSignalBadge from "@/components/appraisal/MarketSignalBadge";
+import CarryingCostPanel from "@/components/appraisal/CarryingCostPanel";
 
 // ── Types ──
 interface Submission {
@@ -891,8 +895,8 @@ export default function AppraisalTool() {
             // Strategy Mode badge
             const stratMode = activeSettings?.strategy_mode || offerResult?.strategyMode || "custom";
             const stratBadge = { conservative: "text-muted-foreground bg-card border-border/60", standard: "text-primary bg-primary/5 border-primary/25", aggressive: "text-amber-600 bg-amber-500/5 border-amber-500/25", predator: "text-destructive bg-destructive/5 border-destructive/25", custom: "text-muted-foreground bg-card border-border/60" }[stratMode] || "bg-card border-border/60";
-            metrics.push({ label: "Strategy", value: (stratMode || "custom").toUpperCase(), color: stratBadge.split(" ")[0], bg: stratBadge, sub: stratMode === "predator" ? "⚠ High risk" : null });
-
+             metrics.push({ label: "Strategy", value: (stratMode || "custom").toUpperCase(), color: stratBadge.split(" ")[0], bg: stratBadge, sub: stratMode === "predator" ? "⚠ High risk" : null });
+            // Market Signal badge data is rendered separately
             if (hidePackFromAppraisal) {
               metrics.push({ label: "Recon Cost", value: `$${Math.floor(reconCost + effectivePack).toLocaleString()}`, color: "text-destructive", bg: "bg-card border-border/60 shadow-sm", sub: null });
             } else {
@@ -915,7 +919,18 @@ export default function AppraisalTool() {
             >
               <div className="text-[9px] uppercase tracking-[0.08em] font-bold text-muted-foreground mb-0.5">
                 {metric.label === "__RETAIL__" ? (RETAIL_TIER_LABELS[retailProfitBasis] || "Retail Avg") : metric.label}
-              </div>
+        </div>
+        {/* Market Signal Badge */}
+        {retailMarketStats && (
+          <div className="mb-3 flex items-center gap-2">
+            <MarketSignalBadge
+              mds={retailMarketStats.market_days_supply}
+              soldAvg={retailMarketStats.sold?.mean_price}
+              askingAvg={retailMarketStats.active?.mean_price}
+              activeCount={retailMarketStats.active?.vehicle_count}
+            />
+          </div>
+        )}
               <div className={`text-lg font-black tracking-tight ${metric.color}`}>{metric.value}</div>
               {metric.sub && <div className={`mt-0.5 ${metric.label === "Appraisal Value" && sub?.appraisal_finalized ? "text-[10px] font-bold text-emerald-600" : "text-[10px] font-bold text-muted-foreground"}`}>{metric.sub}</div>}
             </div>
@@ -1320,27 +1335,57 @@ export default function AppraisalTool() {
               )}
               {!sub.appraisal_finalized && sub.appraised_by && <p className="text-[10px] text-muted-foreground mt-1">Last appraised by: {sub.appraised_by}</p>}
             </div>
+            {/* Outcome Entry — appears after finalization */}
+            {sub.appraisal_finalized && (
+              <OutcomeEntryPanel
+                submissionId={sub.id}
+                appraisalFinalizedAt={sub.appraisal_finalized_at}
+                existingOutcome={sub as any}
+                onSaved={() => handleRefreshInspection()}
+              />
+            )}
           </div>
 
           {/* ── RIGHT: Final Offer, Profit, Inspection, Market ── */}
-          <AppraisalSidebar
-            sub={sub}
-            bbVehicle={bbVehicle}
-            offerResult={offerResult}
-            finalValue={finalValue}
-            currentOffer={currentOffer}
-            wholesaleAvg={wholesaleAvg}
-            tradeinAvg={tradeinAvg}
-            retailAvg={retailAvg}
-            reconCost={reconCost}
-            effectivePack={effectivePack}
-            projectedProfit={projectedProfit}
-            profitMargin={profitMargin}
-            activeSettings={activeSettings}
-            dealerZip={dealerZip}
-            onRefreshInspection={handleRefreshInspection}
-            onRetailStatsLoaded={setRetailMarketStats}
-          />
+          <div className="space-y-4">
+            <AppraisalSidebar
+              sub={sub}
+              bbVehicle={bbVehicle}
+              offerResult={offerResult}
+              finalValue={finalValue}
+              currentOffer={currentOffer}
+              wholesaleAvg={wholesaleAvg}
+              tradeinAvg={tradeinAvg}
+              retailAvg={retailAvg}
+              reconCost={reconCost}
+              effectivePack={effectivePack}
+              projectedProfit={projectedProfit}
+              profitMargin={profitMargin}
+              activeSettings={activeSettings}
+              dealerZip={dealerZip}
+              onRefreshInspection={handleRefreshInspection}
+              onRetailStatsLoaded={setRetailMarketStats}
+            />
+
+            {/* Carrying Cost Panel */}
+            <CarryingCostPanel
+              acv={finalValue}
+              avgDaysToTurn={retailMarketStats?.mean_days_to_turn ?? null}
+              floorPlanRatePct={(activeSettings as any)?.floor_plan_rate_pct ?? 6.5}
+              lotCostPerDay={(activeSettings as any)?.lot_cost_per_day ?? 8}
+              projectedProfit={projectedProfit}
+            />
+
+            {/* Historical Intelligence Panel */}
+            <HistoricalInsightPanel
+              dealershipId={dealershipId}
+              bbClassName={liveBbVehicle?.class_name || sub.bb_class_name}
+              overallCondition={condition}
+              mileage={sub.mileage}
+              reconEstimate={reconCost}
+              learningThreshold={(activeSettings as any)?.learning_threshold ?? 250}
+            />
+          </div>
         </div>
       </div>
 

@@ -23,3 +23,5 @@ project_id = "ptiwdwfdckfqivoocyvp"
     verify_jwt = false
   [functions.handle-email-suppression]
     verify_jwt = false
+  [functions.compute-historical-insight]
+    verify_jwt = false

@@ -1158,6 +1158,7 @@ export type Database = {
       offer_settings: {
         Row: {
           age_tiers: Json
+          archetype_deduction_overrides: Json | null
           bb_value_basis: string
           color_desirability: Json
           condition_basis_map: Json
@@ -1169,10 +1170,13 @@ export type Database = {
           deduction_amounts: Json
           deduction_modes: Json
           deductions_config: Json
+          floor_plan_rate_pct: number
           global_adjustment_pct: number
           hide_pack_from_appraisal: boolean
           high_mileage_penalty: Json
           id: string
+          learning_threshold: number
+          lot_cost_per_day: number
           low_mileage_bonus: Json
           manager_pin: string
           max_market_pct: number | null
@@ -1192,6 +1196,7 @@ export type Database = {
         }
         Insert: {
           age_tiers?: Json
+          archetype_deduction_overrides?: Json | null
           bb_value_basis?: string
           color_desirability?: Json
           condition_basis_map?: Json
@@ -1203,10 +1208,13 @@ export type Database = {
           deduction_amounts?: Json
           deduction_modes?: Json
           deductions_config?: Json
+          floor_plan_rate_pct?: number
           global_adjustment_pct?: number
           hide_pack_from_appraisal?: boolean
           high_mileage_penalty?: Json
           id?: string
+          learning_threshold?: number
+          lot_cost_per_day?: number
           low_mileage_bonus?: Json
           manager_pin?: string
           max_market_pct?: number | null
@@ -1226,6 +1234,7 @@ export type Database = {
         }
         Update: {
           age_tiers?: Json
+          archetype_deduction_overrides?: Json | null
           bb_value_basis?: string
           color_desirability?: Json
           condition_basis_map?: Json
@@ -1237,10 +1246,13 @@ export type Database = {
           deduction_amounts?: Json
           deduction_modes?: Json
           deductions_config?: Json
+          floor_plan_rate_pct?: number
           global_adjustment_pct?: number
           hide_pack_from_appraisal?: boolean
           high_mileage_penalty?: Json
           id?: string
+          learning_threshold?: number
+          lot_cost_per_day?: number
           low_mileage_bonus?: Json
           manager_pin?: string
           max_market_pct?: number | null
@@ -2082,6 +2094,14 @@ export type Database = {
           next_step: string | null
           num_keys: string | null
           offered_price: number | null
+          outcome_accepted: boolean | null
+          outcome_days_to_sale: number | null
+          outcome_entered_at: string | null
+          outcome_entered_by: string | null
+          outcome_recon_actual: number | null
+          outcome_sale_price: number | null
+          outcome_wholesale_price: number | null
+          outcome_wholesaled: boolean | null
           overall_condition: string | null
           phone: string | null
           photos_uploaded: boolean
@@ -2182,6 +2202,14 @@ export type Database = {
           next_step?: string | null
           num_keys?: string | null
           offered_price?: number | null
+          outcome_accepted?: boolean | null
+          outcome_days_to_sale?: number | null
+          outcome_entered_at?: string | null
+          outcome_entered_by?: string | null
+          outcome_recon_actual?: number | null
+          outcome_sale_price?: number | null
+          outcome_wholesale_price?: number | null
+          outcome_wholesaled?: boolean | null
           overall_condition?: string | null
           phone?: string | null
           photos_uploaded?: boolean
@@ -2282,6 +2310,14 @@ export type Database = {
           next_step?: string | null
           num_keys?: string | null
           offered_price?: number | null
+          outcome_accepted?: boolean | null
+          outcome_days_to_sale?: number | null
+          outcome_entered_at?: string | null
+          outcome_entered_by?: string | null
+          outcome_recon_actual?: number | null
+          outcome_sale_price?: number | null
+          outcome_wholesale_price?: number | null
+          outcome_wholesaled?: boolean | null
           overall_condition?: string | null
           phone?: string | null
           photos_uploaded?: boolean
