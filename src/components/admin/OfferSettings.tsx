@@ -5,6 +5,7 @@ import PricingAccessGate from "./PricingAccessGate";
 import PricingAccessRequests from "./PricingAccessRequests";
 import StrategyModeSelector from "./StrategyModeSelector";
 import MarketAdjustmentConfigPanel from "./MarketAdjustmentConfig";
+import ArchetypeOverrides, { type ArchetypeDeductionOverrides } from "./ArchetypeOverrides";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
 import { useToast } from "@/hooks/use-toast";
@@ -19,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Save, Plus, Trash2, Flame, SlidersHorizontal, Target, Zap, AlertTriangle, DollarSign, Shield, Gauge, Calendar, ChevronDown, MapPin, Loader2, TrendingUp } from "lucide-react";
+import { Save, Plus, Trash2, Flame, SlidersHorizontal, Target, Zap, AlertTriangle, DollarSign, Shield, Gauge, Calendar, ChevronDown, MapPin, Loader2, TrendingUp, Truck, Brain } from "lucide-react";
 
 // ── Collapsible Section wrapper ──
 const Section = ({
@@ -351,6 +352,10 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
       wholesale_only_mileage: (settings as any).wholesale_only_mileage || 120000,
       wholesale_only_age_years: (settings as any).wholesale_only_age_years || 10,
       max_market_pct: (settings as any).max_market_pct ?? 90,
+      floor_plan_rate_pct: (settings as any).floor_plan_rate_pct ?? 6.5,
+      lot_cost_per_day: (settings as any).lot_cost_per_day ?? 8,
+      learning_threshold: (settings as any).learning_threshold ?? 250,
+      archetype_deduction_overrides: (settings as any).archetype_deduction_overrides ?? null,
       updated_at: new Date().toISOString(),
     } as any).eq("id", settings.id);
 
@@ -643,6 +648,38 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
               </div>
             </div>
           </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div>
+              <Label className="text-sm font-semibold">Floor Plan Rate</Label>
+              <p className="text-[10px] text-muted-foreground mb-1.5">
+                Annual floor plan interest rate used for carrying cost calculations.
+              </p>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number" min={0} max={20} step={0.25}
+                  value={(settings as any).floor_plan_rate_pct ?? 6.5}
+                  onChange={(e) => setSettings({ ...settings, floor_plan_rate_pct: Number(e.target.value) } as any)}
+                  className="w-24"
+                />
+                <span className="text-sm text-muted-foreground">% / year</span>
+              </div>
+            </div>
+            <div>
+              <Label className="text-sm font-semibold">Lot Cost Per Day</Label>
+              <p className="text-[10px] text-muted-foreground mb-1.5">
+                Daily overhead allocated to each used vehicle on the lot.
+              </p>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                <Input
+                  type="number" min={0} step={1}
+                  value={(settings as any).lot_cost_per_day ?? 8}
+                  onChange={(e) => setSettings({ ...settings, lot_cost_per_day: Number(e.target.value) } as any)}
+                  className="pl-7 w-24"
+                />
+              </div>
+            </div>
+          </div>
           <div className="flex items-center gap-3 mt-4 p-3 rounded-lg border border-border bg-muted/30">
             <Switch
               checked={settings.hide_pack_from_appraisal}
@@ -737,8 +774,72 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
         </Section>
       )}
 
-      {/* All pricing adjustments now happen in the Workbench above. Only Rules remain below. */}
+      {/* ── Archetype Overrides ── */}
+      {settings && (
+        <Section
+          icon={<Truck className="w-5 h-5 text-primary" />}
+          title="Archetype Deduction Overrides"
+          defaultOpen={false}
+          headerRight={
+            (settings as any).archetype_deduction_overrides && Object.keys((settings as any).archetype_deduction_overrides).length > 0
+              ? <Badge variant="secondary" className="text-[9px]">{Object.keys((settings as any).archetype_deduction_overrides).length} overrides</Badge>
+              : undefined
+          }
+        >
+          <ArchetypeOverrides
+            value={(settings as any).archetype_deduction_overrides || null}
+            onChange={(v) => setSettings({ ...settings, archetype_deduction_overrides: Object.keys(v).length > 0 ? v : null } as any)}
+            defaultAmounts={{
+              tires_not_replaced: settings.deduction_amounts.tires_not_replaced || 400,
+              exterior_damage_per_item: settings.deduction_amounts.exterior_damage_per_item || 300,
+              smoked_in: settings.deduction_amounts.smoked_in || 500,
+            }}
+          />
+          <div className="flex justify-end mt-4">
+            <Button size="sm" onClick={handleSaveSettings} disabled={saving}>
+              {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
+              Save Settings
+            </Button>
+          </div>
+        </Section>
+      )}
 
+      {/* ── Intelligence Learning Layer ── */}
+      {settings && (
+        <Section
+          icon={<Brain className="w-5 h-5 text-primary" />}
+          title="Intelligence Learning Layer"
+          defaultOpen={false}
+          headerRight={<Badge variant="outline" className="text-[9px]">Threshold: {(settings as any).learning_threshold || 250}</Badge>}
+        >
+          <div className="space-y-4">
+            <p className="text-xs text-muted-foreground">
+              The learning engine activates automatically once your dealership reaches the configured threshold of finalized appraisals with known outcomes. It provides historical acceptance rates, recon accuracy, and price realization insights per vehicle segment.
+            </p>
+            <div>
+              <Label className="text-sm font-semibold">Activation Threshold</Label>
+              <p className="text-[10px] text-muted-foreground mb-1.5">
+                Minimum finalized appraisals with outcomes before historical insights appear on the appraisal page.
+              </p>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number" min={50} max={1000} step={25}
+                  value={(settings as any).learning_threshold ?? 250}
+                  onChange={(e) => setSettings({ ...settings, learning_threshold: Number(e.target.value) || 250 } as any)}
+                  className="w-28"
+                />
+                <span className="text-sm text-muted-foreground">finalized appraisals</span>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button size="sm" onClick={handleSaveSettings} disabled={saving}>
+                {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
+                Save Settings
+              </Button>
+            </div>
+          </div>
+        </Section>
+      )}
 
       {/* ── Section 5: Criteria-Based Rules ── */}
       <Section
