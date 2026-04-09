@@ -17,6 +17,7 @@ interface Props {
   sub: {
     vin: string | null;
     zip: string | null;
+    mileage?: string | null;
     offered_price: number | null;
     estimated_offer_high: number | null;
     internal_notes: string | null;
