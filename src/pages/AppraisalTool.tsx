@@ -1299,22 +1299,48 @@ export default function AppraisalTool() {
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center gap-4">
           {sub.appraisal_finalized ? (
             <>
-              {/* Finalized state */}
-              <div className="flex-1 flex items-center gap-4">
-                <div>
-                  <div className="text-xs text-primary-foreground/60 font-semibold uppercase tracking-wider">Finalized ACV</div>
-                  <div className="text-2xl font-black text-emerald-400">${finalValue.toLocaleString()}</div>
-                </div>
+              {/* Finalized state — with ACV adjust */}
+              <div className="shrink-0">
+                <div className="text-[10px] text-primary-foreground/60 font-semibold uppercase tracking-wider">Finalized ACV</div>
+                <div className="text-2xl font-black text-emerald-400">${finalValue.toLocaleString()}</div>
                 {sub.appraisal_finalized_by && (
-                  <div className="text-xs text-primary-foreground/50">
+                  <div className="text-[10px] text-primary-foreground/50">
                     by {sub.appraisal_finalized_by} · {sub.appraisal_finalized_at ? new Date(sub.appraisal_finalized_at).toLocaleDateString() : ""}
                   </div>
                 )}
               </div>
+
+              <div className="flex-1" />
+
+              {/* ACV adjustment input */}
+              <div className="flex items-center gap-2">
+                <div className="text-[10px] text-primary-foreground/50 font-semibold uppercase tracking-wider shrink-0">Adjust ACV</div>
+                <div className="relative w-44">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-lg font-bold text-primary-foreground/40">$</span>
+                  <Input
+                    type="text" inputMode="numeric"
+                    value={acvOverride != null ? acvOverride.toLocaleString("en-US") : ""}
+                    onChange={e => { const raw = e.target.value.replace(/[^0-9]/g, ""); setAcvOverride(raw ? Number(raw) : null); }}
+                    placeholder={finalValue ? finalValue.toLocaleString("en-US") : "Enter amount"}
+                    className="h-10 text-base font-bold pl-8 bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/30 focus:ring-primary-foreground/30"
+                  />
+                </div>
+                <Button
+                  onClick={handleUpdateAcv}
+                  disabled={saving || (acvOverride == null || acvOverride <= 0)}
+                  variant="ghost"
+                  className="text-primary-foreground hover:bg-primary-foreground/10 border border-primary-foreground/20 rounded-xl h-10"
+                >
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin mr-1" /> : <Save className="w-4 h-4 mr-1" />}
+                  Update ACV
+                </Button>
+              </div>
+
               <Button onClick={handlePrintACVSheet} variant="ghost" className="text-primary-foreground hover:bg-primary-foreground/10 border border-primary-foreground/20 rounded-xl">
                 <Printer className="w-4 h-4 mr-1.5" />
-                Print ACV Sheet
+                ACV Sheet
               </Button>
+
               <Button onClick={handleUnlockAppraisal} disabled={saving} variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 rounded-xl">
                 <Unlock className="w-4 h-4 mr-1.5" />
                 Unlock
