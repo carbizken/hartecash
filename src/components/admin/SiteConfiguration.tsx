@@ -581,7 +581,7 @@ const SiteConfiguration = ({ focusField }: { focusField?: string }) => {
             <div className="flex items-center gap-3">
               <Switch
                 checked={(config as any).ppt_enabled || false}
-                onCheckedChange={v => update("ppt_enabled" as any, v)}
+                onCheckedChange={v => update("ppt_enabled" as any, v ? 1 : 0)}
               />
               <div>
                 <p className="text-sm font-medium">Enable Push/Pull/Tow Program</p>
