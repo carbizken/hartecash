@@ -315,8 +315,9 @@ const SubmissionsTable = ({
                   {filtered.map((sub, idx) => {
                     const hours = getHoursSinceUpdate(sub);
                     const sla = getSlaLevel(hours, sub.progress_status);
+                    const age = getAgeBadge(sub);
                     return (
-                    <tr key={sub.id} className={`border-b border-border last:border-0 hover:bg-primary/5 transition-colors border-l-3 ${sla.borderClass} ${sla.bgClass} ${idx % 2 === 1 ? "bg-muted/20" : ""} admin-row`}>
+                    <tr key={sub.id} className={`border-b border-border last:border-0 hover:bg-primary/5 transition-colors border-l-3 ${sla.borderClass} ${age.bgClass} ${idx % 2 === 1 ? "bg-muted/20" : ""} admin-row`}>
                       <td className={`${cellPad} whitespace-nowrap`}>{new Date(sub.created_at).toLocaleDateString()}</td>
                       <td className={`${cellPad} font-medium text-card-foreground whitespace-nowrap`}>{sub.name || "—"}</td>
                       <td className={`${cellPad} whitespace-nowrap`}>
