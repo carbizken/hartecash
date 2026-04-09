@@ -536,13 +536,17 @@ const OfferSettings = ({ userId, userRole }: OfferSettingsProps = {}) => {
           onChange={(mode) => {
             setStrategyMode(mode);
             if (mode !== "custom" && settings) {
-              const preset = STRATEGY_MODE_PRESETS[mode];
+              const modePreset = STRATEGY_MODE_PRESETS[mode];
+              const calcPreset = STRATEGY_PRESETS[mode] || {};
               setSettings({
                 ...settings,
                 strategy_mode: mode,
-                condition_basis_map: preset.condition_basis_map as any,
-                global_adjustment_pct: preset.global_adjustment_pct,
+                condition_basis_map: modePreset.condition_basis_map as any,
+                global_adjustment_pct: modePreset.global_adjustment_pct,
+                ...(calcPreset.condition_multipliers ? { condition_multipliers: calcPreset.condition_multipliers } : {}),
               } as any);
+            } else if (mode === "custom" && settings) {
+              setSettings({ ...settings, strategy_mode: mode } as any);
             }
           }}
         />
