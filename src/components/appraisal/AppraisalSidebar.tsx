@@ -17,6 +17,7 @@ interface Props {
   sub: {
     vin: string | null;
     zip: string | null;
+    mileage?: string | null;
     offered_price: number | null;
     estimated_offer_high: number | null;
     internal_notes: string | null;
@@ -177,6 +178,8 @@ export default function AppraisalSidebar({
             dealerZip={dealerZip}
             radiusMiles={activeSettings?.retail_search_radius || 100}
             offerHigh={offerResult?.high || currentOffer}
+            vehicleMileage={sub.mileage}
+            currentAcv={finalValue}
             onStatsLoaded={onRetailStatsLoaded}
           />
         </div>

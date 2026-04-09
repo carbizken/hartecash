@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Store, TrendingUp, Clock, BarChart3, ChevronDown, Loader2, MapPin, ExternalLink, Car,
@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import ClosestCompCard, { getClosestCompId } from "@/components/appraisal/ClosestCompCard";
 
 export interface RetailStats {
   mean_days_to_turn: number | null;
@@ -58,10 +59,12 @@ interface Props {
   dealerZip?: string;
   radiusMiles?: number;
   offerHigh: number;
+  vehicleMileage?: string | number | null;
+  currentAcv?: number;
   onStatsLoaded?: (stats: RetailStats | null) => void;
 }
 
-export default function RetailMarketPanel({ vin, uvc, zipcode, dealerZip, radiusMiles = 100, offerHigh, onStatsLoaded }: Props) {
+export default function RetailMarketPanel({ vin, uvc, zipcode, dealerZip, radiusMiles = 100, offerHigh, vehicleMileage, currentAcv, onStatsLoaded }: Props) {
   const [stats, setStats] = useState<RetailStats | null>(null);
   const [listings, setListings] = useState<RetailListing[]>([]);
   const [loading, setLoading] = useState(false);
@@ -291,6 +294,15 @@ export default function RetailMarketPanel({ vin, uvc, zipcode, dealerZip, radius
         </div>
       )}
 
+      {/* Closest Mileage Comp Card */}
+      {listings.length > 0 && vehicleMileage && currentAcv != null && currentAcv > 0 && (
+        <ClosestCompCard
+          listings={listings}
+          vehicleMileage={vehicleMileage}
+          currentAcv={currentAcv}
+        />
+      )}
+
       {/* On-demand listings */}
       <Collapsible open={showListings} onOpenChange={(open) => { if (open && listings.length === 0) fetchListings(); else setShowListings(open); }}>
         <CollapsibleTrigger asChild>
@@ -310,40 +322,52 @@ export default function RetailMarketPanel({ vin, uvc, zipcode, dealerZip, radius
           {listings.length === 0 && !listingsLoading && (
             <p className="text-[10px] text-muted-foreground text-center py-2">No active listings found in area.</p>
           )}
-          {listings.length > 0 && (
-            <div className="space-y-1.5 mt-2 max-h-64 overflow-y-auto pr-1">
-              {listings.map((l) => (
-                <div key={l.listing_id} className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/10 px-3 py-2 text-xs group">
-                  <div className="min-w-0 flex-1">
-                    <div className="font-medium text-card-foreground truncate">
-                      {l.model_year} {l.make} {l.model} {l.series}
+          {listings.length > 0 && (() => {
+            const subjectMiles = typeof vehicleMileage === "number"
+              ? vehicleMileage
+              : parseInt(String(vehicleMileage || "0").replace(/[^0-9]/g, "")) || 0;
+            const closestId = getClosestCompId(listings, subjectMiles);
+            return (
+              <div className="space-y-1.5 mt-2 max-h-64 overflow-y-auto pr-1">
+                {listings.map((l) => {
+                  const isBestComp = l.listing_id === closestId;
+                  return (
+                    <div key={l.listing_id} className={`flex items-center justify-between gap-2 rounded-lg border px-3 py-2 text-xs group ${isBestComp ? "border-primary/40 bg-primary/5" : "border-border bg-muted/10"}`}>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-medium text-card-foreground truncate">
+                          {l.model_year} {l.make} {l.model} {l.series}
+                          {isBestComp && (
+                            <span className="ml-1.5 bg-primary/15 text-primary text-[8px] font-bold px-1 py-0.5 rounded">BEST COMP</span>
+                          )}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground flex items-center gap-2 flex-wrap">
+                          <span>{l.dealer_name}</span>
+                          <span>•</span>
+                          <span>{l.dealer_city}, {l.dealer_state}</span>
+                          <span>•</span>
+                          <span>{Math.round(l.distance_to_dealer)}mi</span>
+                        </div>
+                        <div className="text-[10px] text-muted-foreground flex items-center gap-2">
+                          {l.mileage > 0 && <span>{l.mileage.toLocaleString()} mi</span>}
+                          {l.days_on_market > 0 && <><span>•</span><span>{l.days_on_market}d on market</span></>}
+                          {l.exterior_color && <><span>•</span><span>{l.exterior_color}</span></>}
+                          {l.certified && <><span>•</span><span className="text-emerald-600 font-medium">CPO</span></>}
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="font-bold text-card-foreground">${l.price?.toLocaleString() || "N/A"}</div>
+                        {l.listing_url && (
+                          <a href={l.listing_url} target="_blank" rel="noopener noreferrer" className="text-[9px] text-primary flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            View <ExternalLink className="w-2.5 h-2.5" />
+                          </a>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-[10px] text-muted-foreground flex items-center gap-2 flex-wrap">
-                      <span>{l.dealer_name}</span>
-                      <span>•</span>
-                      <span>{l.dealer_city}, {l.dealer_state}</span>
-                      <span>•</span>
-                      <span>{Math.round(l.distance_to_dealer)}mi</span>
-                    </div>
-                    <div className="text-[10px] text-muted-foreground flex items-center gap-2">
-                      {l.mileage > 0 && <span>{l.mileage.toLocaleString()} mi</span>}
-                      {l.days_on_market > 0 && <><span>•</span><span>{l.days_on_market}d on market</span></>}
-                      {l.exterior_color && <><span>•</span><span>{l.exterior_color}</span></>}
-                      {l.certified && <><span>•</span><span className="text-green-600 font-medium">CPO</span></>}
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="font-bold text-card-foreground">${l.price?.toLocaleString() || "N/A"}</div>
-                    {l.listing_url && (
-                      <a href={l.listing_url} target="_blank" rel="noopener noreferrer" className="text-[9px] text-primary flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        View <ExternalLink className="w-2.5 h-2.5" />
-                      </a>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            );
+          })()}
         </CollapsibleContent>
       </Collapsible>
 
