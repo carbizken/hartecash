@@ -30,7 +30,7 @@ import { formatGrade } from "@/lib/formatGrade";
 import ACVSheet from "@/components/offer/ACVSheet";
 import OutcomeEntryPanel from "@/components/appraisal/OutcomeEntryPanel";
 import HistoricalInsightPanel from "@/components/appraisal/HistoricalInsightPanel";
-import MarketSignalBadge from "@/components/appraisal/MarketSignalBadge";
+import MarketPulseCard from "@/components/appraisal/MarketPulseCard";
 
 
 // ── Types ──
