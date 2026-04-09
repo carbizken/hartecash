@@ -63,7 +63,10 @@ interface Props {
   currentAcv?: number;
   onStatsLoaded?: (stats: RetailStats | null) => void;
   onClosestCompPrice?: (price: number | null) => void;
+  onListingsLoaded?: (listings: RetailListing[]) => void;
 }
+
+export type { RetailListing };
 
 export default function RetailMarketPanel({ vin, uvc, zipcode, dealerZip, radiusMiles = 100, offerHigh, vehicleMileage, currentAcv, onStatsLoaded, onClosestCompPrice }: Props) {
   const [stats, setStats] = useState<RetailStats | null>(null);
