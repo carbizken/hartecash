@@ -158,6 +158,10 @@ export interface Submission {
   loan_payment?: string | null;
   review_requested?: boolean;
   review_requested_at?: string | null;
+  bb_tradein_avg?: number | null;
+  bb_wholesale_avg?: number | null;
+  bb_retail_avg?: number | null;
+  bb_value_tiers?: Record<string, Record<string, number>> | string | null;
 }
 
 export type SubmissionPipelineState = Pick<Submission, "progress_status" | "appointment_set" | "offered_price" | "estimated_offer_high">;

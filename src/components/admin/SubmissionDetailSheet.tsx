@@ -23,7 +23,7 @@ import StaffFileUpload from "@/components/admin/StaffFileUpload";
 import FollowUpPanel from "@/components/admin/FollowUpPanel";
 import RetailMarketPanel from "@/components/admin/RetailMarketPanel";
 import {
-  X, Printer, Users, Car, Search, DollarSign, Info, FileText, Gauge, Palette,
+  X, Printer, Users, Car, Search, DollarSign, Info, FileText, Gauge, Palette, BarChart3,
   Settings2, Wrench, Key, Wind, Cigarette, CircleDot, Sparkles, TrendingUp,
   AlertTriangle, Bell, Mail, Phone, StickyNote, CalendarDays, Camera,
   ExternalLink, Upload, Check, XCircle, MapPin, Star, History, Clock,
@@ -567,6 +567,56 @@ const SubmissionDetailSheet = ({
                 </Button>
               </div>
             )}
+
+            {/* Black Book Market Values — Private Party reference */}
+            {(() => {
+              const tiers = typeof sub.bb_value_tiers === "string" ? (() => { try { return JSON.parse(sub.bb_value_tiers); } catch { return null; } })() : sub.bb_value_tiers;
+              const hasAnyBBData = tiers || sub.bb_tradein_avg || sub.bb_retail_avg || sub.bb_wholesale_avg;
+              if (!hasAnyBBData) return null;
+
+              const privatePartyAvg = tiers?.private_party?.avg ? Number(tiers.private_party.avg) : null;
+              const retailAvg = tiers?.retail?.avg ? Number(tiers.retail.avg) : (sub.bb_retail_avg ? Number(sub.bb_retail_avg) : null);
+              const tradeinAvg = tiers?.tradein?.avg ? Number(tiers.tradein.avg) : (sub.bb_tradein_avg ? Number(sub.bb_tradein_avg) : null);
+              const wholesaleAvg = tiers?.wholesale?.avg ? Number(tiers.wholesale.avg) : (sub.bb_wholesale_avg ? Number(sub.bb_wholesale_avg) : null);
+
+              const valueRows = [
+                { label: "Retail", value: retailAvg, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-500/10", dotBg: "bg-emerald-500" },
+                { label: "Private Party", value: privatePartyAvg, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-500/10", dotBg: "bg-amber-500", highlight: true },
+                { label: "Trade-In", value: tradeinAvg, color: "text-primary", bg: "bg-primary/10", dotBg: "bg-primary" },
+                { label: "Wholesale", value: wholesaleAvg, color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-500/10", dotBg: "bg-blue-500" },
+              ].filter(r => r.value && r.value > 0);
+
+              if (valueRows.length === 0) return null;
+
+              return (
+                <SectionCard icon={BarChart3} title="Book Values" headerRight={
+                  <span className="text-[9px] font-semibold text-muted-foreground bg-muted/50 rounded-md px-1.5 py-0.5 uppercase tracking-wider">Black Book</span>
+                }>
+                  <div className="space-y-2">
+                    {valueRows.map(row => (
+                      <div key={row.label} className={`flex items-center justify-between py-2 px-3 rounded-xl transition-colors ${row.highlight ? `${row.bg} border border-amber-500/15` : "hover:bg-muted/30"}`}>
+                        <span className="flex items-center gap-2 text-sm">
+                          <span className={`w-2 h-2 rounded-full ${row.dotBg}`} />
+                          <span className={row.highlight ? "font-bold text-card-foreground" : "text-muted-foreground"}>{row.label}</span>
+                          {row.highlight && <span className="text-[9px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider">Key Ref</span>}
+                        </span>
+                        <span className={`text-sm font-bold ${row.color}`}>${Math.floor(row.value!).toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {privatePartyAvg && sub.offered_price && (
+                    <div className="mt-3 pt-3 border-t border-border/30">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Savings vs Private Sale</span>
+                        <span className="font-bold text-primary">
+                          Customer saves ~${Math.floor(privatePartyAvg - sub.offered_price).toLocaleString()} in hassle
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </SectionCard>
+              );
+            })()}
 
             {/* Acquisition Tracker (Status + Pipeline) */}
             <SectionCard icon={TrendingUp} title="Acquisition Tracker" headerRight={
