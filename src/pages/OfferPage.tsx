@@ -1005,6 +1005,17 @@ const OfferPage = () => {
                     Print Offer
                   </Button>
                 </div>
+
+                {/* Offer Watch — desktop (shown when offer is NOT accepted) */}
+                {!isAccepted && !offerWatchSubscribed && (
+                  <OfferWatch
+                    token={token!}
+                    vehicleStr={vehicleStr}
+                    currentOffer={cashOffer}
+                    customerEmail={s.email}
+                    customerPhone={s.phone}
+                  />
+                )}
               </div>
             </div>
 
@@ -1096,10 +1107,31 @@ const OfferPage = () => {
           </motion.div>
 
           {VehicleSummary}
+
+          {/* Beat CarMax Comparison Widget — mobile */}
+          <CompetitorComparison
+            cashOffer={cashOffer}
+            wholesaleAvg={s.bb_wholesale_avg ?? condition?.bb_wholesale_avg ?? null}
+            tradeinAvg={s.bb_tradein_avg ?? condition?.bb_tradein_avg ?? null}
+            retailAvg={s.bb_retail_avg ?? condition?.bb_retail_avg ?? null}
+            vehicleStr={vehicleStr}
+          />
+
           {PhotoUploadCallout}
           {TradeInExplanation}
           {NoTaxBlock}
           {ConditionBlock}
+
+          {/* Offer Watch — mobile (shown when offer is NOT accepted) */}
+          {!isAccepted && !offerWatchSubscribed && (
+            <OfferWatch
+              token={token!}
+              vehicleStr={vehicleStr}
+              currentOffer={cashOffer}
+              customerEmail={s.email}
+              customerPhone={s.phone}
+            />
+          )}
 
           <div className="flex gap-3 print:hidden">
             <Button variant="outline" className="flex-1 gap-2 rounded-xl h-10 text-xs font-semibold" onClick={handlePrint}>
