@@ -46,6 +46,7 @@ const PromotionManagement = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Omit<Promotion, "id">>(emptyPromo);
   const [showNew, setShowNew] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const fetchPromos = async () => {
     const { data } = await supabase
@@ -92,8 +93,14 @@ const PromotionManagement = () => {
     fetchPromos();
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this promotion?")) return;
+  const handleDelete = (id: string) => {
+    setConfirmDeleteId(id);
+  };
+
+  const executeDeletePromo = async () => {
+    if (!confirmDeleteId) return;
+    const id = confirmDeleteId;
+    setConfirmDeleteId(null);
     await supabase.from("promotions").delete().eq("id", id);
     toast.success("Promotion deleted");
     fetchPromos();
@@ -241,6 +248,21 @@ const PromotionManagement = () => {
           })}
         </div>
       )}
+
+      <AlertDialog open={!!confirmDeleteId} onOpenChange={(open) => { if (!open) setConfirmDeleteId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Promotion</AlertDialogTitle>
+            <AlertDialogDescription>
+              Delete this promotion? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={executeDeletePromo}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
