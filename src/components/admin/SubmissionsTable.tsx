@@ -11,8 +11,10 @@ import {
   AlertTriangle, TrendingUp, UserCheck, XCircle, Camera, FileText,
   Rows3, Rows2, X,
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { Submission, DealerLocation } from "@/lib/adminConstants";
 import { ALL_STATUS_OPTIONS, getStatusLabel, isAcceptedWithAppointment, isAcceptedWithoutAppointment, isOfferPendingSubmission, isOfferUpdatedByStaff } from "@/lib/adminConstants";
+import { calculateLeadScore, getScoreColor } from "@/lib/leadScoring";
 import DashboardAnalytics from "@/components/admin/DashboardAnalytics";
 
 interface SubmissionsTableProps {
@@ -366,6 +368,7 @@ const SubmissionsTable = ({
                     <th className={`text-right ${cellPad} font-semibold text-muted-foreground whitespace-nowrap`}>Offer</th>
                     <th className={`text-left ${cellPad} font-semibold text-muted-foreground whitespace-nowrap min-w-[160px]`}>Status</th>
                     <th className={`text-center px-2 ${isCompact ? "py-1.5" : "py-3"} font-semibold text-muted-foreground whitespace-nowrap`}>Age</th>
+                    <th className={`text-center px-2 ${isCompact ? "py-1.5" : "py-3"} font-semibold text-muted-foreground whitespace-nowrap`}>Score</th>
                     <th className={`text-right ${cellPad} font-semibold text-muted-foreground whitespace-nowrap`}>Actions</th>
                   </tr>
                 </thead>
@@ -469,6 +472,27 @@ const SubmissionsTable = ({
                             </span>
                           )}
                         </div>
+                      </td>
+                      <td className={`px-2 ${isCompact ? "py-1.5" : "py-3"} text-center`}>
+                        {(() => {
+                          const ls = calculateLeadScore(sub);
+                          return (
+                            <TooltipProvider delayDuration={200}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border cursor-help ${getScoreColor(ls.score)}`}>
+                                    {ls.score} {ls.label}
+                                  </span>
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-[260px] text-xs space-y-1">
+                                  {ls.factors.map((f, i) => (
+                                    <div key={i}>{f}</div>
+                                  ))}
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          );
+                        })()}
                       </td>
                       <td className={`${cellPad} text-right`}>
                         <div className="flex justify-end items-center gap-1">

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import confetti from "canvas-confetti";
 import { supabase } from "@/integrations/supabase/client";
-import { Camera, FileText, CalendarCheck, ArrowRight, Zap, Clock, CheckCircle, Sparkles, ShieldCheck, ArrowLeft, TrendingUp, Lock } from "lucide-react";
+import { Camera, FileText, CalendarCheck, ArrowRight, Zap, Clock, CheckCircle, Sparkles, ShieldCheck, ArrowLeft, TrendingUp, Lock, Download, ExternalLink, CalendarDays } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import VehicleImage from "@/components/sell-form/VehicleImage";
@@ -15,6 +15,7 @@ import { logConsent } from "@/lib/consent";
 import logoFallback from "@/assets/logo-placeholder-white.png";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { getTaxRateFromZip, calcTradeInValue } from "@/lib/salesTax";
+import { generateICalEvent, downloadCalendarInvite, generateGoogleCalendarUrl } from "@/lib/calendarInvite";
 
 interface DealSubmission {
   vehicle_year: string | null;

@@ -29,6 +29,7 @@ import {
   ExternalLink, Upload, Check, XCircle, MapPin, Star, History, Clock,
   ClipboardCheck, ClipboardList, Save, Trash2, CheckCircle2,
 } from "lucide-react";
+import { calculateLeadScore, getScoreColor } from "@/lib/leadScoring";
 import type { Submission, DealerLocation } from "@/lib/adminConstants";
 import {
   getProgressStages, getStageIndex, getStatusLabel,
@@ -545,6 +546,49 @@ const SubmissionDetailSheet = ({
                 </div>
               </div>
             )}
+
+            {/* Lead Score Indicator */}
+            {(() => {
+              const ls = calculateLeadScore(sub);
+              return (
+                <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm shadow-sm overflow-hidden">
+                  <div className="bg-gradient-to-r from-muted/60 via-muted/30 to-transparent px-5 py-3 border-b border-border/40 flex items-center justify-between">
+                    <h3 className="text-[11px] font-bold text-foreground/80 uppercase tracking-[0.12em] flex items-center gap-2">
+                      <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-primary/10">
+                        <TrendingUp className="w-3.5 h-3.5 text-primary" />
+                      </span>
+                      Lead Score
+                    </h3>
+                    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border ${getScoreColor(ls.score)}`}>
+                      {ls.label}
+                    </span>
+                  </div>
+                  <div className="p-5">
+                    <div className="flex items-center gap-4 mb-3">
+                      <span className="text-3xl font-black tracking-tight text-card-foreground">{ls.score}</span>
+                      <div className="flex-1">
+                        <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
+                          <div
+                            className={`h-full rounded-full transition-all duration-500 ${
+                              ls.score >= 80 ? "bg-orange-500" :
+                              ls.score >= 60 ? "bg-amber-500" :
+                              ls.score >= 40 ? "bg-blue-500" :
+                              "bg-muted-foreground/40"
+                            }`}
+                            style={{ width: `${ls.score}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      {ls.factors.map((f, i) => (
+                        <p key={i} className="text-[11px] text-muted-foreground leading-snug">{f}</p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
 
             {/* ACV Value — Premium */}
             {sub.acv_value && (

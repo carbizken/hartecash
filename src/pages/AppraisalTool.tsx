@@ -16,7 +16,7 @@ import {
   ArrowLeft, Car, DollarSign, TrendingUp, TrendingDown, Minus,
   Gauge, ChevronDown, Save, AlertTriangle, CheckCircle, XCircle, Shield,
   Pencil, ArrowDown, Loader2, SlidersHorizontal, CheckSquare, Lock, Unlock, Printer,
-  ChevronRight,
+  ChevronRight, Camera,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -439,8 +439,10 @@ export default function AppraisalTool() {
       retailMarketStats?.market_days_supply ?? undefined,
       retailMarketStats?.sold?.mean_price ?? undefined,
       retailMarketStats?.active?.mean_price ?? undefined,
+      sub?.ai_condition_score,
+      sub?.ai_damage_summary,
     );
-  }, [bbVehicle, formData, liveSelectedAddDeducts, activeSettings, rules, retailMarketStats]);
+  }, [bbVehicle, formData, liveSelectedAddDeducts, activeSettings, rules, retailMarketStats, sub?.ai_condition_score, sub?.ai_damage_summary]);
 
   // Effective values
   const currentOffer = sub?.offered_price || sub?.estimated_offer_high || 0;
@@ -495,10 +497,19 @@ export default function AppraisalTool() {
       blocks.push({ id: "equipment", label: "Equipment", value: effectiveEquip, runningTotal: running, type: effectiveEquip >= 0 ? "add" : "subtract", editable: false });
     }
 
-    // 4. Deductions
-    if (offerResult.totalDeductions > 0) {
-      running -= offerResult.totalDeductions;
-      blocks.push({ id: "deductions", label: "Deductions", value: -offerResult.totalDeductions, runningTotal: running, type: "subtract", editable: false });
+    // 4. Deductions (excluding AI adjustment, which is shown separately)
+    const manualDeductions = offerResult.totalDeductions - offerResult.aiConditionAdjustment;
+    if (manualDeductions > 0) {
+      running -= manualDeductions;
+      blocks.push({ id: "deductions", label: "Deductions", value: -manualDeductions, runningTotal: running, type: "subtract", editable: false });
+    }
+
+    // 4b. AI Condition Adjustment (separated from manual deductions for visibility)
+    if (offerResult.aiConditionAdjustment !== 0) {
+      // Positive aiConditionAdjustment = additional deduction, negative = reduced deduction (reward)
+      running -= offerResult.aiConditionAdjustment;
+      const aiValue = -offerResult.aiConditionAdjustment;
+      blocks.push({ id: "ai_condition", label: "AI Condition Adjustment", value: aiValue, runningTotal: running, type: aiValue >= 0 ? "add" : "subtract", editable: false });
     }
 
     // 5. Recon & Pack are NOT subtracted from customer offer — they are internal costs for profit analysis only
@@ -1061,7 +1072,20 @@ export default function AppraisalTool() {
                 <div className="flex items-center gap-2 mb-3">
                   <span className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-black flex items-center justify-center">1</span>
                   <span className="text-sm font-bold text-card-foreground uppercase tracking-wider">Set Condition</span>
+                  {sub?.ai_condition_score && (
+                    <Badge className="bg-violet-500/15 text-violet-600 dark:text-violet-400 border border-violet-500/30 text-[10px] ml-auto">
+                      <Camera className="w-3 h-3 mr-1" /> AI Assessment: {formatGrade(sub.ai_condition_score)}
+                    </Badge>
+                  )}
                 </div>
+                {sub?.ai_condition_score && sub.ai_condition_score.toLowerCase() !== condition.toLowerCase() && (
+                  <div className="mb-3 px-2.5 py-1.5 rounded-md bg-amber-500/10 border border-amber-500/20 flex items-center gap-2">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                    <span className="text-[10px] font-semibold text-amber-700 dark:text-amber-400">
+                      AI analysis differs from inspector grade &mdash; AI detected <strong>{formatGrade(sub.ai_condition_score)}</strong>, inspector set <strong>{formatGrade(condition)}</strong>
+                    </span>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {CONDITIONS.map(cond => {
                     const basisMap = activeSettings.condition_basis_map || {};
@@ -1075,7 +1099,7 @@ export default function AppraisalTool() {
                       return data?.[tierKey] || 0;
                     })();
                     const bubbleFormData = { ...formData, overallCondition: cond };
-                    const bubbleResult = calculateOffer(bbVehicle, bubbleFormData, liveSelectedAddDeducts, activeSettings, rules);
+                    const bubbleResult = calculateOffer(bbVehicle, bubbleFormData, liveSelectedAddDeducts, activeSettings, rules, undefined, retailMarketStats?.market_days_supply ?? undefined, retailMarketStats?.sold?.mean_price ?? undefined, retailMarketStats?.active?.mean_price ?? undefined, sub?.ai_condition_score, sub?.ai_damage_summary);
 
                     return (
                       <button

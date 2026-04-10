@@ -93,6 +93,8 @@ interface ConditionDetails {
   bb_value_tiers: Record<string, Record<string, number>> | string | null;
   bb_add_deducts: unknown;
   bb_selected_options: string[] | string | null;
+  ai_condition_score: string | null;
+  ai_damage_summary: string | null;
 }
 
 const CONDITION_OPTIONS = [
@@ -166,7 +168,7 @@ const OfferPage = () => {
       const [condRes, apptRes, locRes] = await Promise.all([
         supabase
           .from("submissions")
-          .select("dealership_id, accidents, drivable, exterior_damage, interior_damage, mechanical_issues, engine_issues, tech_issues, smoked_in, tires_replaced, num_keys, windshield_damage, modifications, drivetrain, bb_msrp, bb_class_name, bb_drivetrain, bb_transmission, bb_fuel_type, bb_engine, bb_mileage_adj, bb_regional_adj, bb_base_whole_avg, bb_retail_avg, bb_wholesale_avg, bb_tradein_avg, bb_value_tiers, bb_add_deducts, bb_selected_options")
+          .select("dealership_id, accidents, drivable, exterior_damage, interior_damage, mechanical_issues, engine_issues, tech_issues, smoked_in, tires_replaced, num_keys, windshield_damage, modifications, drivetrain, bb_msrp, bb_class_name, bb_drivetrain, bb_transmission, bb_fuel_type, bb_engine, bb_mileage_adj, bb_regional_adj, bb_base_whole_avg, bb_retail_avg, bb_wholesale_avg, bb_tradein_avg, bb_value_tiers, bb_add_deducts, bb_selected_options, ai_condition_score, ai_damage_summary")
           .eq("token", token)
           .maybeSingle(),
         supabase
@@ -199,6 +201,12 @@ const OfferPage = () => {
             selectedOptions,
             pricingRes.settings,
             pricingRes.rules,
+            undefined, // promoBonus
+            undefined, // marketDaysSupply
+            undefined, // marketSoldAvg
+            undefined, // marketAskingAvg
+            conditionData.ai_condition_score,
+            conditionData.ai_damage_summary,
           );
 
           if (estimate) {
@@ -284,6 +292,12 @@ const OfferPage = () => {
         parseStoredJson<string[]>(newCondition.bb_selected_options, []),
         offerSettings,
         offerRules,
+        undefined, // promoBonus
+        undefined, // marketDaysSupply
+        undefined, // marketSoldAvg
+        undefined, // marketAskingAvg
+        newCondition.ai_condition_score,
+        newCondition.ai_damage_summary,
       );
 
       if (newEstimate) {
@@ -371,6 +385,12 @@ const OfferPage = () => {
         liveSelectedOptions,
         offerSettings,
         offerRules,
+        undefined, // promoBonus
+        undefined, // marketDaysSupply
+        undefined, // marketSoldAvg
+        undefined, // marketAskingAvg
+        condition?.ai_condition_score,
+        condition?.ai_damage_summary,
       )
     : null;
 

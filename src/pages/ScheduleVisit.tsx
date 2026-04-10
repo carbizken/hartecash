@@ -8,12 +8,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-import { CalendarDays, CheckCircle2, Loader2, ArrowLeft, MapPin, Car, CheckCircle } from "lucide-react";
+import { CalendarDays, CheckCircle2, Loader2, ArrowLeft, MapPin, Car, CheckCircle, Download, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import logoFallback from "@/assets/logo-placeholder-white.png";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { track } from "@/lib/analytics";
 import SEO from "@/components/SEO";
+import { generateICalEvent, downloadCalendarInvite, generateGoogleCalendarUrl } from "@/lib/calendarInvite";
 
 interface DealerLocation {
   id: string;
@@ -274,7 +275,63 @@ const ScheduleVisit = () => {
     return date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
   };
 
-  const locationName = locations.find(l => l.id === form.store_location)?.name || form.store_location;
+  const selectedLocation = locations.find(l => l.id === form.store_location);
+  const locationName = selectedLocation?.name || form.store_location;
+  const locationAddress = selectedLocation?.address
+    ? `${selectedLocation.name}, ${selectedLocation.address}, ${selectedLocation.city}, ${selectedLocation.state}`
+    : locationName;
+
+  /**
+   * Builds a Date from the preferred_date (YYYY-MM-DD) + preferred_time ("2:30 PM").
+   */
+  const buildAppointmentDate = (): Date | null => {
+    if (!form.preferred_date || !form.preferred_time) return null;
+    const timeParts = form.preferred_time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+    if (!timeParts) return null;
+    let hours = parseInt(timeParts[1], 10);
+    const minutes = parseInt(timeParts[2], 10);
+    const period = timeParts[3].toUpperCase();
+    if (period === "PM" && hours !== 12) hours += 12;
+    if (period === "AM" && hours === 12) hours = 0;
+    const d = new Date(`${form.preferred_date}T00:00:00`);
+    d.setHours(hours, minutes, 0, 0);
+    return d;
+  };
+
+  const handleDownloadIcs = () => {
+    const start = buildAppointmentDate();
+    if (!start) return;
+    const end = new Date(start.getTime() + 60 * 60 * 1000); // 1 hour
+    const summary = form.vehicle_info
+      ? `Vehicle Inspection - ${form.vehicle_info}`
+      : "Vehicle Inspection";
+    const ics = generateICalEvent({
+      summary,
+      description: `Vehicle inspection appointment at ${locationName}. Please bring your Driver's License, Vehicle Title/Registration, and all keys & remotes. Expected duration: 15-20 minutes.`,
+      location: locationAddress,
+      startDate: start,
+      endDate: end,
+      organizerName: config.dealership_name || "Dealership",
+      organizerEmail: config.contact_email || "info@example.com",
+    });
+    downloadCalendarInvite(ics, "vehicle-inspection-appointment.ics");
+  };
+
+  const getGoogleCalendarUrl = (): string | null => {
+    const start = buildAppointmentDate();
+    if (!start) return null;
+    const end = new Date(start.getTime() + 60 * 60 * 1000);
+    const title = form.vehicle_info
+      ? `Vehicle Inspection - ${form.vehicle_info}`
+      : "Vehicle Inspection";
+    return generateGoogleCalendarUrl({
+      title,
+      description: `Vehicle inspection appointment at ${locationName}. Please bring your Driver's License, Vehicle Title/Registration, and all keys & remotes. Expected duration: 15-20 minutes.`,
+      location: locationAddress,
+      startDate: start,
+      endDate: end,
+    });
+  };
 
   if (submitted) {
     return (
@@ -342,6 +399,43 @@ const ScheduleVisit = () => {
                 <CheckCircle className="w-3 h-3 text-success" />
                 A confirmation will be sent to <strong>{form.customer_email}</strong>
               </p>
+
+              {/* Add to Calendar */}
+              {form.preferred_date && form.preferred_time && (
+                <div className="border border-border rounded-xl p-4 space-y-3">
+                  <p className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <CalendarDays className="w-4 h-4 text-primary" />
+                    Add to Calendar
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 gap-2"
+                      onClick={handleDownloadIcs}
+                    >
+                      <Download className="w-4 h-4" />
+                      Download .ics
+                    </Button>
+                    {(() => {
+                      const url = getGoogleCalendarUrl();
+                      return url ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 gap-2"
+                          asChild
+                        >
+                          <a href={url} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="w-4 h-4" />
+                            Add to Google Calendar
+                          </a>
+                        </Button>
+                      ) : null;
+                    })()}
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </main>

@@ -92,16 +92,30 @@ export const DEFAULT_TEMPLATES: Record<string, TemplateDefaults> = {
   customer_appointment_booked: {
     email_subject: "Appointment Confirmed — {{appointment_date}}",
     email_body:
-      "Hi {{customer_name}},\n\nYour inspection is confirmed!\n\nDate: {{appointment_date}}\nTime: {{appointment_time}}\nLocation: {{location}}\nVehicle: {{vehicle}}\n\nWhat to bring:\n• Vehicle title\n• Valid photo ID\n• Registration\n• All keys & remotes\n\nSee you there!\n{{dealership_name}}",
+      "Hi {{customer_name}},\n\nYour inspection is confirmed!\n\nDate: {{appointment_date}}\nTime: {{appointment_time}}\nLocation: {{location}}\nAddress: {{location_address}}\nVehicle: {{vehicle}}\n\nWhat to Bring:\n• Driver's License\n• Vehicle Title or Registration\n• All Keys & Remotes\n• Loan Payoff Info (if applicable)\n\nYour inspection takes about 15-20 minutes.\n\nSee you there!\n{{dealership_name}}",
     sms_body:
-      "Hi {{customer_name}}, your visit is confirmed for {{appointment_date}} at {{appointment_time}} at {{location}}. Bring title, ID & keys. — {{dealership_name}}",
+      "Hi {{customer_name}}, your visit is confirmed for {{appointment_date}} at {{appointment_time}} at {{location}}. Bring your ID, title/registration, and all keys. — {{dealership_name}}",
   },
   customer_appointment_reminder: {
     email_subject: "Reminder: Your Appointment Is Tomorrow",
     email_body:
-      "Hi {{customer_name}},\n\nJust a friendly reminder — your inspection is tomorrow!\n\nDate: {{appointment_date}}\nTime: {{appointment_time}}\nLocation: {{location}}\nVehicle: {{vehicle}}\n\nRemember to bring:\n• Vehicle title\n• Valid photo ID\n• Registration\n• All keys & remotes\n\nSee you soon!\n{{dealership_name}}",
+      "Hi {{customer_name}},\n\nJust a friendly reminder — your inspection is tomorrow!\n\nDate: {{appointment_date}}\nTime: {{appointment_time}}\nLocation: {{location}}\nAddress: {{location_address}}\nVehicle: {{vehicle}}\n\nRemember to bring:\n• Driver's License\n• Vehicle Title or Registration\n• All Keys & Remotes\n• Loan Payoff Info (if applicable)\n\nYour inspection takes about 15-20 minutes.\n\nSee you soon!\n{{dealership_name}}",
     sms_body:
-      "Reminder: Your visit is tomorrow at {{appointment_time}} at {{location}}. Bring title, ID & keys. See you there! — {{dealership_name}}",
+      "Reminder: Your visit is tomorrow at {{appointment_time}} at {{location}}. Bring your ID, title/registration, and all keys. See you there! — {{dealership_name}}",
+  },
+  customer_appointment_reminder_dayof: {
+    email_subject: "Your inspection is today at {{appointment_time}}",
+    email_body:
+      "Hi {{customer_name}},\n\nYour vehicle inspection is TODAY!\n\nTime: {{appointment_time}}\nLocation: {{location}}\nAddress: {{location_address}}\nVehicle: {{vehicle}}\n\nWhat to Bring:\n• Driver's License\n• Vehicle Title or Registration\n• All Keys & Remotes\n• Loan Payoff Info (if applicable)\n\nYour inspection takes about 15-20 minutes.\n\nWe look forward to seeing you!\n{{dealership_name}}",
+    sms_body:
+      "Reminder: Your vehicle inspection is today at {{appointment_time}} at {{location_name}}. Bring your ID, title/registration, and all keys. — {{dealership_name}}",
+  },
+  customer_what_to_bring: {
+    email_subject: "What to bring to your vehicle inspection",
+    email_body:
+      "Hi {{customer_name}},\n\nHere's what to bring to your upcoming vehicle inspection:\n\n• Driver's License\n• Vehicle Title or Registration\n• All Keys & Remotes\n• Loan Payoff Statement (if applicable)\n\nExpect your visit to take about 15-20 minutes.\n\nIf you have any questions, don't hesitate to reach out.\n\nBest regards,\n{{dealership_name}}",
+    sms_body:
+      "For your upcoming inspection, please bring: Driver's License, Title/Registration, all keys & remotes, and loan payoff info if applicable. Visit takes ~15-20 min. — {{dealership_name}}",
   },
   customer_inspection_complete: {
     email_subject: "Inspection Complete — {{vehicle}}",
@@ -143,6 +157,8 @@ export const PLACEHOLDER_VARS: { key: string; desc: string }[] = [
   { key: "{{appointment_date}}", desc: "Appointment date" },
   { key: "{{appointment_time}}", desc: "Appointment time" },
   { key: "{{location}}", desc: "Dealership location" },
+  { key: "{{location_address}}", desc: "Dealership street address" },
+  { key: "{{location_name}}", desc: "Dealership location name" },
   { key: "{{dealership_name}}", desc: "Dealership name" },
   { key: "{{status}}", desc: "Submission status" },
   { key: "{{guarantee_days}}", desc: "Offer guarantee days" },
