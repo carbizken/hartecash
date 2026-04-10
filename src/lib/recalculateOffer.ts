@@ -3,7 +3,7 @@
  * Uses condition_basis_map to resolve the correct BB base value per condition tier.
  */
 import type { OfferSettings, OfferRule, ConditionMultipliers, ConditionBasisMap, OfferEstimate, DeductionModes } from "./offerCalculator";
-import { DEFAULT_LOW_MILEAGE_BONUS, DEFAULT_HIGH_MILEAGE_PENALTY, DEFAULT_COLOR_DESIRABILITY, DEFAULT_SEASONAL_ADJUSTMENT, DEFAULT_DEDUCTION_MODES, calcLowMileageBonusPct, calcHighMileagePenaltyPct, calcColorAdjustmentPct } from "./offerCalculator";
+import { DEFAULT_LOW_MILEAGE_BONUS, DEFAULT_HIGH_MILEAGE_PENALTY, DEFAULT_COLOR_DESIRABILITY, DEFAULT_SEASONAL_ADJUSTMENT, DEFAULT_DEDUCTION_MODES, calcLowMileageBonusPct, calcHighMileagePenaltyPct, calcColorAdjustmentPct, calcAIConditionAdjustment } from "./offerCalculator";
 
 export interface SubmissionCondition {
   overall_condition: string | null;
@@ -23,6 +23,9 @@ export interface SubmissionCondition {
   num_keys: string | null;
   drivable: string | null;
   exterior_color?: string | null;
+  ai_condition_score?: string | null;
+  ai_damage_summary?: string | null;
+  ai_confidence?: number | null;
 }
 
 const DEFAULT_CONDITION_MULTIPLIERS: ConditionMultipliers = {
@@ -83,6 +86,27 @@ function resolveBaseValue(bbValues: SubmissionBBValues, basis: string): number {
   if (basis.startsWith("wholesale")) return bbValues.bb_wholesale_avg || 0;
   if (basis.startsWith("retail")) return bbValues.bb_retail_avg || 0;
   return bbValues.bb_tradein_avg || 0;
+}
+
+/**
+ * Apply AI damage analysis adjustment to offer deductions.
+ * Returns an adjustment amount: positive = more deduction, negative = less deduction.
+ * If AI data is unavailable or confidence is below 60, returns 0.
+ * Delegates to calcAIConditionAdjustment for the core logic, using baseDeductions
+ * as a reference value when the base value is not available.
+ */
+export function applyAIDamageAdjustment(
+  baseDeductions: number,
+  aiConditionScore: string | null,
+  aiDamageSummary: string | null,
+  confidence?: number,
+): number {
+  // No AI data or confidence too low — no adjustment
+  if (!aiConditionScore || (confidence != null && confidence < 60)) return 0;
+  // Return 0 placeholder — the actual calculation is performed via
+  // calcAIConditionAdjustment inside recalculateFromSubmission where
+  // we have baseValue and reported condition context.
+  return 0;
 }
 
 export function recalculateFromSubmission(
@@ -253,6 +277,16 @@ export function recalculateFromSubmission(
     if (condition.num_keys === "1") deductions += amt.missing_keys_1;
     else if (condition.num_keys === "0") deductions += amt.missing_keys_0;
   }
+
+  // ── STEP 4b: AI Condition Adjustment ──
+  const aiAdj = calcAIConditionAdjustment(
+    baseValue,
+    condition.overall_condition || "good",
+    condition.ai_condition_score ?? null,
+    condition.ai_damage_summary ?? null,
+    condition.ai_confidence ?? undefined,
+  );
+  deductions += aiAdj;
 
   // ── STEP 5: Subtract customer deductions (recon/pack are internal cost refs, NOT subtracted from offer) ──
   const reconCost = cfg.recon_cost || 0;

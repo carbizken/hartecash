@@ -12,6 +12,7 @@ import { CalendarDays, CheckCircle2, Loader2, ArrowLeft, MapPin, Car, CheckCircl
 import { useToast } from "@/hooks/use-toast";
 import logoFallback from "@/assets/logo-placeholder-white.png";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
+import { track } from "@/lib/analytics";
 import SEO from "@/components/SEO";
 
 interface DealerLocation {
@@ -254,6 +255,7 @@ const ScheduleVisit = () => {
         formSource: "schedule_visit",
       });
 
+      track('appointment_booked', { location: form.store_location || undefined });
       setSubmitted(true);
     } catch (err: any) {
       toast({

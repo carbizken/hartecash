@@ -246,6 +246,15 @@ const OfferPage = () => {
       if (apptRes.data) setAppointment(apptRes.data as { preferred_date: string; preferred_time: string; store_location: string | null });
       if (locRes.data) setDealerLocations(locRes.data as any);
       setLoading(false);
+
+      // Track offer viewed
+      const finalOffer = (!nextSubmission.progress_status || !LOCKED_OFFER_STATUSES.has(nextSubmission.progress_status))
+        ? (nextSubmission.estimated_offer_high ?? nextSubmission.offered_price ?? 0)
+        : (nextSubmission.offered_price ?? 0);
+      const vStr = [nextSubmission.vehicle_year, nextSubmission.vehicle_make, nextSubmission.vehicle_model].filter(Boolean).join(" ");
+      if (finalOffer > 0) {
+        track('offer_viewed', { amount: finalOffer, vehicleStr: vStr });
+      }
     };
     fetchData();
   }, [token]);
@@ -488,6 +497,7 @@ const OfferPage = () => {
   const isMissingContactInfo = !s.name || !s.email || !s.phone;
 
   const handleAcceptAttempt = () => {
+    track('offer_accepted', { amount: cashOffer });
     if (isMissingContactInfo) {
       setContactForm({
         name: s.name || "",

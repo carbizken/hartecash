@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Lock, Shield, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
 import { useToast } from "@/hooks/use-toast";
+import { track, identify } from "@/lib/analytics";
 
 const getSafeAuthError = (message: string, isSignup: boolean): string => {
   const map: Record<string, string> = {
@@ -113,6 +114,8 @@ const AdminLogin = () => {
         return;
       }
 
+      track('admin_login', { role: roleData.role });
+      identify(data.user.id, { email, role: roleData.role });
       navigate("/admin");
     }
 

@@ -11,6 +11,7 @@ import MobileQRBanner from "@/components/upload/MobileQRBanner";
 import PhotoGuide from "@/components/upload/PhotoGuide";
 import VehicleCameraCapture from "@/components/upload/VehicleCameraCapture";
 import { useSiteConfig } from "@/hooks/useSiteConfig";
+import { track } from "@/lib/analytics";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePhotoConfig, type PhotoShot } from "@/hooks/usePhotoConfig";
 import { classToArchetype, type VehicleArchetype } from "@/lib/vehicleArchetypes";
@@ -236,6 +237,8 @@ const UploadPhotos = () => {
         }
       }
 
+      const uploadedCount = Object.values(categoryUploads).filter(v => v.file).length + extraFiles.length;
+      track('photos_uploaded', { count: uploadedCount });
       setDone(true);
     } catch {
       setError("Upload failed. Please try again.");
