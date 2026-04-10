@@ -1,0 +1,296 @@
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useTenant } from "@/contexts/TenantContext";
+import { useSiteConfig } from "@/hooks/useSiteConfig";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import {
+  Save, Loader2, Paintbrush, Eye, Globe, Mail, FileText, Image, Tag, EyeOff,
+} from "lucide-react";
+
+/* ── Premium card shell ────────────────────────────────── */
+
+const PremiumCard = ({
+  icon: Icon,
+  title,
+  description,
+  children,
+}: {
+  icon: React.ElementType;
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) => (
+  <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm shadow-[0_1px_3px_rgba(0,0,0,0.04),0_8px_24px_rgba(0,0,0,0.03)] overflow-hidden">
+    <div className="bg-gradient-to-r from-muted/60 via-muted/30 to-transparent px-6 py-4 border-b border-border/40 flex items-center gap-3">
+      <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary/10">
+        <Icon className="w-4.5 h-4.5 text-primary" />
+      </span>
+      <div>
+        <h3 className="text-sm font-bold text-foreground/90 tracking-tight">{title}</h3>
+        {description && <p className="text-xs text-muted-foreground mt-0.5">{description}</p>}
+      </div>
+    </div>
+    <div className="p-6">{children}</div>
+  </div>
+);
+
+/* ── Main component ────────────────────────────────────── */
+
+interface WhiteLabelState {
+  hide_branding: boolean;
+  custom_email_domain: string;
+  custom_favicon_url: string;
+  meta_title: string;
+  meta_description: string;
+}
+
+const DEFAULTS: WhiteLabelState = {
+  hide_branding: false,
+  custom_email_domain: "",
+  custom_favicon_url: "",
+  meta_title: "",
+  meta_description: "",
+};
+
+const WhiteLabelSettings = () => {
+  const { tenant } = useTenant();
+  const { config: siteConfig } = useSiteConfig();
+  const { toast } = useToast();
+  const dealershipId = tenant.dealership_id;
+
+  const [state, setState] = useState<WhiteLabelState>(DEFAULTS);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  /* ── Load persisted settings from site_config ── */
+  useEffect(() => {
+    const fetch = async () => {
+      setLoading(true);
+      const { data } = await supabase
+        .from("site_config")
+        .select("white_label_settings, favicon_url")
+        .eq("dealership_id", dealershipId)
+        .maybeSingle();
+      if (data) {
+        const wl = (data as any).white_label_settings as Partial<WhiteLabelState> | null;
+        setState({
+          hide_branding: wl?.hide_branding ?? false,
+          custom_email_domain: wl?.custom_email_domain ?? "",
+          custom_favicon_url: wl?.custom_favicon_url ?? (data as any).favicon_url ?? "",
+          meta_title: wl?.meta_title ?? "",
+          meta_description: wl?.meta_description ?? "",
+        });
+      }
+      setLoading(false);
+    };
+    fetch();
+  }, [dealershipId]);
+
+  /* ── Persist ── */
+  const handleSave = async () => {
+    setSaving(true);
+    const { error } = await supabase
+      .from("site_config")
+      .update({ white_label_settings: state } as any)
+      .eq("dealership_id", dealershipId);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Saved", description: "White-label settings updated." });
+    }
+    setSaving(false);
+  };
+
+  const update = <K extends keyof WhiteLabelState>(key: K, value: WhiteLabelState[K]) => {
+    setState((prev) => ({ ...prev, [key]: value }));
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  const previewName = siteConfig.dealership_name || "Your Dealership";
+
+  return (
+    <div className="space-y-6">
+      {/* ── Page header ── */}
+      <div>
+        <h2 className="text-xl font-bold text-card-foreground tracking-tight flex items-center gap-2">
+          <Paintbrush className="w-5 h-5 text-primary" />
+          White Label
+        </h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Remove HarteCash branding and customise the customer-facing experience to match your dealership.
+        </p>
+      </div>
+
+      {/* ── Branding toggle ── */}
+      <PremiumCard icon={Tag} title="Branding Visibility" description="Control whether HarteCash branding appears on your site">
+        <div className="flex items-center justify-between rounded-xl border border-border bg-muted/20 px-4 py-3">
+          <div className="flex items-center gap-3">
+            {state.hide_branding ? (
+              <EyeOff className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <Eye className="w-4 h-4 text-muted-foreground" />
+            )}
+            <div>
+              <p className="text-sm font-medium">Hide "Powered by HarteCash" branding</p>
+              <p className="text-xs text-muted-foreground">Remove all platform attribution from customer-facing pages</p>
+            </div>
+          </div>
+          <Switch
+            checked={state.hide_branding}
+            onCheckedChange={(v) => update("hide_branding", v)}
+          />
+        </div>
+      </PremiumCard>
+
+      {/* ── Custom email domain ── */}
+      <PremiumCard icon={Mail} title="Email Sending Domain" description="Customise the From address on outbound emails">
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium">Custom Domain</Label>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">noreply@</span>
+              <Input
+                placeholder="yourdealership.com"
+                value={state.custom_email_domain}
+                onChange={(e) => update("custom_email_domain", e.target.value)}
+                className="flex-1"
+              />
+            </div>
+          </div>
+          {state.custom_email_domain && (
+            <p className="text-[11px] text-muted-foreground bg-muted/40 rounded-lg px-3 py-2">
+              Emails will be sent from: <span className="font-mono font-medium text-foreground/80">noreply@{state.custom_email_domain}</span>
+            </p>
+          )}
+        </div>
+      </PremiumCard>
+
+      {/* ── Favicon ── */}
+      <PremiumCard icon={Image} title="Custom Favicon" description="Browser tab icon for your white-labeled site">
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium">Favicon URL</Label>
+            <Input
+              placeholder="https://yourdealership.com/favicon.ico"
+              value={state.custom_favicon_url}
+              onChange={(e) => update("custom_favicon_url", e.target.value)}
+            />
+          </div>
+          {state.custom_favicon_url && (
+            <div className="flex items-center gap-3 bg-muted/30 rounded-lg px-3 py-2">
+              <img
+                src={state.custom_favicon_url}
+                alt="Favicon preview"
+                className="w-6 h-6 rounded object-contain"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+              />
+              <span className="text-xs text-muted-foreground">Favicon preview</span>
+            </div>
+          )}
+        </div>
+      </PremiumCard>
+
+      {/* ── SEO / Meta ── */}
+      <PremiumCard icon={FileText} title="SEO & Meta Tags" description="Customise page title and description for search engines">
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium">Page Title</Label>
+            <Input
+              placeholder={`${previewName} | Sell Your Car`}
+              value={state.meta_title}
+              onChange={(e) => update("meta_title", e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium">Meta Description</Label>
+            <Input
+              placeholder="Get a top-dollar cash offer on your vehicle in under 2 minutes."
+              value={state.meta_description}
+              onChange={(e) => update("meta_description", e.target.value)}
+              className="h-auto py-2"
+            />
+            {state.meta_description && (
+              <p className="text-[11px] text-muted-foreground">
+                {state.meta_description.length}/160 characters
+              </p>
+            )}
+          </div>
+        </div>
+      </PremiumCard>
+
+      {/* ── Preview ── */}
+      <PremiumCard icon={Eye} title="Brand Preview" description="How your site header and footer will appear to customers">
+        <div className="space-y-4">
+          {/* Header preview */}
+          <div>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/60 mb-2">Header</p>
+            <div className="rounded-xl border border-border bg-muted/20 px-5 py-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {state.custom_favicon_url ? (
+                  <img
+                    src={state.custom_favicon_url}
+                    alt="Logo"
+                    className="w-8 h-8 rounded-lg object-contain"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Globe className="w-4 h-4 text-primary" />
+                  </div>
+                )}
+                <span className="text-sm font-bold text-foreground">
+                  {state.meta_title || previewName}
+                </span>
+              </div>
+              <Badge variant="secondary" className="text-[10px]">
+                {state.custom_email_domain || "yourdomain.com"}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Footer preview */}
+          <div>
+            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/60 mb-2">Footer</p>
+            <div className="rounded-xl border border-border bg-muted/20 px-5 py-4 text-center space-y-1">
+              <p className="text-xs text-muted-foreground">
+                &copy; {new Date().getFullYear()} {previewName}. All rights reserved.
+              </p>
+              {!state.hide_branding && (
+                <p className="text-[10px] text-muted-foreground/50">
+                  Powered by HarteCash
+                </p>
+              )}
+              {state.hide_branding && (
+                <Badge variant="outline" className="text-[9px] text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+                  Branding hidden
+                </Badge>
+              )}
+            </div>
+          </div>
+        </div>
+      </PremiumCard>
+
+      {/* ── Save ── */}
+      <div className="flex justify-end pt-2">
+        <Button onClick={handleSave} disabled={saving} className="gap-1.5 px-6">
+          {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+          Save White Label Settings
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+export default WhiteLabelSettings;
