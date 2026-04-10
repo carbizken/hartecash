@@ -490,19 +490,19 @@ const DealAccepted = () => {
                   Optional
                 </div>
               </div>
-              <h3 className="font-bold font-display text-card-foreground text-lg mt-3">Fast-Track Your Deal</h3>
+              <h3 className="font-bold font-display text-card-foreground text-lg mt-3">Fast-Track Your Deal & Maximize Your Offer</h3>
               <p className="text-sm text-muted-foreground mt-2 leading-relaxed">
                 Upload photos and documents now to speed up your appointment and help maximize your offer. Our AI and inventory team use your photos to accurately assess condition — which often results in a higher final price.
               </p>
 
               <div className="flex items-center gap-4 mt-4 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-success" />
-                  Faster processing
+                  <TrendingUp className="w-3.5 h-3.5 text-success" />
+                  Photos help increase your offer
                 </span>
                 <span className="flex items-center gap-1">
-                  <CheckCircle className="w-3.5 h-3.5 text-success" />
-                  Less time at visit
+                  <Clock className="w-3.5 h-3.5 text-success" />
+                  Faster processing
                 </span>
               </div>
 

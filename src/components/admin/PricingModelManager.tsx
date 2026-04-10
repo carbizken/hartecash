@@ -135,6 +135,7 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [rejectModelId, setRejectModelId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
+  const [confirmDeleteModelId, setConfirmDeleteModelId] = useState<string | null>(null);
 
   const isApprover = userRole === "gsm_gm" || userRole === "admin";
   const isManager = userRole === "used_car_manager" || userRole === "gsm_gm" || userRole === "admin";
@@ -419,8 +420,14 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Delete this offer logic?")) return;
+  const handleDelete = (id: string) => {
+    setConfirmDeleteModelId(id);
+  };
+
+  const executeDeleteModel = async () => {
+    if (!confirmDeleteModelId) return;
+    const id = confirmDeleteModelId;
+    setConfirmDeleteModelId(null);
     await supabase.from("pricing_models" as any).delete().eq("id", id);
     if (selectedModelId === id) {
       setSelectedModelId(null);
@@ -686,6 +693,21 @@ const PricingModelManager = ({ onModelChange, onRegisterSync, onRegisterSave, on
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!confirmDeleteModelId} onOpenChange={(open) => { if (!open) setConfirmDeleteModelId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Offer Logic</AlertDialogTitle>
+            <AlertDialogDescription>
+              Delete this offer logic? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={executeDeleteModel}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

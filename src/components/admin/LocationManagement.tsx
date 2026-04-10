@@ -105,6 +105,7 @@ const LocationManagement = () => {
   const [domainMap, setDomainMap] = useState<Record<string, { id: string; custom_domain: string | null; slug: string }>>({});
   const [domainInputs, setDomainInputs] = useState<Record<string, string>>({});
   const [domainSaving, setDomainSaving] = useState<Record<string, boolean>>({});
+  const [confirmRemoveDomainId, setConfirmRemoveDomainId] = useState<string | null>(null);
 
   const fetchLocations = async () => {
     const { data, error } = await supabase
@@ -183,10 +184,18 @@ const LocationManagement = () => {
     setDomainSaving(prev => ({ ...prev, [locationId]: false }));
   };
 
-  const removeDomain = async (locationId: string) => {
+  const removeDomain = (locationId: string) => {
     const existing = domainMap[locationId];
     if (!existing) return;
-    if (!confirm("Remove this store's custom domain mapping?")) return;
+    setConfirmRemoveDomainId(locationId);
+  };
+
+  const executeRemoveDomain = async () => {
+    if (!confirmRemoveDomainId) return;
+    const locationId = confirmRemoveDomainId;
+    const existing = domainMap[locationId];
+    setConfirmRemoveDomainId(null);
+    if (!existing) return;
     const { error } = await supabase
       .from("tenants" as any)
       .delete()
@@ -877,6 +886,21 @@ const LocationManagement = () => {
           </Button>
         </div>
       </div>
+
+      <AlertDialog open={!!confirmRemoveDomainId} onOpenChange={(open) => { if (!open) setConfirmRemoveDomainId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Domain Mapping</AlertDialogTitle>
+            <AlertDialogDescription>
+              Remove this store's custom domain mapping?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={executeRemoveDomain}>Remove</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

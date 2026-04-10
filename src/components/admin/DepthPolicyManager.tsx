@@ -49,6 +49,7 @@ const DepthPolicyManager = () => {
   const [policies, setPolicies] = useState<DepthPolicy[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const { tenant } = useTenant();
@@ -103,8 +104,14 @@ const DepthPolicyManager = () => {
     toast({ title: "Policy saved" });
   };
 
-  const deletePolicy = async (id: string) => {
-    if (!confirm("Delete this depth policy?")) return;
+  const deletePolicy = (id: string) => {
+    setConfirmDeleteId(id);
+  };
+
+  const executeDeletePolicy = async () => {
+    if (!confirmDeleteId) return;
+    const id = confirmDeleteId;
+    setConfirmDeleteId(null);
     const { error } = await supabase.from("depth_policies").delete().eq("id", id);
     if (!error) {
       setPolicies(prev => prev.filter(p => p.id !== id));
@@ -295,6 +302,21 @@ const DepthPolicyManager = () => {
           </CardContent>
         </Card>
       ))}
+
+      <AlertDialog open={!!confirmDeleteId} onOpenChange={(open) => { if (!open) setConfirmDeleteId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Depth Policy</AlertDialogTitle>
+            <AlertDialogDescription>
+              Delete this depth policy? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={executeDeletePolicy}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

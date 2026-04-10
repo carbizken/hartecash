@@ -32,6 +32,7 @@ const CompletionChecklist = ({ photosUploaded, docsUploaded, appointmentSet, tok
       icon: Camera,
       link: `/upload/${token}`,
       actionLabel: "Upload Photos",
+      hint: "Photos help increase your offer",
     },
   ];
 
@@ -98,9 +99,14 @@ const CompletionChecklist = ({ photosUploaded, docsUploaded, appointmentSet, tok
                   <Circle className="w-5 h-5 text-muted-foreground/40 flex-shrink-0" />
                 )}
                 <Icon className={`w-4 h-4 flex-shrink-0 ${item.done ? "text-success" : "text-muted-foreground"}`} />
-                <span className={`text-sm flex-1 ${item.done ? "text-success font-medium" : "text-muted-foreground"}`}>
-                  {item.label}
-                </span>
+                <div className="flex-1">
+                  <span className={`text-sm ${item.done ? "text-success font-medium" : "text-muted-foreground"}`}>
+                    {item.label}
+                  </span>
+                  {!item.done && item.hint && (
+                    <p className="text-[10px] text-primary/70 font-medium mt-0.5">{item.hint}</p>
+                  )}
+                </div>
                 {!item.done && (
                   <span className="text-xs text-accent font-medium flex items-center gap-1">
                     {item.actionLabel} <ArrowRight className="w-3 h-3" />
