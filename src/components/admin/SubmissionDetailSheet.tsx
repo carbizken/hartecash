@@ -432,6 +432,48 @@ const SubmissionDetailSheet = ({
       if (refreshed) {
         setEditState(refreshed as any);
         onUpdate(refreshed as any);
+
+        // ── vAuto auto-push ────────────────────────────────────────
+        // If the appraisal just became finalized and the dealer has enabled
+        // auto-push, fire-and-forget a push to vAuto. The edge function is
+        // idempotent-friendly (skeleton mode just logs; real mode sets
+        // vauto_pushed=true) so it is safe to call even if the status ends
+        // up already pushed.
+        const r = refreshed as any;
+        const wasFinalizedBefore = (selected as any)?.appraisal_finalized === true;
+        const isFinalizedNow = r.appraisal_finalized === true;
+        if (isFinalizedNow && !wasFinalizedBefore && !r.vauto_pushed) {
+          (async () => {
+            try {
+              const dealershipId = r.dealership_id || "default";
+              const { data: dealerRow } = await supabase
+                .from("dealer_accounts")
+                .select("vauto_enabled, vauto_auto_push")
+                .eq("dealership_id", dealershipId)
+                .maybeSingle();
+              const d = dealerRow as any;
+              if (d?.vauto_enabled && d?.vauto_auto_push) {
+                supabase.functions
+                  .invoke("push-to-vauto", {
+                    body: { submission_id: r.id, pushed_by: "auto-finalize" },
+                  })
+                  .catch((err) => console.error("vauto auto-push failed", err));
+                supabase
+                  .from("activity_log")
+                  .insert({
+                    submission_id: r.id,
+                    action: "vAuto Auto-Push",
+                    old_value: null,
+                    new_value: "triggered",
+                    performed_by: auditLabel,
+                  } as any)
+                  .then(() => {}, () => {});
+              }
+            } catch (err) {
+              console.error("vauto auto-push lookup failed", err);
+            }
+          })();
+        }
       }
       fetchActivityLog(sub.id);
       toast({ title: "Record updated", description: "All changes have been saved." });

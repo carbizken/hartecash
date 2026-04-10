@@ -12,7 +12,6 @@ import {
   RefreshCw,
   ShieldCheck,
   ShieldAlert,
-  Zap,
   Wrench,
   Timer,
   Cpu,
