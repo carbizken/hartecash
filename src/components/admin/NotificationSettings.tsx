@@ -55,6 +55,7 @@ interface NotificationConfig {
   quiet_hours_enabled: boolean;
   quiet_hours_start: string;
   quiet_hours_end: string;
+  quiet_hours_timezone: string;
   // Per-trigger recipients override
   staff_trigger_recipients: Record<string, { emails: string[]; phones: string[] }>;
 }
@@ -96,6 +97,7 @@ const DEFAULTS: NotificationConfig = {
   quiet_hours_enabled: false,
   quiet_hours_start: "21:00",
   quiet_hours_end: "08:00",
+  quiet_hours_timezone: "America/New_York",
   staff_trigger_recipients: {},
 };
 
@@ -572,7 +574,7 @@ export default function NotificationSettings() {
             <Switch checked={config.quiet_hours_enabled} onCheckedChange={v => setConfig(c => ({ ...c, quiet_hours_enabled: v }))} />
           </div>
           {config.quiet_hours_enabled && (
-            <div className="flex items-center gap-4 pl-1">
+            <div className="flex flex-wrap items-start gap-4 pl-1">
               <div className="space-y-1">
                 <Label className="text-xs">Start</Label>
                 <Input type="time" value={config.quiet_hours_start} onChange={e => setConfig(c => ({ ...c, quiet_hours_start: e.target.value }))} className="w-32 text-sm" />
@@ -580,6 +582,22 @@ export default function NotificationSettings() {
               <div className="space-y-1">
                 <Label className="text-xs">End</Label>
                 <Input type="time" value={config.quiet_hours_end} onChange={e => setConfig(c => ({ ...c, quiet_hours_end: e.target.value }))} className="w-32 text-sm" />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Timezone</Label>
+                <select
+                  value={config.quiet_hours_timezone}
+                  onChange={e => setConfig(c => ({ ...c, quiet_hours_timezone: e.target.value }))}
+                  className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+                >
+                  <option value="America/New_York">Eastern (New York)</option>
+                  <option value="America/Chicago">Central (Chicago)</option>
+                  <option value="America/Denver">Mountain (Denver)</option>
+                  <option value="America/Phoenix">Arizona (Phoenix)</option>
+                  <option value="America/Los_Angeles">Pacific (Los Angeles)</option>
+                  <option value="America/Anchorage">Alaska (Anchorage)</option>
+                  <option value="Pacific/Honolulu">Hawaii (Honolulu)</option>
+                </select>
               </div>
               <div className="mt-5">
                 <Badge variant="outline" className="text-xs">

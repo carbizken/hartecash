@@ -301,10 +301,27 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Check quiet hours for SMS
+    // Check quiet hours for SMS — honor the dealership's configured timezone
+    // instead of the edge function's UTC clock so "9 PM – 8 AM" means 9 PM
+    // local to the dealer, not 9 PM UTC.
     if (notifSettings && (notifSettings as any).quiet_hours_enabled) {
-      const now = new Date();
-      const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+      const tz = (notifSettings as any).quiet_hours_timezone || "America/New_York";
+      let currentTime: string;
+      try {
+        const parts = new Intl.DateTimeFormat("en-US", {
+          timeZone: tz,
+          hour: "2-digit",
+          minute: "2-digit",
+          hourCycle: "h23",
+        }).formatToParts(new Date());
+        const hh = parts.find((p) => p.type === "hour")?.value ?? "00";
+        const mm = parts.find((p) => p.type === "minute")?.value ?? "00";
+        currentTime = `${hh}:${mm}`;
+      } catch {
+        // Fall back to UTC if the tz string is invalid rather than crashing
+        const now = new Date();
+        currentTime = `${String(now.getUTCHours()).padStart(2, "0")}:${String(now.getUTCMinutes()).padStart(2, "0")}`;
+      }
       const start = (notifSettings as any).quiet_hours_start || "21:00";
       const end = (notifSettings as any).quiet_hours_end || "08:00";
       const inQuietHours = start > end

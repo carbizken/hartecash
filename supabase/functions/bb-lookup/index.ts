@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -7,6 +8,29 @@ const corsHeaders = {
 
 const BB_BASE = "https://service.blackbookcloud.com/UsedCarWS/UsedCarWS/UsedVehicle";
 const BB_GRAPHQL = "https://service.blackbookcloud.com/UsedCarWS/UsedCarWS/GraphQL";
+
+// Build a stable cache key from the set of params that actually affect
+// the Black Book response. Anything that changes the upstream URL should
+// feed this key.
+function buildCacheKey(params: {
+  lookup_type: string;
+  vin?: string;
+  plate?: string;
+  state?: string;
+  mileage?: number | string;
+  uvc?: string;
+  adddeductcodes?: string;
+}): string {
+  return [
+    params.lookup_type,
+    params.vin || "",
+    params.plate || "",
+    params.state || "",
+    params.mileage != null ? String(params.mileage) : "",
+    params.uvc || "",
+    params.adddeductcodes || "",
+  ].join("|").toLowerCase();
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -42,6 +66,37 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "Plate and state are required" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" }
       });
+    }
+
+    // ── Cache lookup ──────────────────────────────────────────────────
+    // Dealers should never be billed for two identical Black Book calls
+    // within the 24-hour TTL window. We cache the fully transformed
+    // response keyed on all params that influence the upstream call.
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    const cacheClient = supabaseUrl && supabaseServiceKey
+      ? createClient(supabaseUrl, supabaseServiceKey)
+      : null;
+
+    const cacheKey = buildCacheKey({ lookup_type, vin, plate, state, mileage, uvc, adddeductcodes });
+
+    if (cacheClient) {
+      try {
+        const { data: cached } = await cacheClient
+          .from("bb_vin_cache")
+          .select("response_json, expires_at")
+          .eq("cache_key", cacheKey)
+          .gt("expires_at", new Date().toISOString())
+          .maybeSingle();
+        if (cached?.response_json) {
+          return new Response(JSON.stringify(cached.response_json), {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json", "X-BB-Cache": "HIT" },
+          });
+        }
+      } catch (e) {
+        console.error("BB cache read error:", (e as Error).message);
+      }
     }
 
     const credentials = btoa(`${username}:${password}`);
@@ -280,8 +335,29 @@ serve(async (req) => {
       })),
     };});
 
-    return new Response(JSON.stringify({ error: null, vehicles }), {
-      status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" }
+    const payload = { error: null, vehicles };
+
+    // Best-effort cache write. Never let a cache failure break the response.
+    if (cacheClient && vehicles.length > 0) {
+      try {
+        await cacheClient.from("bb_vin_cache").upsert({
+          cache_key: cacheKey,
+          lookup_type,
+          vin: vin || null,
+          plate: plate || null,
+          state: state || null,
+          mileage: mileage ? Number(mileage) : null,
+          response_json: payload,
+          // Refresh the 24h TTL on every successful write.
+          expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        }, { onConflict: "cache_key" });
+      } catch (e) {
+        console.error("BB cache write error:", (e as Error).message);
+      }
+    }
+
+    return new Response(JSON.stringify(payload), {
+      status: 200, headers: { ...corsHeaders, "Content-Type": "application/json", "X-BB-Cache": "MISS" }
     });
 
   } catch (err) {
