@@ -4,8 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Building2, Users, TrendingUp, TrendingDown, DollarSign, ArrowLeft,
   BarChart3, CheckCircle2, Clock, XCircle, Car, Target, AlertTriangle,
-  UserCheck, Moon, Sun, Plus,
+  UserCheck, Moon, Sun, Plus, Eye,
 } from "lucide-react";
+import TenantViewPickerDialog from "@/components/admin/TenantViewPickerDialog";
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip as ReTooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell,
@@ -73,6 +74,8 @@ const SuperAdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const [tenants, setTenants] = useState<TenantRow[]>([]);
+  // Tenant view picker — shown when the super admin clicks "View As" on a row
+  const [viewTarget, setViewTarget] = useState<{ dealership_id: string; display_name: string } | null>(null);
   const [accounts, setAccounts] = useState<DealerAccount[]>([]);
   const [subs, setSubs] = useState<Sub[]>([]);
   const [timeRange, setTimeRange] = useState<"30" | "60" | "90" | "all">("all");
@@ -414,6 +417,7 @@ const SuperAdminDashboard = () => {
                     <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Conv %</th>
                     <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase hidden lg:table-cell">Pipeline</th>
                     <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase hidden lg:table-cell">Closed $</th>
+                    <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">View</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -447,6 +451,25 @@ const SuperAdminDashboard = () => {
                       </td>
                       <td className="text-right py-2.5 font-semibold text-amber-600 hidden lg:table-cell">${t.pipeline.toLocaleString()}</td>
                       <td className="text-right py-2.5 font-semibold text-emerald-600 hidden lg:table-cell">${t.closed.toLocaleString()}</td>
+                      <td className="text-right py-2.5">
+                        {t.dealership_id !== "default" && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-[11px] gap-1 border-red-500/30 text-red-600 hover:bg-red-500/10 dark:text-red-400"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setViewTarget({
+                                dealership_id: t.dealership_id,
+                                display_name: t.display_name || t.slug,
+                              });
+                            }}
+                          >
+                            <Eye className="w-3 h-3" />
+                            View As
+                          </Button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                   {/* Totals row */}
@@ -461,6 +484,7 @@ const SuperAdminDashboard = () => {
                     <td className="text-right py-2.5 text-emerald-600">{kpis.convRate}%</td>
                     <td className="text-right py-2.5 text-amber-600 hidden lg:table-cell">${kpis.pipeline.toLocaleString()}</td>
                     <td className="text-right py-2.5 text-emerald-600 hidden lg:table-cell">${kpis.closed.toLocaleString()}</td>
+                    <td className="py-2.5" />
                   </tr>
                 </tbody>
               </table>
@@ -538,6 +562,16 @@ const SuperAdminDashboard = () => {
           <AddTenantWizard onClose={() => setShowAddTenant(false)} onCreated={loadData} />
         </Suspense>
       )}
+
+      {/* Tenant View picker — opens when the super admin clicks "View As"
+          on any tenant row. Enters Pattern A tenant view mode: the super
+          admin's session stays intact, but TenantContext is swapped so
+          every query on /admin runs against the target dealership. */}
+      <TenantViewPickerDialog
+        open={viewTarget !== null}
+        onOpenChange={(open) => { if (!open) setViewTarget(null); }}
+        tenant={viewTarget}
+      />
     </div>
   );
 };

@@ -67,7 +67,7 @@ export function useAdminDashboard() {
 
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { tenant } = useTenant();
+  const { tenant, isViewingAsTenant } = useTenant();
 
   // Pricing + approval tiers come from the canonical helpers in
   // adminConstants so adding a new manager-tier role (e.g.
@@ -78,9 +78,18 @@ export function useAdminDashboard() {
   const canManageAccess = userRole === "admin";
   const { allowedSections } = useStaffPermissions(userId, canManageAccess);
 
-  const auditLabel = userName
+  // Audit label — every activity_log entry uses this as performed_by.
+  // When a Super Admin is in View-as-Tenant mode, append a suffix so
+  // the target dealer's audit trail clearly shows the super admin
+  // performed the action, not one of their own staff members. This
+  // keeps the dealer's audit log honest even though the super admin
+  // is looking at their data.
+  const baseAuditLabel = userName
     ? `${userName} — ${ROLE_LABELS[userRole] || userRole}`
     : ROLE_LABELS[userRole] || userRole;
+  const auditLabel = isViewingAsTenant
+    ? `${baseAuditLabel} [Super Admin viewing as ${tenant.display_name}]`
+    : baseAuditLabel;
 
   // ── Data fetching ──
 

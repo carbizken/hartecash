@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface TenantInfo {
@@ -8,9 +8,45 @@ interface TenantInfo {
   location_id: string | null;
 }
 
+/**
+ * Super-admin "View as Tenant" override state. When set, every
+ * useTenant() call returns the overridden tenant even though the
+ * auth context (supabase.auth.getUser()) still resolves to the
+ * super admin themselves. Persisted in sessionStorage so it
+ * survives navigation inside the same tab but expires on tab close.
+ *
+ * This is Pattern A (tenant view, not user impersonation). The
+ * super admin's user id, email, and role never change — the entire
+ * mechanism is client-side context swap. Every action taken during
+ * the view session is still attributed to the super admin in
+ * activity_log via the "(viewing as X)" suffix on auditLabel, and
+ * tenant_view_log captures the full session for compliance.
+ */
+interface TenantViewOverride {
+  dealership_id: string;
+  display_name: string;
+  log_id: string;       // id of the tenant_view_log row for end-of-session close
+  reason: string;
+  started_at: string;   // ISO
+}
+
 interface TenantContextValue {
   tenant: TenantInfo;
   loading: boolean;
+  /** True when the current session is viewing a tenant other than the
+   *  one resolved from the hostname. Only platform admins can set this. */
+  isViewingAsTenant: boolean;
+  /** The override record if active, null otherwise. */
+  viewOverride: TenantViewOverride | null;
+  /** Enter view-as mode for a specific tenant. Creates the log row,
+   *  stores the override in sessionStorage, returns true on success. */
+  setViewAsTenant: (args: {
+    dealership_id: string;
+    display_name: string;
+    reason: string;
+  }) => Promise<boolean>;
+  /** Exit view-as mode. Closes the log row and clears sessionStorage. */
+  clearViewAsTenant: (endedReason?: "manual" | "navigation_away") => Promise<void>;
 }
 
 const DEFAULT_TENANT: TenantInfo = {
@@ -23,16 +59,53 @@ const DEFAULT_TENANT: TenantInfo = {
 const TenantContext = createContext<TenantContextValue>({
   tenant: DEFAULT_TENANT,
   loading: true,
+  isViewingAsTenant: false,
+  viewOverride: null,
+  setViewAsTenant: async () => false,
+  clearViewAsTenant: async () => {},
 });
 
 export const useTenant = () => useContext(TenantContext);
+
+const OVERRIDE_STORAGE_KEY = "autocurb.tenant_view_override";
+
+/** Read the override from sessionStorage. Returns null if invalid. */
+function readOverride(): TenantViewOverride | null {
+  try {
+    const raw = sessionStorage.getItem(OVERRIDE_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (
+      typeof parsed?.dealership_id === "string" &&
+      typeof parsed?.display_name === "string" &&
+      typeof parsed?.log_id === "string"
+    ) {
+      return parsed as TenantViewOverride;
+    }
+  } catch {
+    // sessionStorage unavailable or malformed — fall through
+  }
+  return null;
+}
+
+function writeOverride(override: TenantViewOverride | null) {
+  try {
+    if (override) {
+      sessionStorage.setItem(OVERRIDE_STORAGE_KEY, JSON.stringify(override));
+    } else {
+      sessionStorage.removeItem(OVERRIDE_STORAGE_KEY);
+    }
+  } catch {
+    // Ignore — the feature degrades gracefully if sessionStorage is blocked
+  }
+}
 
 /** Cache keyed by hostname to avoid re-fetching on the same domain */
 let cachedTenant: { hostname: string; tenant: TenantInfo } | null = null;
 
 /**
  * Resolves the current tenant from the hostname.
- * 
+ *
  * Priority:
  * 1. Custom domain match (e.g. sellmycar.smithmotors.com)
  * 2. Slug match from subdomain (e.g. smith.yourdomain.com → slug "smith")
@@ -98,28 +171,126 @@ async function resolveTenant(): Promise<TenantInfo> {
 }
 
 export const TenantProvider = ({ children }: { children: ReactNode }) => {
-  const [tenant, setTenant] = useState<TenantInfo>(cachedTenant?.tenant || DEFAULT_TENANT);
+  const [resolvedTenant, setResolvedTenant] = useState<TenantInfo>(
+    cachedTenant?.tenant || DEFAULT_TENANT,
+  );
   const [loading, setLoading] = useState(!cachedTenant);
+  const [viewOverride, setViewOverrideState] = useState<TenantViewOverride | null>(
+    () => readOverride(),
+  );
 
   useEffect(() => {
     if (cachedTenant) return;
     resolveTenant().then((t) => {
-      setTenant(t);
+      setResolvedTenant(t);
       setLoading(false);
     });
   }, []);
 
+  const setViewAsTenant = useCallback<TenantContextValue["setViewAsTenant"]>(
+    async ({ dealership_id, display_name, reason }) => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return false;
+      // Verify the caller is a platform admin — the RLS policy enforces
+      // this on insert but we check it client-side for a cleaner error.
+      const { data: roleRow } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+      if ((roleRow as { role?: string } | null)?.role !== "admin") {
+        return false;
+      }
+
+      // Write the log entry
+      const { data: logRow, error: logErr } = await (supabase as any)
+        .from("tenant_view_log")
+        .insert({
+          super_admin_user_id: session.user.id,
+          super_admin_email: session.user.email || "unknown",
+          target_dealership_id: dealership_id,
+          target_display_name: display_name,
+          reason,
+          user_agent: navigator.userAgent || null,
+        })
+        .select("id, started_at")
+        .single();
+
+      if (logErr || !logRow) {
+        console.error("Failed to write tenant_view_log:", logErr);
+        return false;
+      }
+
+      const override: TenantViewOverride = {
+        dealership_id,
+        display_name,
+        log_id: logRow.id,
+        reason,
+        started_at: logRow.started_at,
+      };
+      writeOverride(override);
+      setViewOverrideState(override);
+      return true;
+    },
+    [],
+  );
+
+  const clearViewAsTenant = useCallback<TenantContextValue["clearViewAsTenant"]>(
+    async (endedReason = "manual") => {
+      const current = viewOverride ?? readOverride();
+      if (current?.log_id) {
+        try {
+          await (supabase as any)
+            .from("tenant_view_log")
+            .update({
+              ended_at: new Date().toISOString(),
+              ended_reason: endedReason,
+            })
+            .eq("id", current.log_id);
+        } catch (e) {
+          console.error("Failed to close tenant_view_log:", e);
+        }
+      }
+      writeOverride(null);
+      setViewOverrideState(null);
+    },
+    [viewOverride],
+  );
+
+  // Compose the effective tenant — override takes precedence over
+  // hostname resolution when active.
+  const effectiveTenant: TenantInfo = viewOverride
+    ? {
+        dealership_id: viewOverride.dealership_id,
+        slug: viewOverride.dealership_id,
+        display_name: viewOverride.display_name,
+        location_id: null,
+      }
+    : resolvedTenant;
+
   return (
-    <TenantContext.Provider value={{ tenant, loading }}>
+    <TenantContext.Provider
+      value={{
+        tenant: effectiveTenant,
+        loading,
+        isViewingAsTenant: viewOverride !== null,
+        viewOverride,
+        setViewAsTenant,
+        clearViewAsTenant,
+      }}
+    >
       {children}
     </TenantContext.Provider>
   );
 };
 
 /**
- * Overrides the tenant context for admin workflows.
+ * Overrides the tenant context for admin workflows (scoped).
  * When an admin is configuring a different dealership, wrap the content
  * in this provider so all useTenant() calls return the target dealer.
+ * This is a component-local override — not the global Super Admin
+ * view-as feature above. Use this for focused per-page swaps; use
+ * setViewAsTenant() from the context for a session-wide view.
  */
 export const TenantOverrideProvider = ({
   dealershipId,
@@ -143,8 +314,8 @@ export const TenantOverrideProvider = ({
   return (
     <TenantContext.Provider
       value={{
+        ...parent,
         tenant: overriddenTenant,
-        loading: parent.loading,
       }}
     >
       {children}
