@@ -66,7 +66,46 @@ export default function HistoricalInsightPanel({ dealershipId, bbClassName, over
     fetchInsight();
   }, [dealershipId, bbClassName, overallCondition, mileage]);
 
-  if (loading || totalFinalized < learningThreshold || !insight) return null;
+  if (loading) return null;
+
+  // Early-learning state — show a visible placeholder instead of hiding
+  // the panel entirely. Before this change the panel silently disappeared
+  // for any dealership below the learning threshold, which made the
+  // feature invisible in demos and during the first few weeks of use.
+  if (totalFinalized < learningThreshold || !insight) {
+    const progress = Math.min(100, Math.round((totalFinalized / learningThreshold) * 100));
+    return (
+      <Card className="border-l-4 border-l-muted-foreground/30">
+        <CardHeader className="pb-2">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+              <BarChart3 className="w-3.5 h-3.5 text-muted-foreground" />
+              Autocurb Historical Intelligence
+            </CardTitle>
+            <Badge variant="outline" className="text-[9px] text-muted-foreground bg-muted border-border">
+              Early learning
+            </Badge>
+          </div>
+          <p className="text-[10px] text-muted-foreground">
+            {totalFinalized} / {learningThreshold} finalized deals — learning your store's appraisal signal
+          </p>
+        </CardHeader>
+        <CardContent className="pt-0 pb-3">
+          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full bg-primary/60 transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">
+            Once your store finalizes {learningThreshold} appraisals, this panel will surface
+            segment-level acceptance rate, days-to-sale, price realization, and recon
+            accuracy from your own historical data — plus a recommended basis adjustment.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const confidence = getConfidenceLabel(insight.sampleSize);
   const acceptance = getAcceptanceSignal(insight.avgAcceptanceRate);

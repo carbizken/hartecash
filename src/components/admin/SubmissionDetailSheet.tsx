@@ -22,6 +22,8 @@ import VehicleImage from "@/components/sell-form/VehicleImage";
 import StaffFileUpload from "@/components/admin/StaffFileUpload";
 import FollowUpPanel from "@/components/admin/FollowUpPanel";
 import RetailMarketPanel from "@/components/admin/RetailMarketPanel";
+import HistoricalInsightPanel from "@/components/appraisal/HistoricalInsightPanel";
+import { useTenant } from "@/contexts/TenantContext";
 import {
   X, Printer, Users, Car, Search, DollarSign, Info, FileText, Gauge, Palette, BarChart3, ScanLine,
   Settings2, Wrench, Key, Wind, Cigarette, CircleDot, Sparkles, TrendingUp,
@@ -248,6 +250,7 @@ const SubmissionDetailSheet = ({
   fetchSubmissions,
 }: SubmissionDetailSheetProps) => {
   const { toast } = useToast();
+  const { tenant } = useTenant();
   const [editState, setEditState] = useState<Submission | null>(null);
 
   const sub = editState?.id === selected?.id ? editState : selected;
