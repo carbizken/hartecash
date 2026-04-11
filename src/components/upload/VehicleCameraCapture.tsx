@@ -1,8 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, RotateCcw, Check, FlipHorizontal } from "lucide-react";
+import { X, RotateCcw, Check, FlipHorizontal, Camera, Upload, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import GhostCarSilhouette from "@/components/upload/GhostCarSilhouette";
 import type { VehicleArchetype } from "@/lib/vehicleArchetypes";
+import {
+  type CameraBlock,
+  preflightCamera,
+  classifyCameraError,
+  requestCameraStream,
+} from "@/lib/cameraSupport";
 
 const OVERLAY_COLORS = ["#00FF88", "#FF3B3B", "#FFFFFF"];
 
@@ -29,9 +35,10 @@ const VehicleCameraCapture = ({
 }: VehicleCameraCaptureProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fallbackInputRef = useRef<HTMLInputElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [captured, setCaptured] = useState<string | null>(null);
-  const [error, setError] = useState("");
+  const [block, setBlock] = useState<CameraBlock | null>(null);
   const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
   const [showGuide, setShowGuide] = useState(true);
   const defaultIdx = OVERLAY_COLORS.indexOf(defaultOverlayColor);
@@ -41,18 +48,35 @@ const VehicleCameraCapture = ({
   const overlayColor = OVERLAY_COLORS[colorIdx];
 
   const startCamera = useCallback(async (facing: "environment" | "user") => {
+    // Preflight for in-app webviews, non-HTTPS, and missing mediaDevices
+    const pre = preflightCamera();
+    if (pre) {
+      setBlock(pre);
+      return;
+    }
     try {
       stream?.getTracks().forEach((t) => t.stop());
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: facing, width: { ideal: 1920 }, height: { ideal: 1080 } },
-      });
+      const mediaStream = await requestCameraStream(facing);
       setStream(mediaStream);
       if (videoRef.current) videoRef.current.srcObject = mediaStream;
-      setError("");
-    } catch {
-      setError("Unable to access camera. Please allow camera permissions or use the file upload option instead.");
+      setBlock(null);
+    } catch (err) {
+      setBlock(classifyCameraError(err));
     }
   }, []);
+
+  // Native file-picker fallback — works in every browser, including
+  // in-app webviews, because it doesn't touch getUserMedia.
+  const handleFallbackFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const preview = (ev.target?.result as string) || "";
+      onCapture(file, preview);
+    };
+    reader.readAsDataURL(file);
+  };
 
   useEffect(() => {
     startCamera(facingMode);
@@ -94,12 +118,59 @@ const VehicleCameraCapture = ({
     onCapture(file, captured);
   };
 
-  if (error) {
+  if (block) {
     return (
       <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-6">
         <div className="text-center text-white max-w-sm">
-          <p className="text-sm mb-4">{error}</p>
-          <Button variant="outline" onClick={onClose} className="text-white border-white/30">Close</Button>
+          <Camera className="w-16 h-16 mx-auto mb-4 opacity-50" />
+          <h3 className="text-lg font-bold mb-2">{block.title}</h3>
+          <p className="text-sm text-white/80 mb-5 leading-relaxed">{block.detail}</p>
+          <div className="flex flex-col gap-2">
+            <input
+              ref={fallbackInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFallbackFile}
+              className="hidden"
+            />
+            <Button
+              size="lg"
+              onClick={() => fallbackInputRef.current?.click()}
+              className="bg-white text-black hover:bg-white/90 gap-2"
+            >
+              <Upload className="w-5 h-5" />
+              Upload Photo
+            </Button>
+            {block.retryable && (
+              <Button
+                variant="outline"
+                onClick={() => { setBlock(null); startCamera(facingMode); }}
+                className="text-white border-white/30 hover:bg-white/10"
+              >
+                Try Camera Again
+              </Button>
+            )}
+            {block.reason === "in_app_webview" && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const url = window.location.href;
+                  navigator.clipboard?.writeText(url).catch(() => null);
+                }}
+                className="text-white border-white/30 hover:bg-white/10 gap-2"
+              >
+                <ExternalLink className="w-4 h-4" /> Copy Link for Safari/Chrome
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              onClick={onClose}
+              className="text-white/70 hover:bg-white/10 hover:text-white"
+            >
+              Cancel
+            </Button>
+          </div>
         </div>
       </div>
     );
