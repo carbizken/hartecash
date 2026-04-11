@@ -1,73 +1,105 @@
-# Welcome to your Lovable project
+# Autocurb.io
 
-## Project info
+**The Operating System for Dealer-Direct Vehicle Acquisition.**
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Autocurb.io turns a dealership's website, service drive, BDC, sales floor, and
+used-car manager into a single acquisition engine — from the customer's first
+click to the check being cut and the vehicle being pushed into inventory.
 
-## How can I edit this code?
+This repository contains the Autocurb.io web application (customer-facing
+trade-in funnel, dealer admin CRM, embed toolkit, inspection and appraisal
+tools, and multi-tenant white-label platform).
 
-There are several ways of editing your application.
+## What's in the box
 
-**Use Lovable**
+- **Customer-facing trade-in flow** — VIN / plate / manual lookup, real-time
+  offer generation, photo capture, document upload, price-guarantee windows,
+  and Push / Pull / Tow minimum-offer certificates.
+- **Dealer admin CRM** — full submission detail (customer file), progress
+  tracker, role-based access (Admin / GSM / UCM / BDC / Sales / Inspector),
+  activity log, appointment scheduler, check-request generator, retail
+  market panel, and executive dashboard.
+- **Embed Toolkit** — dealer-website integration with floating trade widget,
+  VDP/SRP ghost link, full-page iframe, and PPT certificate embed.
+- **Multi-tenant white-label** — corporate `site_config` with per-location
+  overrides (logo, colors, hero copy, PPT, business hours, social links).
+- **Automations** — 20+ Supabase edge functions for follow-ups, appointment
+  confirmations, Black Book lookups, driver's license OCR, abandoned-lead
+  recovery, and notification routing.
+- **Compliance** — TCPA / CAN-SPAM opt-out tracking, consent logging, and
+  audited activity trails on every submission mutation.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## Tech stack
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Frontend** — Vite, React, TypeScript, Tailwind CSS, shadcn/ui,
+  React Router, TanStack Query.
+- **Backend** — Supabase (Postgres, Auth, Storage, Realtime, Edge Functions).
+- **Integrations** — Black Book (wholesale/retail/trade-in data), NHTSA VIN
+  decoding, retail listing comps, email + SMS delivery providers.
 
-**Use your preferred IDE**
+## Local development
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Requirements: Node.js 18+ (recommended via
+[nvm](https://github.com/nvm-sh/nvm#installing-and-updating)) and `bun` or
+`npm`.
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Clone
 git clone <YOUR_GIT_URL>
+cd hartecash
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Install dependencies
+bun install
+# or: npm install
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+# Run the dev server
+bun run dev
+# or: npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The dev server runs on http://localhost:5173 by default.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Environment
 
-**Use GitHub Codespaces**
+Copy `.env.example` (if present) to `.env` and set the Supabase URL + anon
+key for the target project. Edge functions are deployed separately via the
+Supabase CLI from the `supabase/functions/` directory.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Useful scripts
 
-## What technologies are used for this project?
+```sh
+bun run dev          # Start Vite dev server
+bun run build        # Production build
+bun run preview      # Preview a production build locally
+bun run lint         # ESLint
+bun run test         # Vitest
+```
 
-This project is built with:
+## Project layout
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+```
+src/
+├── components/
+│   ├── admin/          # Dealer CRM, embed toolkit, onboarding, settings
+│   ├── sell-form/      # Customer-facing trade-in funnel
+│   └── ui/             # shadcn/ui primitives
+├── pages/              # Route-level pages
+├── hooks/              # Shared hooks (useSiteConfig, useTenant, etc.)
+├── lib/                # Utilities, constants, print helpers
+└── integrations/
+    └── supabase/       # Supabase client + generated types
+supabase/
+├── functions/          # Edge functions (send-notification, bb-lookup, etc.)
+└── migrations/         # SQL migrations
+docs/                   # Investor + leadership materials
+```
 
-## How can I deploy this project?
+## Deployment
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+The app is deployed via Lovable and a custom domain. Pushes to `main` are
+reflected in Lovable automatically. Edge functions are deployed from the
+`supabase/functions/` directory via `supabase functions deploy`.
 
-## Can I connect a custom domain to my Lovable project?
+## License
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Proprietary — © Autocurb.io. All rights reserved.

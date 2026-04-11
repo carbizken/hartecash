@@ -9,6 +9,7 @@ import type { ArchitectureType, WizardState } from "./types";
 import { architectureToplanTier } from "./types";
 
 const PLAN_LABELS: Record<string, string> = {
+  starter: "Starter — $1,495/mo",
   standard: "Standard — $1,995/mo",
   multi_store: "Multi-Store — $3,495/mo",
   group: "Group — $5,995/mo",

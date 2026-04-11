@@ -305,7 +305,7 @@ window.addEventListener("message", function(e) {
       <div>
         <h2 className="text-lg font-semibold text-card-foreground">Website Integration Toolkit</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Embed HarteCash into the dealership website to convert existing traffic into trade-in leads. Customers never leave the dealer site.
+          Embed Autocurb.io into the dealership website to convert existing traffic into trade-in leads. Customers never leave the dealer site.
         </p>
       </div>
 
@@ -950,7 +950,7 @@ window.addEventListener("message", function(e) {
         <CardContent className="text-sm text-muted-foreground space-y-2">
           <p>Share any of the code snippets above with your web developer or website provider (DealerInspire, Dealer.com, etc.):</p>
           <ul className="list-disc pl-5 space-y-1">
-            <li><strong>Trade iFrame (Priority 1):</strong> Replace the existing "Value Your Trade" page content. Remove KBB/TradePending/CARFAX widgets — HarteCash gives instant offers, not just estimates.</li>
+            <li><strong>Trade iFrame (Priority 1):</strong> Replace the existing "Value Your Trade" page content. Remove KBB/TradePending/CARFAX widgets — Autocurb.io gives instant offers, not just estimates.</li>
             <li><strong>Floating Widget (Priority 2):</strong> Add to the site footer template — one snippet covers every page. The slide-out panel keeps customers on-site.</li>
             <li><strong>Ghost Link (Priority 3):</strong> A sticky bar that follows the customer on VDP/SRP pages — appears after scrolling. Non-intrusive but always present.</li>
             <li><strong>VDP/SRP Banner:</strong> An inline card for vehicle detail and search results templates. Good complement to the ghost link.</li>

@@ -310,7 +310,7 @@ const AdminSidebar = ({
         {!collapsed && (
           <div className="text-center space-y-0.5">
             <p className="text-[10px] text-sidebar-foreground/50 font-medium tracking-wider uppercase">
-              HarteCash
+              Autocurb.io
             </p>
             <p className="text-[9px] text-sidebar-foreground/30">
               Enterprise Platform
