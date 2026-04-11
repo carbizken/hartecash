@@ -17,6 +17,7 @@ import StaffFileUpload from "@/components/admin/StaffFileUpload";
 import FollowUpPanel from "@/components/admin/FollowUpPanel";
 import RetailMarketPanel from "@/components/admin/RetailMarketPanel";
 import HistoricalInsightPanel from "@/components/appraisal/HistoricalInsightPanel";
+import PublishWholesaleDialog from "@/components/admin/PublishWholesaleDialog";
 import { useTenant } from "@/contexts/TenantContext";
 import {
   X, Printer, Users, Car, Search, DollarSign, Info, FileText, Gauge, Palette,
@@ -134,6 +135,7 @@ const SubmissionDetailSheet = ({
   const { toast } = useToast();
   const { tenant } = useTenant();
   const [editState, setEditState] = useState<Submission | null>(null);
+  const [wholesaleDialogOpen, setWholesaleDialogOpen] = useState(false);
 
   // Sync editState with selected
   const sub = editState?.id === selected?.id ? editState : selected;
@@ -588,9 +590,26 @@ const SubmissionDetailSheet = ({
               </div>
 
               {sub.progress_status === "dead_lead" ? (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-md bg-destructive/15">
-                  <XCircle className="w-5 h-5 text-destructive" />
-                  <span className="font-bold text-destructive text-sm">Dead Lead</span>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-md bg-destructive/15">
+                    <div className="flex items-center gap-2">
+                      <XCircle className="w-5 h-5 text-destructive" />
+                      <span className="font-bold text-destructive text-sm">Dead Lead</span>
+                    </div>
+                    {canSetPrice && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs border-primary/30 text-primary hover:bg-primary/10"
+                        onClick={() => setWholesaleDialogOpen(true)}
+                      >
+                        <Upload className="w-3 h-3 mr-1" /> Publish to Wholesale
+                      </Button>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground pl-1">
+                    Didn't close this deal? Offer it to other dealers in the Autocurb wholesale marketplace.
+                  </p>
                 </div>
               ) : (
                 <div className="flex items-center gap-0 w-full">
@@ -947,6 +966,18 @@ const SubmissionDetailSheet = ({
           </div>
         </ScrollArea>
       </SheetContent>
+
+      {/* Wholesale publish dialog (#4 Phase 1) */}
+      <PublishWholesaleDialog
+        submission={sub}
+        open={wholesaleDialogOpen}
+        onOpenChange={setWholesaleDialogOpen}
+        dealershipId={tenant.dealership_id}
+        onPublished={() => {
+          toast({ title: "Now live in Wholesale Market", description: "Other dealers can see and bid on this listing." });
+          fetchActivityLog(sub.id);
+        }}
+      />
     </Sheet>
   );
 };

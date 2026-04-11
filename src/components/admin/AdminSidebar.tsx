@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import {
   Inbox, CalendarDays, Users, ShieldCheck, SlidersHorizontal,
-  Settings, Bell, ListChecks, MessageSquareQuote, BarChart3, Send, MapPin, Car, ScrollText, Shield, Lock, Wrench, Rocket, Gauge, Network, Camera, Gift, Megaphone, ChevronDown, Link2
+  Settings, Bell, ListChecks, MessageSquareQuote, BarChart3, Send, MapPin, Car, ScrollText, Shield, Lock, Wrench, Rocket, Gauge, Network, Camera, Gift, Megaphone, ChevronDown, Link2, Store
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
@@ -109,6 +109,7 @@ const AdminSidebar = ({
     { key: "submissions", label: "All Leads", icon: Inbox, badge: submissionCount > 0 ? String(submissionCount) : undefined },
     { key: "accepted-appts", label: "Appointments", icon: CalendarDays, badge: appointmentCount > 0 ? String(appointmentCount) : undefined },
     ...(isManager ? [{ key: "executive", label: "Performance", icon: BarChart3 }] : []),
+    ...(isManager ? [{ key: "wholesale-market", label: "Wholesale Market", icon: Store }] : []),
   ].filter((item) => isAllowed(item.key));
 
   // ── CONFIGURATION ── (Offer Logic is manager+; rest is admin-only)
@@ -155,7 +156,7 @@ const AdminSidebar = ({
 
   // Locked sections for "Request Access"
   const allSectionKeys = [
-    "submissions", "accepted-appts", "executive",
+    "submissions", "accepted-appts", "executive", "wholesale-market",
     "offer-settings", "form-config", "inspection-config", "photo-config",
     "depth-policies", "promotions", "notifications",
     "site-config", "locations", "testimonials", "embed-toolkit",

@@ -37,6 +37,7 @@ import MyReferrals from "./MyReferrals";
 import MyLeadLink from "./MyLeadLink";
 import EmbedToolkit from "./EmbedToolkit";
 import PromotionManagement from "./PromotionManagement";
+import WholesaleMarketplace from "./WholesaleMarketplace";
 import AdminLoadingSkeleton from "./AdminLoadingSkeleton";
 import AdminEmptyState from "./AdminEmptyState";
 import { UserCheck as UserCheckIcon } from "lucide-react";
@@ -322,6 +323,7 @@ const AdminSectionRenderer = (props: AdminSectionRendererProps) => {
       )}
       {activeSection === "my-lead-link" && <MyLeadLink />}
       {activeSection === "embed-toolkit" && canManageAccess && <EmbedToolkit />}
+      {activeSection === "wholesale-market" && <WholesaleMarketplace />}
     </>
   );
 
