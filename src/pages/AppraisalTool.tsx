@@ -209,6 +209,35 @@ export default function AppraisalTool() {
   const { tenant } = useTenant();
   const dealershipId = tenant.dealership_id;
 
+  // ── Role gate (#3 pricing access enforcement) ────────────────────
+  // The appraisal tool exposes every deduction, waterfall block, cost
+  // basis, and retail markup. Only roles that are allowed to see a
+  // dealer's true cost structure should be able to open it.
+  const [roleCheckState, setRoleCheckState] = useState<"loading" | "allowed" | "denied">("loading");
+  useEffect(() => {
+    const checkRole = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/admin/login");
+        return;
+      }
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", session.user.id)
+        .limit(1)
+        .maybeSingle();
+      const role = (roleData as any)?.role || "";
+      const allowedRoles = ["admin", "gsm_gm", "used_car_manager"];
+      if (allowedRoles.includes(role)) {
+        setRoleCheckState("allowed");
+      } else {
+        setRoleCheckState("denied");
+      }
+    };
+    checkRole();
+  }, [navigate]);
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [sub, setSub] = useState<Submission | null>(null);
@@ -795,6 +824,30 @@ export default function AppraisalTool() {
   }, [sub]);
 
   const hasBrakes = !!(brakeDepths && (brakeDepths.lf != null || brakeDepths.rf != null || brakeDepths.lr != null || brakeDepths.rr != null));
+
+  // ── Role gate enforcement ──
+  // Pricing access is checked before anything else so no waterfall,
+  // deductions, or cost basis ever render for unauthorized roles.
+  if (roleCheckState === "loading") {
+    return <div className="flex items-center justify-center min-h-screen bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  }
+  if (roleCheckState === "denied") {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background gap-4 px-6">
+        <Lock className="w-12 h-12 text-muted-foreground" />
+        <div className="text-center max-w-md space-y-1">
+          <p className="text-lg font-semibold text-foreground">Pricing Access Required</p>
+          <p className="text-sm text-muted-foreground">
+            The appraisal tool exposes cost basis, deductions, and the full
+            price waterfall. Only Used Car Manager, GSM/GM, and Admin roles
+            can access it. Contact your administrator if you need temporary
+            pricing access.
+          </p>
+        </div>
+        <Button variant="outline" onClick={() => navigate("/admin")}>Back to Dashboard</Button>
+      </div>
+    );
+  }
 
   if (loading) {
     return <div className="flex items-center justify-center min-h-screen bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;

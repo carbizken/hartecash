@@ -16,6 +16,8 @@ import VehicleImage from "@/components/sell-form/VehicleImage";
 import StaffFileUpload from "@/components/admin/StaffFileUpload";
 import FollowUpPanel from "@/components/admin/FollowUpPanel";
 import RetailMarketPanel from "@/components/admin/RetailMarketPanel";
+import HistoricalInsightPanel from "@/components/appraisal/HistoricalInsightPanel";
+import { useTenant } from "@/contexts/TenantContext";
 import {
   X, Printer, Users, Car, Search, DollarSign, Info, FileText, Gauge, Palette,
   Settings2, Wrench, Key, Wind, Cigarette, CircleDot, Sparkles, TrendingUp,
@@ -130,6 +132,7 @@ const SubmissionDetailSheet = ({
   fetchSubmissions,
 }: SubmissionDetailSheetProps) => {
   const { toast } = useToast();
+  const { tenant } = useTenant();
   const [editState, setEditState] = useState<Submission | null>(null);
 
   // Sync editState with selected
@@ -723,6 +726,18 @@ const SubmissionDetailSheet = ({
                   offerHigh={sub.offered_price ?? sub.estimated_offer_high ?? 0}
                 />
               </SectionCard>
+            )}
+
+            {/* Historical Intelligence — only visible to roles that can see pricing.
+                Shows an early-learning state until the dealership finalizes enough deals. */}
+            {canSetPrice && (sub as any).bb_class_name && sub.overall_condition && (
+              <HistoricalInsightPanel
+                dealershipId={tenant.dealership_id}
+                bbClassName={(sub as any).bb_class_name || null}
+                overallCondition={sub.overall_condition}
+                mileage={sub.mileage}
+                reconEstimate={0}
+              />
             )}
 
             <SectionCard icon={ClipboardCheck} title="Check Request">
