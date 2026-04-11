@@ -748,6 +748,141 @@ loop it unlocks is the product. The integration should be
 planned and pitched with equity mining as the primary use case,
 not as a back-office workflow fix.
 
+### 🚨 BLOCKER — Consent text update must ship BEFORE DealerTrack goes live
+
+Pulling a consumer's loan payoff from DealerTrack (or any lender
+API) is **regulated data access**, not a casual workflow step. Every
+payoff request must be backed by explicit written consumer
+authorization on file, or the lender can legally refuse the request
+AND the dealer is exposed to audit risk. This must land as a code
+change BEFORE the DealerTrack integration switches on — not after.
+
+**The legal stack that requires it:**
+
+- **Gramm-Leach-Bliley Act (GLBA)** — Section 501 requires financial
+  institutions to get "clear and conspicuous" consumer authorization
+  before sharing account info with third parties. Lenders on the
+  DealerTrack network enforce this contractually.
+- **FCRA (Fair Credit Reporting Act)** — Payoff pulls that touch
+  credit-reporting data require a "permissible purpose," which in
+  dealer-acquisition context is "written instructions of the
+  consumer."
+- **State privacy acts** — CCPA (California), CPRA, VCDPA (Virginia),
+  CPA (Colorado), **CTDPA (Connecticut** — relevant to the target
+  customer base**)** all require disclosure of every data source the
+  platform queries about the consumer.
+- **DealerTrack's own Terms** — Cox requires the dealer to certify
+  that the consumer has given written authorization for each payoff
+  pull before the API call is accepted.
+
+**What the consent text must cover** (three distinct elements):
+
+1. **Purpose** — why the data is being pulled (to complete the
+   vehicle acquisition the customer requested)
+2. **Scope** — what data will be pulled (payoff amount, lender name,
+   account status, per-diem rate)
+3. **Duration** — how long the authorization is valid (typical
+   language: "for 90 days from submission or until withdrawn in
+   writing")
+
+**Proposed copy for consent v2** — add as a new paragraph inside
+`src/lib/consent.ts::buildConsentText()` and publish as version v2
+in the existing `consent_text_versions` table:
+
+> **Payoff Verification Authorization.** By submitting this form
+> and providing your VIN, name, and contact information, you
+> authorize **{{dealership_name}}** and its authorized service
+> providers (including DealerTrack and/or RouteOne) to request a
+> 10-day payoff quote from your current lienholder, if any, for the
+> sole purpose of completing the vehicle acquisition you've
+> requested. You authorize your lender to release your payoff
+> amount, per-diem interest rate, and account status to us in
+> response to this request. This authorization remains valid for 90
+> days from the date of submission or until you withdraw it in
+> writing. A copy of every payoff request we make on your behalf is
+> available upon request.
+
+**How it ties into what's already shipped:**
+
+The TCPA consent versioning infrastructure from Wave 3 (migration
+`20260411000100_consent_text_versioning.sql`) already supports this.
+Every consent_log row carries a `consent_version` tag that
+references a row in `consent_text_versions` with the full legal
+text. Adding v2 is a pure data operation plus a one-line version
+bump — the read path, audit trail, and history UI already exist.
+
+**Two-commit implementation plan:**
+
+Commit 1 — Consent text v2 (pre-DealerTrack blocker):
+- New migration `20260412000000_consent_v2_payoff_authorization.sql`
+  inserts the v2 row into `consent_text_versions` with the full
+  payoff authorization language
+- `src/lib/consent.ts::buildConsentText()` appends the new paragraph
+  to the existing TCPA copy
+- `src/lib/consent.ts::CURRENT_CONSENT_VERSION` bumps from "v1" to
+  "v2" — every new submission after deploy automatically gets v2
+  stamped into `consent_log`
+- Old v1 submissions keep their v1 tag — audit trail remains honest
+  about which customers pre-date the payoff authorization
+
+Commit 2 — Customer-facing disclosure surfaces:
+- New "What happens next?" bullet list on the sell-form submit
+  screen that includes: *"If you have a loan, we'll request a
+  payoff quote from your lender on your behalf"*
+- New "Data we've accessed" panel on the customer portal listing
+  every payoff pull with timestamp + source (DealerTrack / RouteOne
+  / manual). Fulfills CCPA/CTDPA data-access-disclosure requirements
+  AND gives the customer a reason to trust the flow.
+- Privacy Policy page update (`src/pages/PrivacyPolicy.tsx`) — new
+  section "Payoff Quote Requests" mirroring the consent text in
+  longer form for the standard privacy policy layout
+
+**Scope:** ~4-6 hours total across both commits. Pure text + one
+migration + one data panel + one privacy policy section. Zero
+dependencies on the DealerTrack integration itself — these commits
+ship FIRST so that by the time payoff API credentials land, every
+new consumer in the database has already authorized the pull.
+
+**Hard requirement:** Commit 1 MUST ship before Item 4 (DealerTrack
+Payoff Verification) goes into production. The first payoff request
+made against a submission whose `consent_version = 'v1'` is legally
+exposed — the v1 consent text doesn't authorize the data access.
+Either:
+- Ship consent v2 first and backfill authorization consent for
+  existing v1 customers via email re-affirmation, OR
+- Only run DealerTrack payoff pulls on submissions where
+  `consent_version IN ('v2', ...)` — the edge function should
+  enforce this at query time, not trust the caller
+
+The edge function `dealertrack-payoff-fetch` should carry an
+explicit consent check as its first step:
+
+```ts
+// Before any payoff request, verify the consumer has consent on
+// file that includes payoff authorization (v2 or later).
+const { data: submission } = await supabase
+  .from("submissions")
+  .select("consent_version, token")
+  .eq("id", submission_id)
+  .maybeSingle();
+
+const { data: consent } = await supabase
+  .from("consent_log")
+  .select("consent_version")
+  .eq("submission_token", submission.token)
+  .order("created_at", { ascending: false })
+  .limit(1)
+  .maybeSingle();
+
+if (!consent || !PAYOFF_AUTHORIZED_VERSIONS.includes(consent.consent_version)) {
+  return { error: "Consumer has not authorized payoff retrieval. Request re-consent." };
+}
+```
+
+This is defense in depth — even if the UI somehow lets a v1
+submission reach the DealerTrack flow, the edge function refuses
+the request at the boundary.
+
 ---
 
 ## Prioritization
