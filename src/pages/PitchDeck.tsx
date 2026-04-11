@@ -15,7 +15,8 @@ import {
   Car, Users, Shield, Zap, BarChart3, CheckCircle2, XCircle, Clock, DollarSign,
   Smartphone, FileText, Camera, UserCheck, Lock, TrendingUp, Award, ArrowRight,
   Globe, Layers, Eye, Target, Cpu, Database, ChevronDown, Handshake, ShieldCheck,
-  ChevronUp, Repeat, MapPin, ArrowUpRight
+  ChevronUp, Repeat, MapPin, ArrowUpRight, Sparkles, Gauge, ScanLine, Store,
+  Gift, History, Flame, Activity
 } from "lucide-react";
 
 /* ─── Animated Counter ─── */
@@ -136,11 +137,12 @@ export default function PitchDeck() {
           <motion.p variants={fadeUp} custom={2} className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto mb-14 leading-relaxed">
             A dealer-branded platform that acquires vehicles directly from consumers — from submission to check request. Three channels. One pipeline. Zero auction dependency.
           </motion.p>
-          <motion.div variants={fadeUp} custom={3} className="flex flex-wrap items-center justify-center gap-8 text-sm text-white/40">
+          <motion.div variants={fadeUp} custom={3} className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-white/40">
             {[
               { icon: Globe, label: "100% Your Brand" },
               { icon: Zap, label: "Submission → Check Request" },
               { icon: Layers, label: "3 Acquisition Channels" },
+              { icon: Sparkles, label: "AI Condition Scoring & Auto-Bump" },
               { icon: TrendingUp, label: "~$2K Saved Per Unit" },
             ].map(({ icon: I, label }) => (
               <span key={label} className="flex items-center gap-2"><I className="w-4 h-4 text-blue-400" />{label}</span>
@@ -377,18 +379,28 @@ export default function PitchDeck() {
 
             <motion.div variants={fadeUp} custom={3} className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { icon: BarChart3, title: "Full Deal Pipeline", desc: "10+ stages from New → Offer Sent → Accepted → Inspected → Check Requested. Every lead has a clear next action." },
-                { icon: Cpu, title: "Interactive Offer Builder", desc: "Waterfall visualization with real-time sliders, profit spread gauge, and what-if scenarios for faster, smarter offers." },
-                { icon: Eye, title: "AI Damage Detection", desc: "Every uploaded photo analyzed for dents, scratches, and paint damage. Condition scores auto-adjust before your team even looks." },
-                { icon: Repeat, title: "Automated Follow-Ups", desc: "Multi-touch SMS and email sequences for cold leads. Configurable intervals. Leads don't die in inboxes anymore." },
-                { icon: Lock, title: "Role-Based Permissions", desc: "BDC, Sales, Managers, Admin — each tier sees exactly what they need. Enforced at the database level, not just UI." },
-                { icon: Target, title: "Inspection-to-Appraisal", desc: "Tire depths, brake measurements, and condition grades flow directly into the offer calculation. No re-keying data." },
+                // Marquee AI features first — these are the ones that sell the platform
+                { icon: Sparkles, title: "AI Photo Re-Appraisal", desc: "Gemini scores every uploaded photo. If the AI sees better condition than the customer claimed, it recommends — or auto-applies — an offer bump up to $2,500. Customers who upload photos see their offer go UP.", highlight: true },
+                { icon: Gauge, title: "Appraiser Queue", desc: "Walk-ins, service-drive captures, declined offers, and manager-flagged leads all land in one priority-sorted queue for the UCM or anyone with the Appraiser credential. Never lose a recoverable deal to an inbox." },
+                { icon: ScanLine, title: "VIN Barcode Check-In", desc: "Walk a customer out to the service lane, scan the door-jamb VIN with iPhone or Android in under 500ms, and the inspection sheet is pre-populated before you're back at the desk." },
+                { icon: History, title: "Historical Intelligence", desc: "The platform learns from every finalized deal at your store. Each appraisal surfaces acceptance rate, avg days-to-sale, price realization, and recon accuracy for that exact vehicle segment." },
+                { icon: BarChart3, title: "Full Deal Pipeline", desc: "10+ stages from New → Offer Sent → Accepted → Inspected → Check Requested. Every lead has a clear next action and aging badge." },
+                { icon: Cpu, title: "Interactive Offer Builder", desc: "Waterfall visualization with real-time sliders, profit spread gauge, AI condition adjustment, and what-if scenarios for faster, smarter offers." },
+                { icon: Repeat, title: "Automated Follow-Ups", desc: "Multi-touch SMS and email sequences for cold leads. Timezone-aware quiet hours, opt-out respecting, TCPA-compliant. Leads don't die in inboxes anymore." },
+                { icon: Lock, title: "Role-Based + Appraiser Credential", desc: "BDC, Sales, UCM, GSM, Admin — each tier sees exactly what they need. Any role can be additionally granted the Appraiser credential without changing their base role. Enforced at the database level." },
+                { icon: Target, title: "Inspection → Appraisal Flow", desc: "Tire depths, brake measurements, AI condition grades, and Black Book data flow directly into the offer calculation. No re-keying, no lost context, no mis-typed numbers." },
+                { icon: TrendingUp, title: "Equity Mining", desc: "Automatic revaluation of stale leads when Black Book values move. Service customers with growing equity get re-engaged before they drive off the lot for someone else." },
+                { icon: Store, title: "Wholesale Exit", desc: "Dead leads route to your inter-dealer wholesale marketplace for dealers on the Autocurb network. Cars you can't retail don't become sunk cost." },
+                { icon: Gift, title: "Referral Program with Payout Reconciliation", desc: "Built-in rep referral codes, automatic attribution, full payout ledger with check-number tracking, and clawback workflow. Every dollar of reward is auditable." },
               ].map((item, i) => (
-                <motion.div key={i} variants={scaleIn} custom={i * 0.3 + 4} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-blue-400/30 transition-colors">
+                <motion.div key={i} variants={scaleIn} custom={i * 0.2 + 4} className={`bg-white/5 border rounded-2xl p-6 transition-colors ${item.highlight ? "border-blue-400/40 bg-blue-500/10 hover:border-blue-400/60" : "border-white/10 hover:border-blue-400/30"}`}>
                   <div className="w-11 h-11 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4">
                     <item.icon className="w-5 h-5 text-blue-400" />
                   </div>
-                  <h3 className="font-bold text-base mb-2">{item.title}</h3>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="font-bold text-base">{item.title}</h3>
+                    {item.highlight && <span className="text-[9px] font-bold uppercase tracking-wider text-blue-400 bg-blue-500/15 border border-blue-400/30 rounded-full px-2 py-0.5">New</span>}
+                  </div>
                   <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
                 </motion.div>
               ))}
@@ -448,18 +460,32 @@ export default function PitchDeck() {
                     { feature: "Customer Portal & Offer Acceptance", us: true, them: false, others: false },
                     { feature: "Photo Upload with Camera Guides", us: true, them: false, others: false },
                     { feature: "Document Upload (DL, Title, Reg)", us: true, them: false, others: false },
-                    { feature: "AI Damage Detection", us: true, them: false, others: false },
+                    { feature: "AI Photo Condition Scoring", us: true, them: false, others: false },
+                    { feature: "AI Auto-Bump on Photo Upload", us: true, them: false, others: false },
+                    { feature: "Subject-to-Inspection Disclosure", us: true, them: false, others: false },
+                    { feature: "Appraiser Queue (Walk-In / Service / Declined)", us: true, them: false, others: false },
+                    { feature: "VIN Barcode Scan Check-In (iOS + Android)", us: true, them: false, others: false },
+                    { feature: "Historical Intelligence Engine", us: true, them: false, others: false },
+                    { feature: "Equity Mining Revaluation", us: true, them: "partial", others: false },
+                    { feature: "Wholesale Exit Marketplace", us: true, them: false, others: false },
                     { feature: "Appointment Scheduling & Reminders", us: true, them: false, others: false },
                     { feature: "Custom Domain & Full White-Label", us: true, them: "partial", others: false },
                     { feature: "Multi-Location Smart Routing", us: true, them: false, others: false },
                     { feature: "Configurable Pricing Engine", us: true, them: true, others: "partial" },
-                    { feature: "Referral Program Built-In", us: true, them: false, others: false },
-                    { feature: "Automated Email Sequences", us: true, them: false, others: false },
+                    { feature: "Referral Program + Payout Ledger", us: true, them: false, others: false },
+                    { feature: "Automated Email & SMS Sequences", us: true, them: false, others: false },
                     { feature: "Condition & Inspection Tools", us: true, them: "partial", others: false },
+                    { feature: "TCPA Consent Versioning", us: true, them: false, others: false },
+                    { feature: "Per-User Appraiser Credential", us: true, them: false, others: false },
+                    { feature: "vAuto Push Integration", us: "partial", them: false, others: false },
                   ].map((row, i) => (
                     <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                       <td className="py-3 px-4 text-white/70">{row.feature}</td>
-                      <td className="py-3 px-4 text-center"><CheckCircle2 className="w-5 h-5 text-emerald-400 mx-auto" /></td>
+                      <td className="py-3 px-4 text-center">
+                        {row.us === true ? <CheckCircle2 className="w-5 h-5 text-emerald-400 mx-auto" /> :
+                         row.us === "partial" ? <span className="text-xs text-blue-400/80 font-semibold">Beta</span> :
+                         <XCircle className="w-5 h-5 text-white/15 mx-auto" />}
+                      </td>
                       <td className="py-3 px-4 text-center">
                         {row.them === true ? <CheckCircle2 className="w-5 h-5 text-white/30 mx-auto" /> :
                          row.them === "partial" ? <span className="text-xs text-yellow-400/70">Partial</span> :
@@ -481,6 +507,124 @@ export default function PitchDeck() {
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 All features live in production — not a roadmap
               </div>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══ 6b — TRUST, COMPLIANCE & GOVERNANCE ═══ */}
+      <section className="px-6 py-20 md:py-28 relative">
+        <div className="absolute top-1/3 left-0 w-[500px] h-[500px] rounded-full bg-emerald-600/8 blur-[140px] pointer-events-none" />
+        <div className="max-w-6xl mx-auto relative">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <GlowBadge label="Trust, Compliance & Governance" color="emerald" />
+            <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight">
+              Built for Dealers Who Get{" "}
+              <span className="text-emerald-400">Audited</span>
+            </motion.h2>
+            <motion.p variants={fadeUp} custom={1} className="text-lg text-white/50 max-w-3xl mb-14 leading-relaxed">
+              Every customer interaction, every price change, every consent checkbox — captured, versioned, and timestamped. One lawsuit costs more than ten years of Autocurb subscriptions, and we built the platform knowing that.
+            </motion.p>
+
+            <motion.div variants={fadeUp} custom={2} className="grid md:grid-cols-2 gap-6">
+              {[
+                {
+                  icon: ShieldCheck,
+                  title: "Subject-to-Inspection Disclosure",
+                  desc: "Any offer that's manually overridden or AI-bumped above the algorithmic baseline automatically carries a prominent \"Subject to physical inspection\" disclosure on the customer's offer page, acceptance screen, and confirmation email. Enforced at the database level — no code path can forget to set it.",
+                },
+                {
+                  icon: FileText,
+                  title: "TCPA Consent Versioning",
+                  desc: "Every consent a customer agrees to is pinned to a versioned text record. Bump the legal copy whenever it changes, keep the full history, and prove exactly what a customer agreed to on any given day without re-reading thousands of rows.",
+                },
+                {
+                  icon: History,
+                  title: "Complete Activity Audit Trail",
+                  desc: "Every status change, price edit, ACV adjustment, offer bump (manual or AI), check-request generation, and note update writes a signed entry to the activity log with a timestamp and the staff member who did it. Full defensibility on every deal.",
+                },
+                {
+                  icon: Lock,
+                  title: "Pricing Access Gate",
+                  desc: "The appraisal tool — waterfall, deduction basis, wholesale spread — is restricted to roles that are allowed to see cost. Any non-privileged role sees a Lock screen explaining they need to request temporary pricing access. Database-enforced, not just UI.",
+                },
+              ].map((item, i) => (
+                <motion.div key={i} variants={scaleIn} custom={i + 3} className="bg-white/5 border border-emerald-400/20 rounded-2xl p-6 hover:border-emerald-400/40 transition-colors">
+                  <div className="w-11 h-11 rounded-xl bg-emerald-500/20 flex items-center justify-center mb-4">
+                    <item.icon className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <h3 className="font-bold text-base mb-2">{item.title}</h3>
+                  <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
+                </motion.div>
+              ))}
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══ 6c — HOW IT PERFORMS ═══ */}
+      <section className="px-6 py-20 md:py-28 bg-[hsl(220,25%,8%)]">
+        <div className="max-w-6xl mx-auto">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }}>
+            <GlowBadge label="How It Performs" color="blue" />
+            <motion.h2 variants={fadeUp} custom={0} className="text-3xl md:text-5xl lg:text-6xl font-black mb-6 leading-tight">
+              Speed, Precision &{" "}
+              <span className="text-blue-400">Savings by the Numbers</span>
+            </motion.h2>
+            <motion.p variants={fadeUp} custom={1} className="text-lg text-white/50 max-w-3xl mb-14 leading-relaxed">
+              Every feature on the platform was built with a performance target. Here's what's measurable today — no roadmap promises, no "coming soon" fine print.
+            </motion.p>
+
+            <motion.div variants={fadeUp} custom={2} className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-14">
+              {[
+                { value: "< 500ms", label: "VIN barcode decode time", icon: ScanLine, accent: "text-blue-400" },
+                { value: "24 hr", label: "Black Book VIN cache TTL", icon: Database, accent: "text-emerald-400" },
+                { value: "$2,500", label: "Max AI auto-bump per vehicle", icon: Sparkles, accent: "text-violet-400" },
+                { value: "20+", label: "Automated edge functions", icon: Activity, accent: "text-amber-400" },
+                { value: "5", label: "Queue priority tiers", icon: Gauge, accent: "text-red-400" },
+                { value: "10+", label: "Deal pipeline stages", icon: BarChart3, accent: "text-blue-400" },
+                { value: "7", label: "Timezone options — quiet-hours aware", icon: Clock, accent: "text-emerald-400" },
+                { value: "8", label: "US brands auto-flagged for OBD brake read", icon: Shield, accent: "text-violet-400" },
+              ].map((m, i) => (
+                <motion.div key={i} variants={scaleIn} custom={i + 3} className="bg-white/5 border border-white/10 rounded-2xl p-5 text-center hover:border-white/20 transition-colors">
+                  <m.icon className={`w-5 h-5 ${m.accent} mx-auto mb-3 opacity-70`} />
+                  <div className={`text-2xl md:text-3xl font-black mb-1 ${m.accent}`}>{m.value}</div>
+                  <p className="text-[11px] text-white/50 leading-snug">{m.label}</p>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            <motion.div variants={fadeUp} custom={3} className="grid md:grid-cols-2 gap-6">
+              {[
+                {
+                  icon: Sparkles,
+                  title: "Gemini 2.5 Flash on every photo",
+                  desc: "Every uploaded photo is analyzed within seconds for dents, scratches, paint chips, wheel rash, interior wear, and warning lights. The AI writes a structured condition report that flows straight into the offer calculation.",
+                },
+                {
+                  icon: ScanLine,
+                  title: "Cross-browser VIN scanning",
+                  desc: "Native BarcodeDetector on Chromium-class browsers (fastest path), automatic fallback to ZXing on Safari, iOS browsers, and Firefox. Scans work the same on every iPhone, every Android, every desktop.",
+                },
+                {
+                  icon: Flame,
+                  title: "Real-time queue prioritization",
+                  desc: "Walk-ins (customer physically on the lot) → service drive → manual entries → manager-flagged → declined offers. Oldest within each tier surfaces first so nothing rots.",
+                },
+                {
+                  icon: Repeat,
+                  title: "Photo-upload offer recovery",
+                  desc: "When a customer declines an offer, the decline-recovery flow invites them to upload photos — if the AI sees better condition than they reported, the offer automatically goes UP. Recovered deals cost the dealer pennies vs. the auction lane.",
+                },
+              ].map((item, i) => (
+                <motion.div key={i} variants={scaleIn} custom={i + 5} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-blue-400/30 transition-colors">
+                  <div className="w-11 h-11 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4">
+                    <item.icon className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <h3 className="font-bold text-base mb-2">{item.title}</h3>
+                  <p className="text-sm text-white/50 leading-relaxed">{item.desc}</p>
+                </motion.div>
+              ))}
             </motion.div>
           </motion.div>
         </div>
@@ -559,7 +703,7 @@ export default function PitchDeck() {
               <span className="text-emerald-400">Your P&L</span>
             </motion.h2>
             <motion.p variants={fadeUp} custom={1} className="text-lg text-white/50 max-w-3xl mx-auto mb-16 text-center leading-relaxed">
-              Carvana sources 31% of inventory directly from consumers. CarMax sources 87%. Every unit you acquire direct saves ~$2,000 in auction fees, transport, and recon.
+              Carvana sources 31% of inventory directly from consumers. CarMax sources 87%. Every unit you acquire direct saves ~$2,000 in auction fees, transport, and recon — AND the AI re-appraisal engine recovers deals that would have otherwise walked away, bumping offers up to $2,500 when photos show better condition than claimed.
             </motion.p>
 
             {/* ROI tiers */}
