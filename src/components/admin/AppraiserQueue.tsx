@@ -105,12 +105,26 @@ interface AppraiserQueueProps {
   isAppraiser?: boolean;
 }
 
+interface AIReappraisalSuggestion {
+  id: string;
+  submission_id: string;
+  old_offer: number | null;
+  suggested_offer: number;
+  delta: number;
+  ai_confidence: number | null;
+  photos_analyzed: number;
+  reason: string;
+  status: string;
+  created_at: string;
+}
+
 const AppraiserQueue = ({ userRole = "", isAppraiser = false }: AppraiserQueueProps) => {
   const { tenant } = useTenant();
   const { config } = useSiteConfig();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [rows, setRows] = useState<QueueRow[]>([]);
+  const [suggestions, setSuggestions] = useState<Record<string, AIReappraisalSuggestion>>({});
   const [loading, setLoading] = useState(true);
 
   const autoRoute = Boolean((config as any).auto_route_appraiser_queue);
@@ -146,8 +160,88 @@ const AppraiserQueue = ({ userRole = "", isAppraiser = false }: AppraiserQueuePr
       setLoading(false);
       return;
     }
-    setRows((data as QueueRow[]) || []);
+    const queueRows = (data as QueueRow[]) || [];
+    setRows(queueRows);
+
+    // Fetch pending AI re-appraisal suggestions for the submissions in view
+    if (queueRows.length > 0) {
+      try {
+        const submissionIds = queueRows.map(r => r.id);
+        const { data: sugData } = await (supabase as any)
+          .from("ai_reappraisal_log")
+          .select("id, submission_id, old_offer, suggested_offer, delta, ai_confidence, photos_analyzed, reason, status, created_at")
+          .in("submission_id", submissionIds)
+          .in("status", ["suggested", "auto_applied"])
+          .order("created_at", { ascending: false });
+        if (sugData) {
+          // One suggestion per submission — newest wins
+          const byId: Record<string, AIReappraisalSuggestion> = {};
+          for (const s of sugData as AIReappraisalSuggestion[]) {
+            if (!byId[s.submission_id]) byId[s.submission_id] = s;
+          }
+          setSuggestions(byId);
+        }
+      } catch (e) {
+        console.error("Failed to load AI suggestions:", e);
+      }
+    } else {
+      setSuggestions({});
+    }
     setLoading(false);
+  };
+
+  const acceptSuggestion = async (row: QueueRow, suggestion: AIReappraisalSuggestion) => {
+    // Apply the AI-recommended offer and mark the log entry accepted.
+    // The DB trigger auto_flag_subject_to_inspection will set
+    // offer_subject_to_inspection = true automatically because the new
+    // offered_price is above the algorithmic baseline.
+    const { data: userData } = await supabase.auth.getUser();
+    const actorEmail = userData?.user?.email || "unknown";
+    const { error: updateErr } = await supabase
+      .from("submissions")
+      .update({ offered_price: suggestion.suggested_offer })
+      .eq("id", row.id);
+    if (updateErr) {
+      toast({ title: "Failed to apply bump", description: updateErr.message, variant: "destructive" });
+      return;
+    }
+    await (supabase as any).from("ai_reappraisal_log").update({
+      status: "accepted",
+      decided_at: new Date().toISOString(),
+      decided_by: actorEmail,
+    }).eq("id", suggestion.id);
+
+    // Audit trail
+    await supabase.from("activity_log").insert({
+      submission_id: row.id,
+      action: "AI Bump Accepted",
+      old_value: suggestion.old_offer ? `$${suggestion.old_offer.toLocaleString()}` : "None",
+      new_value: `$${suggestion.suggested_offer.toLocaleString()}`,
+      performed_by: actorEmail,
+    });
+
+    // Customer notification
+    supabase.functions.invoke("send-notification", {
+      body: { trigger_key: "customer_offer_increased", submission_id: row.id },
+    }).catch(console.error);
+
+    toast({
+      title: "Bump applied",
+      description: `Offer raised to $${suggestion.suggested_offer.toLocaleString()}. Customer will be notified.`,
+    });
+    fetchQueue();
+  };
+
+  const dismissSuggestion = async (suggestion: AIReappraisalSuggestion) => {
+    const { data: userData } = await supabase.auth.getUser();
+    const actorEmail = userData?.user?.email || "unknown";
+    await (supabase as any).from("ai_reappraisal_log").update({
+      status: "dismissed",
+      decided_at: new Date().toISOString(),
+      decided_by: actorEmail,
+    }).eq("id", suggestion.id);
+    toast({ title: "Suggestion dismissed" });
+    fetchQueue();
   };
 
   useEffect(() => {
@@ -326,6 +420,64 @@ const AppraiserQueue = ({ userRole = "", isAppraiser = false }: AppraiserQueuePr
                         Customer saw {formatCurrency(customerExpected)} — consider a bump or a manual re-val.
                       </p>
                     )}
+                    {/* AI re-appraisal suggestion row */}
+                    {(() => {
+                      const suggestion = suggestions[row.id];
+                      if (!suggestion) return null;
+                      const isBump = suggestion.delta > 0;
+                      const isAutoApplied = suggestion.status === "auto_applied";
+                      const chipClass = isAutoApplied
+                        ? "bg-emerald-500/15 text-emerald-600 border-emerald-500/30"
+                        : isBump
+                        ? "bg-violet-500/15 text-violet-600 border-violet-500/30"
+                        : "bg-amber-500/15 text-amber-600 border-amber-500/30";
+                      return (
+                        <div className={`mt-2 rounded-lg border p-2.5 ${chipClass}`}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span className="text-[10px] font-bold uppercase tracking-wider">
+                              {isAutoApplied ? "AI Auto-Applied" : "AI Recommends"}
+                            </span>
+                            <span className="text-[10px] opacity-70">
+                              · {suggestion.photos_analyzed} {suggestion.photos_analyzed === 1 ? "photo" : "photos"}
+                              · {suggestion.ai_confidence ?? "—"}% confidence
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[11px] line-through opacity-60">
+                              {suggestion.old_offer ? formatCurrency(suggestion.old_offer) : "—"}
+                            </span>
+                            <ArrowRight className="w-3 h-3 opacity-60" />
+                            <span className="text-sm font-black">
+                              {formatCurrency(suggestion.suggested_offer)}
+                            </span>
+                            <span className={`text-[11px] font-semibold ${isBump ? "text-emerald-600" : "text-amber-600"}`}>
+                              {isBump ? "+" : ""}{formatCurrency(suggestion.delta)}
+                            </span>
+                          </div>
+                          <p className="text-[11px] mt-1 leading-relaxed">{suggestion.reason}</p>
+                          {suggestion.status === "suggested" && (
+                            <div className="flex gap-1.5 mt-2">
+                              <Button
+                                size="sm"
+                                className="h-7 text-[11px]"
+                                onClick={() => acceptSuggestion(row, suggestion)}
+                              >
+                                Accept Bump
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-7 text-[11px]"
+                                onClick={() => dismissSuggestion(suggestion)}
+                              >
+                                Dismiss
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                   <div className="flex items-center gap-2">
                     <Button

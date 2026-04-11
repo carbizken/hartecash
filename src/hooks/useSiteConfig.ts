@@ -39,6 +39,12 @@ export interface SiteConfig {
   enable_dl_ocr: boolean;
   track_abandoned_leads: boolean;
   auto_route_appraiser_queue: boolean;
+  ai_photo_reappraisal: boolean;
+  ai_auto_bump_enabled: boolean;
+  ai_auto_bump_max_pct: number;
+  ai_auto_bump_max_dollars: number;
+  ai_auto_bump_daily_cap: number;
+  ai_auto_bump_confidence_floor: number;
   about_hero_headline: string;
   about_hero_subtext: string;
   about_story: string;
@@ -99,6 +105,12 @@ const DEFAULTS: SiteConfig = {
   enable_dl_ocr: false,
   track_abandoned_leads: true,
   auto_route_appraiser_queue: false,
+  ai_photo_reappraisal: false,
+  ai_auto_bump_enabled: false,
+  ai_auto_bump_max_pct: 15,
+  ai_auto_bump_max_dollars: 2000,
+  ai_auto_bump_daily_cap: 10000,
+  ai_auto_bump_confidence_floor: 70,
   about_hero_headline: "Our Story",
   about_hero_subtext: "We're passionate about helping drivers get the most value for their vehicles — no haggling, no stress.",
   about_story: "",

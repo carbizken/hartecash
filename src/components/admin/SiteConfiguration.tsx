@@ -44,6 +44,12 @@ interface SiteConfig {
   enable_dl_ocr: boolean;
   track_abandoned_leads: boolean;
   auto_route_appraiser_queue: boolean;
+  ai_photo_reappraisal: boolean;
+  ai_auto_bump_enabled: boolean;
+  ai_auto_bump_max_pct: number;
+  ai_auto_bump_max_dollars: number;
+  ai_auto_bump_daily_cap: number;
+  ai_auto_bump_confidence_floor: number;
   cta_offer_color: string;
   cta_accept_color: string;
   assign_customer_picks: boolean;
@@ -94,6 +100,12 @@ const DEFAULT_CONFIG: SiteConfig = {
   enable_dl_ocr: false,
   track_abandoned_leads: true,
   auto_route_appraiser_queue: false,
+  ai_photo_reappraisal: false,
+  ai_auto_bump_enabled: false,
+  ai_auto_bump_max_pct: 15,
+  ai_auto_bump_max_dollars: 2000,
+  ai_auto_bump_daily_cap: 10000,
+  ai_auto_bump_confidence_floor: 70,
   cta_offer_color: "",
   cta_accept_color: "",
   assign_customer_picks: false,
@@ -850,6 +862,149 @@ const SiteConfiguration = ({ focusField }: { focusField?: string }) => {
               }}
             />
           </div>
+
+          {/* AI Photo Re-Appraisal — master toggle */}
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
+            <div className="flex-1 mr-3">
+              <Label className="text-sm font-semibold">AI Photo Re-Appraisal</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                When a customer uploads vehicle photos, Gemini re-scores the condition from the
+                images and compares it to what the customer self-reported. If the AI sees better
+                condition than claimed, it writes a recommended offer bump to the Appraiser Queue
+                for a human to review and apply. Does nothing on its own — you still decide every
+                bump unless you also enable Auto-Bump below.
+              </p>
+            </div>
+            <Switch
+              checked={(config as any).ai_photo_reappraisal}
+              onCheckedChange={v => {
+                setConfig(prev => {
+                  const next = { ...prev, ai_photo_reappraisal: v };
+                  setHasChanges(JSON.stringify(next) !== JSON.stringify(savedConfig));
+                  return next;
+                });
+              }}
+            />
+          </div>
+
+          {/* AI Auto-Bump — only shown when Photo Re-Appraisal is on */}
+          {(config as any).ai_photo_reappraisal && (
+            <div className="ml-4 pl-4 border-l-2 border-primary/30 space-y-3">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/20">
+                <div className="flex-1 mr-3">
+                  <Label className="text-sm font-semibold">AI Auto-Bump (advanced)</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    When enabled, the AI automatically applies bump recommendations without
+                    human approval. Every auto-bump is subject to the safety limits below, and
+                    every auto-bump automatically marks the offer as subject to physical
+                    inspection on the customer's confirmation screen. <strong>Start with this off</strong>,
+                    watch the queue for a week, and flip it on only after you trust the
+                    recommendations.
+                  </p>
+                </div>
+                <Switch
+                  checked={(config as any).ai_auto_bump_enabled}
+                  onCheckedChange={v => {
+                    setConfig(prev => {
+                      const next = { ...prev, ai_auto_bump_enabled: v };
+                      setHasChanges(JSON.stringify(next) !== JSON.stringify(savedConfig));
+                      return next;
+                    });
+                  }}
+                />
+              </div>
+
+              {(config as any).ai_auto_bump_enabled && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3 rounded-lg bg-card border border-border">
+                    <Label className="text-xs font-semibold">Max Bump %</Label>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 mb-2">
+                      Anything above this % of the current offer goes to the queue instead of auto-applying.
+                    </p>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={50}
+                      value={(config as any).ai_auto_bump_max_pct}
+                      onChange={e => {
+                        const v = Number(e.target.value) || 0;
+                        setConfig(prev => {
+                          const next = { ...prev, ai_auto_bump_max_pct: v };
+                          setHasChanges(JSON.stringify(next) !== JSON.stringify(savedConfig));
+                          return next;
+                        });
+                      }}
+                      className="h-9"
+                    />
+                  </div>
+                  <div className="p-3 rounded-lg bg-card border border-border">
+                    <Label className="text-xs font-semibold">Max Bump $</Label>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 mb-2">
+                      Anything above this dollar amount goes to the queue instead of auto-applying.
+                    </p>
+                    <Input
+                      type="number"
+                      min={100}
+                      max={10000}
+                      step={100}
+                      value={(config as any).ai_auto_bump_max_dollars}
+                      onChange={e => {
+                        const v = Number(e.target.value) || 0;
+                        setConfig(prev => {
+                          const next = { ...prev, ai_auto_bump_max_dollars: v };
+                          setHasChanges(JSON.stringify(next) !== JSON.stringify(savedConfig));
+                          return next;
+                        });
+                      }}
+                      className="h-9"
+                    />
+                  </div>
+                  <div className="p-3 rounded-lg bg-card border border-border">
+                    <Label className="text-xs font-semibold">Daily Cap $</Label>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 mb-2">
+                      Max cumulative auto-bump dollars per day across the whole dealership. Set to 0 to disable.
+                    </p>
+                    <Input
+                      type="number"
+                      min={0}
+                      step={500}
+                      value={(config as any).ai_auto_bump_daily_cap}
+                      onChange={e => {
+                        const v = Number(e.target.value) || 0;
+                        setConfig(prev => {
+                          const next = { ...prev, ai_auto_bump_daily_cap: v };
+                          setHasChanges(JSON.stringify(next) !== JSON.stringify(savedConfig));
+                          return next;
+                        });
+                      }}
+                      className="h-9"
+                    />
+                  </div>
+                  <div className="p-3 rounded-lg bg-card border border-border">
+                    <Label className="text-xs font-semibold">Confidence Floor %</Label>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 mb-2">
+                      Minimum AI confidence (0-100) required to auto-apply. Below this, bumps go to the queue.
+                    </p>
+                    <Input
+                      type="number"
+                      min={50}
+                      max={99}
+                      value={(config as any).ai_auto_bump_confidence_floor}
+                      onChange={e => {
+                        const v = Number(e.target.value) || 0;
+                        setConfig(prev => {
+                          const next = { ...prev, ai_auto_bump_confidence_floor: v };
+                          setHasChanges(JSON.stringify(next) !== JSON.stringify(savedConfig));
+                          return next;
+                        });
+                      }}
+                      className="h-9"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </Section>
 

@@ -221,20 +221,41 @@ const UploadPhotos = () => {
 
       // Trigger AI damage analysis per photo
       if (submission?.id) {
+        const analysisPromises: Promise<unknown>[] = [];
         for (const [catId, val] of Object.entries(categoryUploads)) {
           if (!val.file) continue;
           const matchedFile = allFiles?.find((f) => f.name.startsWith(`${catId}-`));
           if (matchedFile) {
-            supabase.functions.invoke("analyze-vehicle-damage", {
-              body: {
-                submission_id: submission.id,
-                token,
-                photo_category: catId,
-                photo_path: `${token}/${matchedFile.name}`,
-              },
-            }).catch(console.error);
+            analysisPromises.push(
+              supabase.functions.invoke("analyze-vehicle-damage", {
+                body: {
+                  submission_id: submission.id,
+                  token,
+                  photo_category: catId,
+                  photo_path: `${token}/${matchedFile.name}`,
+                },
+              }).catch(console.error) as unknown as Promise<unknown>,
+            );
           }
         }
+
+        // Chain re-appraisal: once damage analysis has had time to write
+        // to damage_reports + ai_condition_score, ask the re-appraisal
+        // edge function whether the AI sees better-than-reported condition
+        // and wants to recommend a bump. Fire-and-forget — the customer
+        // sees the same confirmation page either way, and the bump (if
+        // any) appears in the Appraiser Queue + potentially auto-applies
+        // before the customer reaches DealAccepted.
+        Promise.all(analysisPromises)
+          .catch(() => null)
+          .then(() => {
+            supabase.functions.invoke("ai-photo-reappraisal", {
+              body: {
+                submission_id: submission.id,
+                source: "photo_upload",
+              },
+            }).catch(console.error);
+          });
       }
 
       const uploadedCount = Object.values(categoryUploads).filter(v => v.file).length + extraFiles.length;
