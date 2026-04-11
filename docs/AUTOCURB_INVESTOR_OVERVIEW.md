@@ -139,3 +139,54 @@ Autocurb.io is generating the workflow, the data, and the dealer relationships t
 ---
 
 **Autocurb.io — Every Car You Could Have Bought. None of the Ones You Couldn't.**
+
+---
+
+# PART 1 — TWEAKS & CLEANUP (Do These First)
+
+These are the "paper cuts" that a sharp sales manager or investor will spot in a demo. Fix them before the next pitch.
+
+## A. Half-Built / Stubbed Areas That Need Finishing
+
+1. **ExecutiveDashboard** (`src/pages/ExecutiveDashboard.tsx`) — Large file, appears placeholder-ish. A GM/owner will open this first. It must load in under 1 second and show: MTD acquisitions, gross-per-copy, pipeline velocity, aging buckets, source ROI, and staff leaderboard. Right now it risks looking thin.
+
+2. **Historical Insight Engine** — `compute-historical-insight` edge function exists but the panel integration is inconsistent. Wire it to the appraisal screen so every appraisal shows "last 12 similar units sold for X avg, Y days to turn."
+
+3. **Pricing Access Gate** — Framework is scaffolded but enforcement is unclear. Lock it down so only GSM/GM roles can see true cost and waterfall deductions.
+
+4. **Wholesale Marketplace toggle** — Currently a flag on dead leads. Needs a real inter-dealer feed, bid/ask, and expiration logic.
+
+5. **Revaluation Job** — The equity-mining re-value exists but the cron trigger should be explicit and visible in an admin "Jobs" panel.
+
+6. **Lovable/README branding** — README still says "Welcome to your Lovable project" with `REPLACE_WITH_PROJECT_ID`. A due-diligence investor will look at the README. Replace it with a proper Autocurb README.
+
+## B. Consistency & Polish Tweaks
+
+7. **Unify the $1,495 / $1,995 tier story everywhere.** The existing `HARTECASH_INVESTOR_BRIEF.md` still references $299/$499/$999 tiers. Align every doc, pitch deck page, and in-app pricing reference to the new tier structure so nothing contradicts.
+
+8. **Mobile inspection offline mode.** `MobileInspection.tsx` assumes connectivity. Dealers inspect cars in metal service bays with zero signal. Add IndexedDB queueing with background sync.
+
+9. **Dark mode audit.** Tailwind supports it; verify every admin screen actually renders correctly in dark mode (lead pipeline, appraisal waterfall, and the OBD scan screen are the usual offenders).
+
+10. **Print layouts** for inspection sheet and check request — add an explicit `@media print` stylesheet so a UCM can print a clean one-pager without CSS bleed.
+
+11. **Loading skeletons** on every table instead of spinners. This is a small polish item that makes the product feel 10x more expensive.
+
+12. **Empty states with calls to action** — every table (leads, appointments, referrals, staff) should have a first-run empty state that tells the user exactly what to do next.
+
+13. **Customer-portal branding enforcement** — confirm that zero strings say "HarteCash" anywhere customer-facing. Grep the `src/pages/Customer*`, `src/pages/Offer*`, `src/pages/Upload*`, and `src/pages/DealAccepted.tsx` files for stray brand mentions.
+
+14. **TCPA consent language versioning** — `consent_log` stores the text, but add a version tag and a "consent text history" page so the compliance officer can prove exactly what every customer agreed to on every day.
+
+15. **Notification quiet hours timezone** — confirm quiet hours are honored in the customer's timezone, not the dealer's server time.
+
+16. **Role labels** — standardize on **UCM / GSM / BDC / Sales / Inspector / Appraiser / Admin / Super Admin**. Codebase mixes a few of these.
+
+17. **API error surfaces** — every `catch (e)` in edge functions should write to `activity_log` so a dealer can see why a vAuto push or Black Book lookup failed without digging through Supabase logs.
+
+18. **VIN lookup cache TTL** — `lookup_attempts` should have a clear TTL (e.g., 24h) so dealers aren't paying Black Book twice for the same VIN in one day.
+
+19. **Check-request workflow audit trail** — every approval step should write to `activity_log` with a signed timestamp. Auditors love this.
+
+20. **Referral payout reconciliation** — the referral module tracks earnings up to $200/referral but there's no payout/clawback workflow. Add one.
+
