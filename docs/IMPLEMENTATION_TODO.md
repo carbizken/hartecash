@@ -259,13 +259,112 @@ wants faster measurement capture than manual entry allows.
 **For tread: JumpStart TreadReader ($950)** — BLE-native, iOS-native,
 under 1 second per wheel, cheapest real option in the BLE class.
 
-**For brakes: Innova Drivelink Pro ($280)** — only consumer option that
-reads brake pad life without a separate mechanical measurement. Uses
-the car's own ABS module pad-wear sensor on 2018+ vehicles, which is
-actually more accurate than mechanical calipering on modern pads.
+**For brakes: Innova Drivelink Pro ($280)** — OBD2 dongle that reads
+the car's ABS module to extract brake pad wear data on a subset of
+2018+ vehicles. **Coverage is not universal** — see the OBD2 Brake
+Compatibility Matrix below. Always paired with a manual fallback
+path (QR handoff or mechanical calipering) for the vehicles where
+OBD2 brake data isn't available.
 
 **Total hardware per appraiser: ~$1,230.** Half the cost of Snap-on,
-covers both tread and brakes, all iOS-native.
+covers tread on every vehicle and brakes on roughly two-thirds of
+2018+ used inventory, all iOS-native.
+
+### OBD2 Brake Compatibility Matrix (critical — read before shipping Phase 2)
+
+OBD2 does **not** have a native standardized PID for brake pad
+thickness. The SAE J1979 standard covers engine, emissions, and
+transmission — nothing about brake friction material. "OBD2 brake
+readers" work by querying the ABS/EBS module on the same CAN bus
+using manufacturer-specific proprietary identifiers, which means
+coverage varies dramatically by brand.
+
+Two underlying data sources the ABS module may use:
+
+**Source A — Physical pad wear sensors (authoritative):** A resistance
+loop embedded in the brake pad that the ABS module reads. As the pad
+wears, the loop resistance changes, and at the wear limit the loop
+breaks. The ABS module can report a specific percentage or mm
+estimate, and often per-corner resolution.
+
+**Source B — Calculated pad life (estimate):** No physical sensor;
+instead, the ABS module runs a usage model that counts brake
+applications, weights by brake pressure and vehicle speed, and tracks
+time since the last pad replacement (reset when a tech clears the
+counter). Less accurate than physical sensors — typically ±5-10% on a
+well-maintained car, ±15% on an abused one.
+
+| Brand / Era | Data source | Accuracy | Per-wheel or per-axle | Innova reads it? |
+|---|---|---|---|---|
+| **BMW 2010+** | Physical sensor | ±2mm | Per-axle, some per-corner | ✅ Excellent |
+| **Mercedes 2012+** | Physical sensor | ±2mm | Per-axle | ✅ Excellent |
+| **Audi / VW / Porsche 2015+** | Physical sensor | ±2mm | Per-axle | ✅ Excellent |
+| **Volvo 2016+** | Physical sensor | ±2mm | Per-axle | ✅ Good |
+| **Ford 2018+** | Calculated % | ±10% | Per-axle only | ⚠️ Partial — label "estimated" |
+| **GM 2019+** | Calculated % | ±10% | Per-axle only | ⚠️ Partial — label "estimated" |
+| **Stellantis (Ram/Jeep) 2019+** | Calculated % | ±15% | Per-axle only | ⚠️ Partial — label "estimated" |
+| **Hyundai / Kia 2020+** | Calculated % | ±15% | Per-axle only | ⚠️ Partial — label "estimated" |
+| **Toyota 2018+** | Not exposed over OBD2 | — | — | ❌ Not readable |
+| **Honda / Acura 2018+** | Not exposed over OBD2 | — | — | ❌ Not readable |
+| **Subaru 2018+** | Not exposed over OBD2 | — | — | ❌ Not readable |
+| **Nissan / Infiniti 2018+** | Not exposed over OBD2 | — | — | ❌ Not readable |
+
+**Rough coverage of the post-2018 used-car population:**
+- **Excellent reads** (physical sensor): ~20% — European luxury
+- **Estimated reads** (calculated %): ~40% — domestic + Korean
+- **No OBD reads at all**: ~40% — Japanese (Toyota/Honda/Subaru/Nissan)
+
+### Practical gotchas
+
+1. **Proprietary protocols break on firmware updates.** Manufacturers
+   occasionally ship ABS firmware updates that break third-party
+   readers. Innova updates their dongle database monthly to keep up.
+   Expect 1-2% of reads to fail silently at any given time. The
+   integration **must** log failures to `activity_log` so we can
+   detect pattern breaks (e.g. BMW reads suddenly at 0% for a week =
+   firmware update shipped).
+
+2. **Manual fallback is never optional.** At least 40% of the used
+   vehicle population (Toyota/Honda/Subaru/Nissan) cannot be read via
+   OBD2 at all. Phase 2 ships alongside the QR handoff + mechanical
+   measurement path (Phase 0) — it never replaces them.
+
+3. **Never surface estimated brake % as authoritative.** The UI must
+   show a visible "estimated" badge whenever `brake_data_source` is
+   `obd_calculated_estimate`, and the appraisal sheet must explicitly
+   note when a number came from a software model vs a physical sensor.
+
+### Revised Phase 2 data model
+
+- New column `submissions.brake_data_source` with values:
+  - `manual` — typed in by hand
+  - `mechanical` — from the QR handoff + caliper or laser
+  - `obd_physical_sensor` — authoritative read from BMW/MB/Audi/etc.
+  - `obd_calculated_estimate` — software model from Ford/GM/etc.
+- New table `obd_brake_compatibility` keyed on `(make, year_min, year_max)`
+  that the edge function consults before attempting a read. Saves
+  wasted API calls on incompatible vehicles and lets us show the
+  appraiser "OBD brake read not supported for this vehicle —
+  measure manually" immediately instead of after a failed read.
+
+### Revised Phase 2 flow
+
+1. Appraiser plugs Innova OBD dongle into the vehicle
+2. Edge function receives the webhook, pulls the VIN (universal
+   1996+ read), decodes make + year
+3. Look up `obd_brake_compatibility` to classify the vehicle into
+   one of four tiers (excellent / partial / not-available / unknown)
+4. **Excellent tier:** Read resistance-loop values, write to
+   `brake_lf/rf/lr/rr`, label source `obd_physical_sensor`, confidence
+   HIGH
+5. **Partial tier:** Read calculated %, convert to mm estimate using
+   make-specific coefficients, label source `obd_calculated_estimate`,
+   confidence MEDIUM, UI shows "estimated" badge
+6. **Not-available tier:** Skip OBD read entirely, route appraiser to
+   the QR handoff flow for mechanical measurement
+7. **Unknown tier** (rare): Attempt the read, log failure if it
+   fails, fall back to QR handoff
+8. Every read (success or failure) writes an `activity_log` entry
 
 ### Integration phasing
 
