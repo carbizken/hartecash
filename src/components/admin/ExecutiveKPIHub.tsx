@@ -2,7 +2,8 @@ import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useTenant } from "@/contexts/TenantContext";
 import {
-  TrendingUp, TrendingDown, Users, DollarSign, Target, UserCheck, Building2, AlertTriangle
+  TrendingUp, TrendingDown, Users, DollarSign, Target, UserCheck, Building2, AlertTriangle,
+  Gauge, Timer, Flame, Trophy,
 } from "lucide-react";
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid,
@@ -22,6 +23,10 @@ interface Sub {
   status_updated_at: string | null;
   status_updated_by: string | null;
   appraised_by: string | null;
+  outcome_sale_price: number | null;
+  outcome_recon_actual: number | null;
+  outcome_days_to_sale: number | null;
+  appraisal_finalized_at: string | null;
 }
 
 interface Location {
@@ -77,7 +82,7 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
 
   useEffect(() => {
     Promise.all([
-      supabase.from("submissions").select("id, created_at, progress_status, offered_price, acv_value, lead_source, store_location_id, status_updated_at, status_updated_by, appraised_by"),
+      supabase.from("submissions").select("id, created_at, progress_status, offered_price, acv_value, lead_source, store_location_id, status_updated_at, status_updated_by, appraised_by, outcome_sale_price, outcome_recon_actual, outcome_days_to_sale, appraisal_finalized_at"),
       supabase.from("dealership_locations").select("id, name, city, state").eq("is_active", true).order("sort_order"),
       supabase.from("site_config").select("track_abandoned_leads").eq("dealership_id", dealershipId).maybeSingle(),
     ]).then(([{ data: subData }, { data: locData }, { data: cfgData }]) => {
@@ -205,6 +210,129 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
     }));
   }, [filteredSubs]);
 
+  /* ── MTD / Gross-per-copy hero strip ────────────── */
+  const mtdKpis = useMemo(() => {
+    const now = new Date();
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59);
+
+    // MTD acquisitions — completed this month
+    const mtd = subs.filter(s => COMPLETED.includes(s.progress_status) && new Date(s.status_updated_at || s.created_at) >= thisMonthStart);
+    const lastMonth = subs.filter(s => {
+      const d = new Date(s.status_updated_at || s.created_at);
+      return COMPLETED.includes(s.progress_status) && d >= lastMonthStart && d <= lastMonthEnd;
+    });
+
+    // Gross-per-copy = (sale_price - offered_price - recon) / unit count
+    // Falls back to avg offered_price if no outcome_sale_price data
+    const mtdUnitsWithOutcome = mtd.filter(s => s.outcome_sale_price != null && s.offered_price != null);
+    let mtdGross = 0;
+    let grossPerCopy = 0;
+    if (mtdUnitsWithOutcome.length > 0) {
+      mtdGross = mtdUnitsWithOutcome.reduce((sum, s) => {
+        return sum + ((s.outcome_sale_price || 0) - (s.offered_price || 0) - (s.outcome_recon_actual || 0));
+      }, 0);
+      grossPerCopy = Math.round(mtdGross / mtdUnitsWithOutcome.length);
+    } else {
+      // No outcome data — show average offered price as a proxy
+      const mtdWithOffer = mtd.filter(s => s.offered_price != null);
+      mtdGross = mtdWithOffer.reduce((sum, s) => sum + (s.offered_price || 0), 0);
+      grossPerCopy = mtdWithOffer.length > 0 ? Math.round(mtdGross / mtdWithOffer.length) : 0;
+    }
+
+    const mtdCount = mtd.length;
+    const lastMonthCount = lastMonth.length;
+    const countDelta = lastMonthCount > 0 ? Math.round(((mtdCount - lastMonthCount) / lastMonthCount) * 100) : (mtdCount > 0 ? 100 : 0);
+
+    const hasOutcomeData = mtdUnitsWithOutcome.length > 0;
+    return {
+      mtdCount,
+      mtdGross,
+      grossPerCopy,
+      countDelta,
+      hasOutcomeData,
+      outcomeCoverage: mtdCount > 0 ? Math.round((mtdUnitsWithOutcome.length / mtdCount) * 100) : 0,
+    };
+  }, [subs]);
+
+  /* ── Pipeline velocity (avg days in active stages) ── */
+  const pipelineVelocity = useMemo(() => {
+    // Active stages we care about. Each entry is { status, label, avgDays, count }
+    const STAGES = [
+      { key: "new", label: "New" },
+      { key: "contacted", label: "Contacted" },
+      { key: "inspection_scheduled", label: "Inspection Scheduled" },
+      { key: "inspection_completed", label: "Inspected" },
+      { key: "appraisal_completed", label: "Appraised" },
+      { key: "deal_finalized", label: "Deal Finalized" },
+    ];
+    const now = Date.now();
+    return STAGES.map(stage => {
+      const stuck = filteredSubs.filter(s => s.progress_status === stage.key);
+      if (stuck.length === 0) return { ...stage, avgDays: 0, count: 0 };
+      const totalDays = stuck.reduce((sum, s) => {
+        const anchor = new Date(s.status_updated_at || s.created_at).getTime();
+        return sum + Math.max(0, (now - anchor) / (1000 * 60 * 60 * 24));
+      }, 0);
+      return { ...stage, avgDays: Math.round((totalDays / stuck.length) * 10) / 10, count: stuck.length };
+    }).filter(s => s.count > 0);
+  }, [filteredSubs]);
+
+  /* ── Aging buckets (stage × age) ─────────────────── */
+  const agingMatrix = useMemo(() => {
+    const BUCKETS = [
+      { key: "fresh", label: "< 24h", max: 1 },
+      { key: "young", label: "1–3d", max: 3 },
+      { key: "warm", label: "4–7d", max: 7 },
+      { key: "stale", label: "> 7d", max: Infinity },
+    ];
+    const STAGES = ["new", "contacted", "inspection_scheduled", "inspection_completed", "appraisal_completed", "deal_finalized"];
+    const now = Date.now();
+    const matrix: Record<string, Record<string, number>> = {};
+    STAGES.forEach(s => { matrix[s] = { fresh: 0, young: 0, warm: 0, stale: 0 }; });
+    filteredSubs.forEach(s => {
+      if (!STAGES.includes(s.progress_status)) return;
+      const anchor = new Date(s.status_updated_at || s.created_at).getTime();
+      const days = (now - anchor) / (1000 * 60 * 60 * 24);
+      const bucket = BUCKETS.find(b => days <= b.max)!;
+      matrix[s.progress_status][bucket.key]++;
+    });
+    return {
+      stages: STAGES.map(k => ({ key: k, label: k.replace(/_/g, " ") })),
+      buckets: BUCKETS,
+      matrix,
+    };
+  }, [filteredSubs]);
+
+  /* ── Source ROI (source × units × dollars) ──────── */
+  const sourceRoi = useMemo(() => {
+    const map: Record<string, { count: number; completed: number; dollars: number; totalGross: number; hasGross: boolean }> = {};
+    filteredSubs.forEach(s => {
+      const src = s.lead_source || "inventory";
+      if (!map[src]) map[src] = { count: 0, completed: 0, dollars: 0, totalGross: 0, hasGross: false };
+      map[src].count++;
+      if (COMPLETED.includes(s.progress_status)) {
+        map[src].completed++;
+        map[src].dollars += s.offered_price || s.acv_value || 0;
+        if (s.outcome_sale_price != null && s.offered_price != null) {
+          map[src].totalGross += (s.outcome_sale_price || 0) - (s.offered_price || 0) - (s.outcome_recon_actual || 0);
+          map[src].hasGross = true;
+        }
+      }
+    });
+    return Object.entries(map).map(([src, m]) => ({
+      key: src,
+      label: SOURCE_LABELS[src] || src,
+      leads: m.count,
+      closed: m.completed,
+      convRate: m.count > 0 ? Math.round((m.completed / m.count) * 1000) / 10 : 0,
+      acquisitionSpend: m.dollars,
+      grossDollars: m.hasGross ? Math.round(m.totalGross) : null,
+      avgGrossPerUnit: m.hasGross && m.completed > 0 ? Math.round(m.totalGross / m.completed) : null,
+    })).sort((a, b) => b.leads - a.leads);
+  }, [filteredSubs]);
+
   /* ── conversion funnel ────────────────────────── */
   const funnelStages = useMemo(() => {
     const statusMap: Record<string, string> = {
@@ -285,7 +413,7 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-2xl font-black text-card-foreground tracking-tight">Executive Dashboard</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">Multi-rooftop performance at a glance</p>
+          <p className="text-sm text-muted-foreground mt-0.5">Multi-rooftop performance at a glance · Month-to-date as of {new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}</p>
         </div>
         <div className="flex items-center gap-2">
           {(["30", "60", "90", "all"] as const).map(r => (
@@ -304,16 +432,218 @@ const ExecutiveKPIHub = ({ standalone = false }: ExecutiveKPIHubProps) => {
         </div>
       </div>
 
-      {/* Row 1 — Top KPIs */}
+      {/* Hero MTD Strip — the first thing a GM should see */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <KpiCard
+          label="MTD Acquisitions"
+          value={mtdKpis.mtdCount}
+          icon={Flame}
+          color="text-orange-500"
+          bg="from-orange-500/15 to-red-600/5"
+          badge={mtdKpis.countDelta !== 0 ? { value: `${mtdKpis.countDelta > 0 ? "+" : ""}${mtdKpis.countDelta}% MoM`, positive: mtdKpis.countDelta > 0 } : undefined}
+        />
+        <KpiCard
+          label="MTD Gross"
+          value={`$${Math.round(mtdKpis.mtdGross / 1000)}k`}
+          icon={DollarSign}
+          color="text-emerald-500"
+          bg="from-emerald-500/15 to-emerald-600/5"
+          badge={mtdKpis.hasOutcomeData ? undefined : { value: "Proxy (no outcomes)", positive: false }}
+        />
+        <KpiCard
+          label="Gross / Copy"
+          value={`$${mtdKpis.grossPerCopy.toLocaleString()}`}
+          icon={Trophy}
+          color="text-violet-500"
+          bg="from-violet-500/15 to-violet-600/5"
+          badge={mtdKpis.hasOutcomeData ? { value: `${mtdKpis.outcomeCoverage}% tracked`, positive: true } : undefined}
+        />
+        <KpiCard
+          label="Conversion"
+          value={`${kpis.convRate}%`}
+          icon={TrendingUp}
+          color="text-blue-500"
+          bg="from-blue-500/15 to-blue-600/5"
+          badge={kpis.trend !== 0 ? { value: `${kpis.trend > 0 ? "+" : ""}${kpis.trend}%`, positive: kpis.trend > 0 } : undefined}
+        />
+      </div>
+
+      {/* Row 1 — Secondary KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
         <KpiCard label="Total Leads" value={kpis.total} icon={Users} color="text-blue-500" bg="from-blue-500/15 to-blue-600/5" />
         <KpiCard label="Active Deals" value={kpis.active} icon={Target} color="text-violet-500" bg="from-violet-500/15 to-violet-600/5" />
         <KpiCard label="Abandoned" value={kpis.abandoned} icon={AlertTriangle} color="text-amber-500" bg="from-amber-500/15 to-amber-600/5"
           badge={kpis.dropOffRate > 0 ? { value: `${kpis.dropOffRate}% drop-off`, positive: false } : undefined} />
-        <KpiCard label="Conversion" value={`${kpis.convRate}%`} icon={TrendingUp} color="text-emerald-500" bg="from-emerald-500/15 to-emerald-600/5"
-          badge={kpis.trend !== 0 ? { value: `${kpis.trend > 0 ? "+" : ""}${kpis.trend}%`, positive: kpis.trend > 0 } : undefined} />
+        <KpiCard label="Closed Deals" value={kpis.completed} icon={UserCheck} color="text-emerald-500" bg="from-emerald-500/15 to-emerald-600/5" />
         <KpiCard label="Pipeline Value" value={`$${(kpis.pipeline / 1000).toFixed(0)}k`} icon={DollarSign} color="text-amber-500" bg="from-amber-500/15 to-amber-600/5" />
         <KpiCard label="Closed Revenue" value={`$${(kpis.closed / 1000).toFixed(0)}k`} icon={UserCheck} color="text-emerald-600" bg="from-emerald-600/15 to-emerald-700/5" />
+      </div>
+
+      {/* Pipeline Velocity + Aging Heatmap */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {/* Pipeline Velocity */}
+        <div className="bg-card rounded-xl border border-border p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <Timer className="w-4 h-4 text-muted-foreground" />
+            <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Pipeline Velocity</h3>
+            <span className="text-[9px] text-muted-foreground/70 ml-auto">Avg days in current stage</span>
+          </div>
+          {pipelineVelocity.length === 0 ? (
+            <p className="text-xs text-muted-foreground py-6 text-center">No active pipeline items in this window.</p>
+          ) : (
+            <div className="space-y-2">
+              {pipelineVelocity.map(stage => {
+                const maxDays = Math.max(...pipelineVelocity.map(s => s.avgDays), 1);
+                const widthPct = Math.max(8, (stage.avgDays / maxDays) * 100);
+                const barColor =
+                  stage.avgDays >= 7 ? "bg-red-500"
+                  : stage.avgDays >= 3 ? "bg-amber-500"
+                  : "bg-emerald-500";
+                return (
+                  <div key={stage.key} className="flex items-center gap-3">
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase w-32 text-right shrink-0 truncate">
+                      {stage.label}
+                    </span>
+                    <div className="flex-1 h-6 bg-muted/30 rounded-md overflow-hidden">
+                      <div
+                        className={`h-full ${barColor} transition-all duration-500 flex items-center px-2`}
+                        style={{ width: `${widthPct}%`, minWidth: 40 }}
+                      >
+                        <span className="text-[10px] font-black text-white">
+                          {stage.avgDays}d
+                        </span>
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground w-10 shrink-0">
+                      {stage.count}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Aging Heatmap */}
+        <div className="bg-card rounded-xl border border-border p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-4">
+            <Gauge className="w-4 h-4 text-muted-foreground" />
+            <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Aging Heatmap</h3>
+            <span className="text-[9px] text-muted-foreground/70 ml-auto">Leads by stage × age</span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr>
+                  <th className="text-left py-1.5 text-[9px] font-bold text-muted-foreground uppercase">Stage</th>
+                  {agingMatrix.buckets.map(b => (
+                    <th key={b.key} className="text-center py-1.5 text-[9px] font-bold text-muted-foreground uppercase">
+                      {b.label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {agingMatrix.stages.map(stage => {
+                  const row = agingMatrix.matrix[stage.key];
+                  const total = row.fresh + row.young + row.warm + row.stale;
+                  return (
+                    <tr key={stage.key} className="border-t border-border/40">
+                      <td className="py-1.5 text-[11px] font-semibold text-card-foreground capitalize">
+                        {stage.label}
+                      </td>
+                      {agingMatrix.buckets.map(b => {
+                        const v = row[b.key as keyof typeof row];
+                        const intensity = total > 0 ? v / total : 0;
+                        // Stale gets red intensity; fresh gets emerald
+                        const color = b.key === "stale" ? `rgba(239, 68, 68, ${0.1 + intensity * 0.7})`
+                                    : b.key === "warm" ? `rgba(251, 191, 36, ${0.1 + intensity * 0.7})`
+                                    : b.key === "young" ? `rgba(59, 130, 246, ${0.1 + intensity * 0.7})`
+                                    : `rgba(16, 185, 129, ${0.1 + intensity * 0.7})`;
+                        return (
+                          <td
+                            key={b.key}
+                            className="text-center py-1.5"
+                            style={{ background: v > 0 ? color : "transparent" }}
+                          >
+                            <span className={`text-[11px] font-bold ${v > 0 ? "text-card-foreground" : "text-muted-foreground/40"}`}>
+                              {v}
+                            </span>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-[9px] text-muted-foreground/70 mt-2">
+            Red cells are stuck deals &gt; 7 days. Green cells are hot leads &lt; 24 hours old.
+          </p>
+        </div>
+      </div>
+
+      {/* Source ROI Table */}
+      <div className="bg-card rounded-xl border border-border p-5 shadow-sm overflow-x-auto">
+        <div className="flex items-center gap-2 mb-4">
+          <DollarSign className="w-4 h-4 text-muted-foreground" />
+          <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Source ROI</h3>
+          <span className="text-[9px] text-muted-foreground/70 ml-auto">
+            Lead source × conversion × dollar return
+          </span>
+        </div>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-border">
+              <th className="text-left py-2 text-[10px] font-bold text-muted-foreground uppercase">Source</th>
+              <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Leads</th>
+              <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Closed</th>
+              <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Conv %</th>
+              <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Spend</th>
+              <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Gross Profit</th>
+              <th className="text-right py-2 text-[10px] font-bold text-muted-foreground uppercase">Avg Gross / Unit</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sourceRoi.map(sr => (
+              <tr key={sr.key} className="border-b border-border/50 last:border-0 hover:bg-muted/30 transition-colors">
+                <td className="py-2.5 font-semibold text-card-foreground">{sr.label}</td>
+                <td className="text-right py-2.5 font-bold">{sr.leads}</td>
+                <td className="text-right py-2.5 text-emerald-600 font-semibold">{sr.closed}</td>
+                <td className="text-right py-2.5">
+                  <span className={`font-bold ${sr.convRate >= 10 ? "text-emerald-600" : sr.convRate >= 5 ? "text-amber-600" : "text-red-500"}`}>
+                    {sr.convRate}%
+                  </span>
+                </td>
+                <td className="text-right py-2.5 font-semibold text-amber-600">${sr.acquisitionSpend.toLocaleString()}</td>
+                <td className="text-right py-2.5 font-semibold">
+                  {sr.grossDollars != null ? (
+                    <span className={sr.grossDollars >= 0 ? "text-emerald-600" : "text-red-500"}>
+                      ${sr.grossDollars.toLocaleString()}
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground/50 text-xs">—</span>
+                  )}
+                </td>
+                <td className="text-right py-2.5 font-semibold">
+                  {sr.avgGrossPerUnit != null ? (
+                    <span className="text-violet-600">${sr.avgGrossPerUnit.toLocaleString()}</span>
+                  ) : (
+                    <span className="text-muted-foreground/50 text-xs">—</span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {!sourceRoi.some(s => s.grossDollars != null) && (
+          <p className="text-[10px] text-muted-foreground mt-3">
+            Gross profit columns populate when deals have outcome data set on
+            the submission (sale price + recon actual). Until then we show
+            spend only.
+          </p>
+        )}
       </div>
 
       {/* Row 2 — Store Breakdown Table */}
