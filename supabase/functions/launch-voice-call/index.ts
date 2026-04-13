@@ -134,7 +134,7 @@ serve(async (req) => {
     const { data: dealer, error: dealerErr } = await supabase
       .from("dealer_accounts")
       .select(
-        "id, dealership_name, voice_ai_enabled, voice_ai_provider, voice_ai_api_key, voice_ai_from_number, voice_ai_transfer_number, voice_ai_max_bump_amount"
+        "id, dealership_name, voice_ai_enabled, voice_ai_provider, voice_ai_api_key, voice_ai_from_number, voice_ai_transfer_number, voice_ai_max_bump_amount, voice_ai_competitor_response_mode, voice_ai_beat_competitor_amount"
       )
       .eq("id", dealershipId)
       .single();
@@ -311,6 +311,9 @@ serve(async (req) => {
       ? Number(submission.offered_price) + maxBump
       : 0;
 
+    const competitorMode = dealer.voice_ai_competitor_response_mode || 'none';
+    const beatAmount = dealer.voice_ai_beat_competitor_amount || 0;
+
     const templateVars: Record<string, string> = {
       agent_name: "Sarah",
       dealer_name: dealerName,
@@ -326,6 +329,13 @@ serve(async (req) => {
       bumped_amount: bumpedAmount.toLocaleString("en-US", {
         maximumFractionDigits: 0,
       }),
+      competitor_mode: competitorMode,
+      competitor_beat_amount: beatAmount.toString(),
+      competitor_response: competitorMode === 'match'
+        ? "We will match any verified competitor offer."
+        : competitorMode === 'beat'
+        ? `We will beat any verified competitor offer by $${beatAmount}.`
+        : "Let me connect you with our manager to discuss competing offers.",
     };
 
     const renderedScript = renderTemplate(scriptTemplate, templateVars);

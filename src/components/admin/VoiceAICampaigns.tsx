@@ -19,6 +19,8 @@ interface VoiceAIConfig {
   voice_ai_enabled: boolean; voice_ai_api_key: string;
   voice_ai_from_number: string; voice_ai_transfer_number: string;
   voice_ai_max_bump_amount: number; voice_ai_call_start: string; voice_ai_call_end: string;
+  voice_ai_competitor_response_mode: string;
+  voice_ai_beat_competitor_amount: number;
 }
 interface VoiceKPIs { totalCalls: number; connectedRate: number; conversionRate: number; estimatedCost: number; }
 
@@ -26,6 +28,8 @@ const DEFAULT_CONFIG: VoiceAIConfig = {
   voice_ai_enabled: false, voice_ai_api_key: "", voice_ai_from_number: "",
   voice_ai_transfer_number: "", voice_ai_max_bump_amount: 500,
   voice_ai_call_start: "09:00", voice_ai_call_end: "18:00",
+  voice_ai_competitor_response_mode: "none",
+  voice_ai_beat_competitor_amount: 0,
 };
 
 const maskKey = (k: string) => {
@@ -97,6 +101,8 @@ const VoiceAICampaigns = () => {
           voice_ai_max_bump_amount: d.voice_ai_max_bump_amount ?? 500,
           voice_ai_call_start: d.voice_ai_call_start || "09:00",
           voice_ai_call_end: d.voice_ai_call_end || "18:00",
+          voice_ai_competitor_response_mode: d.voice_ai_competitor_response_mode || "none",
+          voice_ai_beat_competitor_amount: d.voice_ai_beat_competitor_amount ?? 0,
         });
       }
 
@@ -146,6 +152,8 @@ const VoiceAICampaigns = () => {
           voice_ai_max_bump_amount: config.voice_ai_max_bump_amount,
           voice_ai_call_start: config.voice_ai_call_start,
           voice_ai_call_end: config.voice_ai_call_end,
+          voice_ai_competitor_response_mode: config.voice_ai_competitor_response_mode,
+          voice_ai_beat_competitor_amount: config.voice_ai_beat_competitor_amount,
         },
         { onConflict: "dealership_id" },
       );
@@ -309,6 +317,42 @@ const VoiceAICampaigns = () => {
                 onChange={(e) => updateConfig("voice_ai_max_bump_amount", Number(e.target.value))}
                 className="pl-7 text-sm"
               />
+            </div>
+          </div>
+
+          {/* Competitor Offer Response */}
+          <div className="border-t border-border/30 pt-4 mt-4">
+            <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">
+              When Customer Has a Competing Offer
+            </h4>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <input type="radio" name="competitor_mode" value="none"
+                  checked={config.voice_ai_competitor_response_mode === 'none'}
+                  onChange={() => setConfig(c => ({...c, voice_ai_competitor_response_mode: 'none'}))} />
+                <label className="text-sm">Don't match — let the manager handle it</label>
+              </div>
+              <div className="flex items-center gap-3">
+                <input type="radio" name="competitor_mode" value="match"
+                  checked={config.voice_ai_competitor_response_mode === 'match'}
+                  onChange={() => setConfig(c => ({...c, voice_ai_competitor_response_mode: 'match'}))} />
+                <label className="text-sm">Match their offer — AI says "We'll match that"</label>
+              </div>
+              <div className="flex items-center gap-3">
+                <input type="radio" name="competitor_mode" value="beat"
+                  checked={config.voice_ai_competitor_response_mode === 'beat'}
+                  onChange={() => setConfig(c => ({...c, voice_ai_competitor_response_mode: 'beat'}))} />
+                <div className="flex items-center gap-2">
+                  <label className="text-sm">Beat their offer by $</label>
+                  <Input
+                    type="number"
+                    className="w-24 h-8 text-sm"
+                    value={config.voice_ai_beat_competitor_amount || ''}
+                    onChange={e => setConfig(c => ({...c, voice_ai_beat_competitor_amount: Number(e.target.value) || 0}))}
+                    placeholder="200"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
