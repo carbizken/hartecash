@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/sidebar";
 import {
   Inbox, CalendarDays, Users, ShieldCheck, SlidersHorizontal,
-  Settings, Bell, ListChecks, MessageSquareQuote, BarChart3, Send, MapPin, Car, ScrollText, Shield, Lock, Wrench, Rocket, Gauge, Network, Camera, Gift, Megaphone, ChevronDown, Link2, Code2, Paintbrush, TrendingUp, Store, Truck, Zap, Activity, ScanLine, CreditCard
+  Settings, Bell, ListChecks, MessageSquareQuote, BarChart3, Send, MapPin, Car, ScrollText, Shield, Lock, Wrench, Rocket, Gauge, Network, Camera, Gift, Megaphone, ChevronDown, Link2, Code2, Paintbrush, TrendingUp, Store, Truck, Zap, Activity, ScanLine, CreditCard, Phone
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
@@ -221,6 +221,9 @@ const AdminSidebar = ({
     ...(isManager
       ? [{ key: "equity-mining", label: "Equity Mining", icon: TrendingUp }]
       : []),
+    ...(isManager
+      ? [{ key: "voice-ai", label: "Voice AI", icon: Phone }]
+      : []),
     // Wholesale Exit is part of the Enterprise Beta program — hidden
     // unless the dealer has been enrolled, same gate as the Enterprise
     // group. Platform admins always see it so they can develop it.
@@ -239,7 +242,7 @@ const AdminSidebar = ({
     "staff", "referrals", "compliance", "reports", "image-inventory",
     "onboarding", "system-settings",
     "platform-billing", "integrations-status", "api-access", "vauto-integration", "white-label",
-    "equity-mining", "wholesale-marketplace", "service-quick-entry", "inspection-checkin",
+    "equity-mining", "voice-ai", "wholesale-marketplace", "service-quick-entry", "inspection-checkin",
   ];
   const lockedSections = showRequestAccess && allowedSections !== null
     ? allSectionKeys.filter((k) => !allowedSections.includes(k))
