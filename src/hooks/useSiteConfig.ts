@@ -93,6 +93,17 @@ export interface SiteConfig {
   established_year: number | null;
   competitor_columns?: any;
   comparison_features?: any;
+  // Widget embed appearance (controlled from admin, read by embed.js)
+  widget_button_text: string;
+  widget_button_color: string;
+  widget_position: string;
+  widget_open_mode: string;
+  widget_drawer_title: string;
+  widget_sticky_enabled: boolean;
+  widget_sticky_text: string;
+  widget_sticky_cta: string;
+  widget_sticky_position: string;
+  widget_promo_text: string;
 }
 
 const DEFAULTS: SiteConfig = {
@@ -164,6 +175,16 @@ const DEFAULTS: SiteConfig = {
   photo_allow_color_change: true,
   vehicle_image_angle: "three_quarter",
   established_year: null,
+  widget_button_text: "Get an Offer in 2 Min",
+  widget_button_color: "#1a365d",
+  widget_position: "bottom-right",
+  widget_open_mode: "drawer",
+  widget_drawer_title: "What's Your Car Worth?",
+  widget_sticky_enabled: false,
+  widget_sticky_text: "Have a Trade-In? Get your value in under 2 minutes",
+  widget_sticky_cta: "Get My Offer",
+  widget_sticky_position: "bottom",
+  widget_promo_text: "",
 };
 
 /**
@@ -208,6 +229,16 @@ const LOCATION_OVERRIDE_KEYS: (keyof SiteConfig)[] = [
   "stats_reviews_count",
   "price_guarantee_days",
   "established_year",
+  "widget_button_text",
+  "widget_button_color",
+  "widget_position",
+  "widget_open_mode",
+  "widget_drawer_title",
+  "widget_sticky_enabled",
+  "widget_sticky_text",
+  "widget_sticky_cta",
+  "widget_sticky_position",
+  "widget_promo_text",
 ];
 
 async function fetchSiteConfig(
