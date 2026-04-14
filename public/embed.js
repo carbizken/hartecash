@@ -1,10 +1,15 @@
 /**
- * HarteCash Dealer Integration Widget v2
+ * HarteCash Dealer Integration Widget v3
  *
- * Three integration modes:
- *   1. Floating Button  — persistent CTA on every page (existing behavior, enhanced)
+ * Integration modes:
+ *   1. Floating Button  — persistent CTA on every page
  *   2. Slide-Out Drawer — opens iframe in an overlay panel without leaving the page
  *   3. VDP/SRP Banner   — inline banner for inventory pages with customizable CTA
+ *   4. Sticky Ghost Link — thin bar that follows scroll on VDP/SRP pages
+ *
+ * v3: Supports dynamic config — widget fetches appearance settings from the
+ *     HarteCash admin panel so dealers can change colors, text, and position
+ *     without updating the embed snippet. Use HarteCash.auto() for this mode.
  *
  * Usage: See admin panel → Storefront → Website Embed
  */
@@ -12,6 +17,63 @@
   "use strict";
 
   // ── Shared helpers ──────────────────────────────────────────────
+
+  /** Fetch widget config from the HarteCash API and merge with local overrides */
+  function fetchConfig(cfg, callback) {
+    if (!cfg.dealershipId || !cfg.baseUrl) {
+      callback(cfg);
+      return;
+    }
+    var url = cfg.baseUrl + "/functions/v1/widget-config?dealership_id=" + encodeURIComponent(cfg.dealershipId);
+    if (cfg.store) url += "&store=" + encodeURIComponent(cfg.store);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url, true);
+    xhr.timeout = 4000; // 4s timeout — fall back to inline config
+    xhr.onload = function () {
+      if (xhr.status === 200) {
+        try {
+          var remote = JSON.parse(xhr.responseText);
+          // Map DB field names to embed.js config names
+          var merged = {};
+          // Start with remote values
+          if (remote.widget_button_text) merged.text = remote.widget_button_text;
+          if (remote.widget_button_color) merged.color = remote.widget_button_color;
+          if (remote.widget_position) merged.position = remote.widget_position;
+          if (remote.widget_open_mode) merged.openMode = remote.widget_open_mode;
+          if (remote.widget_drawer_title) merged.drawerTitle = remote.widget_drawer_title;
+          if (remote.widget_promo_text) merged.promoText = remote.widget_promo_text;
+          if (remote.widget_sticky_enabled != null) merged.stickyEnabled = remote.widget_sticky_enabled;
+          if (remote.widget_sticky_text) merged.stickyText = remote.widget_sticky_text;
+          if (remote.widget_sticky_cta) merged.stickyCta = remote.widget_sticky_cta;
+          if (remote.widget_sticky_position) merged.stickyPosition = remote.widget_sticky_position;
+          // Local overrides win (web provider can still force specific values)
+          for (var k in cfg) { if (cfg.hasOwnProperty(k)) merged[k] = cfg[k]; }
+          // But remote values fill in anything not set locally
+          for (var k2 in merged) {
+            if (!cfg.hasOwnProperty(k2) && merged.hasOwnProperty(k2)) {
+              cfg[k2] = merged[k2];
+            }
+          }
+          // Apply remote defaults where local cfg didn't set them
+          if (!cfg.text && merged.text) cfg.text = merged.text;
+          if (!cfg.color && merged.color) cfg.color = merged.color;
+          if (!cfg.position && merged.position) cfg.position = merged.position;
+          if (!cfg.openMode && merged.openMode) cfg.openMode = merged.openMode;
+          if (!cfg.drawerTitle && merged.drawerTitle) cfg.drawerTitle = merged.drawerTitle;
+          if (!cfg.promoText && merged.promoText) cfg.promoText = merged.promoText;
+          callback(cfg, remote);
+        } catch (e) {
+          callback(cfg, null);
+        }
+      } else {
+        callback(cfg, null);
+      }
+    };
+    xhr.onerror = function () { callback(cfg, null); };
+    xhr.ontimeout = function () { callback(cfg, null); };
+    xhr.send();
+  }
 
   function buildIframeUrl(baseUrl, opts) {
     var params = [];
@@ -349,6 +411,38 @@
   // ── Public API ──────────────────────────────────────────────────
 
   window.HarteCash = {
+    /**
+     * AUTO MODE (v3) — Fetches config from admin panel, then renders.
+     * The web provider only needs to supply baseUrl and dealershipId.
+     * Everything else (color, text, position, sticky) comes from admin.
+     *
+     * Usage:
+     *   HarteCash.auto({ baseUrl: "https://sell.dealer.com", dealershipId: "abc123" });
+     */
+    auto: function (cfg) {
+      cfg = cfg || {};
+      cfg.mode = cfg.mode || "trade";
+      fetchConfig(cfg, function (mergedCfg, remote) {
+        // Always create the floating button
+        createFloatingButton(mergedCfg);
+        // If sticky is enabled in admin, also create it
+        if (remote && remote.widget_sticky_enabled) {
+          createStickyLink({
+            baseUrl: mergedCfg.baseUrl,
+            color: mergedCfg.color,
+            text: remote.widget_sticky_text || mergedCfg.stickyText,
+            ctaText: remote.widget_sticky_cta || mergedCfg.stickyCta,
+            position: remote.widget_sticky_position || "bottom",
+            openMode: mergedCfg.openMode,
+            mode: mergedCfg.mode,
+            store: mergedCfg.store,
+            ref: mergedCfg.ref,
+            rep: mergedCfg.rep,
+          });
+        }
+      });
+    },
+
     /** Floating button + optional slide-out drawer */
     init: function (cfg) {
       cfg = cfg || {};

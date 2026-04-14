@@ -88,6 +88,8 @@ const EmbedToolkit = () => {
     return `${baseUrl}${path}${qs}`;
   };
 
+  const dealershipId = tenant.dealership_id;
+
   const storeParam = selectedLocationId && selectedLocationId !== "__all__"
     ? `store: "${selectedLocationId}",`
     : "";
@@ -243,6 +245,27 @@ window.addEventListener("message", function(e) {
     if (iframe) iframe.style.height = e.data.height + "px";
   }
 });
+</script>`;
+
+  // ── Snippet: Auto Mode (v3 — dynamic config) ──
+  const autoSnippet = `<!-- ${config.dealership_name}${selectedLocLabel ? ` — ${selectedLocLabel.name}` : ''} - HarteCash Trade Widget (Auto Mode) -->
+<!-- Colors, text, and position are controlled from your HarteCash admin panel. -->
+<!-- No code changes needed to update the look and feel. -->
+<script>
+(function(){
+  var s = document.createElement("script");
+  s.src = "${baseUrl}/embed.js";
+  s.async = true;
+  s.onload = function(){
+    HarteCash.auto({
+      baseUrl: "${baseUrl}",
+      dealershipId: "${dealershipId}",
+      ${storeParam}
+      mode: "trade"
+    });
+  };
+  document.body.appendChild(s);
+})();
 </script>`;
 
   // Preview state
@@ -545,8 +568,11 @@ window.addEventListener("message", function(e) {
       </Card>
 
       {/* ── Code Snippets ── */}
-      <Tabs defaultValue="iframe" className="w-full">
-        <TabsList className={`grid w-full ${pptEnabled ? "grid-cols-6" : "grid-cols-5"}`}>
+      <Tabs defaultValue="auto" className="w-full">
+        <TabsList className={`grid w-full ${pptEnabled ? "grid-cols-7" : "grid-cols-6"}`}>
+          <TabsTrigger value="auto" className="gap-1.5 text-xs">
+            <Code2 className="w-3.5 h-3.5" /> Auto Mode
+          </TabsTrigger>
           <TabsTrigger value="iframe" className="gap-1.5 text-xs">
             <Monitor className="w-3.5 h-3.5" /> Trade iFrame
           </TabsTrigger>
@@ -568,6 +594,66 @@ window.addEventListener("message", function(e) {
             <ExternalLink className="w-3.5 h-3.5" /> Button
           </TabsTrigger>
         </TabsList>
+
+        {/* Auto Mode (v3) */}
+        <TabsContent value="auto" className="mt-4 space-y-3">
+          <Card>
+            <CardHeader className="pb-2">
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-base">Auto Mode — Admin-Controlled Widget</CardTitle>
+                <Badge className="text-[10px] bg-green-100 text-green-800 border-green-200">Recommended</Badge>
+              </div>
+              <CardDescription>
+                One snippet, full control. The widget fetches its appearance (color, text, position, sticky bar) from your admin panel. Change the look and feel anytime — no web provider needed.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* What you control */}
+              <div className="p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg space-y-2">
+                <p className="text-xs font-semibold text-green-800 dark:text-green-300">What you can change from admin (no code updates needed):</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 text-[11px] text-green-700 dark:text-green-400">
+                  <span>Button text</span>
+                  <span>Button color</span>
+                  <span>Position (left/right)</span>
+                  <span>Click behavior (drawer/tab)</span>
+                  <span>Drawer title</span>
+                  <span>Promo badge text</span>
+                  <span>Sticky bar on/off</span>
+                  <span>Sticky bar text</span>
+                  <span>Sticky bar position</span>
+                </div>
+              </div>
+
+              {/* Preview */}
+              <div className="rounded-xl border border-border overflow-hidden">
+                <Label className="text-xs text-muted-foreground px-3 pt-2 block">Preview — how it appears on the dealer's site</Label>
+                <div className="relative bg-gradient-to-b from-muted/30 to-muted/60 p-8 min-h-[140px]">
+                  <div className="text-center text-xs text-muted-foreground/40 mb-4">[ Dealer website content ]</div>
+                  <div
+                    className="absolute bottom-4 right-4 flex items-center gap-2 px-5 py-3 text-white text-sm font-bold rounded-full shadow-lg cursor-default"
+                    style={{ background: config.widget_button_color || buttonColor }}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>
+                    {config.widget_button_text || "Get an Offer in 2 Min"}
+                  </div>
+                </div>
+              </div>
+
+              <CodeBlock code={autoSnippet} id="auto" />
+
+              <div className="bg-muted/30 rounded-lg border border-border p-3 space-y-2">
+                <p className="text-xs font-semibold text-card-foreground">Send these directions to your web provider:</p>
+                <ol className="text-xs text-muted-foreground space-y-1 list-decimal pl-4">
+                  <li>Copy the code snippet above.</li>
+                  <li>Paste it just before the closing <code className="bg-muted px-1 rounded">&lt;/body&gt;</code> tag in the site's footer template (so it appears on every page).</li>
+                  <li>Remove any existing trade-in tools (KBB, TradePending, CARFAX widgets, floating buttons).</li>
+                  <li>Remove trade-in links from the New Vehicles and Used Vehicles dropdown menus.</li>
+                  <li>That's it — all appearance changes are handled from the HarteCash admin panel.</li>
+                </ol>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         {/* Trade iFrame */}
         <TabsContent value="iframe" className="mt-4 space-y-3">
@@ -945,23 +1031,72 @@ window.addEventListener("message", function(e) {
       {/* Instructions for Web Provider */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-base">Instructions for Your Web Provider</CardTitle>
+          <CardTitle className="text-base">Directions for Your Web Provider</CardTitle>
+          <CardDescription>Copy these directions and send them to your web provider (DealerOn, DealerInspire, Dealer.com, etc.).</CardDescription>
         </CardHeader>
-        <CardContent className="text-sm text-muted-foreground space-y-2">
-          <p>Share any of the code snippets above with your web developer or website provider (DealerInspire, Dealer.com, etc.):</p>
-          <ul className="list-disc pl-5 space-y-1">
-            <li><strong>Trade iFrame (Priority 1):</strong> Replace the existing "Value Your Trade" page content. Remove KBB/TradePending/CARFAX widgets — Autocurb.io gives instant offers, not just estimates.</li>
-            <li><strong>Floating Widget (Priority 2):</strong> Add to the site footer template — one snippet covers every page. The slide-out panel keeps customers on-site.</li>
-            <li><strong>Ghost Link (Priority 3):</strong> A sticky bar that follows the customer on VDP/SRP pages — appears after scrolling. Non-intrusive but always present.</li>
-            <li><strong>VDP/SRP Banner:</strong> An inline card for vehicle detail and search results templates. Good complement to the ghost link.</li>
-            <li><strong>Link Button:</strong> Paste anywhere you want a one-off CTA.</li>
-            {selectedLocationId && selectedLocationId !== "__all__" && (
-              <li><strong>Store Tag:</strong> This snippet routes leads to <strong>{selectedLocLabel?.name}</strong>. Generate separate snippets for each store's website.</li>
-            )}
-          </ul>
-          <p className="pt-2 text-xs">
-            All integrations are fully branded with your dealership's colors. The trade form defaults to showing trade-in value with sales tax credit — customers see what their car is worth as a trade, not just a cash sale.
-          </p>
+        <CardContent className="space-y-4">
+          <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-3 text-sm">
+            <p className="font-bold text-card-foreground">Trade-In Widget Installation — {config.dealership_name}</p>
+
+            <div className="space-y-2 text-muted-foreground text-xs">
+              <p className="font-semibold text-card-foreground text-sm">Step 1: Add the Widget (all pages)</p>
+              <p>Paste the code below just before the closing <code className="bg-muted px-1 rounded">&lt;/body&gt;</code> tag in the site's global footer template. This adds a floating button on every page that opens a slide-out panel.</p>
+              <CodeBlock code={autoSnippet} id="provider-auto" />
+
+              <p className="font-semibold text-card-foreground text-sm pt-3">Step 2: Replace the Trade Page</p>
+              <p>On the "Value Your Trade" page (or create one at <code className="bg-muted px-1 rounded">/value-your-trade</code>), replace the existing tool (KBB, TradePending, etc.) with this iframe:</p>
+              <CodeBlock code={iframeSnippet} id="provider-iframe" />
+
+              <p className="font-semibold text-card-foreground text-sm pt-3">Step 3: Clean Up</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Remove any existing trade-in links from the <strong>New Vehicles</strong> and <strong>Used Vehicles</strong> dropdown menus.</li>
+                <li>Remove any other trade-in floating buttons, banners, or pop-ups from third-party tools.</li>
+                <li>Keep a single "Value Your Trade" or "Trade-In" link in the main navigation pointing to the page from Step 2.</li>
+              </ul>
+
+              <p className="font-semibold text-card-foreground text-sm pt-3">That's It</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>The floating button's color, text, and position are managed remotely — no code changes needed to update.</li>
+                <li>The iframe auto-resizes to fit the form content.</li>
+                <li>The slide-out panel works on mobile and desktop.</li>
+                <li>Camera access is enabled for vehicle photo capture.</li>
+              </ul>
+            </div>
+          </div>
+
+          <Button
+            variant="outline"
+            className="gap-1.5"
+            onClick={() => {
+              const text = `Trade-In Widget Installation — ${config.dealership_name}
+
+STEP 1: ADD THE WIDGET (ALL PAGES)
+Paste this code just before the closing </body> tag in the site's global footer template:
+
+${autoSnippet}
+
+STEP 2: REPLACE THE TRADE PAGE
+On the "Value Your Trade" page (or create one at /value-your-trade), replace the existing trade tool with this iframe:
+
+${iframeSnippet}
+
+STEP 3: CLEAN UP
+- Remove any existing trade-in links from the New Vehicles and Used Vehicles dropdown menus.
+- Remove any other trade-in floating buttons, banners, or pop-ups from third-party tools (KBB, TradePending, CARFAX, etc.).
+- Keep a single "Value Your Trade" or "Trade-In" link in the main navigation pointing to the iframe page.
+
+NOTES:
+- The floating button's color, text, and position are managed from our admin panel — no code changes needed to update the look.
+- The iframe auto-resizes to fit the form content. No scrollbars needed.
+- The slide-out panel works on mobile and desktop.
+- Camera access is enabled for vehicle photo capture.
+- Questions? Contact us and we'll help with installation.`;
+              navigator.clipboard.writeText(text);
+              toast({ title: "Provider directions copied to clipboard" });
+            }}
+          >
+            <Copy className="w-3.5 h-3.5" /> Copy All Directions as Plain Text
+          </Button>
         </CardContent>
       </Card>
     </div>

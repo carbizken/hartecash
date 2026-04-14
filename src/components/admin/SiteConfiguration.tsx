@@ -587,6 +587,90 @@ const SiteConfiguration = ({ focusField }: { focusField?: string }) => {
             <Textarea value={(config as any).trade_iframe_subtext || ""} onChange={e => update("trade_iframe_subtext" as any, e.target.value)} rows={2} placeholder="Get your trade-in value in under 2 minutes — includes your tax savings." />
           </div>
 
+          {/* Widget Embed Appearance */}
+          <div className="border-t border-border pt-4 mt-4">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-3">Widget Appearance — Floating Button &amp; Sticky Bar</p>
+            <p className="text-[10px] text-muted-foreground mb-3">These settings control how the trade-in widget looks on the dealer's website. Changes apply automatically — no code updates needed.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Button Text</Label>
+              <Input value={(config as any).widget_button_text || ""} onChange={e => update("widget_button_text" as any, e.target.value)} placeholder="Get an Offer in 2 Min" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Button Color</Label>
+              <div className="flex gap-2">
+                <input type="color" value={(config as any).widget_button_color || "#1a365d"} onChange={e => update("widget_button_color" as any, e.target.value)} className="w-10 h-9 rounded border border-border cursor-pointer" />
+                <Input value={(config as any).widget_button_color || "#1a365d"} onChange={e => update("widget_button_color" as any, e.target.value)} className="flex-1" />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Position</Label>
+              <Select value={(config as any).widget_position || "bottom-right"} onValueChange={v => update("widget_position" as any, v)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bottom-right">Bottom Right</SelectItem>
+                  <SelectItem value="bottom-left">Bottom Left</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Click Behavior</Label>
+              <Select value={(config as any).widget_open_mode || "drawer"} onValueChange={v => update("widget_open_mode" as any, v)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="drawer">Slide-Out Panel (stays on page)</SelectItem>
+                  <SelectItem value="new-tab">Open in New Tab</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Drawer Title</Label>
+              <Input value={(config as any).widget_drawer_title || ""} onChange={e => update("widget_drawer_title" as any, e.target.value)} placeholder="What's Your Car Worth?" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold">Promo Badge (optional)</Label>
+              <Input value={(config as any).widget_promo_text || ""} onChange={e => update("widget_promo_text" as any, e.target.value)} placeholder="e.g. Tax Savings!" />
+              <p className="text-[10px] text-muted-foreground">Small badge next to button text. Leave blank to hide.</p>
+            </div>
+          </div>
+
+          {/* Sticky Bar Settings */}
+          <div className="mt-3 p-3 rounded-lg bg-muted/30 border border-border space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold">Sticky Bar (Ghost Link)</p>
+                <p className="text-[10px] text-muted-foreground">Thin bar that follows scrolling on dealer site pages.</p>
+              </div>
+              <Switch
+                checked={(config as any).widget_sticky_enabled || false}
+                onCheckedChange={v => update("widget_sticky_enabled" as any, v ? true : false)}
+              />
+            </div>
+            {(config as any).widget_sticky_enabled && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Sticky Text</Label>
+                  <Input value={(config as any).widget_sticky_text || ""} onChange={e => update("widget_sticky_text" as any, e.target.value)} placeholder="Have a Trade-In? Get your value in under 2 minutes" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">CTA Button</Label>
+                  <Input value={(config as any).widget_sticky_cta || ""} onChange={e => update("widget_sticky_cta" as any, e.target.value)} placeholder="Get My Offer" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-semibold">Position</Label>
+                  <Select value={(config as any).widget_sticky_position || "bottom"} onValueChange={v => update("widget_sticky_position" as any, v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="bottom">Bottom of screen</SelectItem>
+                      <SelectItem value="top">Top of screen</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Push/Pull/Tow */}
           <div className="border-t border-border pt-4 mt-4">
             <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-3">Push / Pull / Tow Guarantee</p>
